@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-09-06",
+  "note": "Механические факты из CommunityResources и Official Satisfactory Wiki. Форма UCurveFloat не извлечена из установленной сборки; средние подтверждены текстовыми описаниями.",
+  "accelerator": {
+    "source": "https://satisfactory.wiki.gg/wiki/Particle_Accelerator",
+    "shape": "Линейное нарастание мощности в цикле",
+    "averageMWByRange": { "250-750": 500, "500-1500": 1000 },
+    "gameEvidence": "mDescription предметов Desc_PlutoniumPellet_C, Desc_PlutoniumCell_C, Desc_Diamond_C, Desc_DarkMatterCrystal_C, Desc_Ficsonium_C, Desc_SpaceElevatorPart_9_C содержит average напрямую; importer читает описание реального output."
+  },
+  "converter": {
+    "source": "https://satisfactory.wiki.gg/wiki/Converter",
+    "shape": "Треугольная кривая, начальное и конечное значение 62,5% максимума; пределы 100–400 МВт",
+    "averageMW": 250
+  },
+  "quantum-encoder": {
+    "source": "https://satisfactory.wiki.gg/wiki/Quantum_Encoder",
+    "shape": "Ступени по 10% цикла; документированное округлённое среднее 1000 МВт",
+    "averageMW": 1000,
+    "gameEvidence": "Desc_SpaceElevatorPart_12_C.mDescription: AI Expansion Server 0-2000 MW, 1000 MW average."
+  }
+}

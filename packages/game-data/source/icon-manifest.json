@@ -1,0 +1,974 @@
+[
+  {
+    "id": "iron-ore",
+    "upstreamPath": "images/Iron Ore.png",
+    "gitBlobSha": "e99476f275bdd3c4fe3be87bbc9429492858c93d",
+    "size": 24051
+  },
+  {
+    "id": "copper-ore",
+    "upstreamPath": "images/Copper Ore.png",
+    "gitBlobSha": "604bea911059a3439c33feaf6fc9c5fae0a2adff",
+    "size": 26275
+  },
+  {
+    "id": "coal",
+    "upstreamPath": "images/Coal.png",
+    "gitBlobSha": "6c46b699220fdb255c546d34327bb86df62341a6",
+    "size": 19865
+  },
+  {
+    "id": "iron-ingot",
+    "upstreamPath": "images/Iron Ingot.png",
+    "gitBlobSha": "ec1ae9f5f658bd6925b138a927c773a314132791",
+    "size": 17891
+  },
+  {
+    "id": "copper-ingot",
+    "upstreamPath": "images/Copper Ingot.png",
+    "gitBlobSha": "018f232ae32565665a1ac5bbee526c157780232b",
+    "size": 17054
+  },
+  {
+    "id": "steel-ingot",
+    "upstreamPath": "images/Steel Ingot.png",
+    "gitBlobSha": "8ce8e6460ad65dfa50529252b314b79c52215918",
+    "size": 14316
+  },
+  {
+    "id": "iron-plate",
+    "upstreamPath": "images/Iron Plate.png",
+    "gitBlobSha": "f9812004181801fb703658bcf4b3b948e1189973",
+    "size": 16361
+  },
+  {
+    "id": "iron-rod",
+    "upstreamPath": "images/Iron Rod.png",
+    "gitBlobSha": "deb46c29d88607c2275a08cf91eb526b23866305",
+    "size": 17567
+  },
+  {
+    "id": "wire",
+    "upstreamPath": "images/Wire.png",
+    "gitBlobSha": "02b77c3336f8740ed7943413ab5c3750b65e4b89",
+    "size": 23201
+  },
+  {
+    "id": "cable",
+    "upstreamPath": "images/Cable.png",
+    "gitBlobSha": "1979bc89adac1f218d2b643e3c6270b6a35b748e",
+    "size": 27094
+  },
+  {
+    "id": "biomass",
+    "upstreamPath": "images/Biomass.png",
+    "gitBlobSha": "df285646a914a1d7145ed850a1518b77e3e61936",
+    "size": 19531
+  },
+  {
+    "id": "concrete",
+    "upstreamPath": "images/Concrete.png",
+    "gitBlobSha": "c33bc7370333bd834b28a8bae2dd4f54b9a5c969",
+    "size": 21786
+  },
+  {
+    "id": "leaves",
+    "upstreamPath": "images/Leaves.png",
+    "gitBlobSha": "9286837fa05742e914c340cbe6d95813cbda792c",
+    "size": 25067
+  },
+  {
+    "id": "limestone",
+    "upstreamPath": "images/Limestone.png",
+    "gitBlobSha": "7ddd65220ff30db2dbabf81706583b7724ff5435",
+    "size": 20343
+  },
+  {
+    "id": "screw",
+    "upstreamPath": "images/Screw.png",
+    "gitBlobSha": "c18539b3c2802aea108d81c8f32c2705efb817bc",
+    "size": 24223
+  },
+  {
+    "id": "wood",
+    "upstreamPath": "images/Wood.png",
+    "gitBlobSha": "33da11ff07931df73699ac352ac4434517219264",
+    "size": 15995
+  },
+  {
+    "id": "hog-remains",
+    "upstreamPath": "images/Hog Remains.png",
+    "gitBlobSha": "244dcbb6530518cc0b4ef13d0455b0ebbd4d18ec",
+    "size": 18660
+  },
+  {
+    "id": "spitter-remains",
+    "upstreamPath": "images/Spitter Remains.png",
+    "gitBlobSha": "9146b5ea4a84f3d71da32d4190b827704d4bae4d",
+    "size": 19422
+  },
+  {
+    "id": "stinger-remains",
+    "upstreamPath": "images/Stinger Remains.png",
+    "gitBlobSha": "9e8b0a84b5d533947577859ceff1f7cc79e5afa0",
+    "size": 21771
+  },
+  {
+    "id": "hatcher-remains",
+    "upstreamPath": "images/Hatcher Remains.png",
+    "gitBlobSha": "4624410270cdb8fa22b554f2d14ae9807a02087e",
+    "size": 18850
+  },
+  {
+    "id": "alien-protein",
+    "upstreamPath": "images/Alien Protein.png",
+    "gitBlobSha": "f247810e1804ab539709e6c3be6ef649514a069e",
+    "size": 15275
+  },
+  {
+    "id": "alien-dna-capsule",
+    "upstreamPath": "images/Alien DNA Capsule.png",
+    "gitBlobSha": "830942e6699efe67b9e22beec5eb741136cc70e3",
+    "size": 17925
+  },
+  {
+    "id": "blue-power-slug",
+    "upstreamPath": "images/Blue Power Slug.png",
+    "gitBlobSha": "62f285f0dc4bbbbd646b24f1beecfd5cfe3822ba",
+    "size": 19756
+  },
+  {
+    "id": "yellow-power-slug",
+    "upstreamPath": "images/Yellow Power Slug.png",
+    "gitBlobSha": "c2603e1f01b5684c50412dee9afdf395c4e7cdb9",
+    "size": 19188
+  },
+  {
+    "id": "purple-power-slug",
+    "upstreamPath": "images/Purple Power Slug.png",
+    "gitBlobSha": "e4461496f6a3d4b6d2296f2c908be07c019ef45d",
+    "size": 19437
+  },
+  {
+    "id": "power-shard",
+    "upstreamPath": "images/Power Shard.png",
+    "gitBlobSha": "c86a967d1421783c20db7a750a7aae07adbe42f1",
+    "size": 16720
+  },
+  {
+    "id": "mycelia",
+    "upstreamPath": "images/Mycelia.png",
+    "gitBlobSha": "b9981e7e49d5f47cb721d92cc8d98b4389d93f3c",
+    "size": 28071
+  },
+  {
+    "id": "solid-biofuel",
+    "upstreamPath": "images/Solid Biofuel.png",
+    "gitBlobSha": "4476635c1852cf97c69c4ddaf4e56ce1bb2304f4",
+    "size": 21116
+  },
+  {
+    "id": "steel-beam",
+    "upstreamPath": "images/Steel Beam.png",
+    "gitBlobSha": "e9f32cd018c09bd7d02b4bd70ab87307b7cf0b69",
+    "size": 17628
+  },
+  {
+    "id": "steel-pipe",
+    "upstreamPath": "images/Steel Pipe.png",
+    "gitBlobSha": "f358667aa7cbfe474ed6a5ace5a1e8230afb038d",
+    "size": 15354
+  },
+  {
+    "id": "reinforced-iron-plate",
+    "upstreamPath": "images/Reinforced Iron Plate.png",
+    "gitBlobSha": "05d1110c721936676b91533482580dc86a7349ea",
+    "size": 17681
+  },
+  {
+    "id": "rotor",
+    "upstreamPath": "images/Rotor.png",
+    "gitBlobSha": "529337a1e8878eecc36ab4d1527d101f5d01d1c1",
+    "size": 24514
+  },
+  {
+    "id": "modular-frame",
+    "upstreamPath": "images/Modular Frame.png",
+    "gitBlobSha": "fcc45d564826bbc2aedae508419ce7a01c79d86c",
+    "size": 22036
+  },
+  {
+    "id": "encased-industrial-beam",
+    "upstreamPath": "images/Encased Industrial Beam.png",
+    "gitBlobSha": "a56527cf3aa060f2769ed536d4a244a84971bb15",
+    "size": 22503
+  },
+  {
+    "id": "stator",
+    "upstreamPath": "images/Stator.png",
+    "gitBlobSha": "566b74d11bca3c3465de1bdb56ec1312ca4a9f23",
+    "size": 31703
+  },
+  {
+    "id": "motor",
+    "upstreamPath": "images/Motor.png",
+    "gitBlobSha": "01fcd85635c19325cd142ae3617bc0029207cc7c",
+    "size": 26051
+  },
+  {
+    "id": "circuit-board",
+    "upstreamPath": "images/Circuit Board.png",
+    "gitBlobSha": "cdbd41cdc06cd044e649127c3c68a4e0b276866f",
+    "size": 22335
+  },
+  {
+    "id": "plastic",
+    "upstreamPath": "images/Plastic.png",
+    "gitBlobSha": "1467a9037c362db784952e900d749e7a335afe83",
+    "size": 22936
+  },
+  {
+    "id": "rubber",
+    "upstreamPath": "images/Rubber.png",
+    "gitBlobSha": "2411b2749895b4f8f86b097d99d52dafeef6957e",
+    "size": 22393
+  },
+  {
+    "id": "heavy-modular-frame",
+    "upstreamPath": "images/Heavy Modular Frame.png",
+    "gitBlobSha": "9d27b43b616bd2b0f769e1d031ed6beb0c7fe093",
+    "size": 23929
+  },
+  {
+    "id": "computer",
+    "upstreamPath": "images/Computer.png",
+    "gitBlobSha": "0279dafc15fd0c43875dd295aee6dd384b561ef4",
+    "size": 22567
+  },
+  {
+    "id": "caterium-ore",
+    "upstreamPath": "images/Caterium Ore.png",
+    "gitBlobSha": "3e000ad1c26fae31d91b56f08789a5662edc75e3",
+    "size": 25603
+  },
+  {
+    "id": "caterium-ingot",
+    "upstreamPath": "images/Caterium Ingot.png",
+    "gitBlobSha": "2bcddd18542505d213142db4770fc50d6bf3fc00",
+    "size": 19667
+  },
+  {
+    "id": "quickwire",
+    "upstreamPath": "images/Quickwire.png",
+    "gitBlobSha": "5ca51ee762daf50df696e26cd5270ebc5d6d1451",
+    "size": 22918
+  },
+  {
+    "id": "supercomputer",
+    "upstreamPath": "images/Supercomputer.png",
+    "gitBlobSha": "dfbc75b75947a7f6229c95100cb478498a5a1a9f",
+    "size": 22268
+  },
+  {
+    "id": "high-speed-connector",
+    "upstreamPath": "images/High-Speed Connector.png",
+    "gitBlobSha": "bd657e1bf43cc19719848e41e4ee936b80b16d03",
+    "size": 15438
+  },
+  {
+    "id": "ai-limiter",
+    "upstreamPath": "images/AI Limiter.png",
+    "gitBlobSha": "af2286ebb95820f18c506435c03357103763fcdf",
+    "size": 17448
+  },
+  {
+    "id": "fabric",
+    "upstreamPath": "images/Fabric.png",
+    "gitBlobSha": "8cce529ba41debf03c86ee48efa637fcd1eff8a8",
+    "size": 21218
+  },
+  {
+    "id": "filter",
+    "upstreamPath": "images/Gas Filter.png",
+    "gitBlobSha": "8ac8b475fffdf80dae7ba0a5e0ebe76502880997",
+    "size": 22964
+  },
+  {
+    "id": "raw-quartz",
+    "upstreamPath": "images/Raw Quartz.png",
+    "gitBlobSha": "7e977e8f22663ef11e63db640bbc2f7ecf2eb7c1",
+    "size": 29087
+  },
+  {
+    "id": "quartz-crystal",
+    "upstreamPath": "images/Quartz Crystal.png",
+    "gitBlobSha": "82ee788d539fd27fe7ecc0d0b728a20c537238a0",
+    "size": 21940
+  },
+  {
+    "id": "crystal-oscillator",
+    "upstreamPath": "images/Crystal Oscillator.png",
+    "gitBlobSha": "e3fe85df214f107607e4eadb11723d8bfbcf3f34",
+    "size": 20758
+  },
+  {
+    "id": "sulfur",
+    "upstreamPath": "images/Sulfur.png",
+    "gitBlobSha": "e10807ed1df63d021a078662a35fa8dbbe7fa57d",
+    "size": 25334
+  },
+  {
+    "id": "black-powder",
+    "upstreamPath": "images/Black Powder.png",
+    "gitBlobSha": "a855fdec0d5995e03137fad99a7f9a15c2c4cb29",
+    "size": 16782
+  },
+  {
+    "id": "smokeless-powder",
+    "upstreamPath": "images/Smokeless Powder.png",
+    "gitBlobSha": "48aae2711b0676572630e5e95116dfd5e87bd0b8",
+    "size": 15126
+  },
+  {
+    "id": "nobelisk",
+    "upstreamPath": "images/Nobelisk.png",
+    "gitBlobSha": "148a4d0ed24a5a0bd76d776ee0b440ef8d52390e",
+    "size": 19786
+  },
+  {
+    "id": "gas-nobelisk",
+    "upstreamPath": "images/Gas Nobelisk.png",
+    "gitBlobSha": "5719ba17a7f033e29fcb55176cf0fc5ca74dc1c4",
+    "size": 19731
+  },
+  {
+    "id": "pulse-nobelisk",
+    "upstreamPath": "images/Pulse Nobelisk.png",
+    "gitBlobSha": "5af7a478dbcf9c7075a0e24668d68b82590ad4f6",
+    "size": 20943
+  },
+  {
+    "id": "cluster-nobelisk",
+    "upstreamPath": "images/Cluster Nobelisk.png",
+    "gitBlobSha": "877d9f38b7e9035687132eded8a92fd1e0154266",
+    "size": 19866
+  },
+  {
+    "id": "nuke-nobelisk",
+    "upstreamPath": "images/Nuke Nobelisk.png",
+    "gitBlobSha": "d4d86322f9cf67ad3b9e0ef530abb90cd1418722",
+    "size": 20084
+  },
+  {
+    "id": "compacted-coal",
+    "upstreamPath": "images/Compacted Coal.png",
+    "gitBlobSha": "2c0735cfbf9c87422b59be40494ce78200821ff9",
+    "size": 23142
+  },
+  {
+    "id": "silica",
+    "upstreamPath": "images/Silica.png",
+    "gitBlobSha": "0b0620d080d333046031e73d9ca46fe3dafff090",
+    "size": 19939
+  },
+  {
+    "id": "bauxite",
+    "upstreamPath": "images/Bauxite.png",
+    "gitBlobSha": "e683d1c2e88028f618b8af68a132c310bf4791b0",
+    "size": 23566
+  },
+  {
+    "id": "aluminum-ingot",
+    "upstreamPath": "images/Aluminum Ingot.png",
+    "gitBlobSha": "fabd73e197828c6c4f6ae332b62a16329ce963a9",
+    "size": 20018
+  },
+  {
+    "id": "alclad-aluminum-sheet",
+    "upstreamPath": "images/Alclad Aluminum Sheet.png",
+    "gitBlobSha": "9a9b13efac9165229bc45164ae8fa98a000ba97d",
+    "size": 17294
+  },
+  {
+    "id": "heat-sink",
+    "upstreamPath": "images/Heat Sink.png",
+    "gitBlobSha": "dee618d27a500ddc14ab6ca92a7ec135b400cbe5",
+    "size": 20000
+  },
+  {
+    "id": "radio-control-unit",
+    "upstreamPath": "images/Radio Control Unit.png",
+    "gitBlobSha": "2444cb01415c4c1b493aab808137ff148b8e2969",
+    "size": 23948
+  },
+  {
+    "id": "turbo-motor",
+    "upstreamPath": "images/Turbo Motor.png",
+    "gitBlobSha": "9af9ddf5994dbae59b11300c658d7e2789b2c4e0",
+    "size": 22541
+  },
+  {
+    "id": "battery",
+    "upstreamPath": "images/Battery.png",
+    "gitBlobSha": "e20c9311a61e22059184568294afa7c9ef45a91e",
+    "size": 22645
+  },
+  {
+    "id": "uranium",
+    "upstreamPath": "images/Uranium.png",
+    "gitBlobSha": "8e50a0e2a7d61e2b5743360db47b63e18bd3c3fa",
+    "size": 23684
+  },
+  {
+    "id": "uranium-cell",
+    "upstreamPath": "images/Encased Uranium Cell.png",
+    "gitBlobSha": "37d601ed04f51d4c88d3d32aa68b421b6b92834b",
+    "size": 26577
+  },
+  {
+    "id": "em-control-rod",
+    "upstreamPath": "images/Electromagnetic Control Rod.png",
+    "gitBlobSha": "376ec6fcacafbcf26417be65f9d18eb5e82015f9",
+    "size": 19442
+  },
+  {
+    "id": "uranium-fuel-rod",
+    "upstreamPath": "images/Uranium Fuel Rod.png",
+    "gitBlobSha": "ab8bbfdebbffc6c6e1ebc6c5d3d0b065fbdc2b6f",
+    "size": 16999
+  },
+  {
+    "id": "iodine-infused-filter",
+    "upstreamPath": "images/Iodine Infused Filter.png",
+    "gitBlobSha": "d26b314f7d9b4c41ba05993a382114d4d493397b",
+    "size": 26302
+  },
+  {
+    "id": "aluminum-scrap",
+    "upstreamPath": "images/Aluminum Scrap.png",
+    "gitBlobSha": "8904c8d8faa96dc802aa58598331a45ff4824563",
+    "size": 25393
+  },
+  {
+    "id": "copper-sheet",
+    "upstreamPath": "images/Copper Sheet.png",
+    "gitBlobSha": "fc9f27aedb41ce877c10cd0bdcea02ee0cd4d8f6",
+    "size": 14762
+  },
+  {
+    "id": "polymer-resin",
+    "upstreamPath": "images/Polymer Resin.png",
+    "gitBlobSha": "9e80a3e7295d5e76c5a7996646523eb82221b7c9",
+    "size": 24288
+  },
+  {
+    "id": "petroleum-coke",
+    "upstreamPath": "images/Petroleum Coke.png",
+    "gitBlobSha": "f86f5678fea62f087fc13f3bb6953da7aa653108",
+    "size": 20548
+  },
+  {
+    "id": "non-fissile-uranium",
+    "upstreamPath": "images/Non-fissile Uranium.png",
+    "gitBlobSha": "ec9a92b2cc80fcbf99c6ef645abbeda4641837eb",
+    "size": 23207
+  },
+  {
+    "id": "plutonium-pellet",
+    "upstreamPath": "images/Plutonium Pellet.png",
+    "gitBlobSha": "f55d4e861e13afc06770361d074d5cb97468f9a5",
+    "size": 35043
+  },
+  {
+    "id": "encased-plutonium-cell",
+    "upstreamPath": "images/Encased Plutonium Cell.png",
+    "gitBlobSha": "ebd5064d8a32d89715ba3cdb70659d0a2be4fcc3",
+    "size": 25334
+  },
+  {
+    "id": "plutonium-fuel-rod",
+    "upstreamPath": "images/Plutonium Fuel Rod.png",
+    "gitBlobSha": "164657efee8caef7f567d060d1b4b7fc6480769b",
+    "size": 18057
+  },
+  {
+    "id": "copper-powder",
+    "upstreamPath": "images/Copper Powder.png",
+    "gitBlobSha": "0a66c28665eeac29a43846bd80e5cef90c350658",
+    "size": 22466
+  },
+  {
+    "id": "pressure-conversion-cube",
+    "upstreamPath": "images/Pressure Conversion Cube.png",
+    "gitBlobSha": "0d8e553fd8838801f907cfeed28df35257325c19",
+    "size": 26750
+  },
+  {
+    "id": "empty-canister",
+    "upstreamPath": "images/Empty Canister.png",
+    "gitBlobSha": "8f50817d794e3844d79989c32b48b8004fe7edff",
+    "size": 26097
+  },
+  {
+    "id": "packaged-water",
+    "upstreamPath": "images/Packaged Water.png",
+    "gitBlobSha": "e5f1887776368525d0cf51af15e03a796f2c9c12",
+    "size": 14658
+  },
+  {
+    "id": "packaged-oil",
+    "upstreamPath": "images/Packaged Oil.png",
+    "gitBlobSha": "ffc58d1bfd9caaf5ea06d799130662d7047484c6",
+    "size": 18756
+  },
+  {
+    "id": "packaged-fuel",
+    "upstreamPath": "images/Packaged Fuel.png",
+    "gitBlobSha": "e028b53c6a4d4357c6d0fef6e0b71822daff24b8",
+    "size": 26199
+  },
+  {
+    "id": "packaged-turbofuel",
+    "upstreamPath": "images/Packaged Turbofuel.png",
+    "gitBlobSha": "3a7084bf953775c4ed3561fee836eb258e9ad710",
+    "size": 26125
+  },
+  {
+    "id": "packaged-heavy-oil-residue",
+    "upstreamPath": "images/Packaged Heavy Oil Residue.png",
+    "gitBlobSha": "cdcce1542148e80c48ad8584573f4f66e61a86b1",
+    "size": 16824
+  },
+  {
+    "id": "packaged-liquid-biofuel",
+    "upstreamPath": "images/Packaged Liquid Biofuel.png",
+    "gitBlobSha": "9ca30664caee521d79bfdacd1352b7f0389e0446",
+    "size": 26982
+  },
+  {
+    "id": "packaged-alumina-solution",
+    "upstreamPath": "images/Packaged Alumina Solution.png",
+    "gitBlobSha": "589036c9b4b5169e75c516163b771e3a5f38e959",
+    "size": 12532
+  },
+  {
+    "id": "packaged-sulfuric-acid",
+    "upstreamPath": "images/Packaged Sulfuric Acid.png",
+    "gitBlobSha": "cfcaf1d13dc085951cbee2fba6626283214859ff",
+    "size": 20450
+  },
+  {
+    "id": "packaged-nitrogen-gas",
+    "upstreamPath": "images/Packaged Nitrogen Gas.png",
+    "gitBlobSha": "125386debe129c2d068f03ce8d6a40a183260bd9",
+    "size": 8172
+  },
+  {
+    "id": "packaged-nitric-acid",
+    "upstreamPath": "images/Packaged Nitric Acid.png",
+    "gitBlobSha": "6a8a70a37f919d0e828c3cae0d8812cc748198cb",
+    "size": 18931
+  },
+  {
+    "id": "packaged-rocket-fuel",
+    "upstreamPath": "images/Packaged Rocket Fuel.png",
+    "gitBlobSha": "929b66a01b159a8331e5f5091d30b521477fa858",
+    "size": 8306
+  },
+  {
+    "id": "packaged-ionized-fuel",
+    "upstreamPath": "images/Packaged Ionized Fuel.png",
+    "gitBlobSha": "a9bf6a3606bc6eaafb0db0b5c64cae159665a4fd",
+    "size": 14738
+  },
+  {
+    "id": "smart-plating",
+    "upstreamPath": "images/Smart Plating.png",
+    "gitBlobSha": "6a2b29803433be04d4fcff4c05dfedc7f66a71bb",
+    "size": 23785
+  },
+  {
+    "id": "versatile-framework",
+    "upstreamPath": "images/Versatile Framework.png",
+    "gitBlobSha": "05693c3877b49c1144c09ce46e2affb99e0c0a13",
+    "size": 17967
+  },
+  {
+    "id": "automated-wiring",
+    "upstreamPath": "images/Automated Wiring.png",
+    "gitBlobSha": "4b2619e81aacaa50b143102a555517a74b2c5fb7",
+    "size": 22960
+  },
+  {
+    "id": "modular-engine",
+    "upstreamPath": "images/Modular Engine.png",
+    "gitBlobSha": "396630e1d7da4b68aacf95b156a19d9f805bfa2d",
+    "size": 23054
+  },
+  {
+    "id": "adaptive-control-unit",
+    "upstreamPath": "images/Adaptive Control Unit.png",
+    "gitBlobSha": "354da6709cdcb79ef7f4cc5cf4b4a86377f070ec",
+    "size": 29279
+  },
+  {
+    "id": "assembly-director-system",
+    "upstreamPath": "images/Assembly Director System.png",
+    "gitBlobSha": "a38542ef1f0656ce212b0c471b3ac829ee79a44a",
+    "size": 25168
+  },
+  {
+    "id": "magnetic-field-generator",
+    "upstreamPath": "images/Magnetic Field Generator.png",
+    "gitBlobSha": "b94fc0e0037b038d120c043849562839507616ea",
+    "size": 24734
+  },
+  {
+    "id": "thermal-propulsion-rocket",
+    "upstreamPath": "images/Thermal Propulsion Rocket.png",
+    "gitBlobSha": "a2248bee5ebca634bca8e0cf0498a096f2670c2a",
+    "size": 25009
+  },
+  {
+    "id": "nuclear-pasta",
+    "upstreamPath": "images/Nuclear Pasta.png",
+    "gitBlobSha": "ff07f4f563daa163b7b88126a5aa56ee03a5e121",
+    "size": 25501
+  },
+  {
+    "id": "portable-miner",
+    "upstreamPath": "images/Portable Miner.png",
+    "gitBlobSha": "d0147b8100aa5af5fa8bc7a706901c1dadf020d3",
+    "size": 20507
+  },
+  {
+    "id": "aluminum-casing",
+    "upstreamPath": "images/Aluminum Casing.png",
+    "gitBlobSha": "0b7166174a9e02116d9ce4373a55da7e7e8c09c4",
+    "size": 19204
+  },
+  {
+    "id": "empty-fluid-tank",
+    "upstreamPath": "images/Empty Fluid Tank.png",
+    "gitBlobSha": "edae0f2f3a0af764bfa2ad56b050271c89a20d79",
+    "size": 9284
+  },
+  {
+    "id": "cooling-system",
+    "upstreamPath": "images/Cooling System.png",
+    "gitBlobSha": "c64393fbd06f147b3ac6b5e350391be43bf2a239",
+    "size": 27482
+  },
+  {
+    "id": "fused-modular-frame",
+    "upstreamPath": "images/Fused Modular Frame.png",
+    "gitBlobSha": "ba1689998c2959cd3e7d577170752d3e6d524119",
+    "size": 29336
+  },
+  {
+    "id": "uranium-waste",
+    "upstreamPath": "images/Uranium Waste.png",
+    "gitBlobSha": "7ff9b528ee660f229a467c5a01b9fd336ecd5e9c",
+    "size": 20778
+  },
+  {
+    "id": "plutonium-waste",
+    "upstreamPath": "images/Plutonium Waste.png",
+    "gitBlobSha": "dd25ae6d3c718f9f8d745022b5ee7498e24cffef",
+    "size": 23536
+  },
+  {
+    "id": "sam",
+    "upstreamPath": "images/SAM.png",
+    "gitBlobSha": "4f55a506967816b5c8452fc8db7e1dbb3ff0aded",
+    "size": 19807
+  },
+  {
+    "id": "reanimated-sam",
+    "upstreamPath": "images/Reanimated SAM.png",
+    "gitBlobSha": "f433cdb35cac98d272c430ced794a3fb9a4ceb8d",
+    "size": 23925
+  },
+  {
+    "id": "sam-fluctuator",
+    "upstreamPath": "images/SAM Fluctuator.png",
+    "gitBlobSha": "15c40ba60edb029d170b9caf96c2612a2aba5505",
+    "size": 23684
+  },
+  {
+    "id": "iron-rebar",
+    "upstreamPath": "images/Iron Rebar.png",
+    "gitBlobSha": "f008cf4c94722a735d2e62c9cf0df4c4e2531e32",
+    "size": 19164
+  },
+  {
+    "id": "stun-rebar",
+    "upstreamPath": "images/Stun Rebar.png",
+    "gitBlobSha": "b81152d28e3449a74283e9b9f85de556218431e0",
+    "size": 18540
+  },
+  {
+    "id": "shatter-rebar",
+    "upstreamPath": "images/Shatter Rebar.png",
+    "gitBlobSha": "5f826de89dc1f43724fd86830998dfb1c0bb8e5b",
+    "size": 19253
+  },
+  {
+    "id": "explosive-rebar",
+    "upstreamPath": "images/Explosive Rebar.png",
+    "gitBlobSha": "b1130829a9e41365bb33f8f4b581d442e6f88311",
+    "size": 17701
+  },
+  {
+    "id": "rifle-ammo",
+    "upstreamPath": "images/Rifle Ammo.png",
+    "gitBlobSha": "0354e693f5345cb6d8da5691fff242d714680295",
+    "size": 12589
+  },
+  {
+    "id": "homing-rifle-ammo",
+    "upstreamPath": "images/Homing Rifle Ammo.png",
+    "gitBlobSha": "ac3fb26a8c7b055218ca42a1baebb85447964608",
+    "size": 12101
+  },
+  {
+    "id": "turbo-rifle-ammo",
+    "upstreamPath": "images/Turbo Rifle Ammo.png",
+    "gitBlobSha": "ffaac66ad6026189802fc2e6299429b6f5a38e09",
+    "size": 12643
+  },
+  {
+    "id": "diamonds",
+    "upstreamPath": "images/Diamonds.png",
+    "gitBlobSha": "de20b06dbc98eb7727d524447932804e353c6fc5",
+    "size": 20949
+  },
+  {
+    "id": "time-crystal",
+    "upstreamPath": "images/Time Crystal.png",
+    "gitBlobSha": "3c4e3dd6d26f4e4ac3cddc52534f5105b7af29f4",
+    "size": 19256
+  },
+  {
+    "id": "ficsite-ingot",
+    "upstreamPath": "images/Ficsite Ingot.png",
+    "gitBlobSha": "8f18ff170a6600b3be1317c6f2903cbb22376450",
+    "size": 17030
+  },
+  {
+    "id": "ficsite-trigon",
+    "upstreamPath": "images/Ficsite Trigon.png",
+    "gitBlobSha": "aa394b6f9a770d878516a4e06475ec10d7b25ed0",
+    "size": 20149
+  },
+  {
+    "id": "dark-matter-crystal",
+    "upstreamPath": "images/Dark Matter Crystal.png",
+    "gitBlobSha": "0405bbedc9336e45290ec985873c6060d9783837",
+    "size": 17673
+  },
+  {
+    "id": "ficsonium",
+    "upstreamPath": "images/Ficsonium.png",
+    "gitBlobSha": "1a7689d3e2b77ad86b52630434a60b112730e2f5",
+    "size": 23425
+  },
+  {
+    "id": "ficsonium-fuel-rod",
+    "upstreamPath": "images/Ficsonium Fuel Rod.png",
+    "gitBlobSha": "dc2bbba12ee56ebba573568053bf9cc5d358908e",
+    "size": 18391
+  },
+  {
+    "id": "superposition-oscillator",
+    "upstreamPath": "images/Superposition Oscillator.png",
+    "gitBlobSha": "104c28f3257492f383afe7ed0df4c8ae4f1bda9e",
+    "size": 19160
+  },
+  {
+    "id": "neural-quantum-processor",
+    "upstreamPath": "images/Neural-Quantum Processor.png",
+    "gitBlobSha": "4b40072b556b9777fe8c56341fbb2c3b1b65b2f5",
+    "size": 19008
+  },
+  {
+    "id": "singularity-cell",
+    "upstreamPath": "images/Singularity Cell.png",
+    "gitBlobSha": "3b9c61f37e3f02b85358072ea5f440b184429c95",
+    "size": 26693
+  },
+  {
+    "id": "ballistic-warp-drive",
+    "upstreamPath": "images/Ballistic Warp Drive.png",
+    "gitBlobSha": "1637f86d8ffa54a74f222aa7b0ec341cc0784c09",
+    "size": 13176
+  },
+  {
+    "id": "ai-expansion-server",
+    "upstreamPath": "images/AI Expansion Server.png",
+    "gitBlobSha": "2d729db8de29128310f879970aef2372ee2d055b",
+    "size": 16947
+  },
+  {
+    "id": "alien-power-matrix",
+    "upstreamPath": "images/Alien Power Matrix.png",
+    "gitBlobSha": "c889cbb5470c5f7459dcf43c58e3882ca10c84f2",
+    "size": 26243
+  },
+  {
+    "id": "water",
+    "upstreamPath": "images/Water.png",
+    "gitBlobSha": "adee2d073f1121a91d867b24bff5c108da03349d",
+    "size": 18062
+  },
+  {
+    "id": "crude-oil",
+    "upstreamPath": "images/Crude Oil.png",
+    "gitBlobSha": "0adb1cba06776e14eb83853350e6195a797bd97a",
+    "size": 16911
+  },
+  {
+    "id": "fuel",
+    "upstreamPath": "images/Fuel.png",
+    "gitBlobSha": "3241895469d2a3270ffbbf9493dcfcbb23498742",
+    "size": 17809
+  },
+  {
+    "id": "turbofuel",
+    "upstreamPath": "images/Turbofuel.png",
+    "gitBlobSha": "34fd8001d0e9aaf7bcdf962f08b3b6431bde1972",
+    "size": 17504
+  },
+  {
+    "id": "heavy-oil-residue",
+    "upstreamPath": "images/Heavy Oil Residue.png",
+    "gitBlobSha": "5f77393738df2caba66943721ff5789fafb3dc7e",
+    "size": 18001
+  },
+  {
+    "id": "liquid-biofuel",
+    "upstreamPath": "images/Liquid Biofuel.png",
+    "gitBlobSha": "129e55d82b3373a44bd978d1195330b85a015c97",
+    "size": 17838
+  },
+  {
+    "id": "alumina-solution",
+    "upstreamPath": "images/Alumina Solution.png",
+    "gitBlobSha": "d37c559f7516b78659b2a015d5a6e7a5a018099f",
+    "size": 17858
+  },
+  {
+    "id": "sulfuric-acid",
+    "upstreamPath": "images/Sulfuric Acid.png",
+    "gitBlobSha": "d8eb69bbb43121d6630624ee6d05a7028a805ac0",
+    "size": 17650
+  },
+  {
+    "id": "nitrogen-gas",
+    "upstreamPath": "images/Nitrogen Gas.png",
+    "gitBlobSha": "00dc41664378b003a36d7c75d5b2da41ef31c72d",
+    "size": 18975
+  },
+  {
+    "id": "nitric-acid",
+    "upstreamPath": "images/Nitric Acid.png",
+    "gitBlobSha": "e9aa46048daddfb6b91715944d6fb5b55e5ed316",
+    "size": 18110
+  },
+  {
+    "id": "dissolved-silica",
+    "upstreamPath": "images/Dissolved Silica.png",
+    "gitBlobSha": "f82337343d0428ac6e6fec57ca49dada7f87144f",
+    "size": 18120
+  },
+  {
+    "id": "rocket-fuel",
+    "upstreamPath": "images/Rocket Fuel.png",
+    "gitBlobSha": "fa5d02c3623936b2779e2144eb4968f1f3b2322d",
+    "size": 18219
+  },
+  {
+    "id": "dark-matter-residue",
+    "upstreamPath": "images/Dark Matter Residue.png",
+    "gitBlobSha": "f2970bc9511d46d7505317542f03daf419f48f88",
+    "size": 17782
+  },
+  {
+    "id": "excited-photonic-matter",
+    "upstreamPath": "images/Excited Photonic Matter.png",
+    "gitBlobSha": "d9318014e1db71064a28e3e84cf25993daad1fd8",
+    "size": 17050
+  },
+  {
+    "id": "ionized-fuel",
+    "upstreamPath": "images/Ionized Fuel.png",
+    "gitBlobSha": "4fa9b9a6620027eb816cc84b9d136c8985950d93",
+    "size": 17756
+  },
+  {
+    "id": "constructor",
+    "upstreamPath": "images/Constructor.png",
+    "gitBlobSha": "37089bb79d99b1bc5042c5d919acbf8acdb09bde",
+    "size": 21524
+  },
+  {
+    "id": "assembler",
+    "upstreamPath": "images/Assembler.png",
+    "gitBlobSha": "6e3eec4b1f14b78c4d5acde2ff740301c4de9f80",
+    "size": 24709
+  },
+  {
+    "id": "manufacturer",
+    "upstreamPath": "images/Manufacturer.png",
+    "gitBlobSha": "ded0cce8ba31b51d2009bb6fec33074db019ca20",
+    "size": 21380
+  },
+  {
+    "id": "smelter",
+    "upstreamPath": "images/Smelter.png",
+    "gitBlobSha": "9db38238ce43f3c0be0f24fedc5610004680a144",
+    "size": 21485
+  },
+  {
+    "id": "foundry",
+    "upstreamPath": "images/Foundry.png",
+    "gitBlobSha": "480896a8a8ec6cc395088e0c7d0c0d516e22ff82",
+    "size": 25193
+  },
+  {
+    "id": "oil-refinery",
+    "upstreamPath": "images/Refinery.png",
+    "gitBlobSha": "727a813bf4b9164599e12ab84d554c09be65b76a",
+    "size": 13977
+  },
+  {
+    "id": "packager",
+    "upstreamPath": "images/Packager.png",
+    "gitBlobSha": "1dbea1d71623a937a4f7b160063c86d685d8f460",
+    "size": 21730
+  },
+  {
+    "id": "blender",
+    "upstreamPath": "images/Blender.png",
+    "gitBlobSha": "cc9ee526fa1da5038be076e828e13c620ae21982",
+    "size": 24772
+  },
+  {
+    "id": "accelerator",
+    "upstreamPath": "images/Particle Accelerator.png",
+    "gitBlobSha": "b5e073f691cf7894efbb4eb4c2c0d49db0ebebe9",
+    "size": 22529
+  },
+  {
+    "id": "converter",
+    "upstreamPath": "images/Converter.png",
+    "gitBlobSha": "bd0f98c68b852f54407a4f81128e4cf311dbe786",
+    "size": 25991
+  },
+  {
+    "id": "quantum-encoder",
+    "upstreamPath": "images/Quantum Encoder.png",
+    "gitBlobSha": "68282a40ad5743766bcec8b796d25082d9c1fa68",
+    "size": 17887
+  }
+]

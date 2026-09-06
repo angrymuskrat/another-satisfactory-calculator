@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-06",
+  "steamBuildId": "24656030",
+  "primarySource": "Installed Satisfactory/CommunityResources/Headers.zip and Docs/en-US.json, Docs/ru.json",
+  "headerFindings": [
+    {
+      "path": "Source/FactoryGame/Public/FGCategory.h",
+      "fields": ["mDisplayName", "mMenuPriority"],
+      "meaning": "Локализованное имя категории и её порядок в меню. Меньший приоритет идёт раньше."
+    },
+    {
+      "path": "Source/FactoryGame/Public/FGItemCategory.h",
+      "meaning": "Класс категории предмета, наследник FGCategory."
+    },
+    {
+      "path": "Source/FactoryGame/Public/Resources/FGItemDescriptor.h",
+      "fields": ["mCategory", "mSubCategories"],
+      "meaning": "mCategory — категория descriptor; mSubCategories — подкатегории меню строительства здания, не производственных рецептов."
+    },
+    {
+      "path": "Source/FactoryGame/Public/FGRecipe.h",
+      "fields": ["mOverriddenCategory", "mManufacturingMenuPriority"],
+      "meaning": "GetCategory возвращает переопределённую категорию либо категорию производимого предмета. GetManufacturingMenuPriority задаёт порядок рецептов; меньший приоритет раньше."
+    }
+  ],
+  "docsFindings": {
+    "categoryClasses": 0,
+    "itemCategoryFieldsIn152CatalogItems": 0,
+    "overriddenCategoryFieldsIn276Recipes": 0,
+    "manufacturingPriorityFieldsIn276Recipes": 276,
+    "recipeGameplayTags": ["Recipe.Part", "Recipe.SpacePart"],
+    "tagLimitation": "Теги описывают назначение части рецептов, но не определяют все меню-категории и их порядок."
+  },
+  "externalSource": "https://satisfactory.wiki.gg/wiki/Crafting_Bench",
+  "externalFinding": "Страница описывает поиск/выбор рецептов и перечень изготовления, но не полный список русских категорий, принадлежность и порядок для установленного build. Алфавитная таблица Wiki не принята за порядок игрового меню.",
+  "implementation": "Применён mManufacturingMenuPriority внутри временных тематических групп; при равенстве используется русский алфавит. Заголовки, принадлежность и порядок групп остаются непроверенными.",
+  "completionRequirement": "Нужен экспорт assets FGItemCategory с ru-локализацией, mCategory предметов, mOverriddenCategory рецептов и правила tie-break из той же сборки либо полный проверяемый снимок игровых меню. Запуск/изменение игры не выполнялись.",
+  "iconFinding": "CommunityResources содержит только Docs, CustomVersions.json, DedicatedServerAPIDocs.md, FactoryGame.usmap и Headers.zip; отдельного каталога Icons нет. Ссылки mSmallIcon являются asset paths внутри игры, не самостоятельными PNG. Иконки biochemical-sculptor и awesome-sink оставлены fallback."
+}

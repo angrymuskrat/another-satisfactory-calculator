@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "importedAt": "2026-09-06",
+  "upstream": {
+    "source": "https://github.com/KirkMcDonald/satisfactory-calculator",
+    "commit": "c5664fc8fba4ff7dcb3f29f84f74278f497e9bb6",
+    "license": "Apache-2.0"
+  },
+  "game": {
+    "source": "Local installed Satisfactory/CommunityResources/Docs",
+    "steamBuildId": "24656030",
+    "versionLabel": null,
+    "docsFileDate": "2026-08-15",
+    "originalEncoding": "UTF-16LE BOM",
+    "compression": "gzip lossless"
+  },
+  "sha256": {
+    "upstream.json": "0543ab8cde0d154246c1d26b1e630a5514e6ae79960620918b80b833924ecd82",
+    "LICENSE.upstream": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "upstream-tree.json": "1f82d8e6a11959dfc9da3687048dc53b4a9c0e49eba2fc4eb2a88595317ec3f4",
+    "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+  }
+}

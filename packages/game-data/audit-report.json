@@ -1,0 +1,4322 @@
+{
+  "schemaVersion": 1,
+  "gameVersion": "Steam build 24656030",
+  "steamBuildId": "24656030",
+  "hashes": {
+    "upstream.json": "0543ab8cde0d154246c1d26b1e630a5514e6ae79960620918b80b833924ecd82",
+    "LICENSE.upstream": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "upstream-tree.json": "1f82d8e6a11959dfc9da3687048dc53b4a9c0e49eba2fc4eb2a88595317ec3f4",
+    "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+  },
+  "counts": {
+    "upstreamRecipes": 272,
+    "gameRecipes": 872,
+    "items": 152,
+    "buildings": 12,
+    "recipes": 276,
+    "alternates": 110,
+    "excluded": 596,
+    "icons": 162
+  },
+  "recipeClasses": {
+    "iron-plate": "Recipe_IronPlate_C",
+    "iron-rod": "Recipe_IronRod_C",
+    "iron-ingot": "Recipe_IngotIron_C",
+    "biomass-from-leaves": "Recipe_Biomass_Leaves_C",
+    "biomass-from-wood": "Recipe_Biomass_Wood_C",
+    "cable": "Recipe_Cable_C",
+    "wire": "Recipe_Wire_C",
+    "copper-ingot": "Recipe_IngotCopper_C",
+    "concrete": "Recipe_Concrete_C",
+    "reinforced-iron-plate": "Recipe_IronPlateReinforced_C",
+    "screw": "Recipe_Screw_C",
+    "steel-beam": "Recipe_SteelBeam_C",
+    "steel-pipe": "Recipe_SteelPipe_C",
+    "steel-ingot": "Recipe_IngotSteel_C",
+    "versatile-framework": "Recipe_SpaceElevatorPart_2_C",
+    "silica": "Recipe_Silica_C",
+    "residual-fuel": "Recipe_ResidualFuel_C",
+    "plastic": "Recipe_Plastic_C",
+    "circuit-board": "Recipe_CircuitBoard_C",
+    "rubber": "Recipe_Rubber_C",
+    "alt-residual-rubber": "Recipe_ResidualRubber_C",
+    "fuel": "Recipe_LiquidFuel_C",
+    "alt-residual-plastic": "Recipe_ResidualPlastic_C",
+    "petroleum-coke": "Recipe_PetroleumCoke_C",
+    "encased-industrial-beam": "Recipe_EncasedIndustrialBeam_C",
+    "motor": "Recipe_Motor_C",
+    "stator": "Recipe_Stator_C",
+    "automated-wiring": "Recipe_SpaceElevatorPart_3_C",
+    "quickwire": "Recipe_Quickwire_C",
+    "quartz-crystal": "Recipe_QuartzCrystal_C",
+    "crystal-oscillator": "Recipe_CrystalOscillator_C",
+    "iron-rebar": "Recipe_SpikedRebar_C",
+    "nitric-acid": "Recipe_NitricAcid_C",
+    "nobelisk": "Recipe_Nobelisk_C",
+    "plutonium-fuel-rod": "Recipe_PlutoniumFuelRod_C",
+    "encased-plutonium-cell": "Recipe_PlutoniumCell_C",
+    "pressure-conversion-cube": "Recipe_PressureConversionCube_C",
+    "plutonium-pellet": "Recipe_Plutonium_C",
+    "non-fissile-uranium": "Recipe_NonFissileUranium_C",
+    "copper-powder": "Recipe_CopperDust_C",
+    "nuclear-pasta": "Recipe_SpaceElevatorPart_9_C",
+    "packaged-nitric-acid": "Recipe_PackagedNitricAcid_C",
+    "unpackage-nitric-acid": "Recipe_UnpackageNitricAcid_C",
+    "time-crystal": "Recipe_TimeCrystal_C",
+    "diamonds": "Recipe_Diamond_C",
+    "sam-fluctuator": "Recipe_SAMFluctuator_C",
+    "reanimated-sam": "Recipe_IngotSAM_C",
+    "coal-iron": "Recipe_Coal_Iron_C",
+    "coal-limestone": "Recipe_Coal_Limestone_C",
+    "copper-ore-quartz": "Recipe_Copper_Quartz_C",
+    "iron-ore-limestone": "Recipe_Iron_Limestone_C",
+    "raw-quartz-coal": "Recipe_Quartz_Coal_C",
+    "ficsite-trigon": "Recipe_FicsiteMesh_C",
+    "ficsite-ingot-iron": "Recipe_FicsiteIngot_Iron_C",
+    "ficsite-ingot-aluminum": "Recipe_FicsiteIngot_AL_C",
+    "ficsite-ingot-caterium": "Recipe_FicsiteIngot_CAT_C",
+    "biochemical-sculptor": "Recipe_SpaceElevatorPart_10_C",
+    "bauxite-copper": "Recipe_Bauxite_Copper_C",
+    "nitrogen-gas-bauxite": "Recipe_Nitrogen_Bauxite_C",
+    "raw-quartz-bauxite": "Recipe_Quartz_Bauxite_C",
+    "caterium-ore-copper": "Recipe_Caterium_Copper_C",
+    "caterium-ore-quartz": "Recipe_Caterium_Quartz_C",
+    "nitrogen-gas-caterium": "Recipe_Nitrogen_Caterium_C",
+    "bauxite-caterium": "Recipe_Bauxite_Caterium_C",
+    "copper-ore-sulfur": "Recipe_Copper_Sulfur_C",
+    "limestone-sulfur": "Recipe_Limestone_Sulfur_C",
+    "sulfur-coal": "Recipe_Sulfur_Coal_C",
+    "sulfur-iron": "Recipe_Sulfur_Iron_C",
+    "uranium-ore-bauxite": "Recipe_Uranium_Bauxite_C",
+    "synthetic-power-shard": "Recipe_SyntheticPowerShard_C",
+    "dark-matter-residue": "Recipe_DarkEnergy_C",
+    "excited-photonic-matter": "Recipe_QuantumEnergy_C",
+    "dark-matter-crystal": "Recipe_DarkMatter_C",
+    "superposition-oscillator": "Recipe_SuperpositionOscillator_C",
+    "neural-quantum-processor": "Recipe_TemporalProcessor_C",
+    "ai-expansion-server": "Recipe_SpaceElevatorPart_12_C",
+    "packaged-rocket-fuel": "Recipe_PackagedRocketFuel_C",
+    "unpackage-rocket-fuel": "Recipe_UnpackageRocketFuel_C",
+    "rocket-fuel": "Recipe_RocketFuel_C",
+    "ionized-fuel": "Recipe_IonizedFuel_C",
+    "packaged-ionized-fuel": "Recipe_PackagedIonizedFuel_C",
+    "unpackage-ionized-fuel": "Recipe_UnpackageIonizedFuel_C",
+    "heat-sink": "Recipe_HeatSink_C",
+    "cooling-system": "Recipe_CoolingSystem_C",
+    "fused-modular-frame": "Recipe_FusedModularFrame_C",
+    "empty-fluid-tank": "Recipe_GasTank_C",
+    "packaged-nitrogen-gas": "Recipe_PackagedNitrogen_C",
+    "unpackage-nitrogen-gas": "Recipe_UnpackageNitrogen_C",
+    "em-control-rod": "Recipe_ElectromagneticControlRod_C",
+    "magnetic-field-generator": "Recipe_SpaceElevatorPart_6_C",
+    "uranium-cell": "Recipe_UraniumCell_C",
+    "uranium-fuel-rod": "Recipe_NuclearFuelRod_C",
+    "turbo-motor": "Recipe_MotorTurbo_C",
+    "thermal-propulsion-rocket": "Recipe_SpaceElevatorPart_8_C",
+    "supercomputer": "Recipe_ComputerSuper_C",
+    "aluminum-casing": "Recipe_AluminumCasing_C",
+    "alclad-aluminum-sheet": "Recipe_AluminumSheet_C",
+    "aluminum-ingot": "Recipe_IngotAluminum_C",
+    "alumina-solution": "Recipe_AluminaSolution_C",
+    "aluminum-scrap": "Recipe_AluminumScrap_C",
+    "packaged-alumina-solution": "Recipe_PackagedAlumina_C",
+    "unpackage-alumina-solution": "Recipe_UnpackageAlumina_C",
+    "radio-control-unit": "Recipe_RadioControlUnit_C",
+    "empty-canister": "Recipe_FluidCanister_C",
+    "packaged-fuel": "Recipe_Fuel_C",
+    "turbofuel": "Recipe_Alternate_Turbofuel_C",
+    "packaged-turbofuel": "Recipe_PackagedTurboFuel_C",
+    "unpackage-fuel": "Recipe_UnpackageFuel_C",
+    "unpackage-turbofuel": "Recipe_UnpackageTurboFuel_C",
+    "liquid-biofuel": "Recipe_LiquidBiofuel_C",
+    "packaged-liquid-biofuel": "Recipe_PackagedBiofuel_C",
+    "unpackage-liquid-biofuel": "Recipe_UnpackageBioFuel_C",
+    "packaged-oil": "Recipe_PackagedCrudeOil_C",
+    "unpackage-oil": "Recipe_UnpackageOil_C",
+    "packaged-heavy-oil-residue": "Recipe_PackagedOilResidue_C",
+    "unpackage-heavy-oil-residue": "Recipe_UnpackageOilResidue_C",
+    "packaged-water": "Recipe_PackagedWater_C",
+    "unpackage-water": "Recipe_UnpackageWater_C",
+    "alt-charcoal": "Recipe_Alternate_Coal_1_C",
+    "alt-biocoal": "Recipe_Alternate_Coal_2_C",
+    "alt-coal": "Recipe_Alternate_EnrichedCoal_C",
+    "computer": "Recipe_Computer_C",
+    "heavy-modular-frame": "Recipe_ModularFrameHeavy_C",
+    "modular-engine": "Recipe_SpaceElevatorPart_4_C",
+    "adaptive-control-unit": "Recipe_SpaceElevatorPart_5_C",
+    "smokeless-powder": "Recipe_GunpowderMK2_C",
+    "high-speed-connector": "Recipe_HighSpeedConnector_C",
+    "black-powder": "Recipe_Gunpowder_C",
+    "modular-frame": "Recipe_ModularFrame_C",
+    "rotor": "Recipe_Rotor_C",
+    "copper-sheet": "Recipe_CopperSheet_C",
+    "smart-plating": "Recipe_SpaceElevatorPart_1_C",
+    "fabric": "Recipe_Fabric_C",
+    "solid-biofuel": "Recipe_Biofuel_C",
+    "ai-limiter": "Recipe_AILimiter_C",
+    "alt-turbo-rifle-ammo": "Recipe_CartridgeChaos_C",
+    "turbo-rifle-ammo": "Recipe_CartridgeChaos_Packaged_C",
+    "homing-rifle-ammo": "Recipe_CartridgeSmart_C",
+    "stun-rebar": "Recipe_Rebar_Stunshot_C",
+    "shatter-rebar": "Recipe_Rebar_Spreadshot_C",
+    "explosive-rebar": "Recipe_Rebar_Explosive_C",
+    "iodine-infused-filter": "Recipe_FilterHazmat_C",
+    "pulse-nobelisk": "Recipe_NobeliskShockwave_C",
+    "gas-nobelisk": "Recipe_NobeliskGas_C",
+    "cluster-nobelisk": "Recipe_NobeliskCluster_C",
+    "filter": "Recipe_FilterGasMask_C",
+    "rifle-ammo": "Recipe_Cartridge_C",
+    "nuke-nobelisk": "Recipe_NobeliskNuke_C",
+    "power-shard-purple": "Recipe_PowerCrystalShard_3_C",
+    "power-shard-yellow": "Recipe_PowerCrystalShard_2_C",
+    "power-shard-blue": "Recipe_PowerCrystalShard_1_C",
+    "alt-fabric": "Recipe_Alternate_PolyesterFabric_C",
+    "biomass-from-mycelia": "Recipe_Biomass_Mycelia_C",
+    "caterium-ingot": "Recipe_IngotCaterium_C",
+    "alien-power-matrix": "Recipe_AlienPowerFuel_C",
+    "stinger-protein": "Recipe_Protein_Stinger_C",
+    "hatcher-protein": "Recipe_Protein_Crab_C",
+    "alien-dna-capsule": "Recipe_AlienDNACapsule_C",
+    "biomass-from-alien-protein": "Recipe_Biomass_AlienProtein_C",
+    "spitter-protein": "Recipe_Protein_Spitter_C",
+    "hog-protein": "Recipe_Protein_Hog_C",
+    "ficsonium": "Recipe_Ficsonium_C",
+    "ficsonium-fuel-rod": "Recipe_FicsoniumFuelRod_C",
+    "singularity-cell": "Recipe_SingularityCell_C",
+    "ballistic-warp-drive": "Recipe_SpaceElevatorPart_11_C",
+    "battery": "Recipe_Battery_C",
+    "sulfuric-acid": "Recipe_SulfuricAcid_C",
+    "assembly-director-system": "Recipe_SpaceElevatorPart_7_C",
+    "packaged-sulfuric-acid": "Recipe_PackagedSulfuricAcid_C",
+    "unpackage-sulfuric-acid": "Recipe_UnpackageSulfuricAcid_C",
+    "alt-caterium-wire": "Recipe_Alternate_Wire_2_C",
+    "alt-iron-wire": "Recipe_Alternate_Wire_1_C",
+    "alt-uranium-cell": "Recipe_Alternate_UraniumCell_1_C",
+    "alt-turbo-electric-motor": "Recipe_Alternate_TurboMotor_1_C",
+    "alt-stator": "Recipe_Alternate_Stator_C",
+    "alt-silica": "Recipe_Alternate_Silica_C",
+    "alt-steel-screw": "Recipe_Alternate_Screw_2_C",
+    "alt-screw": "Recipe_Alternate_Screw_C",
+    "alt-rotor": "Recipe_Alternate_Rotor_C",
+    "alt-encased-industrial-beam": "Recipe_Alternate_EncasedIndustrialBeam_C",
+    "alt-stitched-iron-plate": "Recipe_Alternate_ReinforcedIronPlate_2_C",
+    "alt-bolted-iron-plate": "Recipe_Alternate_ReinforcedIronPlate_1_C",
+    "alt-radio-connection-unit": "Recipe_Alternate_RadioControlUnit_1_C",
+    "alt-quickwire": "Recipe_Alternate_Quickwire_C",
+    "alt-plastic": "Recipe_Alternate_Plastic_1_C",
+    "alt-uranium-fuel-unit": "Recipe_Alternate_NuclearFuelRod_1_C",
+    "alt-motor": "Recipe_Alternate_Motor_1_C",
+    "alt-modular-frame": "Recipe_Alternate_ModularFrame_C",
+    "alt-compacted-steel-ingot": "Recipe_Alternate_IngotSteel_2_C",
+    "alt-steel-ingot": "Recipe_Alternate_IngotSteel_1_C",
+    "alt-iron-ingot": "Recipe_Alternate_IngotIron_C",
+    "alt-high-speed-connector": "Recipe_Alternate_HighSpeedConnector_C",
+    "alt-heavy-modular-frame": "Recipe_Alternate_ModularFrameHeavy_C",
+    "alt-heat-sink": "Recipe_Alternate_HeatSink_1_C",
+    "alt-black-powder": "Recipe_Alternate_Gunpowder_1_C",
+    "alt-em-control-rod": "Recipe_Alternate_ElectromagneticControlRod_1_C",
+    "alt-crystal-oscillator": "Recipe_Alternate_CrystalOscillator_C",
+    "alt-concrete": "Recipe_Alternate_Concrete_C",
+    "alt-crystal-computer": "Recipe_Alternate_Computer_2_C",
+    "alt-computer": "Recipe_Alternate_Computer_1_C",
+    "alt-caterium-circuit-board": "Recipe_Alternate_CircuitBoard_2_C",
+    "alt-circuit-board": "Recipe_Alternate_CircuitBoard_1_C",
+    "alt-quickwire-cable": "Recipe_Alternate_Cable_2_C",
+    "alt-cable": "Recipe_Alternate_Cable_1_C",
+    "alt-distilled-silica": "Recipe_Alternate_Silica_Distilled_C",
+    "alt-quartz-purification": "Recipe_Alternate_Quartz_Purified_C",
+    "alt-fused-quartz-crystal": "Recipe_Alternate_Quartz_Fused_C",
+    "alt-leached-iron-ingot": "Recipe_Alternate_IronIngot_Leached_C",
+    "alt-basic-iron-ingot": "Recipe_Alternate_IronIngot_Basic_C",
+    "alt-tempered-copper-ingot": "Recipe_Alternate_CopperIngot_Tempered_C",
+    "alt-leached-copper-ingot": "Recipe_Alternate_CopperIngot_Leached_C",
+    "alt-tempered-caterium-ingot": "Recipe_Alternate_CateriumIngot_Tempered_C",
+    "alt-leached-caterium-ingot": "Recipe_Alternate_CateriumIngot_Leached_C",
+    "alt-molded-steel-pipe": "Recipe_Alternate_SteelPipe_Molded_C",
+    "alt-iron-pipe": "Recipe_Alternate_SteelPipe_Iron_C",
+    "alt-steel-cast-plate": "Recipe_Alternate_SteelCastedPlate_C",
+    "alt-molded-beam": "Recipe_Alternate_SteelBeam_Molded_C",
+    "alt-steel-beam": "Recipe_Alternate_SteelBeam_Aluminum_C",
+    "alt-aluminum-rod": "Recipe_Alternate_AluminumRod_C",
+    "alt-ai-limiter": "Recipe_Alternate_AILimiter_Plastic_C",
+    "alt-turbo-pressure-motor": "Recipe_Alternate_TurboPressureMotor_C",
+    "alt-turbo-blend-fuel": "Recipe_Alternate_TurboBlendFuel_C",
+    "alt-super-state-computer": "Recipe_Alternate_SuperStateComputer_C",
+    "alt-alumina-solution": "Recipe_Alternate_SloppyAlumina_C",
+    "alt-radio-control-unit": "Recipe_Alternate_RadioControlSystem_C",
+    "alt-plutonium-fuel-rod": "Recipe_Alternate_PlutoniumFuelUnit_C",
+    "alt-oc-supercomputer": "Recipe_Alternate_OCSupercomputer_C",
+    "alt-instant-scrap": "Recipe_Alternate_InstantScrap_C",
+    "alt-plutonium-cell": "Recipe_Alternate_InstantPlutoniumCell_C",
+    "alt-fused-modular-frame": "Recipe_Alternate_HeatFusedFrame_C",
+    "alt-fertile-uranium": "Recipe_Alternate_FertileUranium_C",
+    "alt-electric-motor": "Recipe_Alternate_ElectricMotor_C",
+    "alt-diluted-fuel": "Recipe_Alternate_DilutedFuel_C",
+    "alt-cooling-device": "Recipe_Alternate_CoolingDevice_C",
+    "alt-battery": "Recipe_Alternate_ClassicBattery_C",
+    "automated-miner": "Recipe_Alternate_AutomatedMiner_C",
+    "alt-aluminum-casing": "Recipe_Alternate_AlcladCasing_C",
+    "alt-wet-concrete": "Recipe_Alternate_WetConcrete_C",
+    "alt-turbofuel": "Recipe_Alternate_TurboHeavyFuel_C",
+    "alt-iron-rod": "Recipe_Alternate_SteelRod_C",
+    "alt-steel-canister": "Recipe_Alternate_SteelCanister_C",
+    "alt-copper-sheet": "Recipe_Alternate_SteamedCopperSheet_C",
+    "alt-rubber-concrete": "Recipe_Alternate_RubberConcrete_C",
+    "alt-recycled-rubber": "Recipe_Alternate_RecycledRubber_C",
+    "alt-quartz-crystal": "Recipe_Alternate_PureQuartzCrystal_C",
+    "alt-pure-iron-ingot": "Recipe_Alternate_PureIronIngot_C",
+    "alt-pure-copper-ingot": "Recipe_Alternate_PureCopperIngot_C",
+    "alt-pure-caterium-ingot": "Recipe_Alternate_PureCateriumIngot_C",
+    "alt-aluminum-ingot": "Recipe_PureAluminumIngot_C",
+    "alt-polymer-resin": "Recipe_Alternate_PolymerResin_C",
+    "alt-smart-plating": "Recipe_Alternate_PlasticSmartPlating_C",
+    "alt-automated-wiring": "Recipe_Alternate_HighSpeedWiring_C",
+    "alt-heavy-oil-residue": "Recipe_Alternate_HeavyOilResidue_C",
+    "alt-heavy-flexible-frame": "Recipe_Alternate_HeavyFlexibleFrame_C",
+    "alt-fused-wire": "Recipe_Alternate_FusedWire_C",
+    "alt-versatile-framework": "Recipe_Alternate_FlexibleFramework_C",
+    "alt-electrode-circuit-board": "Recipe_Alternate_ElectrodeCircuitBoard_C",
+    "alt-aluminum-scrap": "Recipe_Alternate_ElectroAluminumScrap_C",
+    "alt-packaged-fuel": "Recipe_Alternate_DilutedPackagedFuel_C",
+    "alt-copper-rotor": "Recipe_Alternate_CopperRotor_C",
+    "alt-copper-ingot": "Recipe_Alternate_CopperAlloyIngot_C",
+    "alt-coke-steel-ingot": "Recipe_Alternate_CokeSteelIngot_C",
+    "alt-iron-plate": "Recipe_Alternate_CoatedIronPlate_C",
+    "alt-coated-iron-canister": "Recipe_Alternate_CoatedIronCanister_C",
+    "alt-coated-cable": "Recipe_Alternate_CoatedCable_C",
+    "alt-modular-frame2": "Recipe_Alternate_BoltedFrame_C",
+    "alt-adhered-iron-plate": "Recipe_Alternate_AdheredIronPlate_C",
+    "alt-rocket-fuel": "Recipe_Alternate_RocketFuel_Nitro_C",
+    "alt-dark-ion-fuel": "Recipe_Alternate_IonizedFuel_Dark_C",
+    "alt-diamonds-turbo": "Recipe_Alternate_Diamond_Turbo_C",
+    "alt-diamonds-pink": "Recipe_Alternate_Diamond_Pink_C",
+    "alt-diamonds-petroleum": "Recipe_Alternate_Diamond_Petroleum_C",
+    "alt-diamonds-oil": "Recipe_Alternate_Diamond_OilBased_C",
+    "alt-diamonds-cloudy": "Recipe_Alternate_Diamond_Cloudy_C",
+    "alt-dark-matter-trap": "Recipe_Alternate_DarkMatter_Trap_C",
+    "alt-dark-matter-crystal": "Recipe_Alternate_DarkMatter_Crystallization_C"
+  },
+  "changes": [
+    {
+      "id": "biochemical-sculptor",
+      "gameClass": "Recipe_SpaceElevatorPart_10_C",
+      "kind": "added"
+    },
+    {
+      "id": "superposition-oscillator",
+      "gameClass": "Recipe_SuperpositionOscillator_C",
+      "kind": "changed",
+      "previous": {
+        "seconds": 12,
+        "inputs": [
+          {
+            "itemId": "dark-matter-crystal",
+            "amount": 6
+          },
+          {
+            "itemId": "crystal-oscillator",
+            "amount": 1
+          },
+          {
+            "itemId": "alclad-aluminum-sheet",
+            "amount": 9
+          },
+          {
+            "itemId": "excited-photonic-matter",
+            "amount": 10
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "superposition-oscillator",
+            "amount": 1
+          },
+          {
+            "itemId": "dark-matter-residue",
+            "amount": 25
+          }
+        ],
+        "buildingId": "quantum-encoder"
+      },
+      "current": {
+        "seconds": 12,
+        "inputs": [
+          {
+            "itemId": "dark-matter-crystal",
+            "amount": 6
+          },
+          {
+            "itemId": "crystal-oscillator",
+            "amount": 1
+          },
+          {
+            "itemId": "alclad-aluminum-sheet",
+            "amount": 9
+          },
+          {
+            "itemId": "excited-photonic-matter",
+            "amount": 25
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "superposition-oscillator",
+            "amount": 1
+          },
+          {
+            "itemId": "dark-matter-residue",
+            "amount": 25
+          }
+        ],
+        "buildingId": "quantum-encoder"
+      }
+    },
+    {
+      "id": "nuke-nobelisk",
+      "gameClass": "Recipe_NobeliskNuke_C",
+      "kind": "changed",
+      "previous": {
+        "seconds": 120,
+        "inputs": [
+          {
+            "itemId": "nobelisk",
+            "amount": 5
+          },
+          {
+            "itemId": "uranium-cell",
+            "amount": 20
+          },
+          {
+            "itemId": "smokeless-powder",
+            "amount": 10
+          },
+          {
+            "itemId": "ai-limiter",
+            "amount": 6
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "nuke-nobelisk",
+            "amount": 5
+          }
+        ],
+        "buildingId": "manufacturer"
+      },
+      "current": {
+        "seconds": 120,
+        "inputs": [
+          {
+            "itemId": "nobelisk",
+            "amount": 5
+          },
+          {
+            "itemId": "uranium-cell",
+            "amount": 20
+          },
+          {
+            "itemId": "smokeless-powder",
+            "amount": 10
+          },
+          {
+            "itemId": "ai-limiter",
+            "amount": 6
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "nuke-nobelisk",
+            "amount": 1
+          }
+        ],
+        "buildingId": "manufacturer"
+      }
+    },
+    {
+      "id": "alt-compacted-steel-ingot",
+      "gameClass": "Recipe_Alternate_IngotSteel_2_C",
+      "kind": "changed",
+      "previous": {
+        "seconds": 16,
+        "inputs": [
+          {
+            "itemId": "iron-ore",
+            "amount": 6
+          },
+          {
+            "itemId": "compacted-coal",
+            "amount": 3
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "steel-ingot",
+            "amount": 10
+          }
+        ],
+        "buildingId": "foundry"
+      },
+      "current": {
+        "seconds": 24,
+        "inputs": [
+          {
+            "itemId": "iron-ore",
+            "amount": 2
+          },
+          {
+            "itemId": "compacted-coal",
+            "amount": 1
+          }
+        ],
+        "outputs": [
+          {
+            "itemId": "steel-ingot",
+            "amount": 4
+          }
+        ],
+        "buildingId": "foundry"
+      }
+    },
+    {
+      "id": "alt-fused-quartz-crystal",
+      "gameClass": "Recipe_Alternate_Quartz_Fused_C",
+      "kind": "added"
+    },
+    {
+      "id": "alt-basic-iron-ingot",
+      "gameClass": "Recipe_Alternate_IronIngot_Basic_C",
+      "kind": "added"
+    },
+    {
+      "id": "alt-tempered-copper-ingot",
+      "gameClass": "Recipe_Alternate_CopperIngot_Tempered_C",
+      "kind": "added"
+    },
+    {
+      "id": "alt-tempered-caterium-ingot",
+      "gameClass": "Recipe_Alternate_CateriumIngot_Tempered_C",
+      "kind": "added"
+    },
+    {
+      "id": "alt-molded-beam",
+      "gameClass": "Recipe_Alternate_SteelBeam_Molded_C",
+      "kind": "added"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "Recipe_XenoZapper_C",
+      "name": "Ксеношокер",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_WorkBench_C",
+      "name": "Верстак",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_VehiclePath_Universal_C",
+      "name": "Универсальный транспортный путь",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TradingPost_C",
+      "name": "ХАБ",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorPole_C",
+      "name": "Конвейерная стойка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorCeilingAttachment_C",
+      "name": "Потолочное крепление для конвейера",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorPoleWall_C",
+      "name": "Настенное крепление для конвейера",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk1_C",
+      "name": "Конвейерная лента ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWall_C",
+      "name": "Розетка ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerLine_C",
+      "name": "Линия электросети",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleMk1_C",
+      "name": "Электростолб ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stairs_Left_01_C",
+      "name": "Лестница налево",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stairs_Right_01_C",
+      "name": "Лестница направо",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_C",
+      "name": "Наклонная стена (4 м)",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_03_Steel_C",
+      "name": "Панельное окно",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Fence_01_C",
+      "name": "Промышленное ограждение",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Walkway_Cross_C",
+      "name": "Пересечение дорожек",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Walkway_Ramp_C",
+      "name": "Дорожка (пандус)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Walkway_Straight_C",
+      "name": "Прямая дорожка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Walkway_T_C",
+      "name": "Т-образная дорожка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Walkway_Turn_C",
+      "name": "Угловая дорожка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_04_C",
+      "name": "Перпендикулярный настенный конвейер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_04_Steel_C",
+      "name": "Перпендикулярный настенный конвейер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarTop_C",
+      "name": "Pillar Top",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_JumpPad_C",
+      "name": "Old Jump Pad",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_JumpPadTilted_C",
+      "name": "Old Tilted Jump Pad",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_GeneratorBiomass_Automated_C",
+      "name": "Сжигатель биомассы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StorageContainerMk1_C",
+      "name": "Складской контейнер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Workshop_C",
+      "name": "Мастерская",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PortableMiner_C",
+      "name": "Переносной бур",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_MinerMk1_C",
+      "name": "Буровая установка ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConstructorMk1_C",
+      "name": "Конструктор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SpaceElevator_C",
+      "name": "Космический лифт",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SmelterBasicMk1_C",
+      "name": "Плавильня",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SmelterMk1_C",
+      "name": "Литейная",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_04_C",
+      "name": "Усиленное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BigGarageDoor_16x8_C",
+      "name": "Подъемные ворота",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_8x4_01_C",
+      "name": "Обычная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_01_C",
+      "name": "Стена для конвейера ×3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_02_C",
+      "name": "Стена для конвейера ×2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_03_C",
+      "name": "Стена для конвейера ×1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Door_8x4_01_C",
+      "name": "Стена с дверью по центру",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Door_8x4_03_C",
+      "name": "Стена с дверью сбоку",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Gate_8x4_01_C",
+      "name": "Стена с проёмом для ворот",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_8x1_C",
+      "name": "Обычная стена (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_8x4_Corner_01_C",
+      "name": "Наклонная угловая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_8x4_Corner_02_C",
+      "name": "Наклонная вогнутая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_8x8_Corner_01_C",
+      "name": "Наклонная угловая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_8x8_Corner_02_C",
+      "name": "Наклонная вогнутая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Angular_8x4_C",
+      "name": "Наклонная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Angular_8x8_C",
+      "name": "Наклонная стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_FlipTris_8x1_C",
+      "name": "Перевёрнутая стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_FlipTris_8x2_C",
+      "name": "Перевёрнутая стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_FlipTris_8x4_C",
+      "name": "Перевёрнутая стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_FlipTris_8x8_C",
+      "name": "Перевёрнутая стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Tris_8x1_C",
+      "name": "Стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Tris_8x2_C",
+      "name": "Стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Tris_8x4_C",
+      "name": "Стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Orange_Tris_8x8_C",
+      "name": "Стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_01_C",
+      "name": "Цельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_02_C",
+      "name": "Окно с рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_03_C",
+      "name": "Панельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Tris_8x8_C",
+      "name": "Стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BigGarageDoor_16x8_Concrete_C",
+      "name": "Подъемные ворота",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x1_C",
+      "name": "Обычная стена (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_C",
+      "name": "Обычная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_ConveyorHole_01_C",
+      "name": "Стена для конвейера ×1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_ConveyorHole_02_C",
+      "name": "Стена для конвейера ×2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_ConveyorHole_03_C",
+      "name": "Стена для конвейера ×3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Corner_01_C",
+      "name": "Наклонная угловая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Corner_2_C",
+      "name": "Наклонная вогнутая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Window_01_C",
+      "name": "Цельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Window_02_C",
+      "name": "Окно с рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Window_03_C",
+      "name": "Панельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x4_Window_04_C",
+      "name": "Усиленное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x8_Corner_01_C",
+      "name": "Наклонная угловая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_8x8_Corner_2_C",
+      "name": "Наклонная вогнутая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Angular_8x4_C",
+      "name": "Наклонная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Angular_8x8_C",
+      "name": "Наклонная стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_CDoor_8x4_C",
+      "name": "Стена с дверью по центру",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_FlipTris_8x1_C",
+      "name": "Перевёрнутая стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_FlipTris_8x2_C",
+      "name": "Перевёрнутая стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_FlipTris_8x4_C",
+      "name": "Перевёрнутая стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_FlipTris_8x8_C",
+      "name": "Перевёрнутая стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Gate_8x4_C",
+      "name": "Стена с проёмом для ворот",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_SDoor_8x4_C",
+      "name": "Стена с дверью сбоку",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Tris_8x1_C",
+      "name": "Стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Tris_8x2_C",
+      "name": "Стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Concrete_Tris_8x4_C",
+      "name": "Стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_WallSet_Steel_Angular_8x8_C",
+      "name": "Наклонная стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BigGarageDoor_16x8_Steel_C",
+      "name": "Подъемные ворота",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_Gate_01_C",
+      "name": "Стена с проёмом для ворот",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_Window_01_C",
+      "name": "Цельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_Window_02_C",
+      "name": "Усиленное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_Window_03_C",
+      "name": "Окно с рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x4_Window_04_C",
+      "name": "Панельное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Steel_8x4_Corner_01_C",
+      "name": "Наклонная угловая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Steel_8x4_Corner_2_C",
+      "name": "Наклонная вогнутая стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Steel_8x8_Corner_01_C",
+      "name": "Наклонная угловая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Steel_8x8_Corner_2_C",
+      "name": "Наклонная вогнутая стена (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_8x1_C",
+      "name": "Обычная стена (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_FlipTris_8x1_C",
+      "name": "Перевёрнутая стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_FlipTris_8x2_C",
+      "name": "Перевёрнутая стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_FlipTris_8x4_C",
+      "name": "Перевёрнутая стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_FlipTris_8x8_C",
+      "name": "Перевёрнутая стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_Tris_8x1_C",
+      "name": "Стена пандуса (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_Tris_8x2_C",
+      "name": "Стена пандуса (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_Tris_8x4_C",
+      "name": "Стена пандуса (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_SteelWall_Tris_8x8_C",
+      "name": "Стена пандуса (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_8x4_02_C",
+      "name": "Обычная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_01_Steel_C",
+      "name": "Стена для конвейера ×3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_02_Steel_C",
+      "name": "Стена для конвейера ×2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Conveyor_8x4_03_Steel_C",
+      "name": "Стена для конвейера ×1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Door_8x4_01_Steel_C",
+      "name": "Стена с дверью по центру",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Door_8x4_03_Steel_C",
+      "name": "Стена с дверью сбоку",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_WallSet_Steel_Angular_8x4_C",
+      "name": "Наклонная стена (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_LookoutTower_C",
+      "name": "Смотровая вышка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Flat_Frame_01_C",
+      "name": "Каркасный пол",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Frame_01_C",
+      "name": "Каркасный фундамент",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FoundationGlass_01_C",
+      "name": "Каркасный фундамент со стеклом",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Frame_01_C",
+      "name": "Каркасный пандус",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Frame_Inverted_01_C",
+      "name": "Перевёрнутый каркасный пандус",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Frame_01_C",
+      "name": "Каркасная стена",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Railing_01_C",
+      "name": "Современное ограждение",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Pillar_Small_Metal_C",
+      "name": "Малая металлическая колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarBase_Small_C",
+      "name": "Опора малой колонны",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarBase_C",
+      "name": "Опора большой колонны",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarMiddle_C",
+      "name": "Большая металлическая колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ladder_C",
+      "name": "Приставная лестница",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x4_Corner_02_C",
+      "name": "Перевёрнутый нижний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Ficsit_4x1_C",
+      "name": "Половина фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Ficsit_4x2_C",
+      "name": "Половина фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Ficsit_4x4_C",
+      "name": "Половина фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Ficsit_8x1_C",
+      "name": "Продолжение внутреннего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Ficsit_8x2_C",
+      "name": "Продолжение внутреннего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Ficsit_8x4_C",
+      "name": "Продолжение внутреннего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Ficsit_4x1_C",
+      "name": "Продолжение внешнего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Ficsit_4x2_C",
+      "name": "Продолжение внешнего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Ficsit_4x4_C",
+      "name": "Продолжение внешнего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_FicsitSet_8x1_01_C",
+      "name": "Лестница для фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_FicsitSet_8x2_01_C",
+      "name": "Лестница для фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_FicsitSet_8x4_01_C",
+      "name": "Лестница для фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_8x1_01_C",
+      "name": "Фундамент (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_8x2_01_C",
+      "name": "Фундамент (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_8x4_01_C",
+      "name": "Фундамент (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_C",
+      "name": "Четверть трубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_02_C",
+      "name": "Четверть трубы (перевёрнутая)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeCorner_01_C",
+      "name": "Четверть трубы (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeCorner_02_C",
+      "name": "Четверть трубы (перевёрнутая, внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeCorner_03_C",
+      "name": "Четверть трубы (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeCorner_04_C",
+      "name": "Четверть трубы (перевёрнутая, внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_8x1_01_C",
+      "name": "Пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_8x2_01_C",
+      "name": "Пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_8x4_01_C",
+      "name": "Пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_8x4_Inverted_01_C",
+      "name": "Перевёрнутый пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_8x8x8_C",
+      "name": "Сдвоенный пандус (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x1_01_C",
+      "name": "Нижний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x1_02_C",
+      "name": "Верхний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x2_01_C",
+      "name": "Нижний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x2_02_C",
+      "name": "Верхний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x4_01_C",
+      "name": "Нижний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Diagonal_8x4_02_C",
+      "name": "Верхний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_C",
+      "name": "Сдвоенный пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_8x1_C",
+      "name": "Сдвоенный пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x1_C",
+      "name": "Перевёрнутый пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x1_Corner_01_C",
+      "name": "Перевёрнутый верхний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x1_Corner_02_C",
+      "name": "Перевёрнутый нижний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x2_01_C",
+      "name": "Перевёрнутый пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x2_Corner_01_C",
+      "name": "Перевёрнутый верхний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x2_Corner_02_C",
+      "name": "Перевёрнутый нижний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampInverted_8x4_Corner_01_C",
+      "name": "Перевёрнутый верхний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Asphalt_8x4_C",
+      "name": "Лестница для фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_Asphalt_8x4_C",
+      "name": "Четверть трубы (перевёрнутая)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_AsphaltInCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_AsphaltOutCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Asphalt_8x1_C",
+      "name": "Фундамент (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Asphalt_8x2_C",
+      "name": "Фундамент (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Asphalt_8x4_C",
+      "name": "Фундамент (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Asphalt_8x1_C",
+      "name": "Перевёрнутый пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Asphalt_8x2_C",
+      "name": "Перевёрнутый пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Asphalt_8x4_C",
+      "name": "Перевёрнутый пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Asphalt_8x1_C",
+      "name": "Перевёрнутый нижний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Asphalt_8x2_C",
+      "name": "Перевёрнутый нижний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Asphalt_8x4_C",
+      "name": "Перевёрнутый нижний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Asphalt_8x1_C",
+      "name": "Перевёрнутый верхний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Asphalt_8x2_C",
+      "name": "Перевёрнутый верхний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Asphalt_8x4_C",
+      "name": "Перевёрнутый верхний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_Asphalt_8x4_C",
+      "name": "Четверть трубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeInCorner_Asphalt_8x4_C",
+      "name": "Четверть трубы (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Asphalt_8x1_C",
+      "name": "Половина фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Asphalt_8x2_C",
+      "name": "Половина фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Asphalt_8x4_C",
+      "name": "Половина фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Asphalt_8x1_C",
+      "name": "Продолжение внутреннего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Asphalt_8x2_C",
+      "name": "Продолжение внутреннего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Asphalt_8x4_C",
+      "name": "Продолжение внутреннего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Asphalt_4x1_C",
+      "name": "Продолжение внешнего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Asphalt_4x2_C",
+      "name": "Продолжение внешнего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Asphalt_4x4_C",
+      "name": "Продолжение внешнего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeOutCorner_Asphalt_8x4_C",
+      "name": "Четверть трубы (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Asphalt_8x1_C",
+      "name": "Пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Asphalt_8x2_C",
+      "name": "Пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Asphalt_8x4_C",
+      "name": "Пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Asphalt_8x1_C",
+      "name": "Нижний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Asphalt_8x2_C",
+      "name": "Нижний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Asphalt_8x4_C",
+      "name": "Нижний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Asphalt_8x1_C",
+      "name": "Верхний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Asphalt_8x2_C",
+      "name": "Верхний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Asphalt_8x4_C",
+      "name": "Верхний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Asphalt_8x1_C",
+      "name": "Сдвоенный пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Asphalt_8x2_C",
+      "name": "Сдвоенный пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Asphalt_8x4_C",
+      "name": "Сдвоенный пандус (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Asphalt_8x1_C",
+      "name": "Лестница для фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Asphalt_8x2_C",
+      "name": "Лестница для фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Concrete_8x4_C",
+      "name": "Лестница для фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_Concrete_8x4_C",
+      "name": "Четверть трубы (перевёрнутая)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_ConcreteInCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_ConcreteOutCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Concrete_8x1_C",
+      "name": "Фундамент (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Concrete_8x2_C",
+      "name": "Фундамент (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Concrete_8x4_C",
+      "name": "Фундамент (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Concrete_8x1_C",
+      "name": "Перевёрнутый пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Concrete_8x2_C",
+      "name": "Перевёрнутый пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Concrete_8x4_C",
+      "name": "Перевёрнутый пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Concrete_8x1_C",
+      "name": "Перевёрнутый нижний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Concrete_8x2_C",
+      "name": "Перевёрнутый нижний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Concrete_8x4_C",
+      "name": "Перевёрнутый нижний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Concrete_8x1_C",
+      "name": "Перевёрнутый верхний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Concrete_8x2_C",
+      "name": "Перевёрнутый верхний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Concrete_8x4_C",
+      "name": "Перевёрнутый верхний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_Concrete_8x4_C",
+      "name": "Четверть трубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeInCorner_Concrete_8x4_C",
+      "name": "Четверть трубы (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Concrete_8x1_C",
+      "name": "Половина фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Concrete_8x2_C",
+      "name": "Половина фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Concrete_8x4_C",
+      "name": "Половина фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Concrete_8x1_C",
+      "name": "Продолжение внутреннего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Concrete_8x2_C",
+      "name": "Продолжение внутреннего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Concrete_8x4_C",
+      "name": "Продолжение внутреннего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Concrete_4x1_C",
+      "name": "Продолжение внешнего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Concrete_4x2_C",
+      "name": "Продолжение внешнего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Concrete_4x4_C",
+      "name": "Продолжение внешнего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeOutCorner_Concrete_8x4_C",
+      "name": "Четверть трубы (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Concrete_8x1_C",
+      "name": "Пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Concrete_8x2_C",
+      "name": "Пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Concrete_8x4_C",
+      "name": "Пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Concrete_8x1_C",
+      "name": "Нижний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Concrete_8x2_C",
+      "name": "Нижний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Concrete_8x4_C",
+      "name": "Нижний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Concrete_8x1_C",
+      "name": "Верхний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Concrete_8x2_C",
+      "name": "Верхний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Concrete_8x4_C",
+      "name": "Верхний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Concrete_8x1_C",
+      "name": "Сдвоенный пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Concrete_8x2_C",
+      "name": "Сдвоенный пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Concrete_8x4_C",
+      "name": "Сдвоенный пандус (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Concrete_8x1_C",
+      "name": "Лестница для фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_Concrete_8x2_C",
+      "name": "Лестница для фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_GripMetal_8x4_C",
+      "name": "Лестница для фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_Grip_8x4_C",
+      "name": "Четверть трубы (перевёрнутая)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_GripInCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_GripOutCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Metal_8x1_C",
+      "name": "Фундамент (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Metal_8x2_C",
+      "name": "Фундамент (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_Metal_8x4_C",
+      "name": "Фундамент (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Metal_8x1_C",
+      "name": "Перевёрнутый нижний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Metal_8x2_C",
+      "name": "Перевёрнутый нижний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Metal_8x4_C",
+      "name": "Перевёрнутый нижний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Metal_8x1_C",
+      "name": "Перевёрнутый пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Metal_8x2_C",
+      "name": "Перевёрнутый пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Metal_8x4_C",
+      "name": "Перевёрнутый пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Metal_8x1_C",
+      "name": "Перевёрнутый верхний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Metal_8x2_C",
+      "name": "Перевёрнутый верхний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Metal_8x4_C",
+      "name": "Перевёрнутый верхний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_Grip_8x4_C",
+      "name": "Четверть трубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeInCorner_Grip_8x4_C",
+      "name": "Четверть трубы (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Grip_8x1_C",
+      "name": "Половина фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Grip_8x2_C",
+      "name": "Половина фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_Grip_8x4_C",
+      "name": "Половина фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Grip_8x1_C",
+      "name": "Продолжение внутреннего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Grip_8x2_C",
+      "name": "Продолжение внутреннего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_Grip_8x4_C",
+      "name": "Продолжение внутреннего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Grip_4x1_C",
+      "name": "Продолжение внешнего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Grip_4x2_C",
+      "name": "Продолжение внешнего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_Grip_4x4_C",
+      "name": "Продолжение внешнего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeOutCorner_Grip_8x4_C",
+      "name": "Четверть трубы (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Metal_8x1_C",
+      "name": "Нижний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Metal_8x2_C",
+      "name": "Нижний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Metal_8x4_C",
+      "name": "Нижний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Metal_8x1_C",
+      "name": "Пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Metal_8x2_C",
+      "name": "Пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Metal_8x4_C",
+      "name": "Пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Metal_8x1_C",
+      "name": "Верхний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Metal_8x2_C",
+      "name": "Верхний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Metal_8x4_C",
+      "name": "Верхний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Metal_8x1_C",
+      "name": "Сдвоенный пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Metal_8x2_C",
+      "name": "Сдвоенный пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Metal_8x4_C",
+      "name": "Сдвоенный пандус (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_GripMetal_8x1_C",
+      "name": "Лестница для фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_GripMetal_8x2_C",
+      "name": "Лестница для фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWallDouble_C",
+      "name": "Двухсторонняя розетка ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Gate_Automated_8x4_C",
+      "name": "Автоматические ворота",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_PolishedConcrete_8x2_C",
+      "name": "Лестница для фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_ConcretePolished_8x4_C",
+      "name": "Четверть трубы (перевёрнутая)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_ConcretePolishedInCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DownQuarterPipe_ConcretePolishedOutCorner_8x4_C",
+      "name": "Четверть трубы (перевёрнутая, внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_ConcretePolished_8x1_C",
+      "name": "Фундамент (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_ConcretePolished_8x2_C",
+      "name": "Фундамент (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Foundation_ConcretePolished_8x4_C",
+      "name": "Фундамент (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Polished_8x1_C",
+      "name": "Перевёрнутый нижний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Polished_8x2_C",
+      "name": "Перевёрнутый нижний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_DCorner_Polished_8x4_C",
+      "name": "Перевёрнутый нижний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Polished_8x1_C",
+      "name": "Перевёрнутый пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Polished_8x2_C",
+      "name": "Перевёрнутый пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_Polished_8x4_C",
+      "name": "Перевёрнутый пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Polished_8x1_C",
+      "name": "Перевёрнутый верхний угол (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Polished_8x2_C",
+      "name": "Перевёрнутый верхний угол (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_InvertedRamp_UCorner_Polished_8x4_C",
+      "name": "Перевёрнутый верхний угол (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipe_ConcretePolished_8x4_C",
+      "name": "Четверть трубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeInCorner_ConcretePolished_8x4_C",
+      "name": "Четверть трубы (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_PolishedConcrete_8x1_C",
+      "name": "Половина фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_PolishedConcrete_8x2_C",
+      "name": "Половина фундамента (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddle_PolishedConcrete_8x4_C",
+      "name": "Половина фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_PolishedConcrete_8x1_C",
+      "name": "Продолжение внутреннего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_PolishedConcrete_8x2_C",
+      "name": "Продолжение внутреннего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleInCorner_PolishedConcrete_8x4_C",
+      "name": "Продолжение внутреннего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_PolishedConcrete_4x1_C",
+      "name": "Продолжение внешнего угла (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_PolishedConcrete_4x2_C",
+      "name": "Продолжение внешнего угла (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeMiddleOutCorner_PolishedConcrete_4x4_C",
+      "name": "Продолжение внешнего угла (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuarterPipeOutCorner_ConcretePolished_8x4_C",
+      "name": "Четверть трубы (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Polished_8x1_C",
+      "name": "Нижний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Polished_8x2_C",
+      "name": "Нижний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_DownCorner_Polished_8x4_C",
+      "name": "Нижний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Polished_8x1_C",
+      "name": "Пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Polished_8x2_C",
+      "name": "Пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_Polished_8x4_C",
+      "name": "Пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Polished_8x1_C",
+      "name": "Верхний угловой пандус (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Polished_8x2_C",
+      "name": "Верхний угловой пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Ramp_UpCorner_Polished_8x4_C",
+      "name": "Верхний угловой пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Polished_8x1_C",
+      "name": "Сдвоенный пандус (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Polished_8x2_C",
+      "name": "Сдвоенный пандус (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RampDouble_Polished_8x4_C",
+      "name": "Сдвоенный пандус (8 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_PolishedConcrete_8x1_C",
+      "name": "Лестница для фундамента (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Stair_PolishedConcrete_8x4_C",
+      "name": "Лестница для фундамента (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_OilRefinery_C",
+      "name": "Очистительный завод",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeStorageTank_C",
+      "name": "Цистерна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWallDoubleMk2_C",
+      "name": "Двухсторонняя розетка ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWallMk2_C",
+      "name": "Розетка ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWallDoubleMk3_C",
+      "name": "Двухсторонняя розетка ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleWallMk3_C",
+      "name": "Розетка ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_OilPump_C",
+      "name": "Экстрактор нефти",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Valve_C",
+      "name": "Клапан",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HyperTubeWallHole_C",
+      "name": "Отверстие для гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HyperPoleStackable_C",
+      "name": "Наращиваемая опора гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeHyperSupport_C",
+      "name": "Опора гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeSupportWall_C",
+      "name": "Настенная опора трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeSupportWallHole_C",
+      "name": "Отверстие для трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeSupport_C",
+      "name": "Опора трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FoundationPassthrough_Pipe_C",
+      "name": "Напольное отверстие для трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HyperTubeWallSupport_C",
+      "name": "Настенная опора гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeHyperStart_C",
+      "name": "Вход в гипертрубу",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HyperTubeJunction_C",
+      "name": "Перекрестие гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HyperTubeTJunction_C",
+      "name": "Ответвление гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeHyper_C",
+      "name": "Гипертруба",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelineJunction_Cross_C",
+      "name": "Пересечение трубопроводов",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelineJunction_T_C",
+      "name": "Тройниковая муфта для трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_GeneratorCoal_C",
+      "name": "Угольный генератор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelinePump_C",
+      "name": "Трубопроводный насос ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleMk2_C",
+      "name": "Электростолб ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerPoleMk3_C",
+      "name": "Электростолб ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_VehiclePath_FactoryCart_C",
+      "name": "Транспортный путь Заводской мототележки",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_WaterPump_C",
+      "name": "Экстрактор воды",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ResourceSink_C",
+      "name": "ЧУДО-утилизатор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ResourceSinkShop_C",
+      "name": "ЧУДО-магазин",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Pipeline_C",
+      "name": "Трубопровод ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_CyberWagon_C",
+      "name": "Киберпикап",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FactoryCart_C",
+      "name": "Заводская мототележка™",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_LargeFan_C",
+      "name": "Большой вентилятор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_LargeVent_C",
+      "name": "Большое вентиляционное отверстие",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StreetLight_C",
+      "name": "Уличный фонарь",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_CeilingLight_C",
+      "name": "Потолочный светильник",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_MinerMk2_C",
+      "name": "Буровая установка ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FloodlightPole_C",
+      "name": "Осветительная мачта",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FloodlightWall_C",
+      "name": "Настенный прожектор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StackableShelf_C",
+      "name": "Базовый элемент полки",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_OutCorner_03_C",
+      "name": "Крыша, 4 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_01_C",
+      "name": "Плоская крыша",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_02_C",
+      "name": "Крыша (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_03_C",
+      "name": "Крыша (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_04_C",
+      "name": "Крыша (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_InCorner_01_C",
+      "name": "Крыша, 1 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_InCorner_02_C",
+      "name": "Крыша, 2 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_InCorner_03_C",
+      "name": "Крыша, 4 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_OutCorner_01_C",
+      "name": "Крыша, 1 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Tar_OutCorner_02_C",
+      "name": "Крыша, 2 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_OutCorner_03_C",
+      "name": "Крыша, 4 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_01_C",
+      "name": "Плоская крыша",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_02_C",
+      "name": "Крыша (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_03_C",
+      "name": "Крыша (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_04_C",
+      "name": "Крыша (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_InCorner_01_C",
+      "name": "Крыша, 1 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_InCorner_02_C",
+      "name": "Крыша, 2 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_InCorner_03_C",
+      "name": "Крыша, 4 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_OutCorner_01_C",
+      "name": "Крыша, 1 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Orange_OutCorner_02_C",
+      "name": "Крыша, 2 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_OutCorner_03_C",
+      "name": "Крыша, 4 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_01_C",
+      "name": "Плоская крыша",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_02_C",
+      "name": "Крыша (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_03_C",
+      "name": "Крыша (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_04_C",
+      "name": "Крыша (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_InCorner_01_C",
+      "name": "Крыша, 1 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_InCorner_02_C",
+      "name": "Крыша, 2 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_InCorner_03_C",
+      "name": "Крыша, 4 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_OutCorner_01_C",
+      "name": "Крыша, 1 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Window_OutCorner_02_C",
+      "name": "Крыша, 2 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_OutCorner_03_C",
+      "name": "Крыша, 4 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_A_01_C",
+      "name": "Плоская крыша",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_A_02_C",
+      "name": "Крыша (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_A_03_C",
+      "name": "Крыша (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_A_04_C",
+      "name": "Крыша (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_InCorner_01_C",
+      "name": "Крыша, 1 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_InCorner_02_C",
+      "name": "Крыша, 2 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_InCorner_03_C",
+      "name": "Крыша, 4 м (внутренний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_OutCorner_01_C",
+      "name": "Крыша, 1 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Roof_Metal_OutCorner_02_C",
+      "name": "Крыша, 2 м (внешний угол)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ElevatorFloorStop_C",
+      "name": "Этажная остановка лифта",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Elevator_C",
+      "name": "Лифт для персонала",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelineMK2_NoIndicator_C",
+      "name": "Трубопровод ур. 2 без индикатора",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelineMK2_C",
+      "name": "Трубопровод ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipelinePumpMK2_C",
+      "name": "Трубопроводный насос ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Pipeline_NoIndicator_C",
+      "name": "Трубопровод ур. 1 без индикатора",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StorageMedkit_C",
+      "name": "Хранилище для медикаментов",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_LightsControlPanel_C",
+      "name": "Панель управления освещением",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Small_C",
+      "name": "Широкая табличка (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_SmallVeryWide_C",
+      "name": "Широкая табличка (4 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_SmallWide_C",
+      "name": "Широкая табличка (3 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Square_Tiny_C",
+      "name": "Квадратная табличка (0,5 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FoundationPassthrough_Hypertube_C",
+      "name": "Напольное отверстие для гипертрубы",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StorageHazard_C",
+      "name": "Хранилище для опасных материалов",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_GoldenCart_C",
+      "name": "Золотая заводская мототележка™",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Wall_Window_Thin_8x4_01_C",
+      "name": "Панорамное окно",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_Thin_8x4_02_C",
+      "name": "Окно с шестиугольной рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_05_C",
+      "name": "Окно с угловой рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_06_C",
+      "name": "Окно с сотовидной рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Wall_Window_8x4_07_C",
+      "name": "Окно с тройной рамой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Pillar_Small_Frame_C",
+      "name": "Малая каркасная колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarMiddle_Frame_C",
+      "name": "Большая каркасная колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ChainLinkFence_C",
+      "name": "Строительное ограждение",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TarpFence_C",
+      "name": "Брезентовое строительное ограждение",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Barrier_Low_01_C",
+      "name": "Низкий барьер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Barrier_Tall_01_C",
+      "name": "Высокий барьер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Barrier_Corner_C",
+      "name": "Угловой дорожный барьер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Concrete_Barrier_01_C",
+      "name": "Дорожный барьер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Medium_C",
+      "name": "Обычная табличка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Square_C",
+      "name": "Квадратная табличка (2 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Square_Small_C",
+      "name": "Квадратная табличка (1 м)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Portrait_C",
+      "name": "Портретная табличка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorWallHole_C",
+      "name": "Отверстие в стене для конвейера",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorMonitor_C",
+      "name": "Монитор пропускной способности конвейера",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FoundationPassthrough_Lift_C",
+      "name": "Напольное отверстие для конвейерного лифта",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Pillar_Small_Concrete_C",
+      "name": "Малая бетонная колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PillarMiddle_Concrete_C",
+      "name": "Большая бетонная колонна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_Turn_C",
+      "name": "Мостик (угловой)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_Cross_C",
+      "name": "Пересечение мостиков",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_Ramp_C",
+      "name": "Мостик (пандус)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_Stairs_C",
+      "name": "Мостик (лестница)",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_Straight_C",
+      "name": "Прямой мостик",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Catwalk_T_C",
+      "name": "Т-образный мостик",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Huge_C",
+      "name": "Большой рекламный щит",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StandaloneWidgetSign_Large_C",
+      "name": "Малый рекламный щит",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Connector_C",
+      "name": "Соединитель балок",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Connector_Double_C",
+      "name": "Двойной соединитель балок",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Cable_C",
+      "name": "Оплетенный кабель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Cable_Cluster_C",
+      "name": "Набор оплетенных кабелей",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Support_C",
+      "name": "Опора балки",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Concrete_C",
+      "name": "Круглая бетонная балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Cross_C",
+      "name": "Кросс-балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_H_C",
+      "name": "Двутавровая балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Shelf_C",
+      "name": "Полочная балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_C",
+      "name": "Металлическая балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Beam_Painted_C",
+      "name": "Покрашенная балка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_HadronCollider_C",
+      "name": "Ускоритель частиц",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk5_C",
+      "name": "Конвейерная лента ур. 5",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk5_C",
+      "name": "Конвейерный лифт ур. 5",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Converter_C",
+      "name": "Преобразователь",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_QuantumEncoder_C",
+      "name": "Квантовый шифратор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FrackingExtractor_C",
+      "name": "Экстрактор скважины",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FrackingSmasher_C",
+      "name": "Нагнетатель давления скважины",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_GeneratorNuclear_C",
+      "name": "Атомная электростанция",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_MinerMk3_C",
+      "name": "Буровая установка ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DroneStation_C",
+      "name": "Порт дронов",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_DroneTransport_C",
+      "name": "Дрон",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Packager_C",
+      "name": "Упаковщик",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ManufacturerMk1_C",
+      "name": "Изготовитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_AssemblerMk1_C",
+      "name": "Сборщик",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Chainsaw_C",
+      "name": "Цепная пила",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_HazmatSuit_C",
+      "name": "Защитный костюм",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_MedicinalInhaler_C",
+      "name": "Витаминный ингалятор",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_MedicinalInhalerAlienOrgans_C",
+      "name": "Протеиновый ингалятор",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_NutritionalInhaler_C",
+      "name": "Пищевой ингалятор",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Gasmask_C",
+      "name": "Респиратор",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_NobeliskDetonator_C",
+      "name": "Детонатор нобелиска",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_RebarGun_C",
+      "name": "Арматурный пистолет",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_SpaceRifleMk1_C",
+      "name": "Винтовка",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_XmasWreath_C",
+      "name": "Рождественский венок FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasDataCartridge4_C",
+      "name": "Рождественский картридж данных FICSIT, день 14",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_Snowball_C",
+      "name": "Снежок",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasStar_C",
+      "name": "Рождественская чудо-звезда FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_WreathDecor_C",
+      "name": "Рождественское украшение FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasDataCartridge3_C",
+      "name": "Рождественский картридж данных FICSIT, день 8",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBall3_C",
+      "name": "Медное рождественское украшение FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBall4_C",
+      "name": "Железное рождественское украшение FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_SnowDispenser_C",
+      "name": "Рождественский генератор снега FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_SnowCannon_C",
+      "name": "Рождественская снежная пушка FICSIT",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBallCluster_C",
+      "name": "Набор рождественских украшений FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_xmassLights_C",
+      "name": "Рождественская гирлянда FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBall1_C",
+      "name": "Красное рождественское украшение FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBall2_C",
+      "name": "Синее рождественское украшение FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasDataCartridge2_C",
+      "name": "Рождественский картридж данных FICSIT, день 4",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_TreeGiftProducer_C",
+      "name": "Ёлка с подарками FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_Snow_C",
+      "name": "Реальный рождественский снег FICSIT",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_Snowman_C",
+      "name": "Рождественский снеговик FICSIT",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBranch_C",
+      "name": "Рождественская еловая ветвь FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasDataCartridge1_C",
+      "name": "Рождественский картридж данных FICSIT, день 1",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XMassTree_C",
+      "name": "Огромная рождественская ёлка FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_XmasBow_C",
+      "name": "Рождественский бантик FICSIT™",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_CandyCaneDecor_C",
+      "name": "Рождественская карамельная трость FICSIT",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_CandyCane_C",
+      "name": "Карамельная трость",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_CandyCaneBasher_C",
+      "name": "Карамельная трость-дубинка",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_ConveyorAttachmentMergerPriority_C",
+      "name": "Выборочный объединитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RadarTower_C",
+      "name": "Радиолокационная вышка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_VehiclePath_Explorer_C",
+      "name": "Транспортный путь Исследователя",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Explorer_C",
+      "name": "Исследователь",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TherapeuticInhaler_C",
+      "name": "Терапевтический ингалятор",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Parachute_C",
+      "name": "Парашют",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_GeneratorGeoThermal_C",
+      "name": "Геотермальный генератор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorAttachmentSplitterProgrammable_C",
+      "name": "Программируемый разветвитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PriorityPowerSwitch_C",
+      "name": "Приоритетный рубильник",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BladeRunners_C",
+      "name": "Экзоскелет",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_PowerSwitch_C",
+      "name": "Рубильник",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorAttachmentSplitterSmart_C",
+      "name": "Умный разветвитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ZipLine_C",
+      "name": "Зиплайн",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_AlienPowerBuilding_C",
+      "name": "Экстрактор инопланетной энергии",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PortalPotty_C",
+      "name": "МСПО",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_CentralStorage_C",
+      "name": "Средство выгрузки в пространственное хранилище",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk6_C",
+      "name": "Конвейерный лифт ур. 6",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk6_C",
+      "name": "Конвейерная лента ур. 6",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Portal_C",
+      "name": "Главный портал",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PortalSatellite_C",
+      "name": "Дополнительный портал",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BlueprintDesigner_Mk3_C",
+      "name": "Создатель чертежей ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Hoverpack_C",
+      "name": "Ранец для парения",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_Blender_C",
+      "name": "Смеситель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RailroadPathSignal_C",
+      "name": "Путевой светофор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RailroadBlockSignal_C",
+      "name": "Секционный светофор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BlueprintDesigner_Mk2_C",
+      "name": "Создатель чертежей ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RailroadTrack_C",
+      "name": "Железнодорожный путь",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_RailroadEndStop_C",
+      "name": "Буферный упор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TrainStation_C",
+      "name": "Железнодорожная станция",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TrainDockingStation_C",
+      "name": "Грузовая платформа",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TrainDockingStationLiquid_C",
+      "name": "Грузовая платформа для жидкостей",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TrainPlatformEmpty_C",
+      "name": "Пустая платформа",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TrainPlatformEmpty_02_C",
+      "name": "Пустая платформа с мостиком",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FreightWagon_C",
+      "name": "Грузовой вагон",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Locomotive_C",
+      "name": "Электровоз",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_JetPack_C",
+      "name": "Реактивный ранец",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_FluidTruck_C",
+      "name": "Грузовик-цистерна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Truck_C",
+      "name": "Грузовик",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk4_C",
+      "name": "Конвейерный лифт ур. 4",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_VehiclePath_Truck_C",
+      "name": "Транспортный путь Грузовика",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk4_C",
+      "name": "Конвейерная лента ур. 4",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_FluidTruckStation_C",
+      "name": "Грузовая станция для цистерн",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_GeneratorFuel_C",
+      "name": "Топливный генератор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_IndustrialTank_C",
+      "name": "Промышленная цистерна",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk3_C",
+      "name": "Конвейерный лифт ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PipeSupportStackable_C",
+      "name": "Наращиваемая опора трубопровода",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_StorageContainerMk2_C",
+      "name": "Промышленный складской контейнер",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk3_C",
+      "name": "Конвейерная лента ур. 3",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_BlueprintDesigner_C",
+      "name": "Создатель чертежей ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerTower_C",
+      "name": "Опора ЛЭП",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerTowerPlatform_C",
+      "name": "Опора ЛЭП с платформой",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_PowerStorageMk1_C",
+      "name": "Накопитель электроэнергии",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_XenoBasher_C",
+      "name": "Ксенодубинка",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_VehiclePath_Tractor_C",
+      "name": "Транспортный путь Трактора",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_TruckStation_C",
+      "name": "Грузовая станция",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Tractor_C",
+      "name": "Трактор",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk2_C",
+      "name": "Конвейерный лифт ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorBeltMk2_C",
+      "name": "Конвейерная лента ур. 2",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorPoleStackable_C",
+      "name": "Наращиваемая конвейерная стойка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_JumpPadAdjustable_C",
+      "name": "Прыжковая площадка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_UJellyLandingPad_C",
+      "name": "Желейная посадочная площадка",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ObjectScanner_C",
+      "name": "Сканер объектов",
+      "reason": "manual-or-unsupported-building"
+    },
+    {
+      "id": "Recipe_StoragePlayer_C",
+      "name": "Личное хранилище",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Mam_C",
+      "name": "ММА",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorLiftMk1_C",
+      "name": "Конвейерный лифт ур. 1",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorAttachmentMerger_C",
+      "name": "Конвейерный соединитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_ConveyorAttachmentSplitter_C",
+      "name": "Конвейерный разветвитель",
+      "reason": "construction"
+    },
+    {
+      "id": "Recipe_Fireworks_01_C",
+      "name": "Милые фейерверки",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_Fireworks_02_C",
+      "name": "Праздничные фейерверки",
+      "reason": "seasonal"
+    },
+    {
+      "id": "Recipe_Fireworks_03_C",
+      "name": "Искрящиеся фейерверки",
+      "reason": "seasonal"
+    }
+  ],
+  "unmatchedUpstream": [
+    {
+      "id": "reactor-uranium",
+      "reason": "generation-excluded"
+    },
+    {
+      "id": "reactor-plutonium",
+      "reason": "generation-excluded"
+    }
+  ],
+  "missingIcons": [
+    "biochemical-sculptor",
+    "awesome-sink"
+  ],
+  "variablePower": [
+    {
+      "id": "plutonium-pellet",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_PlutoniumPellet_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "nuclear-pasta",
+      "minimum": 500,
+      "documentedAverage": 1000,
+      "maximum": 1500,
+      "source": "Docs-en-US:Desc_SpaceElevatorPart_9_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "time-crystal",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "diamonds",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_Diamond_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "coal-iron",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "coal-limestone",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "copper-ore-quartz",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "iron-ore-limestone",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "raw-quartz-coal",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ficsite-ingot-iron",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ficsite-ingot-aluminum",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ficsite-ingot-caterium",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "bauxite-copper",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "nitrogen-gas-bauxite",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "raw-quartz-bauxite",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "caterium-ore-copper",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "caterium-ore-quartz",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "nitrogen-gas-caterium",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "bauxite-caterium",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "copper-ore-sulfur",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "limestone-sulfur",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "sulfur-coal",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "sulfur-iron",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "uranium-ore-bauxite",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "synthetic-power-shard",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "dark-matter-residue",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "excited-photonic-matter",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "dark-matter-crystal",
+      "minimum": 500,
+      "documentedAverage": 1000,
+      "maximum": 1500,
+      "source": "Docs-en-US:Desc_DarkMatter_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "superposition-oscillator",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "neural-quantum-processor",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ai-expansion-server",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "Docs-en-US:Desc_SpaceElevatorPart_12_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alien-power-matrix",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ficsonium",
+      "minimum": 500,
+      "documentedAverage": 1000,
+      "maximum": 1500,
+      "source": "Docs-en-US:Desc_Ficsonium_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "ficsonium-fuel-rod",
+      "minimum": 0,
+      "documentedAverage": 1000,
+      "maximum": 2000,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-plutonium-cell",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_PlutoniumCell_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-dark-ion-fuel",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-diamonds-turbo",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_Diamond_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-diamonds-pink",
+      "minimum": 100,
+      "documentedAverage": 250,
+      "maximum": 400,
+      "source": "source/power-evidence.json",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-diamonds-petroleum",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_Diamond_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-diamonds-oil",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_Diamond_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-diamonds-cloudy",
+      "minimum": 250,
+      "documentedAverage": 500,
+      "maximum": 750,
+      "source": "Docs-en-US:Desc_Diamond_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-dark-matter-trap",
+      "minimum": 500,
+      "documentedAverage": 1000,
+      "maximum": 1500,
+      "source": "Docs-en-US:Desc_DarkMatter_C.mDescription",
+      "curveExtractedFromBuild": false
+    },
+    {
+      "id": "alt-dark-matter-crystal",
+      "minimum": 500,
+      "documentedAverage": 1000,
+      "maximum": 1500,
+      "source": "Docs-en-US:Desc_DarkMatter_C.mDescription",
+      "curveExtractedFromBuild": false
+    }
+  ],
+  "notes": [
+    "Количества, длительности, здания, названия RU/EN, утилизация и параметры добычи получены из CommunityResources установленной игры Steam build 24656030; это не утверждение о последней публичной версии.",
+    "Переменная мощность: минимум и максимум взяты из constant/factor рецепта; средняя подтверждена описаниями предметов в Docs (ускоритель: 500/1000 МВт, квантовый кодировщик: 1000 МВт) и Official Satisfactory Wiki (конвертер: 250 МВт). Сама кривая UCurveFloat из сборки не извлечена; расчёт использует документированную среднюю модель.",
+    "Группы тематические: названия/порядок групп и принадлежность им не аттестованы, потому что Docs не экспортирует mCategory/mOverriddenCategory и FGItemCategory. Внутри групп используется игровой mManufacturingMenuPriority; порядок равных приоритетов — русский алфавит, без аттестации. Названия предметов, рецептов и зданий взяты из ru.json.",
+    "Скважины с общим компенсатором давления 150 МВт не представлены независимыми узлами; азот доступен как внешний поток с неучтённой энергией поставки.",
+    "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется."
+  ],
+  "itemClasses": {
+    "iron-ore": "Desc_OreIron_C",
+    "copper-ore": "Desc_OreCopper_C",
+    "coal": "Desc_Coal_C",
+    "iron-ingot": "Desc_IronIngot_C",
+    "copper-ingot": "Desc_CopperIngot_C",
+    "steel-ingot": "Desc_SteelIngot_C",
+    "iron-plate": "Desc_IronPlate_C",
+    "iron-rod": "Desc_IronRod_C",
+    "wire": "Desc_Wire_C",
+    "cable": "Desc_Cable_C",
+    "biomass": "Desc_GenericBiomass_C",
+    "concrete": "Desc_Cement_C",
+    "leaves": "Desc_Leaves_C",
+    "limestone": "Desc_Stone_C",
+    "screw": "Desc_IronScrew_C",
+    "wood": "Desc_Wood_C",
+    "hog-remains": "Desc_HogParts_C",
+    "spitter-remains": "Desc_SpitterParts_C",
+    "stinger-remains": "Desc_StingerParts_C",
+    "hatcher-remains": "Desc_HatcherParts_C",
+    "alien-protein": "Desc_AlienProtein_C",
+    "alien-dna-capsule": "Desc_AlienDNACapsule_C",
+    "blue-power-slug": "Desc_Crystal_C",
+    "yellow-power-slug": "Desc_Crystal_mk2_C",
+    "purple-power-slug": "Desc_Crystal_mk3_C",
+    "power-shard": "Desc_CrystalShard_C",
+    "mycelia": "Desc_Mycelia_C",
+    "solid-biofuel": "Desc_Biofuel_C",
+    "steel-beam": "Desc_SteelPlate_C",
+    "steel-pipe": "Desc_SteelPipe_C",
+    "reinforced-iron-plate": "Desc_IronPlateReinforced_C",
+    "rotor": "Desc_Rotor_C",
+    "modular-frame": "Desc_ModularFrame_C",
+    "encased-industrial-beam": "Desc_SteelPlateReinforced_C",
+    "stator": "Desc_Stator_C",
+    "motor": "Desc_Motor_C",
+    "circuit-board": "Desc_CircuitBoard_C",
+    "plastic": "Desc_Plastic_C",
+    "rubber": "Desc_Rubber_C",
+    "heavy-modular-frame": "Desc_ModularFrameHeavy_C",
+    "computer": "Desc_Computer_C",
+    "caterium-ore": "Desc_OreGold_C",
+    "caterium-ingot": "Desc_GoldIngot_C",
+    "quickwire": "Desc_HighSpeedWire_C",
+    "supercomputer": "Desc_ComputerSuper_C",
+    "high-speed-connector": "Desc_HighSpeedConnector_C",
+    "ai-limiter": "Desc_CircuitBoardHighSpeed_C",
+    "fabric": "Desc_Fabric_C",
+    "filter": "Desc_Filter_C",
+    "raw-quartz": "Desc_RawQuartz_C",
+    "quartz-crystal": "Desc_QuartzCrystal_C",
+    "crystal-oscillator": "Desc_CrystalOscillator_C",
+    "sulfur": "Desc_Sulfur_C",
+    "black-powder": "Desc_Gunpowder_C",
+    "smokeless-powder": "Desc_GunpowderMK2_C",
+    "nobelisk": "Desc_NobeliskExplosive_C",
+    "gas-nobelisk": "Desc_NobeliskGas_C",
+    "pulse-nobelisk": "Desc_NobeliskShockwave_C",
+    "cluster-nobelisk": "Desc_NobeliskCluster_C",
+    "nuke-nobelisk": "Desc_NobeliskNuke_C",
+    "compacted-coal": "Desc_CompactedCoal_C",
+    "silica": "Desc_Silica_C",
+    "bauxite": "Desc_OreBauxite_C",
+    "aluminum-ingot": "Desc_AluminumIngot_C",
+    "alclad-aluminum-sheet": "Desc_AluminumPlate_C",
+    "heat-sink": "Desc_AluminumPlateReinforced_C",
+    "radio-control-unit": "Desc_ModularFrameLightweight_C",
+    "turbo-motor": "Desc_MotorLightweight_C",
+    "battery": "Desc_Battery_C",
+    "uranium": "Desc_OreUranium_C",
+    "uranium-cell": "Desc_UraniumCell_C",
+    "em-control-rod": "Desc_ElectromagneticControlRod_C",
+    "uranium-fuel-rod": "Desc_NuclearFuelRod_C",
+    "iodine-infused-filter": "Desc_HazmatFilter_C",
+    "aluminum-scrap": "Desc_AluminumScrap_C",
+    "copper-sheet": "Desc_CopperSheet_C",
+    "polymer-resin": "Desc_PolymerResin_C",
+    "petroleum-coke": "Desc_PetroleumCoke_C",
+    "non-fissile-uranium": "Desc_NonFissibleUranium_C",
+    "plutonium-pellet": "Desc_PlutoniumPellet_C",
+    "encased-plutonium-cell": "Desc_PlutoniumCell_C",
+    "plutonium-fuel-rod": "Desc_PlutoniumFuelRod_C",
+    "copper-powder": "Desc_CopperDust_C",
+    "pressure-conversion-cube": "Desc_PressureConversionCube_C",
+    "empty-canister": "Desc_FluidCanister_C",
+    "packaged-water": "Desc_PackagedWater_C",
+    "packaged-oil": "Desc_PackagedOil_C",
+    "packaged-fuel": "Desc_Fuel_C",
+    "packaged-turbofuel": "Desc_TurboFuel_C",
+    "packaged-heavy-oil-residue": "Desc_PackagedOilResidue_C",
+    "packaged-liquid-biofuel": "Desc_PackagedBiofuel_C",
+    "packaged-alumina-solution": "Desc_PackagedAlumina_C",
+    "packaged-sulfuric-acid": "Desc_PackagedSulfuricAcid_C",
+    "packaged-nitrogen-gas": "Desc_PackagedNitrogenGas_C",
+    "packaged-nitric-acid": "Desc_PackagedNitricAcid_C",
+    "packaged-rocket-fuel": "Desc_PackagedRocketFuel_C",
+    "packaged-ionized-fuel": "Desc_PackagedIonizedFuel_C",
+    "smart-plating": "Desc_SpaceElevatorPart_1_C",
+    "versatile-framework": "Desc_SpaceElevatorPart_2_C",
+    "automated-wiring": "Desc_SpaceElevatorPart_3_C",
+    "modular-engine": "Desc_SpaceElevatorPart_4_C",
+    "adaptive-control-unit": "Desc_SpaceElevatorPart_5_C",
+    "assembly-director-system": "Desc_SpaceElevatorPart_7_C",
+    "magnetic-field-generator": "Desc_SpaceElevatorPart_6_C",
+    "thermal-propulsion-rocket": "Desc_SpaceElevatorPart_8_C",
+    "nuclear-pasta": "Desc_SpaceElevatorPart_9_C",
+    "portable-miner": "BP_ItemDescriptorPortableMiner_C",
+    "aluminum-casing": "Desc_AluminumCasing_C",
+    "empty-fluid-tank": "Desc_GasTank_C",
+    "cooling-system": "Desc_CoolingSystem_C",
+    "fused-modular-frame": "Desc_ModularFrameFused_C",
+    "uranium-waste": "Desc_NuclearWaste_C",
+    "plutonium-waste": "Desc_PlutoniumWaste_C",
+    "sam": "Desc_SAM_C",
+    "reanimated-sam": "Desc_SAMIngot_C",
+    "sam-fluctuator": "Desc_SAMFluctuator_C",
+    "iron-rebar": "Desc_SpikedRebar_C",
+    "stun-rebar": "Desc_Rebar_Stunshot_C",
+    "shatter-rebar": "Desc_Rebar_Spreadshot_C",
+    "explosive-rebar": "Desc_Rebar_Explosive_C",
+    "rifle-ammo": "Desc_CartridgeStandard_C",
+    "homing-rifle-ammo": "Desc_CartridgeSmartProjectile_C",
+    "turbo-rifle-ammo": "Desc_CartridgeChaos_C",
+    "diamonds": "Desc_Diamond_C",
+    "time-crystal": "Desc_TimeCrystal_C",
+    "ficsite-ingot": "Desc_FicsiteIngot_C",
+    "ficsite-trigon": "Desc_FicsiteMesh_C",
+    "dark-matter-crystal": "Desc_DarkMatter_C",
+    "ficsonium": "Desc_Ficsonium_C",
+    "ficsonium-fuel-rod": "Desc_FicsoniumFuelRod_C",
+    "superposition-oscillator": "Desc_QuantumOscillator_C",
+    "neural-quantum-processor": "Desc_TemporalProcessor_C",
+    "singularity-cell": "Desc_SingularityCell_C",
+    "ballistic-warp-drive": "Desc_SpaceElevatorPart_11_C",
+    "ai-expansion-server": "Desc_SpaceElevatorPart_12_C",
+    "alien-power-matrix": "Desc_AlienPowerFuel_C",
+    "water": "Desc_Water_C",
+    "crude-oil": "Desc_LiquidOil_C",
+    "fuel": "Desc_LiquidFuel_C",
+    "turbofuel": "Desc_LiquidTurboFuel_C",
+    "heavy-oil-residue": "Desc_HeavyOilResidue_C",
+    "liquid-biofuel": "Desc_LiquidBiofuel_C",
+    "alumina-solution": "Desc_AluminaSolution_C",
+    "sulfuric-acid": "Desc_SulfuricAcid_C",
+    "nitrogen-gas": "Desc_NitrogenGas_C",
+    "nitric-acid": "Desc_NitricAcid_C",
+    "dissolved-silica": "Desc_DissolvedSilica_C",
+    "rocket-fuel": "Desc_RocketFuel_C",
+    "dark-matter-residue": "Desc_DarkEnergy_C",
+    "excited-photonic-matter": "Desc_QuantumEnergy_C",
+    "ionized-fuel": "Desc_IonizedFuel_C",
+    "biochemical-sculptor": "Desc_SpaceElevatorPart_10_C"
+  },
+  "buildingClasses": {
+    "constructor": "Build_ConstructorMk1_C",
+    "assembler": "Build_AssemblerMk1_C",
+    "manufacturer": "Build_ManufacturerMk1_C",
+    "smelter": "Build_SmelterMk1_C",
+    "foundry": "Build_FoundryMk1_C",
+    "oil-refinery": "Build_OilRefinery_C",
+    "packager": "Build_Packager_C",
+    "blender": "Build_Blender_C",
+    "accelerator": "Build_HadronCollider_C",
+    "converter": "Build_Converter_C",
+    "quantum-encoder": "Build_QuantumEncoder_C"
+  },
+  "verification": {
+    "quantitiesAndDuration": "game-docs",
+    "buildingPower": "game-docs",
+    "recipePowerRanges": "game-docs",
+    "averagePower": "game-description-and-official-wiki",
+    "itemLocalization": "game-ru-docs",
+    "menuCategories": "approximate-manual",
+    "mineralsOilWater": "game-docs",
+    "transport": "game-docs; belt mSpeed/2, pipe mFlowLimit*60",
+    "resourceWellNodes": "unsupported"
+  },
+  "menuEvidence": {
+    "source": "source/menu-evidence.json",
+    "categoryClassesExported": 0,
+    "itemCategoryFieldsExported": 0,
+    "recipeCategoryOverridesExported": 0,
+    "recipePrioritiesExported": 276,
+    "recipePriorities": {
+      "biomass-from-leaves": 1,
+      "hog-protein": 1,
+      "biomass-from-wood": 2,
+      "hatcher-protein": 2,
+      "biomass-from-mycelia": 3,
+      "liquid-biofuel": 3,
+      "stinger-protein": 3,
+      "biomass-from-alien-protein": 4,
+      "spitter-protein": 4,
+      "solid-biofuel": 5,
+      "alien-dna-capsule": 10,
+      "alt-smart-plating": 0,
+      "biochemical-sculptor": 0,
+      "ai-expansion-server": 0,
+      "smart-plating": 0,
+      "nuclear-pasta": 0,
+      "alt-versatile-framework": 1,
+      "versatile-framework": 1,
+      "automated-wiring": 2,
+      "alt-automated-wiring": 2,
+      "modular-engine": 3,
+      "assembly-director-system": 3,
+      "adaptive-control-unit": 4,
+      "magnetic-field-generator": 5,
+      "thermal-propulsion-rocket": 6,
+      "ballistic-warp-drive": 7,
+      "diamonds": 0,
+      "alt-diamonds-pink": 0,
+      "time-crystal": 0,
+      "dark-matter-crystal": 0,
+      "synthetic-power-shard": 0,
+      "ficsite-ingot-iron": 0,
+      "power-shard-blue": 0,
+      "alt-diamonds-cloudy": 1,
+      "excited-photonic-matter": 1,
+      "ficsite-ingot-caterium": 1,
+      "power-shard-yellow": 1,
+      "alt-diamonds-oil": 2,
+      "dark-matter-residue": 2,
+      "ficsite-ingot-aluminum": 2,
+      "power-shard-purple": 2,
+      "alt-diamonds-petroleum": 3,
+      "alt-diamonds-turbo": 4,
+      "singularity-cell": 12,
+      "reanimated-sam": 13,
+      "sam-fluctuator": 14,
+      "ficsite-trigon": 19,
+      "alt-dark-matter-crystal": 999,
+      "alt-dark-matter-trap": 999,
+      "alt-distilled-silica": 0,
+      "alt-instant-scrap": 1,
+      "alt-quartz-crystal": 1,
+      "quartz-crystal": 1,
+      "aluminum-scrap": 2,
+      "silica": 2,
+      "alt-silica": 3,
+      "alt-aluminum-scrap": 3,
+      "copper-powder": 3,
+      "alt-quartz-purification": 999,
+      "alt-fused-quartz-crystal": 999,
+      "alt-diluted-fuel": 0,
+      "plastic": 0,
+      "fuel": 0,
+      "alt-alumina-solution": 1,
+      "alt-turbo-blend-fuel": 1,
+      "alt-dark-ion-fuel": 1,
+      "residual-fuel": 1,
+      "alt-residual-plastic": 1,
+      "alumina-solution": 1,
+      "nitric-acid": 2,
+      "alt-plastic": 2,
+      "rocket-fuel": 2,
+      "alt-rocket-fuel": 3,
+      "alt-polymer-resin": 3,
+      "rubber": 4,
+      "sulfuric-acid": 4,
+      "turbofuel": 4,
+      "alt-turbofuel": 5,
+      "alt-residual-rubber": 5,
+      "alt-recycled-rubber": 6,
+      "ionized-fuel": 6,
+      "alt-heavy-oil-residue": 7,
+      "petroleum-coke": 8,
+      "alt-motor": 0,
+      "rotor": 0,
+      "alt-copper-rotor": 1,
+      "cooling-system": 1,
+      "alt-rotor": 2,
+      "alt-cooling-device": 2,
+      "pressure-conversion-cube": 3,
+      "fused-modular-frame": 3,
+      "stator": 3,
+      "alt-stator": 4,
+      "alt-fused-modular-frame": 4,
+      "motor": 5,
+      "alt-electric-motor": 6,
+      "heat-sink": 7,
+      "alt-heat-sink": 8,
+      "turbo-motor": 8,
+      "alt-turbo-electric-motor": 9,
+      "alt-turbo-pressure-motor": 10,
+      "modular-frame": 10,
+      "alt-modular-frame2": 11,
+      "alt-modular-frame": 12,
+      "heavy-modular-frame": 16,
+      "alt-heavy-modular-frame": 17,
+      "alt-heavy-flexible-frame": 18,
+      "automated-miner": 0,
+      "smokeless-powder": 0,
+      "filter": 0,
+      "black-powder": 0,
+      "alt-black-powder": 1,
+      "iodine-infused-filter": 1,
+      "alt-fabric": 2,
+      "alt-coal": 2,
+      "alien-power-matrix": 2,
+      "supercomputer": 2,
+      "alt-super-state-computer": 3,
+      "quickwire": 5,
+      "fabric": 5,
+      "alt-quickwire": 8,
+      "alt-oc-supercomputer": 12,
+      "iron-rebar": 101,
+      "stun-rebar": 102,
+      "shatter-rebar": 103,
+      "explosive-rebar": 104,
+      "nobelisk": 201,
+      "gas-nobelisk": 202,
+      "cluster-nobelisk": 203,
+      "pulse-nobelisk": 204,
+      "nuke-nobelisk": 205,
+      "rifle-ammo": 301,
+      "homing-rifle-ammo": 302,
+      "alt-turbo-rifle-ammo": 303,
+      "turbo-rifle-ammo": 303,
+      "computer": 0,
+      "superposition-oscillator": 0,
+      "alt-computer": 1,
+      "neural-quantum-processor": 1,
+      "em-control-rod": 1,
+      "alt-em-control-rod": 2,
+      "alt-crystal-oscillator": 4,
+      "crystal-oscillator": 4,
+      "radio-control-unit": 5,
+      "alt-radio-connection-unit": 6,
+      "alt-radio-control-unit": 8,
+      "high-speed-connector": 10,
+      "alt-crystal-computer": 11,
+      "alt-high-speed-connector": 11,
+      "alt-iron-ingot": 0,
+      "alt-pure-iron-ingot": 0,
+      "iron-ingot": 0,
+      "alt-leached-iron-ingot": 1,
+      "alt-basic-iron-ingot": 1,
+      "copper-ingot": 1,
+      "alt-copper-ingot": 2,
+      "alt-pure-copper-ingot": 2,
+      "alt-leached-copper-ingot": 3,
+      "alt-tempered-copper-ingot": 3,
+      "alt-pure-caterium-ingot": 4,
+      "steel-ingot": 4,
+      "alt-leached-caterium-ingot": 5,
+      "alt-steel-ingot": 5,
+      "caterium-ingot": 5,
+      "alt-coke-steel-ingot": 6,
+      "alt-aluminum-ingot": 6,
+      "alt-compacted-steel-ingot": 7,
+      "alt-tempered-caterium-ingot": 8,
+      "aluminum-ingot": 9,
+      "alt-iron-plate": 0,
+      "alt-concrete": 0,
+      "alt-wet-concrete": 0,
+      "concrete": 0,
+      "iron-plate": 0,
+      "alt-steel-cast-plate": 1,
+      "alt-copper-sheet": 1,
+      "alt-rubber-concrete": 1,
+      "iron-rod": 1,
+      "alt-iron-rod": 2,
+      "alt-molded-beam": 2,
+      "alt-aluminum-rod": 3,
+      "alt-molded-steel-pipe": 3,
+      "screw": 4,
+      "alt-screw": 5,
+      "alt-steel-screw": 6,
+      "reinforced-iron-plate": 6,
+      "alt-bolted-iron-plate": 7,
+      "alt-stitched-iron-plate": 8,
+      "alt-adhered-iron-plate": 9,
+      "copper-sheet": 11,
+      "steel-beam": 12,
+      "alt-steel-beam": 13,
+      "steel-pipe": 14,
+      "alt-iron-pipe": 15,
+      "encased-industrial-beam": 15,
+      "alt-encased-industrial-beam": 16,
+      "alclad-aluminum-sheet": 17,
+      "alt-aluminum-casing": 18,
+      "aluminum-casing": 18,
+      "iron-ore-limestone": 0,
+      "copper-ore-sulfur": 1,
+      "copper-ore-quartz": 2,
+      "limestone-sulfur": 3,
+      "coal-limestone": 4,
+      "coal-iron": 5,
+      "alt-biocoal": 6,
+      "sulfur-iron": 6,
+      "alt-charcoal": 7,
+      "sulfur-coal": 7,
+      "caterium-ore-copper": 8,
+      "caterium-ore-quartz": 9,
+      "raw-quartz-coal": 10,
+      "raw-quartz-bauxite": 11,
+      "bauxite-copper": 12,
+      "bauxite-caterium": 13,
+      "nitrogen-gas-caterium": 14,
+      "nitrogen-gas-bauxite": 15,
+      "uranium-ore-bauxite": 16,
+      "alt-coated-iron-canister": 0,
+      "packaged-water": 0,
+      "unpackage-water": 0,
+      "empty-canister": 0,
+      "alt-steel-canister": 1,
+      "packaged-oil": 1,
+      "unpackage-oil": 1,
+      "alt-packaged-fuel": 2,
+      "packaged-heavy-oil-residue": 2,
+      "unpackage-heavy-oil-residue": 2,
+      "empty-fluid-tank": 2,
+      "unpackage-liquid-biofuel": 3,
+      "packaged-liquid-biofuel": 3,
+      "packaged-fuel": 4,
+      "unpackage-fuel": 4,
+      "packaged-turbofuel": 5,
+      "unpackage-turbofuel": 5,
+      "packaged-rocket-fuel": 6,
+      "unpackage-rocket-fuel": 6,
+      "packaged-ionized-fuel": 7,
+      "unpackage-ionized-fuel": 7,
+      "packaged-alumina-solution": 8,
+      "unpackage-alumina-solution": 8,
+      "packaged-sulfuric-acid": 9,
+      "unpackage-sulfuric-acid": 9,
+      "unpackage-nitrogen-gas": 10,
+      "packaged-nitrogen-gas": 10,
+      "unpackage-nitric-acid": 11,
+      "packaged-nitric-acid": 11,
+      "alt-coated-cable": 0,
+      "alt-fused-wire": 0,
+      "wire": 0,
+      "alt-iron-wire": 1,
+      "alt-cable": 1,
+      "alt-caterium-wire": 2,
+      "alt-quickwire-cable": 2,
+      "cable": 3,
+      "circuit-board": 4,
+      "battery": 5,
+      "alt-electrode-circuit-board": 5,
+      "alt-caterium-circuit-board": 6,
+      "alt-circuit-board": 7,
+      "ai-limiter": 9,
+      "alt-ai-limiter": 10,
+      "alt-battery": 11,
+      "alt-uranium-cell": 0,
+      "non-fissile-uranium": 0,
+      "uranium-cell": 0,
+      "plutonium-pellet": 0,
+      "ficsonium-fuel-rod": 0,
+      "alt-plutonium-cell": 1,
+      "uranium-fuel-rod": 1,
+      "alt-uranium-fuel-unit": 2,
+      "encased-plutonium-cell": 2,
+      "ficsonium": 2,
+      "alt-fertile-uranium": 3,
+      "plutonium-fuel-rod": 3,
+      "alt-plutonium-fuel-rod": 4
+    },
+    "groupNamesAndOrderVerified": false,
+    "recipePriorityOrderApplied": true,
+    "equalPriorityOrder": "alphabetical-ru; not-verified-in-game"
+  }
+}
