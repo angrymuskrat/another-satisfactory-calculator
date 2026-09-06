@@ -32,6 +32,90 @@ function fixture(): { catalog: Catalog; plan: Plan } {
 const output = (r: Result, id: string) => r.products.find(p => p.itemId === id)?.rate ?? 0;
 
 describe('совместная оптимизация производства', () => {
+  it.each(['priority', 'weighted'] as const)('сохраняет минимум младшего продукта и при потере выпуска: %s', policy => {
+    const { catalog, plan } = fixture(); plan.policy = policy;
+    plan.targets[0].weight = 10;
+    plan.targets.push({ itemId: 'rod', rate: 1, weight: 1, scale: 1, minRate: 15 });
+    let result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(output(result, 'rod')).toBeCloseTo(15, 5);
+    expect(output(result, 'plate')).toBeCloseTo(30, 4);
+    plan.settings.outputSlack = 50; result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(output(result, 'rod')).toBeGreaterThanOrEqual(15 - 1e-6);
+  });
+  it('верхняя граница ограничивает совместную пропорцию', () => {
+    const { catalog, plan } = fixture(); plan.targets[0].maxRate = 10;
+    plan.targets.push({ itemId: 'rod', rate: 2, weight: 1, scale: 1, minRate: 5 });
+    const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(output(result, 'plate')).toBeCloseTo(10, 5);
+    expect(output(result, 'rod')).toBeCloseTo(20, 5);
+  });
+  it('сообщает о недостижимом минимуме, не меняя заказ', () => {
+    const { catalog, plan } = fixture(); plan.targets[0].minRate = 50;
+    const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('infeasible'); expect(result.message).toContain('минимум');
+    expect(plan.targets[0].minRate).toBe(50);
+  });
+  it('ограничивает физический пик вместо средней мощности', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 30;
+    plan.settings.powerLimit = 7; plan.settings.peakPowerLimit = 7;
+    expect(solve(catalog, plan, highs).status).toBe('infeasible');
+    plan.mode = 'maximize'; const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(output(result, 'plate')).toBeCloseTo(20, 4);
+    expect(result.installedPower).toBeCloseTo(4, 5);
+  });
+  it('вычитает резерв сети и независимо проверяет его', () => {
+    const { catalog, plan } = fixture(); plan.settings.peakPowerLimit = 9; plan.settings.powerReserve = 2;
+    const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(output(result, 'plate')).toBeCloseTo(20, 4);
+    plan.settings.powerReserve = 6;
+    expect(validateResult(catalog, plan, result).errors.join(' ')).toContain('максимальной');
+  });
+  it('предпочитает одну мощную машину двум экономным', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 40;
+    catalog.recipes.push(recipe('fast', 'plate', 3, 2, 3, 12)); plan.settings.enabledRecipeIds.push('fast');
+    const energy = solve(catalog, plan, highs); expect(energy.steps[0].recipeId).toBe('plate');
+    plan.settings.objective = 'buildings'; const compact = solve(catalog, plan, highs);
+    expect(compact.status).toBe('optimal'); expect(compact.steps.map(s => s.recipeId)).toEqual(['fast']);
+    expect(compact.steps[0].installedMachines).toBe(1); expect(compact.power).toBeCloseTo(12, 4);
+  });
+  it.each(['power', 'resources'] as const)('при равных основных целях предпочитает меньше разных рецептов: %s', objective => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 10;
+    plan.settings.objective = objective;
+    catalog.recipes = [
+      recipe('direct', 'plate', 1, 1, 6, 4),
+      recipe('stage1', 'rod', 10, 10, 60, 2),
+      { ...recipe('stage2', 'plate', 10, 10, 60, 2), inputs: [{ itemId: 'rod', amount: 10 }] },
+    ];
+    plan.settings.enabledRecipeIds = catalog.recipes.map(r => r.id);
+    const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(result.power).toBeCloseTo(4, 5);
+    expect(result.resources[0].rate).toBeCloseTo(10, 5);
+    expect(result.steps.map(s => s.recipeId)).toEqual(['direct']);
+  });
+  it('лимит типа здания общий для разных рецептов', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    plan.targets.push({ itemId: 'rod', rate: 15, weight: 1, scale: 1 });
+    plan.settings.buildingLimits = { constructor: 1 };
+    expect(solve(catalog, plan, highs).status).toBe('infeasible');
+    plan.settings.buildingLimits['constructor'] = 2; const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal');
+    plan.settings.buildingLimits['constructor'] = 1;
+    expect(validateResult(catalog, plan, result).errors.join(' ')).toContain('зданий');
+  });
+  it('считает пиковую мощность нужных добытчиков, а не всех доступных узлов', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    Object.assign(plan.sources[0], { kind: 'node', count: 3, limit: null });
+    plan.settings.peakPowerLimit = 9;
+    const result = solve(catalog, plan, highs);
+    expect(result.status).toBe('optimal'); expect(result.installedPower).toBeCloseTo(9, 5);
+    expect(result.resources[0].installedMachines).toBe(1);
+  });
+  it('открытия мира нельзя обойти локальным разрешением рецепта', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target';
+    plan.world = { id: 'world', revision: 1, unlockedRecipeIds: ['rod'], unlockedBuildingIds: ['constructor'],
+      beltId: 'belt1', pipeId: 'pipe1', overclockUnlocked: false, unlockedMilestoneIds: [] };
+    expect(solve(catalog, plan, highs).status).toBe('infeasible');
+  });
   it.each(['aluminum-ingot', 'battery'])('сохраняет баланс малых потоков в реальной цепочке %s', itemId => {
     const catalog = gameCatalog as Catalog; const plan = createDefaultPlan(catalog);
     plan.mode = 'target'; plan.targets = [{ itemId, rate: 10, weight: 1, scale: 1 }]; plan.sources = [];

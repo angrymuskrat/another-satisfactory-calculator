@@ -1,7 +1,11 @@
 import type { Catalog, Plan, Result } from '../domain/types';
+import { effectivePlan } from '../domain/availability';
 /** Recomputes conservation from catalog coefficients, independent of LP serialization. */
 export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const errors: string[] = [];
+  try { plan = effectivePlan(catalog, plan); } catch (error) { return { maxBalanceError: Infinity, errors: [error instanceof Error ? error.message : 'Недоступные технологии мира.'] }; }
+  const counts = new Map<string, number>();
+  const count = (id: string, amount: number) => counts.set(id, (counts.get(id) ?? 0) + amount);
   const close = (actual: number, expected: number) => Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-6 + Math.abs(expected) * 1e-8;
   const beltRate = catalog.belts.find(b => b.id === plan.settings.beltId)?.rate ?? 0;
   const pipeRate = catalog.pipes.find(p => p.id === plan.settings.pipeId)?.rate ?? 0;
@@ -28,6 +32,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     for (const ingredient of [...recipe.inputs, ...recipe.outputs]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
     const machines = step.cycles / capacity;
     const physical = Math.max(1, Math.ceil(machines - 1e-7));
+    count(recipe.buildingId, physical);
     const peak = physical * (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent;
     if (!close(step.power, power) || !close(step.powerMax, peak)) errors.push('Неверная мощность этапа.');
     if (!close(step.machines, machines) || step.installedMachines !== physical) errors.push('Недостаточно машин для потока.');
@@ -52,7 +57,9 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
         limit = limit === null ? maximum : Math.min(maximum, limit);
         const activePower = miner.power * (original.clock / 100) ** exponent;
         sourcePower = source.rate / nominalRate * activePower;
-        if (source.rate > 1e-12) installedPower += original.count * activePower;
+        const physical = source.rate > 1e-12 ? Math.max(1, Math.ceil(source.rate / (maximum / original.count) - 1e-7)) : 0;
+        if (source.installedMachines !== undefined && source.installedMachines !== physical) errors.push('Неверное количество добытчиков.');
+        count(original.minerId, physical); installedPower += physical * activePower;
       }
     } else if (plan.settings.resourcePolicy !== 'unlimited-unlisted' || plan.sources.some(s => s.itemId === source.itemId)
       || !catalog.items.find(i => i.id === source.itemId)?.raw || source.sourceId !== `implicit:${source.itemId}`) errors.push('Не разрешён внешний источник.');
@@ -76,6 +83,8 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   }
   const sinkPower = catalog.buildings.find(b => b.id === 'awesome-sink')?.power ?? 30;
   const sinks = Math.round(result.sinkPower / sinkPower);
+  count('awesome-sink', sinks);
+  if (sinkRate > 0 && sinks === 0) errors.push('Поток утилизации требует физического утилизатора.');
   if (sinks < 0 || !close(result.sinkPower, sinks * sinkPower) || sinkRate > sinks * beltRate + 1e-5) errors.push('Недостаточно утилизаторов.');
   const totalPower = productionPower + extractionPower + sinks * sinkPower;
   if (!close(result.productionPower, productionPower) || !close(result.extractionPower, extractionPower) || !close(result.power, totalPower)
@@ -87,7 +96,14 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   }
   if (plan.mode === 'target') for (const target of plan.targets) {
     const output = result.products.find(p => p.itemId === target.itemId)?.rate ?? 0;
-    if (Math.abs(output - target.rate) > 1e-6 + target.rate * 1e-8) errors.push('Заказ не выполнен.');
+    if (Math.abs(output - target.rate) > Math.min(1e-6 + target.rate * 1e-8, target.rate * 1e-6)) errors.push('Заказ не выполнен.');
+  }
+  for (const target of plan.targets) {
+    const output = result.products.find(p => p.itemId === target.itemId)?.rate ?? 0;
+    const minimum = target.minRate ?? 0;
+    if (output < minimum - Math.min(1e-6 + minimum * 1e-8, minimum * 1e-6)) errors.push('Не выполнен минимум продукта.');
+    if (target.maxRate === 0 && output > 0) errors.push('Запрещён выпуск продукта.');
+    if (target.maxRate != null && output > target.maxRate + 1e-6 + target.maxRate * 1e-8) errors.push('Превышен максимум продукта.');
   }
   if (plan.mode === 'maximize' && plan.policy === 'proportional') {
     const largest = plan.targets.reduce((a, b) => a.rate >= b.rate ? a : b);
@@ -95,5 +111,8 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     for (const target of plan.targets) if (!close(result.products.find(p => p.itemId === target.itemId)?.rate ?? 0, output * target.rate / largest.rate)) errors.push('Нарушена пропорция продуктов.');
   }
   if (plan.settings.powerLimit !== null && totalPower > plan.settings.powerLimit + 1e-6 + plan.settings.powerLimit * 1e-8) errors.push('Превышен лимит мощности.');
+  const peakLimit = plan.settings.peakPowerLimit;
+  if (peakLimit != null && installedPower + sinks * sinkPower + (plan.settings.powerReserve ?? 0) > peakLimit + 1e-6 + peakLimit * 1e-8) errors.push('Превышен лимит максимальной нагрузки с резервом.');
+  for (const [id, limit] of Object.entries(plan.settings.buildingLimits ?? {})) if ((counts.get(id) ?? 0) > limit) errors.push(`Превышен лимит зданий ${id}.`);
   return { maxBalanceError, errors };
 }

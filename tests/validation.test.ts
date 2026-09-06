@@ -13,3 +13,16 @@ it('rejects duplicate targets and invalid clocks, caps and priority scales', () 
     expect(() => parsePlan({ ...valid(), settings: { ...valid().settings, ...field } })).toThrow();
   }
 });
+it('сохраняет старый план и валидирует границы P1 без молчаливого исправления', () => {
+  expect(parsePlan(valid())).toEqual(valid());
+  const original = valid();
+  const p1 = { ...original, targets: [{ ...original.targets[0], minRate: 5, maxRate: 20 }],
+    settings: { ...original.settings, objective: 'buildings', peakPowerLimit: 70, powerReserve: 5, buildingLimits: { constructor: 3 } } };
+  expect(parsePlan(p1)).toEqual(p1);
+  for (const bounds of [{ minRate: -1 }, { maxRate: -1 }, { minRate: 6, maxRate: 5 }, { maxRate: Infinity }]) {
+    expect(() => parsePlan({ ...p1, targets: [{ ...original.targets[0], ...bounds }] })).toThrow();
+  }
+  for (const fields of [{ peakPowerLimit: -1 }, { powerReserve: -1 }, { buildingLimits: { constructor: 1.5 } }]) {
+    expect(() => parsePlan({ ...p1, settings: { ...p1.settings, ...fields } })).toThrow();
+  }
+});

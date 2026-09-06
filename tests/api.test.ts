@@ -6,6 +6,10 @@ import { DatabaseSync } from 'node:sqlite';
 import type { FastifyInstance } from 'fastify';
 import { createApp } from '../apps/api/app';
 import type { Plan } from '../packages/domain/types';
+import type { Catalog } from '../packages/domain/types';
+import catalogJson from '../packages/game-data/catalog.json';
+import { createDefaultPlan } from '../packages/domain/defaults';
+import { applyWorldUpdate, createFactory, createWorld, emptyWorkspace, previewWorldUpdate } from '../packages/domain/worlds';
 
 const plan: Plan = {
   schemaVersion: 1, catalogVersion: 'fixture-v1', name: 'Стальной завод',
@@ -34,6 +38,86 @@ async function register(instance: FastifyInstance, username = 'alice') {
 afterEach(async () => {
   await Promise.all(apps.splice(0).map(instance => instance.close()));
   await Promise.all(directories.splice(0).map(directory => rm(directory, { recursive: true, force: true })));
+});
+
+const worldCatalog = catalogJson as Catalog;
+function worldFixture() {
+  const completePlan = createDefaultPlan(worldCatalog);
+  const world = createWorld(worldCatalog, 'Мой мир', 'my-world', completePlan);
+  return { ...emptyWorkspace(worldCatalog.version), worlds: [world], factories: [
+    createFactory(completePlan, 'first', world), createFactory({ ...completePlan, name: 'Вторая фабрика' }, 'second', world),
+    createFactory(completePlan, 'legacy'),
+  ] };
+}
+describe('API миров и фабрик', () => {
+  it('изолирует workspace аккаунтов, не принимает чужого владельца и сохраняет полные фабрики', async () => {
+    const instance = app();
+    expect((await instance.inject('/api/workspace')).statusCode).toBe(401);
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', payload: {} })).statusCode).toBe(401);
+    const a = await register(instance);
+    const b = await register(instance, 'bob');
+    const workspace = worldFixture();
+    const payload = { expectedOwnerId: a.user.id, revision: 0, workspace };
+    const created = await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: a.cookie }, payload });
+    expect(created.statusCode).toBe(200);
+    expect(created.json()).toEqual({ ownerId: a.user.id, revision: 1, workspace });
+    expect((await instance.inject({ url: '/api/workspace', headers: { cookie: b.cookie } })).json().workspace.factories).toEqual([]);
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: b.cookie }, payload })).statusCode).toBe(409);
+    const own = await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: b.cookie }, payload: { ...payload, expectedOwnerId: b.user.id } });
+    expect(own.statusCode).toBe(200); // Одинаковые ID внутри другого аккаунта допустимы.
+    expect((await instance.inject({ url: '/api/workspace', headers: { cookie: a.cookie } })).json().workspace).toEqual(workspace);
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: a.cookie, origin: 'https://evil.example' }, payload: { ...payload, revision: 1 } })).statusCode).toBe(403);
+  });
+  it('атомарно применяет мир ко всем snapshots, отклоняет конфликт revision без потери данных', async () => {
+    const instance = app(); const { cookie, user } = await register(instance);
+    const workspace = worldFixture();
+    await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie }, payload: { expectedOwnerId: user.id, revision: 0, workspace } });
+    const preview = previewWorldUpdate(workspace, { ...workspace.worlds[0], unlockedRecipeIds: [] });
+    const next = applyWorldUpdate(workspace, preview);
+    const responses = await Promise.all([next, workspace].map(workspace => instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie }, payload: { expectedOwnerId: user.id, revision: 1, workspace } })));
+    expect(responses.map(r => r.statusCode).sort()).toEqual([200, 409]);
+    const winner = responses.find(r => r.statusCode === 200)!.json();
+    expect(winner.revision).toBe(2);
+    expect((await instance.inject({ url: '/api/workspace', headers: { cookie } })).json()).toEqual(winner);
+    expect(winner.workspace.factories[2]).toEqual(workspace.factories[2]);
+  });
+  it('отклоняет висячие ссылки и несовместимые snapshots, сохраняя прежнюю запись', async () => {
+    const instance = app(); const { cookie, user } = await register(instance);
+    const workspace = worldFixture();
+    const payload = { expectedOwnerId: user.id, revision: 0, workspace };
+    await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie }, payload });
+    const missing = structuredClone(workspace); missing.worlds = [];
+    const stale = structuredClone(workspace); stale.worlds[0].revision++;
+    const badRecipe = structuredClone(workspace); badRecipe.factories[0].plan.settings.enabledRecipeIds.push('unknown-recipe');
+    for (const bad of [missing, stale, badRecipe, { ...workspace, catalogVersion: 'unknown' }]) {
+      const response = await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie }, payload: { ...payload, revision: 1, workspace: bad } });
+      expect(response.statusCode).toBe(400);
+    }
+    expect((await instance.inject({ url: '/api/workspace', headers: { cookie } })).json().workspace).toEqual(workspace);
+  });
+  it('после перезапуска БД восстанавливает workspace и оставляет legacy profiles/plans', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'satisfactory-worlds-')); directories.push(directory);
+    const path = join(directory, 'store.sqlite'); const first = app(path);
+    const { cookie, user } = await register(first);
+    const workspace = worldFixture();
+    for (const kind of ['plans', 'profiles']) await first.inject({ method: 'POST', url: `/api/${kind}`, headers: { cookie }, payload: { name: 'Legacy', data: plan } });
+    await first.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie }, payload: { expectedOwnerId: user.id, revision: 0, workspace } });
+    await first.close(); apps.splice(apps.indexOf(first), 1);
+    const second = app(path);
+    expect((await second.inject({ url: '/api/workspace', headers: { cookie } })).json().workspace).toEqual(workspace);
+    for (const kind of ['plans', 'profiles']) expect((await second.inject({ url: `/api/${kind}`, headers: { cookie } })).json()[kind][0].data).toEqual(plan);
+  });
+  it('миграция БД v1 добавляет workspace без изменения legacy документов и сессий', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'satisfactory-worlds-migration-')); directories.push(directory);
+    const path = join(directory, 'store.sqlite'); const first = app(path);
+    const { cookie } = await register(first);
+    await first.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Legacy', data: plan } });
+    await first.close(); apps.splice(apps.indexOf(first), 1);
+    const db = new DatabaseSync(path); db.exec('DROP TABLE workspaces; PRAGMA user_version = 1;'); db.close();
+    const second = app(path);
+    expect((await second.inject({ url: '/api/profiles', headers: { cookie } })).json().profiles[0].data).toEqual(plan);
+    expect((await second.inject({ url: '/api/workspace', headers: { cookie } })).json().revision).toBe(0);
+  });
 });
 
 describe('API пользователей и сохранённых конфигураций', () => {

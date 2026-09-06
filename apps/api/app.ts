@@ -10,6 +10,7 @@ import { z, ZodError } from 'zod';
 import { parsePlan } from '../../packages/domain/validation';
 import { openDatabase, savedDocument, type SavedRow, type User, type UserRow } from './db';
 import { currentUser, hashPassword, revokeSession, SESSION_COOKIE, setSession, verifyPassword } from './auth';
+import { registerWorldRoutes } from './worlds';
 
 declare module 'fastify' {
   interface FastifyRequest { user: User | null }
@@ -138,6 +139,7 @@ export function createApp(options: { databasePath?: string; serveStatic?: boolea
     });
   }
 
+  registerWorldRoutes(app, db);
   const staticRoot = join(root, 'dist', 'web');
   if (options.serveStatic && existsSync(join(staticRoot, 'index.html'))) {
     app.register(fastifyStatic, { root: staticRoot, prefix: '/' });

@@ -6,6 +6,7 @@ import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { importP1Data } from './import-p1-game-data.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const path = p => resolve(root, p);
@@ -122,8 +123,9 @@ for (const u of up.recipes.filter(r => !mappedRecipes.has(r.key_name))) report.u
 // Порядок самих групп и правила при равных приоритетах дамп не подтверждает.
 const recipePriority = recipe => Number(byClass.get(report.recipeClasses[recipe.id]).mManufacturingMenuPriority);
 recipes.sort((a,b) => a.category.localeCompare(b.category, 'ru') || recipePriority(a)-recipePriority(b) || a.name.localeCompare(b.name, 'ru'));
+const minerClasses = {'miner-mk1':'Build_MinerMk1_C','miner-mk2':'Build_MinerMk2_C','miner-mk3':'Build_MinerMk3_C','oil-pump':'Build_OilPump_C','water-extractor':'Build_WaterPump_C'};
 const miners = up.miners.map(u => {
-  const className = {'miner-mk1':'Build_MinerMk1_C','miner-mk2':'Build_MinerMk2_C','miner-mk3':'Build_MinerMk3_C','oil-pump':'Build_OilPump_C','water-extractor':'Build_WaterPump_C'}[u.key_name];
+  const className = minerClasses[u.key_name];
   const game = byClass.get(className);
   const resourceIds = u.category === 'mineral' ? up.resources.filter(r => r.category === 'mineral').map(r => r.key_name) : [u.category === 'oil' ? 'crude-oil' : 'water'];
   const rate = Number(game.mItemsPerCycle) * 60 / Number(game.mExtractCycleTime) / (u.category === 'mineral' ? 1 : 1000);
@@ -133,7 +135,6 @@ const belts = up.belts.map((u, i) => { const game = byClass.get(`Build_ConveyorB
 const pipes = up.pipes.map((u,i) => {const game = byClass.get(i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'); return {id:u.key_name, name:localized(game), rate:Number(game.mFlowLimit)*60}; });
 
 const iconTasks = [];
-mkdirSync(path('apps/web/public/icons'), {recursive:true});
 for (const entry of [...items, ...buildings]) {
   const u = upstreamItems.get(entry.id) || up.buildings.find(b => b.key_name === entry.id);
   const asset = tree.find(f => f.path === `images/${u?.name || entry.nameEn}.png`);
@@ -142,6 +143,7 @@ for (const entry of [...items, ...buildings]) {
   iconTasks.push({id:entry.id, upstreamPath:asset.path, gitBlobSha:asset.sha, size:asset.size});
 }
 if (process.argv.includes('--download-icons')) {
+  mkdirSync(path('apps/web/public/icons'), {recursive:true});
   const queue = [...iconTasks];
   await Promise.all(Array.from({length:8}, async () => {
     while(queue.length) {
@@ -173,7 +175,12 @@ report.menuEvidence = {
   recipePriorityOrderApplied: true,
   equalPriorityOrder: 'alphabetical-ru; not-verified-in-game'
 };
+const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, parseIngredients: ingredients,
+  machineClasses: { ...report.buildingClasses, 'awesome-sink': 'Build_ResourceSink_C', ...minerClasses },
+  transportClasses: Object.fromEntries([...belts.map((b, i) => [b.id, `Build_ConveyorBeltMk${i+1}_C`]), ...pipes.map((p, i) => [p.id, i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'])]),
+});
 output('packages/game-data/catalog.json', catalog);
 output('packages/game-data/audit-report.json', report);
+output('packages/game-data/progression.json', progression);
 output('packages/game-data/source/icon-manifest.json', iconTasks);
 console.log(JSON.stringify(report.counts));

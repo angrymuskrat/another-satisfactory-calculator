@@ -14,7 +14,7 @@ export function openDatabase(path: string) {
   const db = new DatabaseSync(path);
   db.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
   const version = db.prepare('PRAGMA user_version').get()!.user_version as number;
-  if (version > 1) {
+  if (version > 2) {
     db.close();
     throw new Error('Версия базы данных новее поддерживаемой.');
   }
@@ -46,6 +46,16 @@ export function openDatabase(path: string) {
       PRAGMA user_version = 1;
       COMMIT;
     `);
+  }
+  if (version < 2) {
+    db.exec(`BEGIN IMMEDIATE;
+      CREATE TABLE workspaces (
+        user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        revision INTEGER NOT NULL CHECK(revision >= 1),
+        data TEXT NOT NULL
+      );
+      PRAGMA user_version = 2;
+      COMMIT;`);
   }
   return db;
 }

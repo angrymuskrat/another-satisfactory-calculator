@@ -3851,7 +3851,8 @@
     "Переменная мощность: минимум и максимум взяты из constant/factor рецепта; средняя подтверждена описаниями предметов в Docs (ускоритель: 500/1000 МВт, квантовый кодировщик: 1000 МВт) и Official Satisfactory Wiki (конвертер: 250 МВт). Сама кривая UCurveFloat из сборки не извлечена; расчёт использует документированную среднюю модель.",
     "Группы тематические: названия/порядок групп и принадлежность им не аттестованы, потому что Docs не экспортирует mCategory/mOverriddenCategory и FGItemCategory. Внутри групп используется игровой mManufacturingMenuPriority; порядок равных приоритетов — русский алфавит, без аттестации. Названия предметов, рецептов и зданий взяты из ru.json.",
     "Скважины с общим компенсатором давления 150 МВт не представлены независимыми узлами; азот доступен как внешний поток с неучтённой энергией поставки.",
-    "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется."
+    "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены из производственной модели. Стоимости 17 новых зданий/добытчиков импортированы отдельно из строительных рецептов. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется.",
+    "Прямые эффекты открытий и названия схем импортированы из FGSchematic Docs; полный граф требований MAM/этапов не восстановлен, prerequisitesKnown=false. Catalog.unlocks содержит minerIds, schematicIds и prerequisiteGroups (AND групп, OR внутри); пустые prerequisites не доказывают доступность. Исходные зависимости и ограничения сохранены в progression.json; см. README пакета."
   ],
   "itemClasses": {
     "iron-ore": "Desc_OreIron_C",
@@ -4318,5 +4319,1963 @@
     "groupNamesAndOrderVerified": false,
     "recipePriorityOrderApplied": true,
     "equalPriorityOrder": "alphabetical-ru; not-verified-in-game"
+  },
+  "buildCosts": {
+    "provenance": {
+      "source": "Local installed Satisfactory/CommunityResources/Docs",
+      "steamBuildId": "24656030",
+      "versionLabel": null,
+      "importedAt": "2026-09-06",
+      "docsFileDate": "2026-08-15",
+      "sha256": {
+        "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+        "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+      },
+      "verification": "pinned-local-game-docs; no-new-external-source"
+    },
+    "unit": "items-per-new-machine",
+    "entries": [
+      {
+        "id": "constructor",
+        "buildClass": "Build_ConstructorMk1_C",
+        "descriptorClass": "Desc_ConstructorMk1_C",
+        "recipeClass": "Recipe_ConstructorMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_ConstructorMk1.Recipe_ConstructorMk1_C",
+        "rawCost": [
+          {
+            "className": "Desc_IronPlateReinforced_C",
+            "amount": 2
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 8
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "reinforced-iron-plate",
+            "amount": 2
+          },
+          {
+            "itemId": "cable",
+            "amount": 8
+          }
+        ]
+      },
+      {
+        "id": "assembler",
+        "buildClass": "Build_AssemblerMk1_C",
+        "descriptorClass": "Desc_AssemblerMk1_C",
+        "recipeClass": "Recipe_AssemblerMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_AssemblerMk1.Recipe_AssemblerMk1_C",
+        "rawCost": [
+          {
+            "className": "Desc_IronPlateReinforced_C",
+            "amount": 8
+          },
+          {
+            "className": "Desc_Rotor_C",
+            "amount": 4
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 10
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "reinforced-iron-plate",
+            "amount": 8
+          },
+          {
+            "itemId": "rotor",
+            "amount": 4
+          },
+          {
+            "itemId": "cable",
+            "amount": 10
+          }
+        ]
+      },
+      {
+        "id": "manufacturer",
+        "buildClass": "Build_ManufacturerMk1_C",
+        "descriptorClass": "Desc_ManufacturerMk1_C",
+        "recipeClass": "Recipe_ManufacturerMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_ManufacturerMk1.Recipe_ManufacturerMk1_C",
+        "rawCost": [
+          {
+            "className": "Desc_Motor_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ModularFrame_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_Plastic_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 50
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "motor",
+            "amount": 10
+          },
+          {
+            "itemId": "modular-frame",
+            "amount": 20
+          },
+          {
+            "itemId": "plastic",
+            "amount": 50
+          },
+          {
+            "itemId": "cable",
+            "amount": 50
+          }
+        ]
+      },
+      {
+        "id": "smelter",
+        "buildClass": "Build_SmelterMk1_C",
+        "descriptorClass": "Desc_SmelterMk1_C",
+        "recipeClass": "Recipe_SmelterBasicMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_SmelterBasicMk1.Recipe_SmelterBasicMk1_C",
+        "rawCost": [
+          {
+            "className": "Desc_IronRod_C",
+            "amount": 5
+          },
+          {
+            "className": "Desc_Wire_C",
+            "amount": 8
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "iron-rod",
+            "amount": 5
+          },
+          {
+            "itemId": "wire",
+            "amount": 8
+          }
+        ]
+      },
+      {
+        "id": "foundry",
+        "buildClass": "Build_FoundryMk1_C",
+        "descriptorClass": "Desc_FoundryMk1_C",
+        "recipeClass": "Recipe_SmelterMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_SmelterMk1.Recipe_SmelterMk1_C",
+        "rawCost": [
+          {
+            "className": "Desc_ModularFrame_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Rotor_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Cement_C",
+            "amount": 20
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "modular-frame",
+            "amount": 10
+          },
+          {
+            "itemId": "rotor",
+            "amount": 10
+          },
+          {
+            "itemId": "concrete",
+            "amount": 20
+          }
+        ]
+      },
+      {
+        "id": "oil-refinery",
+        "buildClass": "Build_OilRefinery_C",
+        "descriptorClass": "Desc_OilRefinery_C",
+        "recipeClass": "Recipe_OilRefinery_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_OilRefinery.Recipe_OilRefinery_C",
+        "rawCost": [
+          {
+            "className": "Desc_Motor_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_SteelPlateReinforced_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_SteelPipe_C",
+            "amount": 30
+          },
+          {
+            "className": "Desc_CopperSheet_C",
+            "amount": 20
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "motor",
+            "amount": 10
+          },
+          {
+            "itemId": "encased-industrial-beam",
+            "amount": 10
+          },
+          {
+            "itemId": "steel-pipe",
+            "amount": 30
+          },
+          {
+            "itemId": "copper-sheet",
+            "amount": 20
+          }
+        ]
+      },
+      {
+        "id": "packager",
+        "buildClass": "Build_Packager_C",
+        "descriptorClass": "Desc_Packager_C",
+        "recipeClass": "Recipe_Packager_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_Packager.Recipe_Packager_C",
+        "rawCost": [
+          {
+            "className": "Desc_SteelPlate_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_Rubber_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Plastic_C",
+            "amount": 10
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "steel-beam",
+            "amount": 20
+          },
+          {
+            "itemId": "rubber",
+            "amount": 10
+          },
+          {
+            "itemId": "plastic",
+            "amount": 10
+          }
+        ]
+      },
+      {
+        "id": "blender",
+        "buildClass": "Build_Blender_C",
+        "descriptorClass": "Desc_Blender_C",
+        "recipeClass": "Recipe_Blender_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_Blender.Recipe_Blender_C",
+        "rawCost": [
+          {
+            "className": "Desc_Computer_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ModularFrameHeavy_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Motor_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_AluminumCasing_C",
+            "amount": 50
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "computer",
+            "amount": 10
+          },
+          {
+            "itemId": "heavy-modular-frame",
+            "amount": 10
+          },
+          {
+            "itemId": "motor",
+            "amount": 20
+          },
+          {
+            "itemId": "aluminum-casing",
+            "amount": 50
+          }
+        ]
+      },
+      {
+        "id": "accelerator",
+        "buildClass": "Build_HadronCollider_C",
+        "descriptorClass": "Desc_HadronCollider_C",
+        "recipeClass": "Recipe_HadronCollider_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_HadronCollider.Recipe_HadronCollider_C",
+        "rawCost": [
+          {
+            "className": "Desc_MotorLightweight_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ComputerSuper_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ModularFrameFused_C",
+            "amount": 25
+          },
+          {
+            "className": "Desc_CoolingSystem_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_HighSpeedWire_C",
+            "amount": 500
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "turbo-motor",
+            "amount": 10
+          },
+          {
+            "itemId": "supercomputer",
+            "amount": 10
+          },
+          {
+            "itemId": "fused-modular-frame",
+            "amount": 25
+          },
+          {
+            "itemId": "cooling-system",
+            "amount": 50
+          },
+          {
+            "itemId": "quickwire",
+            "amount": 500
+          }
+        ]
+      },
+      {
+        "id": "converter",
+        "buildClass": "Build_Converter_C",
+        "descriptorClass": "Desc_Converter_C",
+        "recipeClass": "Recipe_Converter_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_Converter.Recipe_Converter_C",
+        "rawCost": [
+          {
+            "className": "Desc_ModularFrameFused_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_CoolingSystem_C",
+            "amount": 25
+          },
+          {
+            "className": "Desc_ModularFrameLightweight_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_SAMFluctuator_C",
+            "amount": 100
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "fused-modular-frame",
+            "amount": 10
+          },
+          {
+            "itemId": "cooling-system",
+            "amount": 25
+          },
+          {
+            "itemId": "radio-control-unit",
+            "amount": 50
+          },
+          {
+            "itemId": "sam-fluctuator",
+            "amount": 100
+          }
+        ]
+      },
+      {
+        "id": "quantum-encoder",
+        "buildClass": "Build_QuantumEncoder_C",
+        "descriptorClass": "Desc_QuantumEncoder_C",
+        "recipeClass": "Recipe_QuantumEncoder_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_QuantumEncoder.Recipe_QuantumEncoder_C",
+        "rawCost": [
+          {
+            "className": "Desc_MotorLightweight_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_ComputerSuper_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_CoolingSystem_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_TimeCrystal_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_FicsiteMesh_C",
+            "amount": 100
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "turbo-motor",
+            "amount": 20
+          },
+          {
+            "itemId": "supercomputer",
+            "amount": 20
+          },
+          {
+            "itemId": "cooling-system",
+            "amount": 50
+          },
+          {
+            "itemId": "time-crystal",
+            "amount": 50
+          },
+          {
+            "itemId": "ficsite-trigon",
+            "amount": 100
+          }
+        ]
+      },
+      {
+        "id": "awesome-sink",
+        "buildClass": "Build_ResourceSink_C",
+        "descriptorClass": "Desc_ResourceSink_C",
+        "recipeClass": "Recipe_ResourceSink_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_ResourceSink.Recipe_ResourceSink_C",
+        "rawCost": [
+          {
+            "className": "Desc_IronPlateReinforced_C",
+            "amount": 15
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 30
+          },
+          {
+            "className": "Desc_Cement_C",
+            "amount": 45
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "reinforced-iron-plate",
+            "amount": 15
+          },
+          {
+            "itemId": "cable",
+            "amount": 30
+          },
+          {
+            "itemId": "concrete",
+            "amount": 45
+          }
+        ]
+      },
+      {
+        "id": "miner-mk1",
+        "buildClass": "Build_MinerMk1_C",
+        "descriptorClass": "Desc_MinerMk1_C",
+        "recipeClass": "Recipe_MinerMk1_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_MinerMk1.Recipe_MinerMk1_C",
+        "rawCost": [
+          {
+            "className": "BP_ItemDescriptorPortableMiner_C",
+            "amount": 1
+          },
+          {
+            "className": "Desc_IronPlate_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Cement_C",
+            "amount": 10
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "portable-miner",
+            "amount": 1
+          },
+          {
+            "itemId": "iron-plate",
+            "amount": 10
+          },
+          {
+            "itemId": "concrete",
+            "amount": 10
+          }
+        ]
+      },
+      {
+        "id": "miner-mk2",
+        "buildClass": "Build_MinerMk2_C",
+        "descriptorClass": "Desc_MinerMk2_C",
+        "recipeClass": "Recipe_MinerMk2_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_MinerMk2.Recipe_MinerMk2_C",
+        "rawCost": [
+          {
+            "className": "BP_ItemDescriptorPortableMiner_C",
+            "amount": 2
+          },
+          {
+            "className": "Desc_SteelPlateReinforced_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_SteelPipe_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_ModularFrame_C",
+            "amount": 10
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "portable-miner",
+            "amount": 2
+          },
+          {
+            "itemId": "encased-industrial-beam",
+            "amount": 10
+          },
+          {
+            "itemId": "steel-pipe",
+            "amount": 20
+          },
+          {
+            "itemId": "modular-frame",
+            "amount": 10
+          }
+        ]
+      },
+      {
+        "id": "miner-mk3",
+        "buildClass": "Build_MinerMk3_C",
+        "descriptorClass": "Desc_MinerMk3_C",
+        "recipeClass": "Recipe_MinerMk3_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_MinerMk3.Recipe_MinerMk3_C",
+        "rawCost": [
+          {
+            "className": "BP_ItemDescriptorPortableMiner_C",
+            "amount": 3
+          },
+          {
+            "className": "Desc_SteelPipe_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_ComputerSuper_C",
+            "amount": 5
+          },
+          {
+            "className": "Desc_ModularFrameFused_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_MotorLightweight_C",
+            "amount": 3
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "portable-miner",
+            "amount": 3
+          },
+          {
+            "itemId": "steel-pipe",
+            "amount": 50
+          },
+          {
+            "itemId": "supercomputer",
+            "amount": 5
+          },
+          {
+            "itemId": "fused-modular-frame",
+            "amount": 10
+          },
+          {
+            "itemId": "turbo-motor",
+            "amount": 3
+          }
+        ]
+      },
+      {
+        "id": "oil-pump",
+        "buildClass": "Build_OilPump_C",
+        "descriptorClass": "Desc_OilPump_C",
+        "recipeClass": "Recipe_OilPump_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_OilPump.Recipe_OilPump_C",
+        "rawCost": [
+          {
+            "className": "Desc_Motor_C",
+            "amount": 15
+          },
+          {
+            "className": "Desc_SteelPlateReinforced_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 60
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "motor",
+            "amount": 15
+          },
+          {
+            "itemId": "encased-industrial-beam",
+            "amount": 20
+          },
+          {
+            "itemId": "cable",
+            "amount": 60
+          }
+        ]
+      },
+      {
+        "id": "water-extractor",
+        "buildClass": "Build_WaterPump_C",
+        "descriptorClass": "Desc_WaterPump_C",
+        "recipeClass": "Recipe_WaterPump_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_WaterPump.Recipe_WaterPump_C",
+        "rawCost": [
+          {
+            "className": "Desc_CopperSheet_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_IronPlateReinforced_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Rotor_C",
+            "amount": 10
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "copper-sheet",
+            "amount": 20
+          },
+          {
+            "itemId": "reinforced-iron-plate",
+            "amount": 10
+          },
+          {
+            "itemId": "rotor",
+            "amount": 10
+          }
+        ]
+      }
+    ],
+    "coverage": {
+      "productionBuildings": 11,
+      "sinks": 1,
+      "miners": 5,
+      "covered": 17,
+      "missingIds": []
+    },
+    "mappingBasis": "Build_/Desc_ class naming checked against exact build/recipe EN display name and single FGBuildingDescriptor product; mBuildableClass not exported",
+    "limitations": [
+      "Полная стоимость нового здания; не дельта апгрейда.",
+      "Ленты, трубы, питание, фундаменты, энергомодули и усилители в стоимость машины не входят."
+    ]
+  },
+  "progression": {
+    "provenance": {
+      "source": "Local installed Satisfactory/CommunityResources/Docs",
+      "steamBuildId": "24656030",
+      "versionLabel": null,
+      "importedAt": "2026-09-06",
+      "docsFileDate": "2026-08-15",
+      "sha256": {
+        "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+        "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+      },
+      "verification": "pinned-local-game-docs; no-new-external-source"
+    },
+    "coverage": {
+      "sourceSchematics": 574,
+      "catalogUnlocks": 276,
+      "relevantSchematics": 274,
+      "closureAddedIds": [
+        "CustomizerUnlock_ColourSwatches_C",
+        "CustomizerUnlock_PipelineSwatch_C"
+      ],
+      "childSchemeReferences": 15,
+      "childSchemeClosureComplete": true,
+      "prerequisitesKnown": 0,
+      "explicitDependencyGroups": 145,
+      "kinds": {
+        "hub": 48,
+        "mam": 106,
+        "other": 122
+      },
+      "recipes": {
+        "total": 276,
+        "covered": 276,
+        "missingIds": []
+      },
+      "buildings": {
+        "total": 12,
+        "covered": 12,
+        "missingIds": []
+      },
+      "miners": {
+        "total": 5,
+        "covered": 5,
+        "missingIds": []
+      },
+      "belts": {
+        "total": 6,
+        "covered": 6,
+        "missingIds": []
+      },
+      "pipes": {
+        "total": 2,
+        "covered": 2,
+        "missingIds": []
+      },
+      "overclockIds": [
+        "Research_PowerSlugs_2_C"
+      ],
+      "researchTreeExported": false,
+      "prerequisitesComplete": false,
+      "unprojectedDependencies": [],
+      "excluded": [
+        {
+          "id": "Schematic_SaveCompatibility_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_SongsOfConquest_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Sanctum2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Sanctum_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_LeMichael_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_JoelSyntholm_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Huntdown_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Goat_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_FicsmasHits_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Ficsday2025_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_DeepRockGalactic_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_AbsoluteFicsit_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Colour_ConcreteSwatch_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_Basic_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Basic_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Foundations_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Foundations_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Foundations_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CyberWagon_Unlock_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Foundations_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Inverted_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_Asphalt_FoundationMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_ExtensionQuarterPipes_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_QuarterPipeExtensions_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_ExtensionQuarterPipes_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_Concrete_FoundationMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Half_Foundations_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HalfFoundations_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Half_Foundations_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Half_Foundations_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_GripMetal_FoundationMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_ExtensionQuarterPipes_GripMetal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_QuarterPipes_GripMetal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CurvedFoundationPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_QuarterPipes_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_QuarterPipes_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_PolishedConcrete_FoundationMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_ExtensionQuarterPipes_Polished_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Half_Foundations_Polished_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Corners_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_DiagonalRamps_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Corners_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Corners_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Corners_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FoundationExpansionPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Double_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Double_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Double_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Double_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_InvertedCornerRamps_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_InvCorners_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_InvCorners_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_InvCorners_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_InvCorners_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_InvertedRampPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Inverted_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Inverted_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Ramps_Inverted_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Ladders_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FrameworkFoundations_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FactoryRailing_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FactoryFence_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Walkways_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FoudationPillar_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Stairs_Coated_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FoundationStairs_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Stairs_Asphalt_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Stairs_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Stairs_Metal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_QuarterPipes_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FactoryCart_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CyberWagon_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_WallPowerPolesMK3_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveyorWallMount_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveryWalls_Normal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Conveyor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_ConcreteWallMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_DiagonalDown_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Diagonal_Down_Wallset_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_DiagonalDown_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_SteelWallMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_Conveyor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_DiagonalUp_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Diagonal_Up_WallSet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_DiagonalUp_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_DoorWalls_Normal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Doors_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_Doors_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_WindowedWalls_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Windows_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_WIndows_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_Gates_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_GateWalls_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Gates_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Steel_Walls_Tilted_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Tilted_Walls_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Concrete_Walls_Tilted_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveyorCeilingMount_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HyperTubeWallAttachements_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PipelineWallAttachments_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PipelineFloorHole_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_WallPowerPoles_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_WallPowerPolesMK2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_VentilationBundle_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StreetLight_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CeilingLight_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_LightTower_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueLizardDoggo_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Statue_Hoggo_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueSpaceGiraffe_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueSilverPioneer_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueBronzePioneer_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueGoldPioneer_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StatueGoldenNut_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_StackableShelf_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Roofs_Basic_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Basic_Steel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_SteelRoofMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Corners_Steel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Roofs_Corners_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Corners_Glass_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_GlassRoofMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Basic_Glass_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Corners_Tar_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Customizer_TarRoofMaterial_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_Roofs_Basic_Tar_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PersonnelElevator_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NoIndicator_PipelineMK2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NoIndicator_PipelineMK1_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_MedicalBoxSkin_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_LightControlPanel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_LabelSigns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HyperTubeFloorHole_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HazardBoxSkin_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_GoldenCup_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_GoldenCart_Unlock_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_GoldenCart_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FrameWindows_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FramePillarSet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Fences_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FactoryBarrier2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FactoryBarrier_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_DisplaySigns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveyorWallHole_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveyorMonitor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConveyorLiftHole_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ConcretePillarSet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Checkmark_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Catwalks_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Boombox_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_BillboardSigns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_BeamSet_Cables_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_BeamSet2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_BeamSet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Zones_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_UnPainted_PaintFinish_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Pathways_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Number_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_IconsTransport_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_IconsFactory_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FullLines_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_DotLines_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Copper_PaintFinish_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Chrome_PaintFinish_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Caterium_PaintFinish_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CarbonSteel_PaintFinish_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Arrows_FoundationPatterns_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "CBG_PatternRemoval_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Purchasable_HardDrive_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_TimeCrystal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SyntheticPowerShard_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SuperPositionOscillator_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RocketFuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NeuralQuantumProcessor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_IonizedFuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FicsiteTrigon_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PressureConversionCube_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_FusedModularFrame_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_EmptyFluidTank_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ElectromagneticControlRod_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CopperPowder_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CoolingSystem_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_TurboMotor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SuperComputer_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Silica_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RadioControlUnit_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HeatSink_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Battery_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_AluminumCasing_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_AlcladSheet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PolymerResin_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PackagedTurboFuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PackagedFuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PackagedBiofuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HeavyModularFrame_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Computer_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SmokelessPowder_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Rubber_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Plastic_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_PetroleumCoke_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Motor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HighSpeedConnector_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_EmptyCanister_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CrystalOscillator_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CircuitBoard_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Stator_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_EncasedIndustrialBeam_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CompactedCoal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SteelPipe_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_SteelBeam_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_BlackPowder_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Rotor_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ReinforcedIronPlate_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Quickwire_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_ModularFrame_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Fabric_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CopperSheet_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Biofuel_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_AILimiter_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Wire_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Screw_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Rod_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_QuartzCrystal_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Plate_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Concrete_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Cable_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Biomass_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RifleAmmoTurbo_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RifleAmmoHoming_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RebarStun_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RebarShatter_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RebarExplosive_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_RadiationFilters_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NobeliskPulse_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NobeliskGas_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_NobeliskCluster_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_HealthPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_GasFilters_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_Explosives_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_CoffeeCup_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_AmmoPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "ResourceSink_AdvancedAmmoPack_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_XMassTree_T4_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Research_XMas_5_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Schematic_XMassTree_T3_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Research_XMas_4_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_4-2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_4-1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Schematic_XMassTree_T2_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Research_XMas_3_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_3-2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_3-1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Schematic_XMassTree_T1_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Research_XMas_2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_2-2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_2-1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_1-2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_XMas_1-1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Research_Sulfur_3_2_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Research_HardDrive_0_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_Somersloop_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_Nut_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_NuclearWaste_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_FicsmasStar_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_FicsmasBall_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_FicsitCoupon_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_Default_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_Checkit_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_Alpaca_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Trinket_AirFreshener_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Welder_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Scout_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Scarf_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Neon_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Neko_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Mecha_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Schematic_Helmet_Golden_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Ficsmas_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Doggo_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Schematic_Helmet_Default_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Coffee_C",
+          "reason": "missing-ru-display-name"
+        },
+        {
+          "id": "Schematic_Helmet_Bobble_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Helmet_Beta_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_Striped_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_Neon_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_HalfNHalf_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_Golden_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_Default_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_ColoredSides_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Skin_Buildgun_Camo_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Alternate_InventorySlots2_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Schematic_Alternate_InventorySlots1_C",
+          "reason": "no-catalog-effects-or-dependencies"
+        },
+        {
+          "id": "Ficsmas_Schematic_SkinBundle_2_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Ficsmas_Schematic_SkinBundle_1_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Ficsmas_Schematic_Fireworks_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Ficsmas_Schematic_FingerGun_Emote_C",
+          "reason": "event-restricted"
+        },
+        {
+          "id": "Schematic_XMassTree_C",
+          "reason": "missing-ru-display-name"
+        }
+      ],
+      "missingSchematicReferences": [
+        "Research_Caterium_6_1_C",
+        "Schematic_6-4_C"
+      ]
+    },
+    "dataFile": "progression.json"
   }
 }

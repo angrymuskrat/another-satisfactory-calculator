@@ -10,7 +10,8 @@
       "Переменная мощность: минимум и максимум взяты из constant/factor рецепта; средняя подтверждена описаниями предметов в Docs (ускоритель: 500/1000 МВт, квантовый кодировщик: 1000 МВт) и Official Satisfactory Wiki (конвертер: 250 МВт). Сама кривая UCurveFloat из сборки не извлечена; расчёт использует документированную среднюю модель.",
       "Группы тематические: названия/порядок групп и принадлежность им не аттестованы, потому что Docs не экспортирует mCategory/mOverriddenCategory и FGItemCategory. Внутри групп используется игровой mManufacturingMenuPriority; порядок равных приоритетов — русский алфавит, без аттестации. Названия предметов, рецептов и зданий взяты из ru.json.",
       "Скважины с общим компенсатором давления 150 МВт не представлены независимыми узлами; азот доступен как внешний поток с неучтённой энергией поставки.",
-      "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется."
+      "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены из производственной модели. Стоимости 17 новых зданий/добытчиков импортированы отдельно из строительных рецептов. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется.",
+      "Прямые эффекты открытий и названия схем импортированы из FGSchematic Docs; полный граф требований MAM/этапов не восстановлен, prerequisitesKnown=false. Catalog.unlocks содержит minerIds, schematicIds и prerequisiteGroups (AND групп, OR внутри); пустые prerequisites не доказывают доступность. Исходные зависимости и ограничения сохранены в progression.json; см. README пакета."
     ]
   },
   "items": [
@@ -1540,56 +1541,172 @@
       "name": "Конструктор",
       "nameEn": "Constructor",
       "power": 4,
-      "icon": "/icons/constructor.png"
+      "icon": "/icons/constructor.png",
+      "buildCost": [
+        {
+          "itemId": "reinforced-iron-plate",
+          "amount": 2
+        },
+        {
+          "itemId": "cable",
+          "amount": 8
+        }
+      ]
     },
     {
       "id": "assembler",
       "name": "Сборщик",
       "nameEn": "Assembler",
       "power": 15,
-      "icon": "/icons/assembler.png"
+      "icon": "/icons/assembler.png",
+      "buildCost": [
+        {
+          "itemId": "reinforced-iron-plate",
+          "amount": 8
+        },
+        {
+          "itemId": "rotor",
+          "amount": 4
+        },
+        {
+          "itemId": "cable",
+          "amount": 10
+        }
+      ]
     },
     {
       "id": "manufacturer",
       "name": "Изготовитель",
       "nameEn": "Manufacturer",
       "power": 55,
-      "icon": "/icons/manufacturer.png"
+      "icon": "/icons/manufacturer.png",
+      "buildCost": [
+        {
+          "itemId": "motor",
+          "amount": 10
+        },
+        {
+          "itemId": "modular-frame",
+          "amount": 20
+        },
+        {
+          "itemId": "plastic",
+          "amount": 50
+        },
+        {
+          "itemId": "cable",
+          "amount": 50
+        }
+      ]
     },
     {
       "id": "smelter",
       "name": "Плавильня",
       "nameEn": "Smelter",
       "power": 4,
-      "icon": "/icons/smelter.png"
+      "icon": "/icons/smelter.png",
+      "buildCost": [
+        {
+          "itemId": "iron-rod",
+          "amount": 5
+        },
+        {
+          "itemId": "wire",
+          "amount": 8
+        }
+      ]
     },
     {
       "id": "foundry",
       "name": "Литейная",
       "nameEn": "Foundry",
       "power": 16,
-      "icon": "/icons/foundry.png"
+      "icon": "/icons/foundry.png",
+      "buildCost": [
+        {
+          "itemId": "modular-frame",
+          "amount": 10
+        },
+        {
+          "itemId": "rotor",
+          "amount": 10
+        },
+        {
+          "itemId": "concrete",
+          "amount": 20
+        }
+      ]
     },
     {
       "id": "oil-refinery",
       "name": "Очистительный завод",
       "nameEn": "Refinery",
       "power": 30,
-      "icon": "/icons/oil-refinery.png"
+      "icon": "/icons/oil-refinery.png",
+      "buildCost": [
+        {
+          "itemId": "motor",
+          "amount": 10
+        },
+        {
+          "itemId": "encased-industrial-beam",
+          "amount": 10
+        },
+        {
+          "itemId": "steel-pipe",
+          "amount": 30
+        },
+        {
+          "itemId": "copper-sheet",
+          "amount": 20
+        }
+      ]
     },
     {
       "id": "packager",
       "name": "Упаковщик",
       "nameEn": "Packager",
       "power": 10,
-      "icon": "/icons/packager.png"
+      "icon": "/icons/packager.png",
+      "buildCost": [
+        {
+          "itemId": "steel-beam",
+          "amount": 20
+        },
+        {
+          "itemId": "rubber",
+          "amount": 10
+        },
+        {
+          "itemId": "plastic",
+          "amount": 10
+        }
+      ]
     },
     {
       "id": "blender",
       "name": "Смеситель",
       "nameEn": "Blender",
       "power": 75,
-      "icon": "/icons/blender.png"
+      "icon": "/icons/blender.png",
+      "buildCost": [
+        {
+          "itemId": "computer",
+          "amount": 10
+        },
+        {
+          "itemId": "heavy-modular-frame",
+          "amount": 10
+        },
+        {
+          "itemId": "motor",
+          "amount": 20
+        },
+        {
+          "itemId": "aluminum-casing",
+          "amount": 50
+        }
+      ]
     },
     {
       "id": "accelerator",
@@ -1597,7 +1714,29 @@
       "nameEn": "Particle Accelerator",
       "power": 1000,
       "powerMax": 1500,
-      "icon": "/icons/accelerator.png"
+      "icon": "/icons/accelerator.png",
+      "buildCost": [
+        {
+          "itemId": "turbo-motor",
+          "amount": 10
+        },
+        {
+          "itemId": "supercomputer",
+          "amount": 10
+        },
+        {
+          "itemId": "fused-modular-frame",
+          "amount": 25
+        },
+        {
+          "itemId": "cooling-system",
+          "amount": 50
+        },
+        {
+          "itemId": "quickwire",
+          "amount": 500
+        }
+      ]
     },
     {
       "id": "converter",
@@ -1605,7 +1744,25 @@
       "nameEn": "Converter",
       "power": 250,
       "powerMax": 400,
-      "icon": "/icons/converter.png"
+      "icon": "/icons/converter.png",
+      "buildCost": [
+        {
+          "itemId": "fused-modular-frame",
+          "amount": 10
+        },
+        {
+          "itemId": "cooling-system",
+          "amount": 25
+        },
+        {
+          "itemId": "radio-control-unit",
+          "amount": 50
+        },
+        {
+          "itemId": "sam-fluctuator",
+          "amount": 100
+        }
+      ]
     },
     {
       "id": "quantum-encoder",
@@ -1613,13 +1770,49 @@
       "nameEn": "Quantum Encoder",
       "power": 1000,
       "powerMax": 2000,
-      "icon": "/icons/quantum-encoder.png"
+      "icon": "/icons/quantum-encoder.png",
+      "buildCost": [
+        {
+          "itemId": "turbo-motor",
+          "amount": 20
+        },
+        {
+          "itemId": "supercomputer",
+          "amount": 20
+        },
+        {
+          "itemId": "cooling-system",
+          "amount": 50
+        },
+        {
+          "itemId": "time-crystal",
+          "amount": 50
+        },
+        {
+          "itemId": "ficsite-trigon",
+          "amount": 100
+        }
+      ]
     },
     {
       "id": "awesome-sink",
       "name": "ЧУДО-утилизатор",
       "nameEn": "AWESOME Sink",
-      "power": 30
+      "power": 30,
+      "buildCost": [
+        {
+          "itemId": "reinforced-iron-plate",
+          "amount": 15
+        },
+        {
+          "itemId": "cable",
+          "amount": 30
+        },
+        {
+          "itemId": "concrete",
+          "amount": 45
+        }
+      ]
     }
   ],
   "recipes": [
@@ -8838,6 +9031,20 @@
         "bauxite",
         "uranium",
         "sam"
+      ],
+      "buildCost": [
+        {
+          "itemId": "portable-miner",
+          "amount": 1
+        },
+        {
+          "itemId": "iron-plate",
+          "amount": 10
+        },
+        {
+          "itemId": "concrete",
+          "amount": 10
+        }
       ]
     },
     {
@@ -8856,6 +9063,24 @@
         "bauxite",
         "uranium",
         "sam"
+      ],
+      "buildCost": [
+        {
+          "itemId": "portable-miner",
+          "amount": 2
+        },
+        {
+          "itemId": "encased-industrial-beam",
+          "amount": 10
+        },
+        {
+          "itemId": "steel-pipe",
+          "amount": 20
+        },
+        {
+          "itemId": "modular-frame",
+          "amount": 10
+        }
       ]
     },
     {
@@ -8874,6 +9099,28 @@
         "bauxite",
         "uranium",
         "sam"
+      ],
+      "buildCost": [
+        {
+          "itemId": "portable-miner",
+          "amount": 3
+        },
+        {
+          "itemId": "steel-pipe",
+          "amount": 50
+        },
+        {
+          "itemId": "supercomputer",
+          "amount": 5
+        },
+        {
+          "itemId": "fused-modular-frame",
+          "amount": 10
+        },
+        {
+          "itemId": "turbo-motor",
+          "amount": 3
+        }
       ]
     },
     {
@@ -8883,6 +9130,20 @@
       "power": 40,
       "resourceIds": [
         "crude-oil"
+      ],
+      "buildCost": [
+        {
+          "itemId": "motor",
+          "amount": 15
+        },
+        {
+          "itemId": "encased-industrial-beam",
+          "amount": 20
+        },
+        {
+          "itemId": "cable",
+          "amount": 60
+        }
       ]
     },
     {
@@ -8892,6 +9153,20 @@
       "power": 20,
       "resourceIds": [
         "water"
+      ],
+      "buildCost": [
+        {
+          "itemId": "copper-sheet",
+          "amount": 20
+        },
+        {
+          "itemId": "reinforced-iron-plate",
+          "amount": 10
+        },
+        {
+          "itemId": "rotor",
+          "amount": 10
+        }
       ]
     }
   ],
@@ -8954,5 +9229,5791 @@
     "Квантовые материалы",
     "Детали космического лифта",
     "Расходные материалы"
+  ],
+  "unlocks": [
+    {
+      "id": "Schematic_StartingRecipes_C",
+      "name": "Стартовые чертежи",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "iron-ingot",
+        "iron-plate",
+        "iron-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial1_C",
+      "name": "Улучшение ХАБа 1",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial1_5_C",
+      "name": "Улучшение ХАБа 2",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [
+        "copper-ingot",
+        "wire",
+        "cable"
+      ],
+      "buildingIds": [
+        "smelter"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Tutorial1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Tutorial1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial2_C",
+      "name": "Улучшение ХАБа 3",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [
+        "concrete",
+        "screw",
+        "reinforced-iron-plate"
+      ],
+      "buildingIds": [
+        "constructor"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Tutorial1_5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Tutorial1_5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial3_C",
+      "name": "Улучшение ХАБа 4",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt1"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Tutorial2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Tutorial2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial4_C",
+      "name": "Улучшение ХАБа 5",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [
+        "miner-mk1"
+      ],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Tutorial3_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Tutorial3_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Tutorial5_C",
+      "name": "Улучшение ХАБа 6",
+      "kind": "hub",
+      "tier": 0,
+      "recipeIds": [
+        "biomass-from-wood",
+        "biomass-from-leaves"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Tutorial4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Tutorial4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_1_2_C",
+      "name": "Кремнезём",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "silica"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_3-4_C",
+      "name": "Базовое производство стали",
+      "kind": "hub",
+      "tier": 3,
+      "recipeIds": [
+        "steel-ingot",
+        "steel-beam",
+        "steel-pipe",
+        "versatile-framework"
+      ],
+      "buildingIds": [
+        "foundry"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_1-1_C",
+      "name": "Базовое строительство",
+      "kind": "hub",
+      "tier": 1,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-1-1_C",
+      "name": "Переработка нефти 2",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-residual-plastic",
+        "alt-residual-rubber",
+        "residual-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-1_C",
+      "name": "Переработка нефти",
+      "kind": "hub",
+      "tier": 5,
+      "recipeIds": [
+        "petroleum-coke",
+        "circuit-board",
+        "plastic",
+        "rubber",
+        "fuel"
+      ],
+      "buildingIds": [
+        "oil-refinery"
+      ],
+      "minerIds": [
+        "oil-pump"
+      ],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_5-1-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_4-4_C",
+      "name": "Гипертрубы",
+      "kind": "hub",
+      "tier": 4,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "CustomizerUnlock_ColourSwatches_C",
+      "name": "Палитры настройщика",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_4_2_C",
+      "name": "Электростолбы ур. 2",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_6_2_C",
+      "name": "Электростолбы ур. 3",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_2-5_C",
+      "name": "Бонусная программа утилизации",
+      "kind": "hub",
+      "tier": 2,
+      "recipeIds": [],
+      "buildingIds": [
+        "awesome-sink"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "CustomizerUnlock_ColourSwatches_C",
+        "CustomizerUnlock_PipelineSwatch_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "CustomizerUnlock_PipelineSwatch_C",
+      "name": "Палитра трубопроводов",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C",
+          "Schematic_2-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_3-1_C",
+      "name": "Угольная энергия",
+      "kind": "hub",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [
+        "water-extractor"
+      ],
+      "beltIds": [],
+      "pipeIds": [
+        "pipe1"
+      ],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "CustomizerUnlock_PipelineSwatch_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_3_C",
+      "name": "Сканирование слизней",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_2_C",
+      "name": "Сверхпроволока",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "quickwire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_4-1_C",
+      "name": "Продвинутое производство стали",
+      "kind": "hub",
+      "tier": 4,
+      "recipeIds": [
+        "encased-industrial-beam",
+        "stator",
+        "motor",
+        "automated-wiring"
+      ],
+      "buildingIds": [],
+      "minerIds": [
+        "miner-mk2"
+      ],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-5_C",
+      "name": "Прокладка трубопроводов ур. 2",
+      "kind": "hub",
+      "tier": 6,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [
+        "pipe2"
+      ],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_1_1_C",
+      "name": "Кварцевые кристаллы",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "quartz-crystal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_2_C",
+      "name": "Кварцевый резонатор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "crystal-oscillator"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_ACarapace_2_1_C",
+      "name": "Discontinued - Spiked Rebars",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "iron-rebar"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_4_1_C",
+      "name": "Сканирование радиосигналов",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_3_2_1_C",
+      "name": "Discontinued - Nobelisk Explosives",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-5-1_C",
+      "name": "Обогащение частицами 2",
+      "kind": "other",
+      "tier": 8,
+      "recipeIds": [
+        "unpackage-nitric-acid"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-5_C",
+      "name": "Обогащение частицами",
+      "kind": "hub",
+      "tier": 8,
+      "recipeIds": [
+        "nitric-acid",
+        "packaged-nitric-acid",
+        "non-fissile-uranium",
+        "plutonium-pellet",
+        "encased-plutonium-cell",
+        "plutonium-fuel-rod",
+        "copper-powder",
+        "pressure-conversion-cube",
+        "nuclear-pasta"
+      ],
+      "buildingIds": [
+        "accelerator"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_8-5-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-2_C",
+      "name": "Логистика ур. 5",
+      "kind": "hub",
+      "tier": 7,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt5"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-1-1_C",
+      "name": "Преобразование материи — дополнительные разблокировки",
+      "kind": "other",
+      "tier": 9,
+      "recipeIds": [
+        "limestone-sulfur",
+        "iron-ore-limestone",
+        "coal-iron",
+        "coal-limestone",
+        "sulfur-coal",
+        "sulfur-iron",
+        "raw-quartz-bauxite",
+        "raw-quartz-coal",
+        "copper-ore-quartz",
+        "copper-ore-sulfur",
+        "caterium-ore-copper",
+        "caterium-ore-quartz",
+        "bauxite-caterium",
+        "bauxite-copper",
+        "nitrogen-gas-bauxite",
+        "nitrogen-gas-caterium",
+        "uranium-ore-bauxite",
+        "ficsite-ingot-aluminum",
+        "ficsite-ingot-caterium"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-1_C",
+      "name": "Преобразование материи",
+      "kind": "hub",
+      "tier": 9,
+      "recipeIds": [
+        "ficsite-ingot-iron",
+        "ficsite-trigon",
+        "diamonds",
+        "time-crystal",
+        "biochemical-sculptor",
+        "reanimated-sam",
+        "sam-fluctuator"
+      ],
+      "buildingIds": [
+        "converter"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_9-1-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_6_C",
+      "name": "Синтетические энергомодули",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "synthetic-power-shard"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-2_C",
+      "name": "Квантовое шифрование",
+      "kind": "hub",
+      "tier": 9,
+      "recipeIds": [
+        "excited-photonic-matter",
+        "dark-matter-residue",
+        "dark-matter-crystal",
+        "superposition-oscillator",
+        "neural-quantum-processor",
+        "ai-expansion-server"
+      ],
+      "buildingIds": [
+        "quantum-encoder"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_RocketFuel_C",
+      "name": "Ракетное топливо",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "rocket-fuel",
+        "packaged-rocket-fuel",
+        "unpackage-rocket-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_IonizedFuel_C",
+      "name": "Ионизированное топливо",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "ionized-fuel",
+        "packaged-ionized-fuel",
+        "unpackage-ionized-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-2-1_C",
+      "name": "Продвинутое производство алюминия 2",
+      "kind": "other",
+      "tier": 8,
+      "recipeIds": [
+        "unpackage-nitrogen-gas"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-2_C",
+      "name": "Продвинутое производство алюминия",
+      "kind": "hub",
+      "tier": 8,
+      "recipeIds": [
+        "empty-fluid-tank",
+        "packaged-nitrogen-gas",
+        "heat-sink",
+        "cooling-system",
+        "fused-modular-frame"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_8-2-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-1_C",
+      "name": "Ядерная энергия",
+      "kind": "hub",
+      "tier": 8,
+      "recipeIds": [
+        "uranium-cell",
+        "em-control-rod",
+        "uranium-fuel-rod",
+        "magnetic-field-generator"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-4_C",
+      "name": "Передовое производство",
+      "kind": "hub",
+      "tier": 8,
+      "recipeIds": [
+        "turbo-motor",
+        "thermal-propulsion-rocket"
+      ],
+      "buildingIds": [],
+      "minerIds": [
+        "miner-mk3"
+      ],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-4_C",
+      "name": "Авиационная техника",
+      "kind": "hub",
+      "tier": 8,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-1-1_C",
+      "name": "Обработка боксита 2",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "unpackage-alumina-solution",
+        "quartz-crystal",
+        "crystal-oscillator",
+        "silica"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-1_C",
+      "name": "Обработка боксита",
+      "kind": "hub",
+      "tier": 7,
+      "recipeIds": [
+        "alumina-solution",
+        "packaged-alumina-solution",
+        "aluminum-scrap",
+        "aluminum-ingot",
+        "alclad-aluminum-sheet",
+        "aluminum-casing"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_7-1-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_3_3_C",
+      "name": "Discontinued - Radio Control Unit",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "radio-control-unit"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-4-1_C",
+      "name": "Альтернативная транспортировка жидкостей 2",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "unpackage-water",
+        "unpackage-oil",
+        "unpackage-fuel",
+        "unpackage-heavy-oil-residue",
+        "unpackage-liquid-biofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_0_C",
+      "name": "Сера",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_EnrichedCoal_C",
+      "name": "Альт.: угольный брикет",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-coal",
+        "alt-charcoal",
+        "alt-biocoal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-1_C",
+        "Research_Sulfur_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C"
+        ],
+        [
+          "Research_Sulfur_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_TurboFuel_C",
+      "name": "Альт.: турботопливо",
+      "kind": "other",
+      "tier": 6,
+      "recipeIds": [
+        "turbofuel",
+        "packaged-turbofuel",
+        "unpackage-turbofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C",
+        "Schematic_Alternate_EnrichedCoal_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Schematic_Alternate_EnrichedCoal_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_TurboFuel_C",
+      "name": "Турботопливо",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "turbofuel",
+        "packaged-turbofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_Alternate_TurboFuel_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-4_C",
+      "name": "Упаковка жидкостей",
+      "kind": "hub",
+      "tier": 5,
+      "recipeIds": [
+        "empty-canister",
+        "packaged-water",
+        "packaged-oil",
+        "packaged-fuel",
+        "packaged-heavy-oil-residue",
+        "packaged-liquid-biofuel",
+        "liquid-biofuel"
+      ],
+      "buildingIds": [
+        "packager"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_5-4-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-2_C",
+      "name": "Промышленное производство",
+      "kind": "hub",
+      "tier": 6,
+      "recipeIds": [
+        "computer",
+        "heavy-modular-frame",
+        "modular-engine",
+        "adaptive-control-unit"
+      ],
+      "buildingIds": [
+        "manufacturer"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_3_C",
+      "name": "Бездымный порох",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "smokeless-powder"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_5_C",
+      "name": "Скоростной разъём",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "high-speed-connector"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_CompactedCoal_C",
+      "name": "Угольный брикет",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "alt-coal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_Alternate_EnrichedCoal_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_1_C",
+      "name": "Чёрный порох",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "black-powder"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_2-1_C",
+      "name": "Сборка деталей",
+      "kind": "hub",
+      "tier": 2,
+      "recipeIds": [
+        "copper-sheet",
+        "rotor",
+        "modular-frame",
+        "smart-plating"
+      ],
+      "buildingIds": [
+        "assembler"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_2_C",
+      "name": "Ткань",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "fabric"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_2-2_C",
+      "name": "Устранение препятствий",
+      "kind": "hub",
+      "tier": 2,
+      "recipeIds": [
+        "solid-biofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_4_1_C",
+      "name": "Ограничитель ИИ",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "ai-limiter"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_5_2_Hidden_C",
+      "name": "Турбопатроны для винтовки из канистр",
+      "kind": "other",
+      "tier": 3,
+      "recipeIds": [
+        "turbo-rifle-ammo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_5_2_C",
+      "name": "Турбопатроны для винтовки",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "alt-turbo-rifle-ammo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Research_Sulfur_5_2_Hidden_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_6_3_C",
+      "name": "Система самонаведения",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "homing-rifle-ammo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_3_2_C",
+      "name": "Парализующий болт",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "stun-rebar"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_2_1_C",
+      "name": "Дробный болт",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "shatter-rebar"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_4_2_C",
+      "name": "Разрывной болт",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "explosive-rebar"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-3_C",
+      "name": "Защитный костюм",
+      "kind": "hub",
+      "tier": 7,
+      "recipeIds": [
+        "iodine-infused-filter"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_3_4_C",
+      "name": "Применение взрывного резонанса",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "pulse-nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_8_C",
+      "name": "Токсичная клеточная модификация",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "gas-nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_4_C",
+      "name": "Осколочный нобелиск",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "cluster-nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_5_C",
+      "name": "Витаминный ингалятор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrgans_2_C",
+      "name": "Протеиновый ингалятор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Nutrients_2_C",
+      "name": "Шпиковый мухомор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Nutrients_4_C",
+      "name": "Пищевой ингалятор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_3_1_C",
+      "name": "Детонатор нобелиска",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_ACarapace_2_C",
+      "name": "Арматурный пистолет",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "iron-rebar"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_4_1_C",
+      "name": "Винтовка",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "rifle-ammo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_4_2_1_C",
+      "name": "Discontinued - Rifle Cartridges",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "rifle-ammo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_ExperimentalPower_C",
+      "name": "Экспериментальные способы выработки электроэнергии",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_6_C",
+      "name": "Увеличенный объём инвентаря",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_5_1_C",
+      "name": "Разработка средств ядерного сдерживания",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "nuke-nobelisk"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_5_C",
+      "name": "Улучшенный пояс для инструментов",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Sulfur_2_C",
+      "name": "Взрывоопасные применения",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_PriorityMerger_C",
+      "name": "Отслеживание резонанса материи",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Nutrients_1_C",
+      "name": "Берилловый орех",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Nutrients_0_C",
+      "name": "Палеоягода",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_4_C",
+      "name": "Радиолокационная технология",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_3_1_C",
+      "name": "Исследователь",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_3_C",
+      "name": "Сигнальные системы",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Quartz_0_C",
+      "name": "Кварц",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_5_C",
+      "name": "Фиолетовые энергослизни",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "power-shard-purple"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_4_C",
+      "name": "Жёлтые энергослизни",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "power-shard-yellow"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_2_C",
+      "name": "Разгон производства",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": true,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_PowerSlugs_1_C",
+      "name": "Синие энергослизни",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "power-shard-blue"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Nutrients_3_C",
+      "name": "Питательный процессор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_GasMask_C",
+      "name": "Респиратор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "filter"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_7_C",
+      "name": "Улучшенный пояс для инструментов",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_6_C",
+      "name": "Терапевтический ингалятор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_4_C",
+      "name": "Целебные свойства",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_3_C",
+      "name": "Парашют",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_2_1_C",
+      "name": "Синтетическая ткань",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "alt-fabric"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Mycelia_1_C",
+      "name": "Мицелий",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "biomass-from-mycelia"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_7_2_C",
+      "name": "Геотермальный генератор",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_7_1_C",
+      "name": "Программируемый разветвитель",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_5_2_C",
+      "name": "Улучшенные разъемы электропитания",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_5_1_C",
+      "name": "Приоритетный рубильник",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_4_3_C",
+      "name": "Экзоскелет",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_4_1_2_C",
+      "name": "Рубильник",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_4_1_1_C",
+      "name": "Умный разветвитель",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_3_1_C",
+      "name": "Увеличенный объём инвентаря",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_3_C",
+      "name": "Катерийная электроника",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_2_1_C",
+      "name": "Зиплайн",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_1_C",
+      "name": "Катерийные слитки",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "caterium-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Caterium_0_C",
+      "name": "Катерий",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_Somersloop_C",
+      "name": "Анализ петлевика",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_SAMFluctuator_C",
+      "name": "Флуктуатор СИМ",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [
+        "sam-fluctuator"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_SAM_C",
+      "name": "Анализ СИМ",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_ProductionBooster_C",
+      "name": "Ускоритель производства",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_PowerBooster_C",
+      "name": "Экстрактор энергии",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_PortalPotty_C",
+      "name": "МСПО",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_MercerSphere_C",
+      "name": "Анализ сферы Мерсера",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralUploadBoost_04_C",
+      "name": "Улучшение выгрузки: 240/мин",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralUploadBoost_03_C",
+      "name": "Улучшение выгрузки: 120/мин",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralUploadBoost_02_C",
+      "name": "Улучшение выгрузки: 60/мин",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralUploadBoost_01_C",
+      "name": "Улучшение выгрузки: 30/мин",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralStorage_C",
+      "name": "Пространственное хранилище",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralStackExpansion_04_C",
+      "name": "Расширение хранилища (500%)",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralStackExpansion_03_C",
+      "name": "Расширение хранилища (400%)",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralStackExpansion_02_C",
+      "name": "Расширение хранилища (300%)",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralStackExpansion_01_C",
+      "name": "Расширение хранилища (200%)",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_CentralInventory_C",
+      "name": "Ручное средство выгрузки в хранилище",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_BoosterFuel_C",
+      "name": "Инопланетная энергоматрица",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [
+        "alien-power-matrix"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_BoosterBlocker_C",
+      "name": "Освоение инопланетной энергии",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_Alien_ActiveSAM_C",
+      "name": "Активизация СИМ",
+      "kind": "mam",
+      "tier": 0,
+      "recipeIds": [
+        "reanimated-sam"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AO_Stinger_C",
+      "name": "Исследование жалоносца",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "stinger-protein"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AO_Pre_Rebar_C",
+      "name": "Структурный анализ",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AO_Hatcher_C",
+      "name": "Исследование гнезда",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "hatcher-protein"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AO_DNACapsule_C",
+      "name": "Биоорганические свойства",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "alien-dna-capsule",
+        "biomass-from-alien-protein"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrgans_3_C",
+      "name": "Увеличенный объём инвентаря",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrgans_1_C",
+      "name": "Discontinued - Organic Properties",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrgans_0_C",
+      "name": "Исследование плевателя",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "spitter-protein"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrganisms_2_C",
+      "name": "Обнаружение враждебных организмов",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_AOrganisms_1_C",
+      "name": "Discontinued - Object Scanner Improvements",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_ACarapace_3_C",
+      "name": "Улучшенный пояс для инструментов",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_ACarapace_1_C",
+      "name": "Discontinued - Structural Analysis",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Research_ACarapace_0_C",
+      "name": "Исследование кабана",
+      "kind": "mam",
+      "tier": 3,
+      "recipeIds": [
+        "hog-protein"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-5_C",
+      "name": "Максимальная эффективность",
+      "kind": "hub",
+      "tier": 9,
+      "recipeIds": [
+        "ficsonium",
+        "ficsonium-fuel-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt6"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-4_C",
+      "name": "Управление пространственной энергией",
+      "kind": "hub",
+      "tier": 9,
+      "recipeIds": [
+        "singularity-cell",
+        "ballistic-warp-drive"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_9-3_C",
+      "name": "Чертежи FICSIT ур. 3",
+      "kind": "hub",
+      "tier": 9,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_8-3_C",
+      "name": "Ранец для парения",
+      "kind": "hub",
+      "tier": 7,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-4-1_C",
+      "name": "Разработка системы управления 2",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "unpackage-sulfuric-acid",
+        "ai-limiter",
+        "high-speed-connector"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_7-5_C",
+      "name": "Разработка системы управления",
+      "kind": "hub",
+      "tier": 7,
+      "recipeIds": [
+        "sulfuric-acid",
+        "packaged-sulfuric-acid",
+        "battery",
+        "radio-control-unit",
+        "supercomputer",
+        "assembly-director-system"
+      ],
+      "buildingIds": [
+        "blender"
+      ],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_7-4-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-7_C",
+      "name": "Железнодорожные светофоры",
+      "kind": "hub",
+      "tier": 6,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-6_C",
+      "name": "Чертежи FICSIT ур. 2",
+      "kind": "hub",
+      "tier": 6,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-3_C",
+      "name": "Технологии монорельсовых поездов",
+      "kind": "hub",
+      "tier": 6,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-2_C",
+      "name": "Реактивный ранец",
+      "kind": "hub",
+      "tier": 5,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-5-1_C",
+      "name": "Энергия на основе нефти 2",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "caterium-ingot",
+        "quickwire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-5_C",
+      "name": "Энергия на основе нефти",
+      "kind": "hub",
+      "tier": 5,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [
+        "Schematic_5-5-1_C"
+      ],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_5-3_C",
+      "name": "Логистика ур. 3",
+      "kind": "hub",
+      "tier": 4,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt3"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_4-5_C",
+      "name": "Чертежи FICSIT",
+      "kind": "hub",
+      "tier": 4,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_4-3_C",
+      "name": "Расширенная энергетическая инфраструктура",
+      "kind": "hub",
+      "tier": 4,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_4-2_C",
+      "name": "Усиленная защита ресурсов",
+      "kind": "hub",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_3-3_C",
+      "name": "Автомобильный транспорт",
+      "kind": "hub",
+      "tier": 3,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_3-2_C",
+      "name": "Логистика ур. 2",
+      "kind": "hub",
+      "tier": 2,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt2"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_2-3_C",
+      "name": "Прыжковые площадки",
+      "kind": "hub",
+      "tier": 2,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_1-3_C",
+      "name": "Полевые исследования",
+      "kind": "hub",
+      "tier": 1,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_1-2_C",
+      "name": "Логистика",
+      "kind": "hub",
+      "tier": 1,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Wire2_C",
+      "name": "Альт.: катерийная проволока",
+      "kind": "other",
+      "tier": 3,
+      "recipeIds": [
+        "alt-caterium-wire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Wire1_C",
+      "name": "Альт.: железная проволока",
+      "kind": "other",
+      "tier": 1,
+      "recipeIds": [
+        "alt-iron-wire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_UraniumCell1_C",
+      "name": "Альт.: заряженная урановая ячейка",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-uranium-cell"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-1_C",
+        "Research_Caterium_1_C",
+        "Research_Quartz_0_C",
+        "Research_Sulfur_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-1_C"
+        ],
+        [
+          "Research_Caterium_1_C"
+        ],
+        [
+          "Research_Quartz_0_C"
+        ],
+        [
+          "Research_Sulfur_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_TurboMotor1_C",
+      "name": "Альт.: электрический турбомотор",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-turbo-electric-motor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-4_C",
+        "Schematic_8-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-4_C"
+        ],
+        [
+          "Schematic_8-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Stator_C",
+      "name": "Альт.: статор из сверхпроволоки",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-stator"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_4-1_C",
+        "Research_Caterium_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_4-1_C"
+        ],
+        [
+          "Research_Caterium_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Silica_C",
+      "name": "Альт.: дешёвый кремнезём",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-silica"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Quartz_1_2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Quartz_1_2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Screw2_C",
+      "name": "Альт.: стальной винт",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-steel-screw"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Screw_C",
+      "name": "Альт.: литой винт",
+      "kind": "other",
+      "tier": 1,
+      "recipeIds": [
+        "alt-screw"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Rotor_C",
+      "name": "Альт.: стальной ротор",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-rotor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ReinforcedSteelPlate_C",
+      "name": "Альт.: железобетонная труба",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-encased-industrial-beam"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_4-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_4-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ReinforcedIronPlate2_C",
+      "name": "Альт.: прошитая железная пластина",
+      "kind": "other",
+      "tier": 2,
+      "recipeIds": [
+        "alt-stitched-iron-plate"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_2-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_2-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ReinforcedIronPlate1_C",
+      "name": "Альт.: сборная железная пластина",
+      "kind": "other",
+      "tier": 2,
+      "recipeIds": [
+        "alt-bolted-iron-plate"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_2-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_2-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_RadioControlUnit1_C",
+      "name": "Альт.: блок радиосвязи",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-radio-connection-unit"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-2_C",
+        "Research_Caterium_4_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-2_C"
+        ],
+        [
+          "Research_Caterium_4_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Quickwire_C",
+      "name": "Альт.: сплавленная сверхпроволока",
+      "kind": "other",
+      "tier": 3,
+      "recipeIds": [
+        "alt-quickwire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Plastic1_C",
+      "name": "Альт.: переработанный пластик",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-plastic"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_NuclearFuelRod1_C",
+      "name": "Альт.: урановый топливный элемент",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-uranium-fuel-unit"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-1_C",
+        "Research_Quartz_1_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-1_C"
+        ],
+        [
+          "Research_Quartz_1_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Motor1_C",
+      "name": "Альт.: высокоточный мотор",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-motor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_4-1_C",
+        "Research_Quartz_1_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_4-1_C"
+        ],
+        [
+          "Research_Quartz_1_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ModularFrame_C",
+      "name": "Альт.: закалённый каркас",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-modular-frame"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IngotSteel2_C",
+      "name": "Альт.: прессованный стальной слиток",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-compacted-steel-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Alternate_EnrichedCoal_C",
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Alternate_EnrichedCoal_C"
+        ],
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IngotSteel1_C",
+      "name": "Альт.: прочный стальной слиток",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-steel-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IngotIron_C",
+      "name": "Альт.: слиток железного сплава",
+      "kind": "other",
+      "tier": 1,
+      "recipeIds": [
+        "alt-iron-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HighSpeedConnector_C",
+      "name": "Альт.: кремниевый разъём",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-high-speed-connector"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_5_C",
+        "Schematic_5-1_C",
+        "Research_Quartz_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_5_C"
+        ],
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Research_Quartz_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HeavyModularFrame_C",
+      "name": "Альт.: тяжёлый железобетонный каркас",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-heavy-modular-frame"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HeatSink1_C",
+      "name": "Альт.: теплообменник",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-heat-sink"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Gunpowder1_C",
+      "name": "Альт.: мелкозернистый чёрный порох",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-black-powder"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_Alternate_EnrichedCoal_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_Alternate_EnrichedCoal_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ElectromagneticControlRod1_C",
+      "name": "Альт: электромагнитный соединяющий стержень",
+      "kind": "other",
+      "tier": 7,
+      "recipeIds": [
+        "alt-em-control-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-1_C",
+        "Research_Caterium_4_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-1_C"
+        ],
+        [
+          "Research_Caterium_4_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CrystalOscillator_C",
+      "name": "Альт.: изолированный кварцевый резонатор",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-crystal-oscillator"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Quartz_2_C",
+        "Research_Caterium_3_C",
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Quartz_2_C"
+        ],
+        [
+          "Research_Caterium_3_C"
+        ],
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Concrete_C",
+      "name": "Альт.: мелкозернистый бетон",
+      "kind": "other",
+      "tier": 4,
+      "recipeIds": [
+        "alt-concrete"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Quartz_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Quartz_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Computer2_C",
+      "name": "Альт.: кварцевый компьютер",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-crystal-computer"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-2_C",
+        "Research_Quartz_1_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-2_C"
+        ],
+        [
+          "Research_Quartz_1_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Computer1_C",
+      "name": "Альт.: катерийный компьютер",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-computer"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-2_C",
+        "Research_Caterium_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-2_C"
+        ],
+        [
+          "Research_Caterium_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Coal2_C",
+      "name": "Альт.: биоуголь",
+      "kind": "other",
+      "tier": 3,
+      "recipeIds": [
+        "alt-biocoal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Coal1_C",
+      "name": "Альт.: древесный уголь",
+      "kind": "other",
+      "tier": 3,
+      "recipeIds": [
+        "alt-charcoal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CircuitBoard2_C",
+      "name": "Альт.: катерийная плата",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-caterium-circuit-board"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C",
+        "Research_Caterium_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Research_Caterium_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CircuitBoard1_C",
+      "name": "Альт.: кремниевая плата",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-circuit-board"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C",
+        "Research_Quartz_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Research_Quartz_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Cable2_C",
+      "name": "Альт.: сверхпроводящий кабель",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-quickwire-cable"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C",
+        "Research_Caterium_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Research_Caterium_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Cable1_C",
+      "name": "Альт.: изолированный кабель",
+      "kind": "other",
+      "tier": 5,
+      "recipeIds": [
+        "alt-cable"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Silica_Distilled_C",
+      "name": "Альт.: дистиллированный кремнезём",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-distilled-silica"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Quartz_Purified_C",
+      "name": "Альт.: очистка кварца",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-quartz-purification"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [
+        "Schematic_Alternate_Silica_Distilled_C"
+      ],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Quartz_Fused_C",
+      "name": "Альт.: плавленный кварцевый кристалл",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-fused-quartz-crystal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Quartz_1_1_C",
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Quartz_1_1_C"
+        ],
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IronIngot_Leached_C",
+      "name": "Альт.: выщелоченный железный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-leached-iron-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IronIngot_Basic_C",
+      "name": "Альт.: обычный железный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-basic-iron-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CopperIngot_Tempered_C",
+      "name": "Альт.: закалённый медный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-tempered-copper-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CopperIngot_Leached_C",
+      "name": "Альт.: выщелоченный медный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-leached-copper-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CateriumIngot_Tempered_C",
+      "name": "Альт.: закалённый катерийный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-tempered-caterium-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CateriumIngot_Leached_C",
+      "name": "Альт.: выщелоченный катерийный слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-leached-caterium-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelPipe_Molded_C",
+      "name": "Альт.: формованная стальная труба",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-molded-steel-pipe"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelPipe_Iron_C",
+      "name": "Альт.: железная труба",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-iron-pipe"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelCastedPlate_C",
+      "name": "Альт.: литая стальная пластина",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-steel-cast-plate"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelBeam_Molded_C",
+      "name": "Альт.: формованная балка",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-molded-beam"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelBeam_Aluminum_C",
+      "name": "Альт.: алюминиевая балка",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-steel-beam"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_AluminumRod_C",
+      "name": "Альт.: алюминиевый прут",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-aluminum-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_AILimiter_Plastic_C",
+      "name": "Альт.: пластиковый ограничитель ИИ",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-ai-limiter"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_4_1_C",
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_4_1_C"
+        ],
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_TurboPressureMotor_C",
+      "name": "Альт.: турбомотор с компрессором",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-turbo-pressure-motor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_TurboBlendFuel_C",
+      "name": "Альт.: смешанное турботопливо",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-turbo-blend-fuel",
+        "packaged-turbofuel",
+        "unpackage-turbofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SuperStateComputer_C",
+      "name": "Альт.: мощный суперкомпьютер",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-super-state-computer"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-1_C",
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-1_C"
+        ],
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SloppyAlumina_C",
+      "name": "Альт.: разжиженный глинозём",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-alumina-solution"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_RadioControlSystem_C",
+      "name": "Альт.: система радиоуправления",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-radio-control-unit"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PlutoniumFuelUnit_C",
+      "name": "Альт.: плутониевый топливный элемент",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-plutonium-fuel-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_OCSupercomputer_C",
+      "name": "Альт.: разогнанный суперкомпьютер",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-oc-supercomputer"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C",
+        "Schematic_8-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ],
+        [
+          "Schematic_8-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_InstantScrap_C",
+      "name": "Альт.: быстрый лом",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-instant-scrap"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C",
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ],
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_InstantPlutoniumCell_C",
+      "name": "Альт.: быстрая плутониевая ячейка",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-plutonium-cell"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HeatFusedFrame_C",
+      "name": "Альт.: термосплавный каркас",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-fused-modular-frame"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_FertileUranium_C",
+      "name": "Альт.: плодородный уран",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-fertile-uranium"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ElectricMotor_C",
+      "name": "Альт.: электромотор",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-electric-motor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_DilutedFuel_C",
+      "name": "Альт.: разбавленное топливо",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diluted-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CoolingDevice_C",
+      "name": "Альт.: устройство охлаждения",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-cooling-device"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_8-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_8-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ClassicBattery_C",
+      "name": "Альт.: классический аккумулятор",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-battery"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-5_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-5_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_AutomatedMiner_C",
+      "name": "Альт.: автоматический бур",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "automated-miner"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_AlcladCasing_C",
+      "name": "Альт.: дюралюминиевый корпус",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-aluminum-casing"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_WetConcrete_C",
+      "name": "Альт.: сырой бетон",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-wet-concrete"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_TurboHeavyFuel_C",
+      "name": "Альт.: тяжёлое турботопливо",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-turbofuel",
+        "packaged-turbofuel",
+        "unpackage-turbofuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C",
+        "Schematic_Alternate_EnrichedCoal_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ],
+        [
+          "Schematic_Alternate_EnrichedCoal_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelRod_C",
+      "name": "Альт.: стальной прут",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-iron-rod"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteelCanister_C",
+      "name": "Альт.: стальная канистра",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-steel-canister"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_SteamedCopperSheet_C",
+      "name": "Альт.: пропаренный медный лист",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-copper-sheet"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_RubberConcrete_C",
+      "name": "Альт.: прорезиненный бетон",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-rubber-concrete"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_RecycledRubber_C",
+      "name": "Альт.: переработанная резина",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-recycled-rubber"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PureQuartzCrystal_C",
+      "name": "Альт.: чистый кварцевый кристалл",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-quartz-crystal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Quartz_1_1_C",
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Quartz_1_1_C"
+        ],
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PureIronIngot_C",
+      "name": "Альт.: слиток чистого железа",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-pure-iron-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PureCopperIngot_C",
+      "name": "Альт.: слиток чистой меди",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-pure-copper-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PureCateriumIngot_C",
+      "name": "Альт.: слиток чистого катерия",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-pure-caterium-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_0_C",
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_0_C"
+        ],
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PureAluminumIngot_C",
+      "name": "Альт.: слиток чистого алюминия",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-aluminum-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PolymerResin_C",
+      "name": "Альт.: полимерная смола",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-polymer-resin"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_PlasticSmartPlating_C",
+      "name": "Альт.: пластиковая умная обшивка",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-smart-plating"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HighSpeedWiring_C",
+      "name": "Альт.: скоростная автопроводка",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-automated-wiring"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_4-1_C",
+        "Research_Caterium_4_1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_4-1_C"
+        ],
+        [
+          "Research_Caterium_4_1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HeavyOilResidue_C",
+      "name": "Альт.: мазут",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-heavy-oil-residue"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_HeavyFlexibleFrame_C",
+      "name": "Альт.: тяжёлый гибкий каркас",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-heavy-flexible-frame"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_FusedWire_C",
+      "name": "Альт.: сплавленная проволока",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-fused-wire"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Caterium_0_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Caterium_0_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_FlexibleFramework_C",
+      "name": "Альт.: гибкий каркас",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-versatile-framework"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ElectrodeCircuitBoard_C",
+      "name": "Альт.: электродная плата",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-electrode-circuit-board"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_ElectroAluminumScrap_C",
+      "name": "Альт.: электрод — алюминиевый лом",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-aluminum-scrap"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_7-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_7-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_DilutedPackagedFuel_C",
+      "name": "Альт.: канистра разбавленного топлива",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-packaged-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CopperRotor_C",
+      "name": "Альт.: медный ротор",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-copper-rotor"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_2-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_2-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CopperAlloyIngot_C",
+      "name": "Альт.: слиток медного сплава",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-copper-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_3-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_3-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CokeSteelIngot_C",
+      "name": "Альт.: коксовый стальной слиток",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-coke-steel-ingot"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CoatedIronPlate_C",
+      "name": "Альт.: железная пластина с покрытием",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-iron-plate"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CoatedIronCanister_C",
+      "name": "Альт.: железная канистра с покрытием",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-coated-iron-canister"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-4_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-4_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_CoatedCable_C",
+      "name": "Альт.: кабель с покрытием",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-coated-cable"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_BoltedFrame_C",
+      "name": "Альт.: сборный каркас",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-modular-frame2"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_2-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_2-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_AdheredIronPlate_C",
+      "name": "Альт.: скреплённая железная пластина",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-adhered-iron-plate"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_5-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_5-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_RocketFuel_Nitro_C",
+      "name": "Альт.: нитроглицериновое ракетное топливо",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-rocket-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Research_Sulfur_RocketFuel_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Research_Sulfur_RocketFuel_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_IonizedFuel_Dark_C",
+      "name": "Альт.: топливо на основе темных ионов",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-dark-ion-fuel"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-2_C",
+        "Research_Sulfur_IonizedFuel_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-2_C"
+        ],
+        [
+          "Research_Sulfur_IonizedFuel_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Diamond_Turbo_C",
+      "name": "Альт.: турбо-алмазы",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diamonds-turbo"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-1_C",
+        "Research_Sulfur_TurboFuel_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-1_C"
+        ],
+        [
+          "Research_Sulfur_TurboFuel_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Diamond_Pink_C",
+      "name": "Альт.: розовые алмазы",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diamonds-pink"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Diamond_Petroleum_C",
+      "name": "Альт.: нефтяные алмазы",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diamonds-petroleum"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Diamond_OilBased_C",
+      "name": "Альт.: алмазы на нефтяной основе",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diamonds-oil"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_Diamond_Cloudy_C",
+      "name": "Альт.: матовые алмазы",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-diamonds-cloudy"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-1_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-1_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_DarkMatter_Trap_C",
+      "name": "Альт.: ловушка для темной материи",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-dark-matter-trap"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_Alternate_DarkMatter_Crystallization_C",
+      "name": "Альт.: кристаллизация темной материи",
+      "kind": "other",
+      "tier": 0,
+      "recipeIds": [
+        "alt-dark-matter-crystal"
+      ],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [
+        "Schematic_9-2_C"
+      ],
+      "schematicIds": [],
+      "prerequisiteGroups": [
+        [
+          "Schematic_9-2_C"
+        ]
+      ],
+      "prerequisitesKnown": false
+    },
+    {
+      "id": "Schematic_6-1_C",
+      "name": "Логистика ур. 4",
+      "kind": "hub",
+      "tier": 5,
+      "recipeIds": [],
+      "buildingIds": [],
+      "minerIds": [],
+      "beltIds": [
+        "belt4"
+      ],
+      "pipeIds": [],
+      "overclock": false,
+      "prerequisiteIds": [],
+      "schematicIds": [],
+      "prerequisiteGroups": [],
+      "prerequisitesKnown": false
+    }
   ]
 }

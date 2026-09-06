@@ -20,7 +20,7 @@ test('расчёт, русский поиск, политики и невыпо�
   await page.getByRole('textbox', { name: 'Поиск рецептов' }).fill('желез');
   await expect(page.locator('.recipe-card').first()).toBeVisible();
   const firstRecipe = page.locator('.recipe-card').first();
-  const toggle = firstRecipe.getByRole('checkbox');
+  const toggle = firstRecipe.getByRole('checkbox', { name: /^Включить рецепт / });
   const wasChecked = await toggle.isChecked();
   await toggle.setChecked(!wasChecked);
   await expect(toggle).toBeChecked({ checked: !wasChecked });
