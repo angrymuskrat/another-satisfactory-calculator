@@ -4,6 +4,8 @@ import type { ConstructionGroup, ConstructionModel } from '../../../packages/dom
 import { orderDependencies } from '../../../packages/domain/dependencies';
 import { format, ItemIcon, unit } from './controls';
 import mechanics from '../../../packages/game-data/p2-mechanics.json';
+import { Schematic } from './Schematic';
+import type { SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
 
 export function CopyNumber({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
@@ -36,8 +38,9 @@ function readBuilt(fingerprint: string): { ids: string[]; error: string } {
   } catch { return { ids: [], error: 'Не удалось загрузить отметки строительства из этого браузера.' }; }
 }
 
-export function Construction({ catalog, model, building }: { catalog: Catalog; model: ConstructionModel; building: boolean }) {
+export function Construction({ catalog, model, building, destinations }: { catalog: Catalog; model: ConstructionModel; building: boolean; destinations: SchematicDestinations }) {
   const [saved, setSaved] = useState(() => readBuilt(model.fingerprint));
+  const [view, setView] = useState<'instruction' | SchematicMode>('instruction');
   const item = (id: string) => catalog.items.find(i => i.id === id);
   const mark = (id: string, checked: boolean) => {
     const ids = checked ? [...new Set([...saved.ids, id])] : saved.ids.filter(i => i !== id);
@@ -67,6 +70,8 @@ export function Construction({ catalog, model, building }: { catalog: Catalog; m
     </details>;
   };
   return <div className={building ? 'construction-panel' : undefined}>
+    {building && <div className="construction-views" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'По типам зданий'], ['machines', 'По отдельным зданиям']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} className={view === value ? 'primary-button' : 'secondary-button'} onClick={() => setView(value)}>{label}</button>)}</div>}
+    {building && view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} /> : <>
     {building && <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>}
     <section className="panel production-panel"><div className="section-heading"><h3>Этапы производства</h3><span className="count-badge">{model.production.length}</span></div>
       <p className="hint">Поставщики показаны раньше потребителей. Связи определяются общими предметами; конкретное распределение между машинами не рассчитано.</p>
@@ -78,6 +83,7 @@ export function Construction({ catalog, model, building }: { catalog: Catalog; m
     {!!model.extraction.length && <section className="panel production-panel"><h3>Добытчики</h3><div className="production-table">{model.extraction.map((g, i) => renderGroup(g, String(i + 1)))}</div></section>}
     {!!model.sinks.length && <section className="panel production-panel"><h3>Утилизаторы</h3><div className="production-table">{model.sinks.map((g, i) => renderGroup(g, String(i + 1)))}</div><p className="hint">Побочные продукты уничтожаются, бесконечное хранение не предполагается.</p></section>}
     {building && <section className="panel"><h3>Добавляемые здания</h3><p>Новых машин: {model.addedMaterials.totalMachines}. Существующие производственные линии исключены.</p>{model.addedMaterials.items.map(i => <div className="simple-row" key={i.itemId}><span>{item(i.itemId)?.name ?? i.itemId}</span><strong>{format(i.amount)}</strong></div>)}{!model.addedMaterials.complete && <p className="hint">Часть стоимости неизвестна. Ведомость неполная.</p>}</section>}{building && <section className="panel"><h3>Материалы зданий</h3><p>Известна стоимость {model.materials.knownMachines} из {model.materials.totalMachines} физических машин. {model.materials.complete ? 'Все показанные здания учтены.' : 'Ведомость неполная: неизвестные стоимости не приняты за ноль.'}</p>{model.materials.items.map(i => <div className="simple-row" key={i.itemId}><span>{item(i.itemId)?.name ?? i.itemId}</span><CopyNumber value={i.amount} label={`Материалы: ${item(i.itemId)?.name ?? i.itemId}`} suffix={item(i.itemId)?.fluid ? 'м³' : 'шт'} /></div>)}{model.materials.unknown.map(b => <p key={b.buildingId}>Стоимость неизвестна: {b.name} × {b.count}.</p>)}<p className="hint">Материалы всех показанных зданий, включая отмеченные построенными. Ленты, трубы, фундаменты, энергомодули и геометрия размещения в ведомость не включены.</p></section>}
+    </>}
   </div>;
 }
 

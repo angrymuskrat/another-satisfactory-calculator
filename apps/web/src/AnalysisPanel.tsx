@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Catalog, Plan, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { constraintCandidates, type AnalysisReport, type AnalysisVariant, type Benefit, type Delta, type Summary } from '../../../packages/solver/analysis';
@@ -10,19 +10,17 @@ const benefitLabels: Record<Benefit, string> = { output: 'Подтверждён
 const signed = (value: number) => `${value > 1e-6 ? '+' : ''}${format(Math.abs(value) < 1e-6 ? 0 : value, 3)}`;
 
 export function AnalysisPanel({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
-  // Remount selection when its source restrictions change; results have their own stale guard.
-  return <AnalysisControls key={JSON.stringify(plan)} catalog={catalog} plan={plan} />;
-}
-function AnalysisControls({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
   const analysis = useAnalysis(catalog, plan);
   const candidates = useMemo(() => constraintCandidates(catalog, plan), [catalog, plan]);
   const [selected, setSelected] = useState<string[]>(() => candidates.slice(0, 8).map(c => c.id));
   const [query, setQuery] = useState('');
-  return <section className="panel analysis-panel" aria-label="Анализ вариантов фабрики">
-    <h2>Сравнить варианты фабрики</h2>
+  useEffect(() => {
+    setSelected(previous => previous.filter(id => candidates.some(c => c.id === id)));
+  }, [candidates]);
+  return <details className="panel analysis-panel" aria-label="Проверки расширения и перестройки">
+    <summary>Проверки расширения и перестройки</summary>
     <p>Полный пересчёт с тем же заказом, миром, частотами и ограничениями. Исходный план сохраняется.</p>
     <p>Частота производства: {format(plan.settings.clock)}%. Предел потери выпуска: {format(plan.settings.outputSlack)}%.</p>
-    <button className="primary-button" disabled={analysis.running || !plan.targets.length} onClick={() => analysis.calculate({ kind: 'objectives' })}>Сравнить цели оптимизации</button>
     {!!plan.lines?.length && <button className="secondary-button" disabled={analysis.running} onClick={() => analysis.calculate({ kind: 'expansion' })}>Сравнить оставить / добавить / перестроить</button>}
     <details><summary>Проверить полезное расширение · выбрано {selected.length} из {candidates.length}</summary>
       <p>Каждое изменение проверяется отдельно; выбранные изменения также проверяются совместно. До 12 изменений за запуск.</p>
@@ -35,7 +33,7 @@ function AnalysisControls({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
       <button className="secondary-button" disabled={analysis.running || !selected.length || !plan.targets.length} onClick={() => analysis.calculate({ kind: 'constraints', candidateIds: selected })}>Проверить выбранные изменения</button>
     </details>
     <AnalysisFeedback analysis={analysis} catalog={catalog} />
-  </section>;
+  </details>;
 }
 export function AnalysisFeedback({ analysis, catalog }: { analysis: ReturnType<typeof useAnalysis>; catalog: Catalog }) {
   return <div>

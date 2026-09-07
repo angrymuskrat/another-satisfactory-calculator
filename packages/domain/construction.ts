@@ -4,6 +4,7 @@ import { balancedClock, canOptimizeClock, productionConfigurations, wellConfigur
 import mechanics from '../game-data/p2-mechanics.json';
 
 export interface ConstructionGroup {
+  controllerId?: string;
   existing?: number;
   somersloops?: number;
   id: string;
@@ -83,7 +84,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
       for (const [i, satellite] of source.well!.satellites.entries()) {
         const nominal = 60 * satellite.purity * source.clock / 100;
         const rate = resource.rate * satellite.count * Math.min(pipe.rate, nominal) / well.capacity;
-        extraction.push({ id: `satellites:${source.id}:${i}`, kind: 'extraction', buildingId: 'resource-well-extractor', name: `${name} · спутники ×${satellite.purity}`, count: satellite.count, clock: source.clock,
+        extraction.push({ id: `satellites:${source.id}:${i}`, controllerId: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-extractor', name: `${name} · спутники ×${satellite.purity}`, count: satellite.count, clock: source.clock,
           activeDuty: rate / (satellite.count * nominal), activeInputs: [], activeOutputs: [{ itemId: source.itemId, rate: nominal }], averageInputs: [], averageOutputs: [{ itemId: source.itemId, rate }], activePower: 0, averagePower: 0, peakPower: 0, powerEstimated: false });
       }
       continue;
@@ -120,7 +121,8 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   const addedMaterials = constructionMaterials(catalog, groups.map(g => ({ ...g, count: g.count - (g.existing ?? 0) })).filter(g => g.count > 0));
   const importPower = externalSources.reduce((s, e) => s + (e.power ?? 0), 0);
   // Exact canonical configuration, no hash collisions. Persist as a value, not a storage key.
-  const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups, materials }));
+  // Derived schematic links must not invalidate existing construction checkmarks.
+  const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups: groups.map(({ controllerId, ...group }) => group), materials }));
   return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe },
     productionIdlePower: production.reduce((s, g) => s + Math.max(0, g.count * g.activePower - g.averagePower), 0),
     productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0) + importPower,

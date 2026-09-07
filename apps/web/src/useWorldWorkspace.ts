@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Catalog } from '../../../packages/domain/types';
-import { emptyWorkspace, type Workspace } from '../../../packages/domain/worlds';
+import { emptyWorkspace, parseWorkspace, validateWorkspaceCatalog, type Workspace } from '../../../packages/domain/worlds';
+import { legacyCleanupMessage, removeLegacyFactories } from '../../../packages/domain/plannerCompatibility';
 import { parseCatalogWorkspace, saveGuestWorkspace, WORKSPACE_KEY } from './planStorage';
 
 interface WorkspaceState { workspace: Workspace; revision: number; ownerId: string | null; raw: string | null }
@@ -17,24 +18,40 @@ export function useWorldWorkspace(catalog: Catalog) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const epoch = useRef(0);
   const saving = useRef(false);
   const load = useCallback(async () => {
     const generation = ++epoch.current;
-    setReady(false); setError('');
+    setReady(false); setError(''); setNotice('');
     // Не оставляем данные другого аккаунта на экране во время загрузки.
     setState({ workspace: emptyWorkspace(catalog.version), ownerId: null, revision: 0, raw: null });
     try {
       let user: { id: string } | null;
-      try { user = (await request<{ user: { id: string } | null }>('/session')).user; }
+      try {
+        const session = await request<{ user: { id: string } | null; removedLegacyPlans?: number }>('/session');
+        user = session.user;
+        if (session.removedLegacyPlans) setNotice(legacyCleanupMessage);
+      }
       catch { user = null; }
+      if (generation !== epoch.current) return;
       let next: WorkspaceState;
       if (user) {
         const data = await request<{ workspace: unknown; ownerId: string; revision: number }>('/workspace');
         if (data.ownerId !== user.id) throw new Error('Аккаунт изменился во время загрузки. Повторите загрузку.');
         next = { ...data, workspace: parseCatalogWorkspace(data.workspace, catalog), raw: null };
       } else {
-        const raw = localStorage.getItem(WORKSPACE_KEY);
+        let raw = localStorage.getItem(WORKSPACE_KEY);
+        if (raw) {
+          const original = parseWorkspace(JSON.parse(raw));
+          validateWorkspaceCatalog(original, catalog);
+          const cleaned = removeLegacyFactories(original);
+          if (cleaned.removed) {
+            const checked = parseCatalogWorkspace(cleaned.workspace, catalog);
+            raw = saveGuestWorkspace(localStorage, checked, raw);
+            setNotice(legacyCleanupMessage);
+          }
+        }
         next = { workspace: raw ? parseCatalogWorkspace(JSON.parse(raw), catalog) : emptyWorkspace(catalog.version), ownerId: null, revision: 0, raw };
       }
       if (generation === epoch.current) { setState(next); setReady(true); }
@@ -60,5 +77,5 @@ export function useWorldWorkspace(catalog: Catalog) {
       setState(next);
     } finally { saving.current = false; setBusy(false); }
   };
-  return { ...state, ready, busy, error, load, save };
+  return { ...state, ready, busy, error, notice, load, save };
 }

@@ -19,7 +19,7 @@ const plan: Plan = {
   settings: {
     enabledRecipeIds: ['iron-ingot'], enabledBuildingIds: ['smelter'],
     beltId: 'mk1', pipeId: 'mk1', clock: 100, resourcePolicy: 'listed-only',
-    objective: 'power', powerLimit: null, outputSlack: 0, allowSink: false,
+    objective: 'smooth-power', powerLimit: null, outputSlack: 0, allowSink: false,
     resourceWeights: { 'iron-ore': 2 },
   },
 };
@@ -156,13 +156,13 @@ describe('API пользователей и сохранённых конфиг�
   });
   it('создаёт сессию, сохраняет и восстанавливает полный профиль', async () => {
     const instance = app();
-    expect((await instance.inject('/api/session')).json()).toEqual({ user: null });
+    expect((await instance.inject('/api/session')).json()).toMatchObject({ user: null });
     expect((await instance.inject('/api/profiles')).statusCode).toBe(401);
     const { cookie, user, response } = await register(instance);
     expect(user).toEqual({ id: expect.any(String), username: 'alice' });
     expect(response.headers['set-cookie']).toContain('HttpOnly');
     expect(response.headers['set-cookie']).toContain('SameSite=Lax');
-    expect((await instance.inject({ url: '/api/session', headers: { cookie } })).json()).toEqual({ user });
+    expect((await instance.inject({ url: '/api/session', headers: { cookie } })).json()).toMatchObject({ user });
     const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Мой профиль', data: plan } });
     expect(created.statusCode).toBe(201);
     const profile = created.json().profile;
@@ -205,7 +205,7 @@ describe('API пользователей и сохранённых конфиг�
     expect((await instance.inject({ method: 'POST', url: '/api/auth/register', payload: { username: 'ALICE', password: 'some-other-password' } })).statusCode).toBe(409);
     expect((await instance.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'alice', password: 'wrong-password' } })).statusCode).toBe(401);
     expect((await instance.inject({ method: 'POST', url: '/api/auth/logout', headers: { cookie } })).statusCode).toBe(204);
-    expect((await instance.inject({ url: '/api/session', headers: { cookie } })).json()).toEqual({ user: null });
+    expect((await instance.inject({ url: '/api/session', headers: { cookie } })).json()).toMatchObject({ user: null });
     const login = await instance.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'ALICE', password: 'correct-horse-battery' } });
     expect(login.statusCode).toBe(200);
     expect(login.json()).toEqual({ user });

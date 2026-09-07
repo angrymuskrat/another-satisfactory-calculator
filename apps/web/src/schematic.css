@@ -1,0 +1,60 @@
+.construction-views{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.construction-views button{white-space:normal;min-height:42px;height:auto;padding:10px 13px}
+.panel.schematic-panel{min-width:0;overflow:hidden;padding:22px 0}
+.schematic-heading{display:flex;justify-content:space-between;align-items:start;gap:14px;padding:0 22px}
+.schematic-heading h3{font-size:19px}.schematic-heading .eyebrow{font-size:10px;letter-spacing:1.7px;margin-bottom:9px}
+.schematic-heading p{font-size:12px;color:#b0bbc3;margin:9px 0 18px}
+.schematic-heading button{flex-shrink:0;display:flex;gap:7px;align-items:center}
+.schematic-controls{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:0 22px 13px;font-size:11px;color:#adbac3}
+.schematic-controls>span{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.schematic-zoom{display:flex;align-items:center;gap:7px}.schematic-zoom .secondary-button{min-width:60px;padding:6px 9px}
+.schematic-legend-dot{display:inline-block;width:7px;height:7px;background:#f5a14c;border-radius:2px;margin-left:7px}
+.schematic-legend-dot.fluid{background:#71bad7}.schematic-legend-line{font-size:20px}
+.schematic-viewport{position:relative;overflow:auto;height:570px;max-width:100%;border-block:1px solid #343c43;background-color:#12191e;background-image:radial-gradient(#364049 1px,transparent 1px);background-size:22px 22px;overscroll-behavior:contain;scrollbar-color:#566773 #151c22}
+.schematic-viewport:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.schematic-viewport{cursor:grab;user-select:none;overflow-anchor:none}
+.schematic-viewport.is-dragging,.schematic-viewport.is-dragging *{cursor:grabbing!important}
+.schematic-scaled{position:relative;min-width:100%}
+.schematic-canvas{position:absolute;left:0;top:0;display:flex;align-items:flex-start;gap:175px;width:max-content;padding:95px 90px;transform-origin:top left}
+.schematic-column{display:flex;flex-direction:column;gap:95px;width:280px}
+.schematic-node{position:relative;z-index:1;width:280px;background:#1c252c;border:1px solid #51606a;border-top:3px solid #edab64;border-radius:10px;box-shadow:0 7px 18px #0003;overflow:hidden;color:#e6e8ea;transition:opacity .15s}
+.schematic-node.selected{outline:3px solid #f5a14c;outline-offset:5px}.schematic-node.muted-node{opacity:.4}
+.schematic-node[data-kind=source]{border-top-color:#a3b7a6}.schematic-node[data-kind=product],.schematic-node[data-kind=export]{border-top-color:#92c8a9}
+.schematic-node.fluid{border-top-color:#71bad7}.schematic-node[data-kind=continuation]{border-style:dashed;background:#182127}
+.schematic-node-button{display:block;width:100%;padding:15px 16px;text-align:left;background:#ffffff03}
+.schematic-node-button:focus-visible{outline-offset:-4px}
+.schematic-kind{display:block;font-size:9px;color:#bac7d0;letter-spacing:1.5px;margin-bottom:9px}
+.schematic-recipe{display:block;font-size:11px;line-height:1.6;margin-top:9px;color:#bfccd5}
+.schematic-node-title{display:flex;gap:9px;align-items:center}.schematic-node-title svg{flex-shrink:0;color:#e9b477}
+.schematic-node-title strong{font-size:14px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}.schematic-node-title b{margin-left:auto;color:#f7b97a;font-size:22px;white-space:nowrap}
+.schematic-settings{display:flex;flex-wrap:wrap;gap:7px 15px;border-bottom:1px solid #3b464f;padding:10px 16px;font-size:11px;color:#c5cfd6}
+.schematic-settings strong{color:#f3ca9f}.schematic-settings small{flex-basis:100%;font-size:10px;line-height:1.6}
+.schematic-flows{padding:12px 16px;border-bottom:1px solid #34414b}.schematic-flows>span{font-size:9px;letter-spacing:1.5px;color:#9facb6;display:block;margin-bottom:9px}
+.schematic-flows>div{display:flex;gap:7px;align-items:center;margin:6px 0}.schematic-flows>div>span{font-size:11px;line-height:1.5;min-width:0;flex:1;overflow-wrap:anywhere}
+.schematic-flows strong{font-size:13px;font-weight:550;text-align:right;min-width:50px}.schematic-flows strong small{display:block;font-size:9px;margin-top:2px}
+.schematic-flows>small{font-size:11px}.schematic-power{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:12px 16px;font-size:11px;color:#c9d5dc}
+.schematic-power strong{color:#f3c591}.schematic-power span{font-size:10px}.schematic-power svg{color:#e5b370}
+.schematic-node.junction{border-top-color:#81939f;border-radius:22px;background:#202c35}
+.schematic-junction-rate{padding:5px 16px 16px;margin:0;font-size:20px}.schematic-junction-rate span{display:block;font-size:10px;color:#abbac5;margin-top:5px}
+.schematic-edges{position:absolute;inset:0;pointer-events:none;overflow:visible}.schematic-edges path{fill:none;stroke:#b0a084;stroke-width:2;vector-effect:non-scaling-stroke}
+.schematic-edges text{font-size:12px;font-weight:550;fill:#e0d3bc;paint-order:stroke;stroke:#12191e;stroke-width:6px;stroke-linejoin:round}
+.schematic-edges .fluid path{stroke:#71bad7}.schematic-edges .fluid text{fill:#a6d8ec}.schematic-edges .control path{stroke:#9bafbc;stroke-dasharray:5 5}
+.schematic-edges .dim{opacity:.15}.schematic-page-link{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 22px);margin:11px;gap:8px}
+.schematic-details,.schematic-notes,.schematic-hint{margin:18px 22px 0}.schematic-details{border-top:1px solid #36414a;padding-top:16px}
+.schematic-details>.section-heading{gap:14px;align-items:start}.schematic-details .section-heading h3{line-height:1.6}
+.schematic-details h4{margin:16px 0 10px}.schematic-configurations{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+.schematic-configurations>div{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.6;background:#141d23;padding:14px;border:1px solid #36414a;border-radius:7px}
+.schematic-configurations span{color:#b6c3cd}.schematic-connections{list-style:none;padding:0;margin:0;display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+.schematic-connections button{width:100%;text-align:left;background:#202b33;border:1px solid #3d4e5a;border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:7px;line-height:1.5;font-size:12px;overflow-wrap:anywhere}
+.schematic-connections button:hover{border-color:var(--accent)}.schematic-connections button strong{font-weight:500;color:#f1c28c}
+.schematic-notes{font-size:12px;line-height:1.7}.schematic-notes summary{cursor:pointer;color:#c3d1da;padding:8px 0}.schematic-notes p{margin:10px 0}
+.schematic-pagination{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:0 22px 18px;line-height:1.6;font-size:12px}.schematic-pagination small{display:block;font-size:11px}
+.schematic-dialog{width:calc(100vw - 40px);max-width:none;max-height:calc(100dvh - 40px);height:calc(100dvh - 40px);padding:22px 0;margin:auto;background:#192127;color:#e6e8ea;border:1px solid #63737e;border-radius:12px;overflow:auto}
+.schematic-dialog::backdrop{background:#03080ddd;backdrop-filter:blur(4px)}.schematic-dialog .schematic-viewport{height:55dvh;min-height:300px}
+@media(max-width:720px){.schematic-heading{flex-wrap:wrap}.schematic-heading,.schematic-controls{padding-inline:14px}.schematic-heading button{margin-bottom:14px}.schematic-viewport{height:480px}.schematic-details,.schematic-notes,.schematic-hint{margin-inline:14px}.schematic-dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}.schematic-pagination{margin-inline:14px;gap:6px}.schematic-pagination button{padding-inline:8px}.construction-views button{flex:1 1 140px}.schematic-dialog .schematic-viewport{height:50dvh}}
+.schematic-full-actions{display:flex;gap:8px;flex-wrap:wrap}
+.schematic-dialog.schematic-only{width:100vw;height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;overflow:hidden}
+.schematic-only .schematic-heading,.schematic-only .schematic-pagination,.schematic-only .schematic-controls,.schematic-only .schematic-hint,.schematic-only .schematic-details,.schematic-only .schematic-notes{display:none}
+.schematic-dialog.schematic-only .schematic-viewport{height:100dvh;min-height:0;border:0}
+.schematic-restore{position:absolute;top:14px;right:18px;z-index:5;box-shadow:0 3px 16px #0006}
+.schematic-restore[hidden]{display:none}

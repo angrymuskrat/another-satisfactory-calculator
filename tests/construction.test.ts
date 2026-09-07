@@ -23,6 +23,18 @@ function fixture() {
 }
 
 describe('инструкция строительства при заданных частотах', () => {
+  it('сохраняет прежний ключ отметок скважины при добавлении технических связей схемы', () => {
+    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+    plan.sources = [{ id: 'well', itemId: 'water', kind: 'well', limit: null, count: 1, purity: 1, minerId: '', clock: 100,
+      well: { satellites: [{ purity: 1, count: 2 }] } }];
+    const result = fixture().result;
+    result.steps = []; result.resources = [{ sourceId: 'well', itemId: 'water', rate: 10, limit: 120, power: 150 }];
+    const model = buildConstruction(catalog, plan, result);
+    const oldFingerprint = JSON.stringify(JSON.parse(model.fingerprint), (key, value) => key === 'controllerId' ? undefined : value);
+    const saved = [{ fingerprint: oldFingerprint, ids: ['source:well', 'satellites:well:0'] }];
+    expect(model.extraction[1].controllerId).toBe('source:well');
+    expect(saved.find(entry => entry.fingerprint === model.fingerprint)?.ids).toEqual(['source:well', 'satellites:well:0']);
+  });
   it('считает материалы одного компенсатора и всех трёх спутников даже при малом расходе', () => {
     const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
     plan.sources = [{ id: 'well', itemId: 'water', kind: 'well', limit: null, count: 1, purity: 1, minerId: '', clock: 100,

@@ -7,7 +7,8 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { z, ZodError } from 'zod';
-import { parsePlan } from '../../packages/domain/validation';
+import { parsePlannerPlan } from '../../packages/domain/plannerCompatibility';
+import { removeLegacyPlans } from './legacyPlans';
 import { openDatabase, savedDocument, type SavedRow, type User, type UserRow } from './db';
 import { currentUser, hashPassword, revokeSession, SESSION_COOKIE, setSession, verifyPassword } from './auth';
 import { registerWorldRoutes } from './worlds';
@@ -54,7 +55,8 @@ export function createApp(options: { databasePath?: string; serveStatic?: boolea
     return reply.code(statusCode).send({ error: statusCode === 500 ? 'Внутренняя ошибка сервера.' : statusCode === 429 ? 'Слишком много попыток. Повторите позже.' : error.message });
   });
 
-  app.get('/api/session', async request => ({ user: request.user }));
+  app.get('/api/session', async request => ({ user: request.user,
+    removedLegacyPlans: request.user ? removeLegacyPlans(db, request.user.id) : 0 }));
   app.register(async authRoutes => {
     const authLimit = { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } };
     authRoutes.post('/api/auth/register', authLimit, async (request, reply) => {
@@ -103,7 +105,7 @@ export function createApp(options: { databasePath?: string; serveStatic?: boolea
       routes.post(`/api/${kind}`, async (request, reply) => {
         const body = documentBody.parse(request.body);
         let data;
-        try { data = parsePlan(body.data); } catch { throw invalid('Некорректные данные плана.'); }
+        try { data = parsePlannerPlan(body.data); } catch (error) { throw invalid(error instanceof Error ? error.message : 'Некорректные данные плана.'); }
         const row: SavedRow = { id: randomUUID(), name: body.name, revision: 1, updated_at: new Date().toISOString(), data: JSON.stringify(data) };
         db.prepare('INSERT INTO documents (id, user_id, kind, name, revision, updated_at, data) VALUES (?, ?, ?, ?, ?, ?, ?)')
           .run(row.id, request.user!.id, kind, row.name, row.revision, row.updated_at, row.data);
@@ -120,7 +122,7 @@ export function createApp(options: { databasePath?: string; serveStatic?: boolea
         const { id } = params.parse(request.params);
         const body = updateBody.parse(request.body);
         let data;
-        try { data = parsePlan(body.data); } catch { throw invalid('Некорректные данные плана.'); }
+        try { data = parsePlannerPlan(body.data); } catch (error) { throw invalid(error instanceof Error ? error.message : 'Некорректные данные плана.'); }
         const row = db.prepare(`UPDATE documents SET name = ?, data = ?, updated_at = ?, revision = revision + 1
           WHERE id = ? AND user_id = ? AND kind = ? AND revision = ? RETURNING id, name, revision, updated_at, data`)
           .get(body.name, JSON.stringify(data), new Date().toISOString(), id, request.user!.id, kind, body.revision) as unknown as SavedRow | undefined;

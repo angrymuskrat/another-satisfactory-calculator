@@ -116,13 +116,15 @@ test('рецепты и расчёт объявляют краткий стат�
   await page.keyboard.press('Enter');
   await expect(page.locator('.results-column').getByRole('status')).toHaveText('Допустимое приближение', { timeout: 35_000 });
   await expect(page.locator('.results-column')).not.toHaveAttribute('aria-live');
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByRole('textbox', { name: 'Минимум продукта 1', exact: true }).fill('1');
+  await page.getByRole('button', { name: 'Результаты', exact: true }).click();
   await expect(page.locator('.results-column').getByRole('status')).toContainText('Требуется пересчёт');
 });
 
 test('основная навигация доступна клавиатурой, экраны помещаются в 390px', async ({ page }) => {
   await page.goto('/');
-  const names = ['Планировщик', 'Рецепты', 'Технологии', 'Миры и фабрики', 'Профили'];
+  const names = ['Цели и ограничения', 'Результаты', 'Рецепты', 'Технологии', 'Миры и фабрики', 'Профили'];
   await page.keyboard.press('Tab');
   const skip = page.getByRole('link', { name: 'Перейти к содержимому' });
   await expect(skip).toBeFocused();
@@ -167,7 +169,7 @@ test('мобильная навигация и переход к содержи�
 
 test('контраст и размер основных второстепенных подписей', async ({ page }) => {
   await page.goto('/');
-  for (const name of ['Планировщик', 'Рецепты', 'Технологии', 'Миры и фабрики']) {
+  for (const name of ['Цели и ограничения', 'Рецепты', 'Технологии', 'Миры и фабрики']) {
     await page.getByRole('button', { name, exact: true }).click();
     const samples = await page.locator('.constraint-summary, .field-label, .source-preview, .hint, .recipe-title small, .building-card small').evaluateAll(elements => {
       const rgb = (text: string) => text.match(/[\d.]+/g)?.map(Number) ?? [];

@@ -1,7 +1,10 @@
 import type { Catalog } from '../../../packages/domain/types';
 import { parseWorkspace, validateWorkspaceCatalog, type Workspace } from '../../../packages/domain/worlds';
-import { parseCatalogPlan } from '../../../packages/domain/worldPlanValidation';
-export { parseCatalogPlan };
+import { parseCatalogPlan as parseCatalog } from '../../../packages/domain/worldPlanValidation';
+import { parsePlannerPlan } from '../../../packages/domain/plannerCompatibility';
+export function parseCatalogPlan(value: unknown, catalog: Catalog) {
+  return parseCatalog(parsePlannerPlan(value), catalog);
+}
 
 export const WORKSPACE_KEY = 'ficsit-workspace-v1';
 export function parseCatalogWorkspace(value: unknown, catalog: Catalog): Workspace {

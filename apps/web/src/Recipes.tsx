@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import type { Catalog, Plan, Recipe } from '../../../packages/domain/types';
 import { RecipeSetup, type RecipeSetupProps } from './RecipeSetup';
 import { buildRecipeProgress, compareRecipeProgress, type RecipeProgress } from '../../../packages/domain/recipeProgress';
-import { format, ItemIcon, NumberField } from './controls';
+import { format, ItemIcon } from './controls';
 import { groupRecipes, matchesRecipe, recipeAvailability, recipeMetrics, type QuantityMode, type SearchScope } from './recipeCatalog';
 import { AnalysisFeedback } from './AnalysisPanel';
 import { useAnalysis } from './useAnalysis';
@@ -19,10 +19,9 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
   const progress = useMemo(() => buildRecipeProgress(catalog), [catalog]);
   const [scope, setScope] = useState<SearchScope>('all');
   const [mode, setMode] = useState<QuantityMode>('cycle');
-  const [clock, setClock] = useState(plan.settings.clock);
+  const clock = plan.settings.clock;
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const analysis = useAnalysis(catalog, plan);
-  useEffect(() => setClock(plan.settings.clock), [plan.settings.clock]);
   useEffect(() => setComparisonIds([]), [catalog, JSON.stringify(plan.world), JSON.stringify(plan.settings.enabledRecipeIds), JSON.stringify(plan.settings.enabledBuildingIds)]);
   const filtered = useMemo(() => catalog.recipes.filter(recipe => {
     const a = recipeAvailability(catalog, plan, recipe);
@@ -71,8 +70,8 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
     <div className="panel">
       <p>{sort === 'progress' ? 'Сначала ранние уровни и этапы HUB. MAM сгруппирован независимо по веткам; диски упорядочены по известным требованиям. Равнозначные открытия — по русскому названию. Неизвестное место в прогрессе показано отдельно.' : sort === 'category' ? 'Названия и состав категорий взяты из игровых файлов. При равном или неизвестном приоритете используется русский алфавит. Альтернативы показаны рядом с основным продуктом.' : 'Рецепты упорядочены по русскому названию.'}</p>
       <label>Количество <select aria-label="Единицы карточек рецептов" value={mode} onChange={e => setMode(e.target.value as QuantityMode)}><option value="cycle">За цикл</option><option value="minute">В минуту</option><option value="unit">На единицу выхода</option></select></label>{' '}
-      <NumberField label="Частота предпросмотра рецептов" value={clock} onChange={setClock} min={1} max={250} suffix="%" />
-      <p className="muted">Частота предпросмотра не меняет план. Показатели относятся к одной непрерывно работающей машине. Ограничения транспорта учитываются при сравнении всей фабрики.</p>
+      <p className="recipe-preview-frequency">Справочные показатели одной машины при {format(clock)}%</p>
+      <p className="muted">Частота задана в технологиях. Показатели относятся к одной непрерывно работающей машине; в рассчитанной фабрике частоты подбираются отдельно. Ограничения транспорта учитываются при сравнении всей фабрики.</p>
       {plan.world && !plan.world.overclockUnlocked && clock > 100 && <p>Разгон не открыт в мире; это только справочный предпросмотр.</p>}
     </div>
     <div className="catalog-summary"><span role="status">Найдено {filtered.length} · открыто {openedCount} · разрешено в плане {enabledCount} из {catalog.recipes.length}</span><div>

@@ -15,6 +15,7 @@ test('партия: запас, срок, готовые позиции и со�
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.batch-result')).toContainText('30');
+  await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel(/^На складе:/).fill('100');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await expect(page.locator('.batch-result')).toContainText('готов', { timeout: 30000 });
@@ -26,7 +27,7 @@ test('партия: запас, срок, готовые позиции и со�
 });
 
 test('усилитель, существующая линия, сравнение и строительная ведомость', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'smooth-power';
   plan.targets = [{ itemId: 'iron-rod', rate: 1, weight: 1, scale: 1 }];
   plan.sources = [{ id: 'ingot', name: 'Со склада фабрики', itemId: 'iron-ingot', kind: 'flow', limit: 15, count: 1, purity: 1, minerId: '', clock: 100, importPower: 2 }];
   plan.settings.enabledRecipeIds = ['iron-rod'];
@@ -40,6 +41,8 @@ test('усилитель, существующая линия, сравнени�
   await expect(page.locator('.construction-panel')).toContainText('Новых машин: 0');
   await expect(page.locator('.construction-panel')).toContainText('Somersloops на машину: 1');
   await expect(page.locator('.utilization')).toContainText('энергия учтена');
+  await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
+  await page.getByText('Проверки расширения и перестройки', { exact: true }).click();
   await page.getByRole('button', { name: 'Сравнить оставить / добавить / перестроить' }).click();
   await expect(page.getByRole('heading', { name: 'Результаты сравнения', exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.analysis-panel')).toContainText('Перестроить');
@@ -50,7 +53,7 @@ test('усилитель, существующая линия, сравнени�
 });
 
 test('скважина, заметки, резерв и мощность сохраняются', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.targets = [{ itemId: 'water', rate: 1, weight: 1, scale: 1 }];
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'smooth-power'; plan.targets = [{ itemId: 'water', rate: 1, weight: 1, scale: 1 }];
   await page.addInitScript(p => localStorage.setItem('ficsit-plan-v1', JSON.stringify(p)), plan);
   await page.goto('/');
   await page.getByLabel('Тип источника 1', { exact: true }).selectOption('well');
@@ -59,7 +62,7 @@ test('скважина, заметки, резерв и мощность сох�
   await page.getByLabel('Заметка источника 1', { exact: true }).fill('Южная скважина');
   await page.getByLabel('Резерв источника 1', { exact: true }).fill('20');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.sources[0]).toMatchObject({ kind: 'well', notes: 'Южная скважина', reserve: 20, well: { satellites: [{ purity: 1, count: 2 }] } });
   await expect(page.locator('.results-column')).toContainText('150');
@@ -67,7 +70,7 @@ test('скважина, заметки, резерв и мощность сох�
 });
 
 test('квоты двух фабрик не могут превысить общий узел при сохранении', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.name = 'Первая';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'smooth-power'; plan.name = 'Первая';
   const world = { ...createWorld(catalog, 'Общий мир', 'shared', plan), resourceNodes: [{ id: 'iron-node', name: 'Северный узел', itemId: 'iron-ore', limit: 120 }] };
   plan.sources = [{ id: 'quota', itemId: 'iron-ore', kind: 'flow', limit: 70, count: 1, purity: 1, minerId: '', clock: 100, sharedNodeId: 'iron-node' }];
   const first = createFactory(plan, 'first', world);
@@ -77,18 +80,18 @@ test('квоты двух фабрик не могут превысить общ
   await page.goto('/');
   await page.getByRole('button', { name: 'Миры и фабрики', exact: true }).click();
   await page.getByRole('button', { name: 'Открыть Первая', exact: true }).click();
-  await page.getByRole('button', { name: 'Планировщик', exact: true }).click();
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel('Квота общего узла quota', { exact: true }).fill('90');
   await page.getByRole('button', { name: 'Миры и фабрики', exact: true }).click();
   await page.getByRole('button', { name: 'Сохранить фабрику «Первая»', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('превышает');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-workspace-v1')!).factories[0].plan.sources[0].limit)).toBe(70);
-  await page.getByRole('button', { name: 'Планировщик', exact: true }).click();
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel('Квота общего узла quota', { exact: true }).fill('80');
   await page.getByRole('button', { name: 'Миры и фабрики', exact: true }).click();
   await page.getByRole('button', { name: 'Сохранить фабрику «Первая»', exact: true }).click();
   await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-workspace-v1')!).factories[0].plan.sources[0].limit)).toBe(80);
-  await page.getByRole('button', { name: 'Планировщик', exact: true }).click();
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel('Тип источника 1', { exact: true }).selectOption('well');
   await page.getByLabel('Общий узел источника quota', { exact: true }).selectOption('iron-node');
   await page.getByLabel('Квота общего узла quota', { exact: true }).fill('80');

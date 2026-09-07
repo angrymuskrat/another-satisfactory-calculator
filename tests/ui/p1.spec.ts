@@ -7,7 +7,7 @@ const catalogJson = JSON.parse(readFileSync(new URL('../../packages/game-data/ca
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
 test('границы продукта, сеть и именованные источники сохраняются в черновике', async ({ page }) => {
-  const plan = createDefaultPlan(catalogJson as Catalog); plan.settings.objective = 'power';
+  const plan = createDefaultPlan(catalogJson as Catalog); plan.settings.objective = 'smooth-power';
   plan.mode = 'target'; plan.targets[0].rate = 7.5;
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
   await page.goto('/');
@@ -16,15 +16,17 @@ test('границы продукта, сеть и именованные ист
   await page.getByLabel('Без максимума продукта 1', { exact: true }).uncheck();
   await page.getByLabel('Максимум продукта 1', { exact: true }).fill('10');
   await expect(page.getByText('Доступно:', { exact: false }).first()).toContainText('120');
-  await page.locator('summary').filter({ hasText: 'Цели и ограничения' }).click();
+  await page.locator('summary').filter({ hasText: 'Энергия и ограничения' }).click();
   await page.getByLabel('Без ограничения максимальной нагрузки', { exact: true }).uncheck();
-  await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('70');
+  await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('10');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Заказ невыполним', exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole('heading', { name: 'Ошибка расчёта', exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.result-problem')).toContainText('Невыполнимость точной нелинейной модели не доказана');
+  await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('100');
   await page.getByLabel('Резерв сети', { exact: true }).fill('5');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.results-column')).toContainText('Железо у озера');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.targets[0]).toMatchObject({ minRate: 5, maxRate: 10 });

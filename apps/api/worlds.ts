@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { emptyWorkspace, parseWorkspace, validateWorkspaceCatalog } from '../../packages/domain/worlds';
 import type { Catalog } from '../../packages/domain/types';
 import { parseCatalogPlan } from '../../packages/domain/worldPlanValidation';
+import { requirePlannerObjective } from '../../packages/domain/plannerCompatibility';
 import catalogJson from '../../packages/game-data/catalog.json';
 
 const catalog = catalogJson as Catalog;
@@ -22,7 +23,7 @@ export function registerWorldRoutes(app: FastifyInstance, db: DatabaseSync) {
       if (body.expectedOwnerId !== request.user!.id) return reply.code(409).send({ error: 'Аккаунт изменился. Загрузите его рабочее пространство перед сохранением.' });
       let workspace;
       try {
-        workspace = parseWorkspace(body.workspace, value => parseCatalogPlan(value, catalog));
+        workspace = parseWorkspace(body.workspace, value => requirePlannerObjective(parseCatalogPlan(value, catalog)));
         validateWorkspaceCatalog(workspace, catalog);
       } catch (error) {
         return reply.code(400).send({ error: error instanceof Error ? error.message : 'Некорректное рабочее пространство.' });
