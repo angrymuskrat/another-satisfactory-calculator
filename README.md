@@ -26,6 +26,48 @@ pnpm start
 файл базы — через `DATABASE_PATH`; по умолчанию `.data/users.sqlite`.
 Настройки cookies и API описаны в [apps/api/README.md](apps/api/README.md).
 
+## Docker Compose
+
+Нужен Docker Engine с Compose v2 (на Windows — Docker Desktop с Linux containers).
+Node.js и pnpm на хосте не нужны. Из корня проекта:
+
+```powershell
+Copy-Item .env.example .env
+# Отредактируйте .env под свой способ доступа.
+docker compose up --build -d
+docker compose ps
+docker compose logs -f app
+```
+
+В Linux/macOS вместо `Copy-Item` используйте `cp .env.example .env`.
+По умолчанию приложение доступно на http://127.0.0.1:3001.
+Compose собирает frontend, worker/HiGHS и запускает API, который раздаёт сборку.
+Сборка включает проверку TypeScript; тесты не запускаются автоматически.
+Сервер работает от пользователя `node`, проверка здоровья обращается к `/api/session`.
+
+В [.env.example](.env.example) перечислены настройки с комментариями:
+
+| Переменная | Что указать |
+| --- | --- |
+| `BIND_ADDRESS` | `127.0.0.1` для локального доступа; `0.0.0.0` или IP хоста для доступа из сети |
+| `PORT` | Свободный внешний порт, по умолчанию `3001` |
+| `SECURE_COOKIES` | `false` для HTTP, обязательно `true` при доступе через HTTPS |
+
+Для HTTPS нужен внешний reverse proxy с сертификатом и сохранением исходного
+`Host`, включая нестандартный порт. Контейнер обслуживает HTTP на порту 3001;
+`SECURE_COOKIES=true` включает Secure cookies и проверку HTTPS Origin.
+API-ключи и заранее заданный пароль администратора не нужны: аккаунт создаётся
+через интерфейс. `.env` не коммитится и не попадает в образ. Этот файл читает
+Compose; для `pnpm start` переменные нужно передать через окружение процесса.
+
+SQLite хранится в именованном томе `app-data`, путь внутри контейнера —
+`/app/.data/users.sqlite`. Локальная `.data` не импортируется автоматически.
+`docker compose down` сохраняет данные; `docker compose down -v` удаляет том
+вместе с аккаунтами и профилями. Для обновления выполните
+`docker compose up --build -d` повторно. После изменения `.env` достаточно
+`docker compose up -d`. При смене каталога проекта или имени Compose-проекта
+будет использован другой том; сохраняйте имя проекта для доступа к прежним данным.
+
 ## Возможности
 
 - Максимум выпуска или заданный заказ. Для нескольких продуктов — пропорции,

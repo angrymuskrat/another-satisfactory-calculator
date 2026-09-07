@@ -73,6 +73,9 @@
   Действующие команды: `pnpm dev`, `pnpm test`, `pnpm typecheck`, `pnpm build`,
   `pnpm test:ui`; без package manager уже установленный проект запускается
   через `node scripts/dev.mjs`. Node.js 24+. Подробнее в README.md.
+- Контейнерный запуск: `docker compose up --build -d`; Dockerfile собирает web
+  и запускает API на Node.js 24. `.env.example` описывает параметры Compose;
+  SQLite хранится в томе `app-data`, пользовательские данные не входят в образ.
 - Перед отчётом о готовности запустить относящиеся к изменению проверки.
   Прямо сообщать, что не запускалось или не проверено.
 
