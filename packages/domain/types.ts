@@ -98,6 +98,8 @@ export interface WorldSnapshot {
 export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
 export interface Settings {
+  variantOptions?: { outputLoss: number; extraMachines: number };
+  smoothPowerExtraMachines?: number;
   enabledRecipeIds: string[];
   enabledBuildingIds: string[];
   beltId: string;
@@ -142,6 +144,7 @@ export interface ResourceResult {
   sourceId: string; itemId: string; rate: number; limit: number | null; power: number;
 }
 export interface Result {
+  machineBudget?: { minimum: number; limit: number; used: number };
   exports?: ProductResult[];
   somersloops?: number;
   feasibleAlternative?: { products: ProductResult[]; fraction: number; power: number; bottlenecks: string[] };
@@ -162,3 +165,5 @@ export interface Result {
   maxBalanceError: number;
 }
 export const hasSolution = (result: Result | null | undefined): result is Result & { status: 'optimal' | 'approximate' } => result?.status === 'optimal' || result?.status === 'approximate';
+export interface ProductionVariant { id: 'maximum' | 'economy'; label: string; plan: Plan; result: Result }
+export interface ProductionVariants { variants: ProductionVariant[]; equivalent: boolean }

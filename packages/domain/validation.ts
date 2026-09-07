@@ -33,6 +33,8 @@ export const planSchema = z.strictObject({
     minerId: z.string().max(200), clock: z.number().finite().min(1).max(250),
   })).max(512).refine(sources => new Set(sources.map(s => s.id)).size === sources.length, 'Повторяющиеся источники'),
   settings: z.strictObject({
+    variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000) }).optional(),
+    smoothPowerExtraMachines: z.number().int().min(0).max(1000).optional(),
     enabledRecipeIds: uniqueIds, enabledBuildingIds: uniqueIds, beltId: id, pipeId: id,
     clock: z.number().finite().min(1).max(250),
     resourcePolicy: z.enum(['listed-only', 'unlimited-unlisted']), objective: z.enum(['power', 'smooth-power', 'resources', 'buildings']),

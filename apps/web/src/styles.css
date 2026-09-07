@@ -79,8 +79,11 @@ table th{color:#cad4da;font-weight:600}.table-scroll{overflow-x:auto}
 .recipe-setup select{height:auto;min-height:39px;max-width:100%}
 .results-page{max-width:none}
 .results-back{margin-bottom:18px}
-.planner-settings{max-width:1120px;margin:0 auto}
-.planner-settings>.analysis-panel{margin-top:20px}
+.planner-settings{width:100%;min-width:0}
+.planner-settings>.planner-inputs{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:20px}
+.planner-order-column{display:flex;flex-direction:column;min-width:0;gap:20px}
+.planner-order-column>.analysis-panel{margin-top:0}
+.planner-settings .panel{min-width:0}
 .analysis-panel>summary{cursor:pointer;font-size:15px;font-weight:550}
 .analysis-panel[open]>summary{margin-bottom:16px}
 .objective-description{grid-column:1/-1;line-height:1.7}
@@ -98,5 +101,5 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,.item-select-tri
 .switch input:focus-visible+span{outline-offset:0}
 .plan-name input:focus{padding:0}
 [hidden]{display:none!important}
-@media(min-width:1100px){.planner-settings>.planner-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:20px}.planner-settings .panel{min-width:0}.planner-settings .batch-panel{grid-column:1/-1}}
+@media(min-width:1100px){.planner-settings>.planner-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.recipe-setup fieldset,.setup-preview{padding:10px}.setup-actions{align-items:stretch}.setup-actions>button{flex:1 1 160px}.recipe-setup details{padding-left:8px}.recipe-setup select{font-size:12px}.catalog-toolbar{grid-template-columns:minmax(0,1fr)}.recipe-setup label{overflow-wrap:anywhere}}

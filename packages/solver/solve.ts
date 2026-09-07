@@ -108,7 +108,15 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         model.constrain(expression, '>=', Math.max(0, optimum * (1 - plan.settings.outputSlack / 100) - tolerance(optimum)));
       }
     }
-    const costGoals = plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
+    let machineBudget: Result['machineBudget'];
+    if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
+      const minimum = Math.round(optimize(built.machineCount));
+      const limit = minimum + plan.settings.smoothPowerExtraMachines;
+      model.constrain(built.machineCount, '<=', limit);
+      machineBudget = { minimum, limit, used: 0 };
+    }
+    const costGoals = machineBudget ? [built.power, normalize(built.resources), built.machineCount]
+      : plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
       : plan.settings.objective === 'power' ? [built.power, normalize(built.resources)] : [normalize(built.resources), built.power];
     const costLocks: { index: number; expression: Expression; optimum: number }[] = [];
     for (const expression of costGoals) {
@@ -193,6 +201,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       result.message = 'Подобраны число машин и рабочие частоты. Допустимый план с приближённой оптимизацией энергии; точные мощности проверены.';
     }
     result.objectiveValue = objectiveValue;
+    if (machineBudget) result.machineBudget = { ...machineBudget, used: Math.round(dot(built.machineCount, values)) };
     result.products = built.targets.map(t => ({ itemId: t.target.itemId, rate: clean(values[t.variable] ?? 0) }));
     result.steps = built.recipeVariables.filter(r => r.configuration.existing || (values[r.variable] ?? 0) > 1e-12).map(r => {
       const cycles = values[r.variable];
@@ -223,7 +232,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     result.installedPower = result.steps.reduce((s, r) => s + r.powerMax, 0) + result.sinkPower
       + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.warnings.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
-    if (plan.settings.objective === 'smooth-power') result.warnings.push('После выпуска минимизируется число машин, затем энергия с подбором частот от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.');
+    if (plan.settings.objective === 'smooth-power') result.warnings.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
     if (approximatePower) result.warnings.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
     if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
     if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');
