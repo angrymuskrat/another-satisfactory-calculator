@@ -12,6 +12,7 @@ export const worldSnapshotSchema = z.strictObject({
     .max(1000).refine(nodes => new Set(nodes.map(node => node.id)).size === nodes.length, 'Повторяющиеся общие узлы').optional(),
 });
 export const planSchema = z.strictObject({
+  recipeProgress: z.strictObject({ unlockIds: uniqueIds }).optional(),
   batch: z.strictObject({ minutes: positive, items: z.array(z.strictObject({ itemId: id, required: quantity, stock: quantity })).min(1).max(256).refine(items => new Set(items.map(i => i.itemId)).size === items.length, 'Повтор позиции партии') }).optional(),
   lines: z.array(z.strictObject({ id, name: z.string().max(120), recipeId: id, count: z.number().int().min(1).max(1000000), clock: z.number().finite().min(1).max(250), somersloops: z.number().int().min(0).max(4), duty: z.number().finite().min(0).max(1), locked: z.boolean() })).max(512).refine(lines => new Set(lines.map(l => l.id)).size === lines.length, 'Повтор линии').optional(),
   expansion: z.enum(['keep', 'add', 'rebuild']).optional(),

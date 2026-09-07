@@ -22,6 +22,7 @@ export function createWorld(catalog: Catalog, name: string, worldId: string, pla
     beltId: plan?.settings.beltId ?? catalog.belts[0].id, pipeId: plan?.settings.pipeId ?? catalog.pipes[0].id,
     overclockUnlocked: plan ? plan.settings.clock > 100 || plan.sources.some(s => s.kind !== 'flow' && s.clock > 100) || (plan.expansion !== 'rebuild' && !!plan.lines?.some(l => l.clock > 100)) : false,
     unlockedMilestoneIds: [
+      ...(plan?.recipeProgress?.unlockIds ?? []),
       ...(plan?.sources.some(s => s.kind === 'well') ? ['p2:resource-wells'] : []),
       ...((plan?.somersloopBudget ?? 0) > 0 || (plan?.expansion !== 'rebuild' && plan?.lines?.some(l => l.somersloops > 0)) ? ['p2:production-amplifier'] : []),
     ],

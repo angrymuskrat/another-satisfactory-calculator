@@ -31,7 +31,7 @@ test('F04: области русского поиска, сворачивани�
   expect(await page.locator('.recipe-card').count()).toBeGreaterThan(0);
   await expect(page.getByRole('heading', { name: catalog.recipes.find(r => r.id === 'alt-screw')!.name, exact: true })).toHaveCount(0);
   await page.getByLabel('Область поиска рецептов').selectOption('produces');
-  const summary = page.locator('.catalog-view > details > summary').first();
+  const summary = page.locator('.recipe-group > summary').first();
   await summary.focus(); await page.keyboard.press('Enter');
   await expect(page.locator('.recipe-card').first()).not.toBeVisible();
   await page.keyboard.press('Enter');

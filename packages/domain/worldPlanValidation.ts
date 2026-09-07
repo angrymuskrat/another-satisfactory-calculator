@@ -5,6 +5,7 @@ import { validateWorldCatalog } from './worlds';
 export function parseCatalogPlan(value: unknown, catalog: Catalog): Plan {
   const plan = parsePlan(value);
   if (plan.catalogVersion !== catalog.version) throw new Error('Версия каталога плана отличается от текущей. Требуется миграция профиля.');
+  if (plan.recipeProgress?.unlockIds.some(id => !catalog.unlocks?.some(u => u.id === id))) throw new Error('Прогресс рецептов содержит неизвестные схемы. Исходный план сохранён.');
   const items = new Set(catalog.items.map(item => item.id));
   const recipes = new Set(catalog.recipes.map(recipe => recipe.id));
   const buildings = new Set(catalog.buildings.map(building => building.id));

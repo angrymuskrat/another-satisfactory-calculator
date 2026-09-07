@@ -9241,6 +9241,8 @@
   ],
   "unlocks": [
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_StartingRecipes_C",
       "name": "Стартовые чертежи",
       "kind": "other",
@@ -9261,6 +9263,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial1_C",
       "name": "Улучшение ХАБа 1",
       "kind": "hub",
@@ -9277,6 +9281,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial1_5_C",
       "name": "Улучшение ХАБа 2",
       "kind": "hub",
@@ -9305,6 +9311,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial2_C",
       "name": "Улучшение ХАБа 3",
       "kind": "hub",
@@ -9333,6 +9341,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial3_C",
       "name": "Улучшение ХАБа 4",
       "kind": "hub",
@@ -9357,6 +9367,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial4_C",
       "name": "Улучшение ХАБа 5",
       "kind": "hub",
@@ -9381,6 +9393,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Tutorial",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Tutorial5_C",
       "name": "Улучшение ХАБа 6",
       "kind": "hub",
@@ -9406,6 +9420,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_1_2_C",
       "name": "Кремнезём",
       "kind": "mam",
@@ -9424,6 +9440,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_3-4_C",
       "name": "Базовое производство стали",
       "kind": "hub",
@@ -9447,6 +9465,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_1-1_C",
       "name": "Базовое строительство",
       "kind": "hub",
@@ -9463,6 +9483,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-1-1_C",
       "name": "Переработка нефти 2",
       "kind": "other",
@@ -9483,6 +9505,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-1_C",
       "name": "Переработка нефти",
       "kind": "hub",
@@ -9511,6 +9535,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_4-4_C",
       "name": "Гипертрубы",
       "kind": "hub",
@@ -9527,6 +9553,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "CustomizerUnlock_ColourSwatches_C",
       "name": "Палитры настройщика",
       "kind": "other",
@@ -9543,6 +9571,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_4_2_C",
       "name": "Электростолбы ур. 2",
       "kind": "mam",
@@ -9559,6 +9589,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_6_2_C",
       "name": "Электростолбы ур. 3",
       "kind": "mam",
@@ -9575,6 +9607,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_2-5_C",
       "name": "Бонусная программа утилизации",
       "kind": "hub",
@@ -9596,6 +9630,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "CustomizerUnlock_PipelineSwatch_C",
       "name": "Палитра трубопроводов",
       "kind": "other",
@@ -9617,6 +9653,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_3-1_C",
       "name": "Угольная энергия",
       "kind": "hub",
@@ -9639,6 +9677,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_3_C",
       "name": "Сканирование слизней",
       "kind": "mam",
@@ -9655,6 +9695,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_2_C",
       "name": "Сверхпроволока",
       "kind": "mam",
@@ -9673,6 +9715,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_4-1_C",
       "name": "Продвинутое производство стали",
       "kind": "hub",
@@ -9696,6 +9740,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-5_C",
       "name": "Прокладка трубопроводов ур. 2",
       "kind": "hub",
@@ -9714,6 +9760,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_1_1_C",
       "name": "Кварцевые кристаллы",
       "kind": "mam",
@@ -9732,6 +9780,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_2_C",
       "name": "Кварцевый резонатор",
       "kind": "mam",
@@ -9750,6 +9800,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_ACarapace_2_1_C",
       "name": "Discontinued - Spiked Rebars",
       "kind": "mam",
@@ -9768,6 +9820,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_4_1_C",
       "name": "Сканирование радиосигналов",
       "kind": "mam",
@@ -9784,6 +9838,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_3_2_1_C",
       "name": "Discontinued - Nobelisk Explosives",
       "kind": "mam",
@@ -9802,6 +9858,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-5-1_C",
       "name": "Обогащение частицами 2",
       "kind": "other",
@@ -9820,6 +9878,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-5_C",
       "name": "Обогащение частицами",
       "kind": "hub",
@@ -9850,6 +9910,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-2_C",
       "name": "Логистика ур. 5",
       "kind": "hub",
@@ -9868,6 +9930,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-1-1_C",
       "name": "Преобразование материи — дополнительные разблокировки",
       "kind": "other",
@@ -9904,6 +9968,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-1_C",
       "name": "Преобразование материи",
       "kind": "hub",
@@ -9932,6 +9998,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_6_C",
       "name": "Синтетические энергомодули",
       "kind": "mam",
@@ -9950,6 +10018,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-2_C",
       "name": "Квантовое шифрование",
       "kind": "hub",
@@ -9975,6 +10045,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_RocketFuel_C",
       "name": "Ракетное топливо",
       "kind": "mam",
@@ -9995,6 +10067,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_IonizedFuel_C",
       "name": "Ионизированное топливо",
       "kind": "mam",
@@ -10015,6 +10089,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-2-1_C",
       "name": "Продвинутое производство алюминия 2",
       "kind": "other",
@@ -10033,6 +10109,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-2_C",
       "name": "Продвинутое производство алюминия",
       "kind": "hub",
@@ -10057,6 +10135,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-1_C",
       "name": "Ядерная энергия",
       "kind": "hub",
@@ -10078,6 +10158,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-4_C",
       "name": "Передовое производство",
       "kind": "hub",
@@ -10099,6 +10181,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-4_C",
       "name": "Авиационная техника",
       "kind": "hub",
@@ -10115,6 +10199,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-1-1_C",
       "name": "Обработка боксита 2",
       "kind": "other",
@@ -10136,6 +10222,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-1_C",
       "name": "Обработка боксита",
       "kind": "hub",
@@ -10161,6 +10249,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_3_3_C",
       "name": "Discontinued - Radio Control Unit",
       "kind": "mam",
@@ -10179,6 +10269,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-4-1_C",
       "name": "Альтернативная транспортировка жидкостей 2",
       "kind": "other",
@@ -10201,6 +10293,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_0_C",
       "name": "Сера",
       "kind": "mam",
@@ -10217,6 +10311,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_EnrichedCoal_C",
       "name": "Альт.: угольный брикет",
       "kind": "other",
@@ -10247,6 +10343,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_TurboFuel_C",
       "name": "Альт.: турботопливо",
       "kind": "other",
@@ -10277,6 +10375,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_TurboFuel_C",
       "name": "Турботопливо",
       "kind": "mam",
@@ -10298,6 +10398,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-4_C",
       "name": "Упаковка жидкостей",
       "kind": "hub",
@@ -10326,6 +10428,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-2_C",
       "name": "Промышленное производство",
       "kind": "hub",
@@ -10349,6 +10453,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_3_C",
       "name": "Бездымный порох",
       "kind": "mam",
@@ -10367,6 +10473,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_5_C",
       "name": "Скоростной разъём",
       "kind": "mam",
@@ -10385,6 +10493,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_CompactedCoal_C",
       "name": "Угольный брикет",
       "kind": "mam",
@@ -10405,6 +10515,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_1_C",
       "name": "Чёрный порох",
       "kind": "mam",
@@ -10423,6 +10535,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_2-1_C",
       "name": "Сборка деталей",
       "kind": "hub",
@@ -10446,6 +10560,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_2_C",
       "name": "Ткань",
       "kind": "mam",
@@ -10464,6 +10580,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_2-2_C",
       "name": "Устранение препятствий",
       "kind": "hub",
@@ -10482,6 +10600,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_4_1_C",
       "name": "Ограничитель ИИ",
       "kind": "mam",
@@ -10500,6 +10620,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_5_2_Hidden_C",
       "name": "Турбопатроны для винтовки из канистр",
       "kind": "other",
@@ -10518,6 +10640,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_5_2_C",
       "name": "Турбопатроны для винтовки",
       "kind": "mam",
@@ -10538,6 +10662,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_6_3_C",
       "name": "Система самонаведения",
       "kind": "mam",
@@ -10556,6 +10682,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_3_2_C",
       "name": "Парализующий болт",
       "kind": "mam",
@@ -10574,6 +10702,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_2_1_C",
       "name": "Дробный болт",
       "kind": "mam",
@@ -10592,6 +10722,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_4_2_C",
       "name": "Разрывной болт",
       "kind": "mam",
@@ -10610,6 +10742,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-3_C",
       "name": "Защитный костюм",
       "kind": "hub",
@@ -10628,6 +10762,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_3_4_C",
       "name": "Применение взрывного резонанса",
       "kind": "mam",
@@ -10646,6 +10782,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_8_C",
       "name": "Токсичная клеточная модификация",
       "kind": "mam",
@@ -10664,6 +10802,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_4_C",
       "name": "Осколочный нобелиск",
       "kind": "mam",
@@ -10682,6 +10822,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_5_C",
       "name": "Витаминный ингалятор",
       "kind": "mam",
@@ -10698,6 +10840,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrgans_2_C",
       "name": "Протеиновый ингалятор",
       "kind": "mam",
@@ -10714,6 +10858,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Nutrients_2_C",
       "name": "Шпиковый мухомор",
       "kind": "mam",
@@ -10730,6 +10876,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Nutrients_4_C",
       "name": "Пищевой ингалятор",
       "kind": "mam",
@@ -10746,6 +10894,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_3_1_C",
       "name": "Детонатор нобелиска",
       "kind": "mam",
@@ -10764,6 +10914,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_ACarapace_2_C",
       "name": "Арматурный пистолет",
       "kind": "mam",
@@ -10782,6 +10934,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_4_1_C",
       "name": "Винтовка",
       "kind": "mam",
@@ -10800,6 +10954,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_4_2_1_C",
       "name": "Discontinued - Rifle Cartridges",
       "kind": "mam",
@@ -10818,6 +10974,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_ExperimentalPower_C",
       "name": "Экспериментальные способы выработки электроэнергии",
       "kind": "mam",
@@ -10834,6 +10992,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_6_C",
       "name": "Увеличенный объём инвентаря",
       "kind": "mam",
@@ -10850,6 +11010,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_5_1_C",
       "name": "Разработка средств ядерного сдерживания",
       "kind": "mam",
@@ -10868,6 +11030,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_5_C",
       "name": "Улучшенный пояс для инструментов",
       "kind": "mam",
@@ -10884,6 +11048,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Sulfur_2_C",
       "name": "Взрывоопасные применения",
       "kind": "mam",
@@ -10900,6 +11066,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_PriorityMerger_C",
       "name": "Отслеживание резонанса материи",
       "kind": "mam",
@@ -10916,6 +11084,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Nutrients_1_C",
       "name": "Берилловый орех",
       "kind": "mam",
@@ -10932,6 +11102,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Nutrients_0_C",
       "name": "Палеоягода",
       "kind": "mam",
@@ -10948,6 +11120,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_4_C",
       "name": "Радиолокационная технология",
       "kind": "mam",
@@ -10964,6 +11138,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_3_1_C",
       "name": "Исследователь",
       "kind": "mam",
@@ -10980,6 +11156,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_3_C",
       "name": "Сигнальные системы",
       "kind": "mam",
@@ -10996,6 +11174,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Quartz_0_C",
       "name": "Кварц",
       "kind": "mam",
@@ -11012,6 +11192,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_5_C",
       "name": "Фиолетовые энергослизни",
       "kind": "mam",
@@ -11030,6 +11212,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_4_C",
       "name": "Жёлтые энергослизни",
       "kind": "mam",
@@ -11048,6 +11232,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_2_C",
       "name": "Разгон производства",
       "kind": "mam",
@@ -11064,6 +11250,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_PowerSlugs_1_C",
       "name": "Синие энергослизни",
       "kind": "mam",
@@ -11082,6 +11270,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Nutrients_3_C",
       "name": "Питательный процессор",
       "kind": "mam",
@@ -11098,6 +11288,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_GasMask_C",
       "name": "Респиратор",
       "kind": "mam",
@@ -11116,6 +11308,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_7_C",
       "name": "Улучшенный пояс для инструментов",
       "kind": "mam",
@@ -11132,6 +11326,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_6_C",
       "name": "Терапевтический ингалятор",
       "kind": "mam",
@@ -11148,6 +11344,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_4_C",
       "name": "Целебные свойства",
       "kind": "mam",
@@ -11164,6 +11362,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_3_C",
       "name": "Парашют",
       "kind": "mam",
@@ -11180,6 +11380,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_2_1_C",
       "name": "Синтетическая ткань",
       "kind": "mam",
@@ -11198,6 +11400,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Mycelia_1_C",
       "name": "Мицелий",
       "kind": "mam",
@@ -11216,6 +11420,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_7_2_C",
       "name": "Геотермальный генератор",
       "kind": "mam",
@@ -11232,6 +11438,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_7_1_C",
       "name": "Программируемый разветвитель",
       "kind": "mam",
@@ -11248,6 +11456,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_5_2_C",
       "name": "Улучшенные разъемы электропитания",
       "kind": "mam",
@@ -11264,6 +11474,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_5_1_C",
       "name": "Приоритетный рубильник",
       "kind": "mam",
@@ -11280,6 +11492,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_4_3_C",
       "name": "Экзоскелет",
       "kind": "mam",
@@ -11296,6 +11510,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_4_1_2_C",
       "name": "Рубильник",
       "kind": "mam",
@@ -11312,6 +11528,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_4_1_1_C",
       "name": "Умный разветвитель",
       "kind": "mam",
@@ -11328,6 +11546,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_3_1_C",
       "name": "Увеличенный объём инвентаря",
       "kind": "mam",
@@ -11344,6 +11564,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_3_C",
       "name": "Катерийная электроника",
       "kind": "mam",
@@ -11360,6 +11582,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_2_1_C",
       "name": "Зиплайн",
       "kind": "mam",
@@ -11376,6 +11600,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_1_C",
       "name": "Катерийные слитки",
       "kind": "mam",
@@ -11394,6 +11620,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Caterium_0_C",
       "name": "Катерий",
       "kind": "mam",
@@ -11410,6 +11638,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_Somersloop_C",
       "name": "Анализ петлевика",
       "kind": "mam",
@@ -11426,6 +11656,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_SAMFluctuator_C",
       "name": "Флуктуатор СИМ",
       "kind": "mam",
@@ -11444,6 +11676,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_SAM_C",
       "name": "Анализ СИМ",
       "kind": "mam",
@@ -11460,6 +11694,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_ProductionBooster_C",
       "name": "Ускоритель производства",
       "kind": "mam",
@@ -11476,6 +11712,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_PowerBooster_C",
       "name": "Экстрактор энергии",
       "kind": "mam",
@@ -11492,6 +11730,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_PortalPotty_C",
       "name": "МСПО",
       "kind": "mam",
@@ -11508,6 +11748,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_MercerSphere_C",
       "name": "Анализ сферы Мерсера",
       "kind": "mam",
@@ -11524,6 +11766,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralUploadBoost_04_C",
       "name": "Улучшение выгрузки: 240/мин",
       "kind": "mam",
@@ -11540,6 +11784,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralUploadBoost_03_C",
       "name": "Улучшение выгрузки: 120/мин",
       "kind": "mam",
@@ -11556,6 +11802,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralUploadBoost_02_C",
       "name": "Улучшение выгрузки: 60/мин",
       "kind": "mam",
@@ -11572,6 +11820,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralUploadBoost_01_C",
       "name": "Улучшение выгрузки: 30/мин",
       "kind": "mam",
@@ -11588,6 +11838,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralStorage_C",
       "name": "Пространственное хранилище",
       "kind": "mam",
@@ -11604,6 +11856,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralStackExpansion_04_C",
       "name": "Расширение хранилища (500%)",
       "kind": "mam",
@@ -11620,6 +11874,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralStackExpansion_03_C",
       "name": "Расширение хранилища (400%)",
       "kind": "mam",
@@ -11636,6 +11892,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralStackExpansion_02_C",
       "name": "Расширение хранилища (300%)",
       "kind": "mam",
@@ -11652,6 +11910,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralStackExpansion_01_C",
       "name": "Расширение хранилища (200%)",
       "kind": "mam",
@@ -11668,6 +11928,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_CentralInventory_C",
       "name": "Ручное средство выгрузки в хранилище",
       "kind": "mam",
@@ -11684,6 +11946,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_BoosterFuel_C",
       "name": "Инопланетная энергоматрица",
       "kind": "mam",
@@ -11702,6 +11966,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_BoosterBlocker_C",
       "name": "Освоение инопланетной энергии",
       "kind": "mam",
@@ -11718,6 +11984,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_Alien_ActiveSAM_C",
       "name": "Активизация СИМ",
       "kind": "mam",
@@ -11736,6 +12004,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AO_Stinger_C",
       "name": "Исследование жалоносца",
       "kind": "mam",
@@ -11754,6 +12024,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AO_Pre_Rebar_C",
       "name": "Структурный анализ",
       "kind": "mam",
@@ -11770,6 +12042,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AO_Hatcher_C",
       "name": "Исследование гнезда",
       "kind": "mam",
@@ -11788,6 +12062,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AO_DNACapsule_C",
       "name": "Биоорганические свойства",
       "kind": "mam",
@@ -11807,6 +12083,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrgans_3_C",
       "name": "Увеличенный объём инвентаря",
       "kind": "mam",
@@ -11823,6 +12101,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrgans_1_C",
       "name": "Discontinued - Organic Properties",
       "kind": "mam",
@@ -11839,6 +12119,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrgans_0_C",
       "name": "Исследование плевателя",
       "kind": "mam",
@@ -11857,6 +12139,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrganisms_2_C",
       "name": "Обнаружение враждебных организмов",
       "kind": "mam",
@@ -11873,6 +12157,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_AOrganisms_1_C",
       "name": "Discontinued - Object Scanner Improvements",
       "kind": "mam",
@@ -11889,6 +12175,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_ACarapace_3_C",
       "name": "Улучшенный пояс для инструментов",
       "kind": "mam",
@@ -11905,6 +12193,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_ACarapace_1_C",
       "name": "Discontinued - Structural Analysis",
       "kind": "mam",
@@ -11921,6 +12211,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_MAM",
+      "selectionDependenciesKnown": true,
       "id": "Research_ACarapace_0_C",
       "name": "Исследование кабана",
       "kind": "mam",
@@ -11939,6 +12231,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-5_C",
       "name": "Максимальная эффективность",
       "kind": "hub",
@@ -11960,6 +12254,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-4_C",
       "name": "Управление пространственной энергией",
       "kind": "hub",
@@ -11979,6 +12275,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_9-3_C",
       "name": "Чертежи FICSIT ур. 3",
       "kind": "hub",
@@ -11995,6 +12293,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_8-3_C",
       "name": "Ранец для парения",
       "kind": "hub",
@@ -12011,6 +12311,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-4-1_C",
       "name": "Разработка системы управления 2",
       "kind": "other",
@@ -12031,6 +12333,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_7-5_C",
       "name": "Разработка системы управления",
       "kind": "hub",
@@ -12058,6 +12362,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-7_C",
       "name": "Железнодорожные светофоры",
       "kind": "hub",
@@ -12074,6 +12380,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-6_C",
       "name": "Чертежи FICSIT ур. 2",
       "kind": "hub",
@@ -12090,6 +12398,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-3_C",
       "name": "Технологии монорельсовых поездов",
       "kind": "hub",
@@ -12106,6 +12416,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-2_C",
       "name": "Реактивный ранец",
       "kind": "hub",
@@ -12122,6 +12434,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-5-1_C",
       "name": "Энергия на основе нефти 2",
       "kind": "other",
@@ -12141,6 +12455,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-5_C",
       "name": "Энергия на основе нефти",
       "kind": "hub",
@@ -12159,6 +12475,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_5-3_C",
       "name": "Логистика ур. 3",
       "kind": "hub",
@@ -12177,6 +12495,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_4-5_C",
       "name": "Чертежи FICSIT",
       "kind": "hub",
@@ -12193,6 +12513,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_4-3_C",
       "name": "Расширенная энергетическая инфраструктура",
       "kind": "hub",
@@ -12209,6 +12531,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_4-2_C",
       "name": "Усиленная защита ресурсов",
       "kind": "hub",
@@ -12225,6 +12549,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_3-3_C",
       "name": "Автомобильный транспорт",
       "kind": "hub",
@@ -12241,6 +12567,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_3-2_C",
       "name": "Логистика ур. 2",
       "kind": "hub",
@@ -12259,6 +12587,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_2-3_C",
       "name": "Прыжковые площадки",
       "kind": "hub",
@@ -12275,6 +12605,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_1-3_C",
       "name": "Полевые исследования",
       "kind": "hub",
@@ -12291,6 +12623,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_1-2_C",
       "name": "Логистика",
       "kind": "hub",
@@ -12307,6 +12641,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Wire2_C",
       "name": "Альт.: катерийная проволока",
       "kind": "other",
@@ -12331,6 +12667,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Wire1_C",
       "name": "Альт.: железная проволока",
       "kind": "other",
@@ -12349,6 +12687,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_UraniumCell1_C",
       "name": "Альт.: заряженная урановая ячейка",
       "kind": "other",
@@ -12385,6 +12725,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_TurboMotor1_C",
       "name": "Альт.: электрический турбомотор",
       "kind": "other",
@@ -12413,6 +12755,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Stator_C",
       "name": "Альт.: статор из сверхпроволоки",
       "kind": "other",
@@ -12441,6 +12785,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Silica_C",
       "name": "Альт.: дешёвый кремнезём",
       "kind": "other",
@@ -12465,6 +12811,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Screw2_C",
       "name": "Альт.: стальной винт",
       "kind": "other",
@@ -12489,6 +12837,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Screw_C",
       "name": "Альт.: литой винт",
       "kind": "other",
@@ -12507,6 +12857,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Rotor_C",
       "name": "Альт.: стальной ротор",
       "kind": "other",
@@ -12531,6 +12883,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ReinforcedSteelPlate_C",
       "name": "Альт.: железобетонная труба",
       "kind": "other",
@@ -12555,6 +12909,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ReinforcedIronPlate2_C",
       "name": "Альт.: прошитая железная пластина",
       "kind": "other",
@@ -12579,6 +12935,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ReinforcedIronPlate1_C",
       "name": "Альт.: сборная железная пластина",
       "kind": "other",
@@ -12603,6 +12961,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_RadioControlUnit1_C",
       "name": "Альт.: блок радиосвязи",
       "kind": "other",
@@ -12631,6 +12991,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Quickwire_C",
       "name": "Альт.: сплавленная сверхпроволока",
       "kind": "other",
@@ -12655,6 +13017,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Plastic1_C",
       "name": "Альт.: переработанный пластик",
       "kind": "other",
@@ -12679,6 +13043,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_NuclearFuelRod1_C",
       "name": "Альт.: урановый топливный элемент",
       "kind": "other",
@@ -12707,6 +13073,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Motor1_C",
       "name": "Альт.: высокоточный мотор",
       "kind": "other",
@@ -12735,6 +13103,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ModularFrame_C",
       "name": "Альт.: закалённый каркас",
       "kind": "other",
@@ -12759,6 +13129,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IngotSteel2_C",
       "name": "Альт.: прессованный стальной слиток",
       "kind": "other",
@@ -12787,6 +13159,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IngotSteel1_C",
       "name": "Альт.: прочный стальной слиток",
       "kind": "other",
@@ -12811,6 +13185,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IngotIron_C",
       "name": "Альт.: слиток железного сплава",
       "kind": "other",
@@ -12835,6 +13211,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HighSpeedConnector_C",
       "name": "Альт.: кремниевый разъём",
       "kind": "other",
@@ -12867,6 +13245,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HeavyModularFrame_C",
       "name": "Альт.: тяжёлый железобетонный каркас",
       "kind": "other",
@@ -12891,6 +13271,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HeatSink1_C",
       "name": "Альт.: теплообменник",
       "kind": "other",
@@ -12915,6 +13297,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Gunpowder1_C",
       "name": "Альт.: мелкозернистый чёрный порох",
       "kind": "other",
@@ -12939,6 +13323,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ElectromagneticControlRod1_C",
       "name": "Альт: электромагнитный соединяющий стержень",
       "kind": "other",
@@ -12967,6 +13353,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CrystalOscillator_C",
       "name": "Альт.: изолированный кварцевый резонатор",
       "kind": "other",
@@ -12999,6 +13387,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Concrete_C",
       "name": "Альт.: мелкозернистый бетон",
       "kind": "other",
@@ -13023,6 +13413,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Computer2_C",
       "name": "Альт.: кварцевый компьютер",
       "kind": "other",
@@ -13051,6 +13443,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Computer1_C",
       "name": "Альт.: катерийный компьютер",
       "kind": "other",
@@ -13079,6 +13473,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Coal2_C",
       "name": "Альт.: биоуголь",
       "kind": "other",
@@ -13103,6 +13499,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Coal1_C",
       "name": "Альт.: древесный уголь",
       "kind": "other",
@@ -13127,6 +13525,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CircuitBoard2_C",
       "name": "Альт.: катерийная плата",
       "kind": "other",
@@ -13155,6 +13555,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CircuitBoard1_C",
       "name": "Альт.: кремниевая плата",
       "kind": "other",
@@ -13183,6 +13585,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Cable2_C",
       "name": "Альт.: сверхпроводящий кабель",
       "kind": "other",
@@ -13211,6 +13615,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Cable1_C",
       "name": "Альт.: изолированный кабель",
       "kind": "other",
@@ -13235,6 +13641,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Custom",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Silica_Distilled_C",
       "name": "Альт.: дистиллированный кремнезём",
       "kind": "other",
@@ -13253,6 +13661,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Quartz_Purified_C",
       "name": "Альт.: очистка кварца",
       "kind": "other",
@@ -13279,6 +13689,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Quartz_Fused_C",
       "name": "Альт.: плавленный кварцевый кристалл",
       "kind": "other",
@@ -13307,6 +13719,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IronIngot_Leached_C",
       "name": "Альт.: выщелоченный железный слиток",
       "kind": "other",
@@ -13331,6 +13745,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IronIngot_Basic_C",
       "name": "Альт.: обычный железный слиток",
       "kind": "other",
@@ -13355,6 +13771,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CopperIngot_Tempered_C",
       "name": "Альт.: закалённый медный слиток",
       "kind": "other",
@@ -13379,6 +13797,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CopperIngot_Leached_C",
       "name": "Альт.: выщелоченный медный слиток",
       "kind": "other",
@@ -13403,6 +13823,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CateriumIngot_Tempered_C",
       "name": "Альт.: закалённый катерийный слиток",
       "kind": "other",
@@ -13427,6 +13849,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CateriumIngot_Leached_C",
       "name": "Альт.: выщелоченный катерийный слиток",
       "kind": "other",
@@ -13451,6 +13875,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelPipe_Molded_C",
       "name": "Альт.: формованная стальная труба",
       "kind": "other",
@@ -13475,6 +13901,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelPipe_Iron_C",
       "name": "Альт.: железная труба",
       "kind": "other",
@@ -13499,6 +13927,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelCastedPlate_C",
       "name": "Альт.: литая стальная пластина",
       "kind": "other",
@@ -13523,6 +13953,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelBeam_Molded_C",
       "name": "Альт.: формованная балка",
       "kind": "other",
@@ -13547,6 +13979,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelBeam_Aluminum_C",
       "name": "Альт.: алюминиевая балка",
       "kind": "other",
@@ -13571,6 +14005,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_AluminumRod_C",
       "name": "Альт.: алюминиевый прут",
       "kind": "other",
@@ -13595,6 +14031,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_AILimiter_Plastic_C",
       "name": "Альт.: пластиковый ограничитель ИИ",
       "kind": "other",
@@ -13623,6 +14061,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_TurboPressureMotor_C",
       "name": "Альт.: турбомотор с компрессором",
       "kind": "other",
@@ -13647,6 +14087,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_TurboBlendFuel_C",
       "name": "Альт.: смешанное турботопливо",
       "kind": "other",
@@ -13673,6 +14115,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SuperStateComputer_C",
       "name": "Альт.: мощный суперкомпьютер",
       "kind": "other",
@@ -13701,6 +14145,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SloppyAlumina_C",
       "name": "Альт.: разжиженный глинозём",
       "kind": "other",
@@ -13725,6 +14171,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_RadioControlSystem_C",
       "name": "Альт.: система радиоуправления",
       "kind": "other",
@@ -13749,6 +14197,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PlutoniumFuelUnit_C",
       "name": "Альт.: плутониевый топливный элемент",
       "kind": "other",
@@ -13773,6 +14223,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_OCSupercomputer_C",
       "name": "Альт.: разогнанный суперкомпьютер",
       "kind": "other",
@@ -13801,6 +14253,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_InstantScrap_C",
       "name": "Альт.: быстрый лом",
       "kind": "other",
@@ -13829,6 +14283,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_InstantPlutoniumCell_C",
       "name": "Альт.: быстрая плутониевая ячейка",
       "kind": "other",
@@ -13853,6 +14309,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HeatFusedFrame_C",
       "name": "Альт.: термосплавный каркас",
       "kind": "other",
@@ -13877,6 +14335,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_FertileUranium_C",
       "name": "Альт.: плодородный уран",
       "kind": "other",
@@ -13901,6 +14361,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ElectricMotor_C",
       "name": "Альт.: электромотор",
       "kind": "other",
@@ -13925,6 +14387,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_DilutedFuel_C",
       "name": "Альт.: разбавленное топливо",
       "kind": "other",
@@ -13949,6 +14413,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CoolingDevice_C",
       "name": "Альт.: устройство охлаждения",
       "kind": "other",
@@ -13973,6 +14439,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ClassicBattery_C",
       "name": "Альт.: классический аккумулятор",
       "kind": "other",
@@ -13997,6 +14465,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_AutomatedMiner_C",
       "name": "Альт.: автоматический бур",
       "kind": "other",
@@ -14021,6 +14491,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_AlcladCasing_C",
       "name": "Альт.: дюралюминиевый корпус",
       "kind": "other",
@@ -14045,6 +14517,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_WetConcrete_C",
       "name": "Альт.: сырой бетон",
       "kind": "other",
@@ -14069,6 +14543,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_TurboHeavyFuel_C",
       "name": "Альт.: тяжёлое турботопливо",
       "kind": "other",
@@ -14099,6 +14575,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelRod_C",
       "name": "Альт.: стальной прут",
       "kind": "other",
@@ -14123,6 +14601,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteelCanister_C",
       "name": "Альт.: стальная канистра",
       "kind": "other",
@@ -14147,6 +14627,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_SteamedCopperSheet_C",
       "name": "Альт.: пропаренный медный лист",
       "kind": "other",
@@ -14171,6 +14653,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_RubberConcrete_C",
       "name": "Альт.: прорезиненный бетон",
       "kind": "other",
@@ -14195,6 +14679,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_RecycledRubber_C",
       "name": "Альт.: переработанная резина",
       "kind": "other",
@@ -14219,6 +14705,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PureQuartzCrystal_C",
       "name": "Альт.: чистый кварцевый кристалл",
       "kind": "other",
@@ -14247,6 +14735,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PureIronIngot_C",
       "name": "Альт.: слиток чистого железа",
       "kind": "other",
@@ -14271,6 +14761,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PureCopperIngot_C",
       "name": "Альт.: слиток чистой меди",
       "kind": "other",
@@ -14295,6 +14787,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PureCateriumIngot_C",
       "name": "Альт.: слиток чистого катерия",
       "kind": "other",
@@ -14323,6 +14817,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PureAluminumIngot_C",
       "name": "Альт.: слиток чистого алюминия",
       "kind": "other",
@@ -14347,6 +14843,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PolymerResin_C",
       "name": "Альт.: полимерная смола",
       "kind": "other",
@@ -14371,6 +14869,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_PlasticSmartPlating_C",
       "name": "Альт.: пластиковая умная обшивка",
       "kind": "other",
@@ -14395,6 +14895,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HighSpeedWiring_C",
       "name": "Альт.: скоростная автопроводка",
       "kind": "other",
@@ -14423,6 +14925,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HeavyOilResidue_C",
       "name": "Альт.: мазут",
       "kind": "other",
@@ -14447,6 +14951,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_HeavyFlexibleFrame_C",
       "name": "Альт.: тяжёлый гибкий каркас",
       "kind": "other",
@@ -14471,6 +14977,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_FusedWire_C",
       "name": "Альт.: сплавленная проволока",
       "kind": "other",
@@ -14495,6 +15003,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_FlexibleFramework_C",
       "name": "Альт.: гибкий каркас",
       "kind": "other",
@@ -14519,6 +15029,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ElectrodeCircuitBoard_C",
       "name": "Альт.: электродная плата",
       "kind": "other",
@@ -14543,6 +15055,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_ElectroAluminumScrap_C",
       "name": "Альт.: электрод — алюминиевый лом",
       "kind": "other",
@@ -14567,6 +15081,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_DilutedPackagedFuel_C",
       "name": "Альт.: канистра разбавленного топлива",
       "kind": "other",
@@ -14591,6 +15107,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CopperRotor_C",
       "name": "Альт.: медный ротор",
       "kind": "other",
@@ -14615,6 +15133,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CopperAlloyIngot_C",
       "name": "Альт.: слиток медного сплава",
       "kind": "other",
@@ -14639,6 +15159,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CokeSteelIngot_C",
       "name": "Альт.: коксовый стальной слиток",
       "kind": "other",
@@ -14663,6 +15185,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CoatedIronPlate_C",
       "name": "Альт.: железная пластина с покрытием",
       "kind": "other",
@@ -14687,6 +15211,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CoatedIronCanister_C",
       "name": "Альт.: железная канистра с покрытием",
       "kind": "other",
@@ -14711,6 +15237,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_CoatedCable_C",
       "name": "Альт.: кабель с покрытием",
       "kind": "other",
@@ -14735,6 +15263,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_BoltedFrame_C",
       "name": "Альт.: сборный каркас",
       "kind": "other",
@@ -14759,6 +15289,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_AdheredIronPlate_C",
       "name": "Альт.: скреплённая железная пластина",
       "kind": "other",
@@ -14783,6 +15315,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_RocketFuel_Nitro_C",
       "name": "Альт.: нитроглицериновое ракетное топливо",
       "kind": "other",
@@ -14807,6 +15341,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_IonizedFuel_Dark_C",
       "name": "Альт.: топливо на основе темных ионов",
       "kind": "other",
@@ -14835,6 +15371,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Diamond_Turbo_C",
       "name": "Альт.: турбо-алмазы",
       "kind": "other",
@@ -14863,6 +15401,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Diamond_Pink_C",
       "name": "Альт.: розовые алмазы",
       "kind": "other",
@@ -14887,6 +15427,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Diamond_Petroleum_C",
       "name": "Альт.: нефтяные алмазы",
       "kind": "other",
@@ -14911,6 +15453,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Diamond_OilBased_C",
       "name": "Альт.: алмазы на нефтяной основе",
       "kind": "other",
@@ -14935,6 +15479,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_Diamond_Cloudy_C",
       "name": "Альт.: матовые алмазы",
       "kind": "other",
@@ -14959,6 +15505,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_DarkMatter_Trap_C",
       "name": "Альт.: ловушка для темной материи",
       "kind": "other",
@@ -14983,6 +15531,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Alternate",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_Alternate_DarkMatter_Crystallization_C",
       "name": "Альт.: кристаллизация темной материи",
       "kind": "other",
@@ -15007,6 +15557,8 @@
       "prerequisitesKnown": false
     },
     {
+      "sourceType": "EST_Milestone",
+      "selectionDependenciesKnown": true,
       "id": "Schematic_6-1_C",
       "name": "Логистика ур. 4",
       "kind": "hub",

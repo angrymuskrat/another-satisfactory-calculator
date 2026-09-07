@@ -87,6 +87,8 @@ export function importP1Data({ en, ru, catalog, report, machineClasses, transpor
     }
   }
   catalog.unlocks = records.filter(s => selected.has(s.id)).map(s => ({
+    sourceType: s.sourceType,
+    selectionDependenciesKnown: s.prerequisiteGroups !== undefined && !s.relevantEvents && s.includeInBuilds === 'IIB_PublicBuilds',
     id: s.id, name: s.name, kind: s.kind, tier: s.tier, recipeIds: s.recipeIds,
     buildingIds: s.buildingIds, minerIds: s.minerIds, beltIds: s.beltIds, pipeIds: s.pipeIds,
     overclock: s.overclock, prerequisiteIds: s.prerequisiteIds,

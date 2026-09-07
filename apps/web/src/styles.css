@@ -63,3 +63,18 @@ table th{color:#cad4da;font-weight:600}.table-scroll{overflow-x:auto}
 @media(max-width:720px){html{scroll-padding-top:110px}}
 
 .status-badge.approximate{color:#eac37b;background:#40351f}
+
+.recipe-setup>summary{font-size:17px;font-weight:600;color:var(--accent)}
+.recipe-setup>p:first-of-type{margin-top:16px}
+.recipe-setup fieldset{min-width:0;border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
+.recipe-setup details{margin:12px 0;padding:10px 0 10px 12px;border-left:2px solid var(--border)}
+.recipe-setup summary,.recipe-group>summary{line-height:1.6;overflow-wrap:anywhere}
+.setup-check{display:flex;align-items:center;gap:10px;line-height:1.6;margin:10px 0}
+.setup-check small{margin-left:auto;white-space:nowrap}
+.setup-actions,.setup-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0}
+.setup-controls>label{flex:1;min-width:160px;max-width:300px}
+.setup-actions button{height:auto;min-height:39px;white-space:normal;padding-block:10px}
+.setup-actions [aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.setup-preview{margin-top:18px;padding:18px;border:1px solid var(--accent);border-radius:8px;overflow-wrap:anywhere}
+.recipe-setup select{height:auto;min-height:39px;max-width:100%}
+@media(max-width:600px){.recipe-setup fieldset,.setup-preview{padding:10px}.setup-actions{align-items:stretch}.setup-actions>button{flex:1 1 160px}.recipe-setup details{padding-left:8px}.recipe-setup select{font-size:12px}.catalog-toolbar{grid-template-columns:minmax(0,1fr)}.recipe-setup label{overflow-wrap:anywhere}}

@@ -81,6 +81,9 @@ export interface Source {
   clock: number;
 }
 export interface Unlock {
+  sourceType?: string;
+  /** Все сериализованные условия схемы распознаны; не подтверждает её покупку или внешние события. */
+  selectionDependenciesKnown?: boolean;
   id: string; name: string; kind: 'hub' | 'mam' | 'other'; tier?: number;
   recipeIds: string[]; buildingIds: string[]; beltIds: string[]; pipeIds: string[];
   minerIds?: string[]; schematicIds?: string[];
@@ -111,6 +114,7 @@ export interface Settings {
   resourceWeights: Record<string, number>;
 }
 export interface Plan {
+  recipeProgress?: { unlockIds: string[] };
   batch?: { minutes: number; items: { itemId: string; required: number; stock: number }[] };
   lines?: { id: string; name: string; recipeId: string; count: number; clock: number; somersloops: number; duty: number; locked: boolean }[];
   expansion?: 'keep' | 'add' | 'rebuild';

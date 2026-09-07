@@ -50,6 +50,18 @@ function worldFixture() {
   ] };
 }
 describe('API миров и фабрик', () => {
+  it('сохраняет выбор прогресса рецептов в профиле и отклоняет повторяющиеся схемы', async () => {
+    const instance = app(); const { cookie } = await register(instance);
+    const data = createDefaultPlan(worldCatalog);
+    data.recipeProgress = { unlockIds: ['Schematic_StartingRecipes_C', 'Research_Quartz_2_C'] };
+    const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Прогресс', data } });
+    expect(created.statusCode).toBe(201);
+    const restored = await instance.inject({ url: `/api/profiles/${created.json().profile.id}`, headers: { cookie } });
+    expect(restored.json().profile.data.recipeProgress).toEqual(data.recipeProgress);
+    data.recipeProgress.unlockIds.push('Research_Quartz_2_C');
+    const invalid = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Ошибка', data } });
+    expect(invalid.statusCode).toBe(400);
+  });
   it('сохраняет и восстанавливает профиль с целью ровной нагрузки', async () => {
     const instance = app(); const { cookie } = await register(instance);
     const data = structuredClone(plan); data.settings.objective = 'smooth-power';
