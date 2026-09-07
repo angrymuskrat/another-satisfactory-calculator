@@ -1,0 +1,69 @@
+{
+  "lines": [
+    {
+      "id": "existing",
+      "name": "Старый конструктор",
+      "recipeId": "iron-rod",
+      "count": 1,
+      "clock": 100,
+      "somersloops": 0,
+      "duty": 1,
+      "locked": true
+    }
+  ],
+  "expansion": "keep",
+  "schemaVersion": 1,
+  "catalogVersion": "steam-24656030-v1",
+  "name": "Проверка 3 — расширение",
+  "mode": "maximize",
+  "policy": "proportional",
+  "targets": [
+    {
+      "itemId": "iron-rod",
+      "rate": 1,
+      "weight": 1,
+      "scale": 1
+    }
+  ],
+  "sources": [
+    {
+      "id": "ingots",
+      "name": "Слитки соседней фабрики",
+      "itemId": "iron-ingot",
+      "kind": "flow",
+      "limit": 30,
+      "count": 1,
+      "purity": 1,
+      "minerId": "",
+      "clock": 100
+    }
+  ],
+  "settings": {
+    "enabledRecipeIds": [
+      "iron-rod"
+    ],
+    "enabledBuildingIds": [
+      "constructor",
+      "assembler",
+      "manufacturer",
+      "smelter",
+      "foundry",
+      "oil-refinery",
+      "packager",
+      "blender",
+      "accelerator",
+      "converter",
+      "quantum-encoder",
+      "awesome-sink"
+    ],
+    "beltId": "belt3",
+    "pipeId": "pipe1",
+    "clock": 100,
+    "resourcePolicy": "listed-only",
+    "objective": "power",
+    "powerLimit": null,
+    "outputSlack": 0,
+    "allowSink": false,
+    "resourceWeights": {}
+  }
+}

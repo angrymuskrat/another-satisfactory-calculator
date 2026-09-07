@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "steam-24656030-v1",
+  "name": "Проверка 2 — нефть и остаток",
+  "mode": "maximize",
+  "policy": "proportional",
+  "targets": [
+    {
+      "itemId": "plastic",
+      "rate": 1,
+      "weight": 1,
+      "scale": 1
+    }
+  ],
+  "sources": [
+    {
+      "id": "oil",
+      "name": "Внешняя нефть",
+      "itemId": "crude-oil",
+      "kind": "flow",
+      "limit": 120,
+      "count": 1,
+      "purity": 1,
+      "minerId": "",
+      "clock": 100
+    }
+  ],
+  "settings": {
+    "enabledRecipeIds": [
+      "plastic"
+    ],
+    "enabledBuildingIds": [
+      "constructor",
+      "assembler",
+      "manufacturer",
+      "smelter",
+      "foundry",
+      "oil-refinery",
+      "packager",
+      "blender",
+      "accelerator",
+      "converter",
+      "quantum-encoder",
+      "awesome-sink"
+    ],
+    "beltId": "belt3",
+    "pipeId": "pipe1",
+    "clock": 100,
+    "resourcePolicy": "listed-only",
+    "objective": "power",
+    "powerLimit": null,
+    "outputSlack": 0,
+    "allowSink": false,
+    "resourceWeights": {}
+  }
+}
