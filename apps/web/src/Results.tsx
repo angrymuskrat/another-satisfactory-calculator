@@ -3,6 +3,7 @@ import { ArrowRight, Boxes, Factory, Info, Layers, TriangleAlert, Zap } from 'lu
 import type { Catalog, Plan, Result } from '../../../packages/domain/types';
 import { buildConstruction } from '../../../packages/domain/construction';
 import { CatalogStatus, Construction, CopyNumber } from './Construction';
+import { BatchResult } from './Batch';
 import { format, ItemIcon, unit } from './controls';
 
 const statusLabels = { optimal: 'Оптимум найден', infeasible: 'Заказ невыполним', unbounded: 'Выпуск не ограничен', error: 'Ошибка расчёта', timeout: 'Время расчёта истекло' };
@@ -15,7 +16,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
     catch (e) { return { model: null, error: e instanceof Error ? e.message : 'Не удалось проверить конфигурацию.' }; }
   }, [catalog, plan, result, stale]);
   const model = calculated.model;
-  const empty = result?.status === 'optimal' && !result.products.some(p => p.rate > 0);
+  const empty = !plan.batch?.items.every(i => i.stock >= i.required) && result?.status === 'optimal' && !result.products.some(p => p.rate > 0);
   const settings = plan.settings;
   const peakLimit = settings.peakPowerLimit ?? null, reserve = settings.powerReserve ?? 0;
   const margin = model && peakLimit !== null ? peakLimit - reserve - model.peakPower : null;
@@ -28,7 +29,8 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
     const names = fluid ? { one: 'труба', few: 'трубы', many: 'труб', other: 'трубы' } : { one: 'лента', few: 'ленты', many: 'лент', other: 'ленты' };
     return count + ' ' + (names[plural as keyof typeof names] ?? names.other);
   };
-  return <div className="results-column" aria-live="polite" aria-busy={running}>
+  return <div className="results-column">
+    <p className="sr-only" role="status">{running ? 'Подбираем рецепты и балансируем потоки…' : error ? '' : result ? stale ? 'Настройки изменились. Требуется пересчёт.' : empty ? 'Нулевой выпуск' : statusLabels[result.status] : 'Результат ещё не рассчитан.'}</p>
     <div className="results-heading"><div><span className="eyebrow">ПРОИЗВОДСТВЕННЫЙ ПЛАН</span><h2>Результат расчёта</h2></div>{result && <span className={'status-badge ' + (stale ? 'stale' : result.status)}><span />{stale ? 'Требуется пересчёт' : empty ? 'Нулевой выпуск' : statusLabels[result.status]}</span>}</div>
     {error && <div role="alert" className="alert error"><TriangleAlert size={18} />{error}</div>}
     {running && <div className="alert"><span className="spinner" />Подбираем рецепты и балансируем потоки…</div>}
@@ -44,7 +46,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
                   <section className="panel"><div className="section-heading"><h3>Загрузка источников</h3><span className="count-badge">{result.resources.length}</span></div>{result.resources.map(source => {
                     const configured = plan.sources.find(s => s.id === source.sourceId);
                     const sourceName = configured?.name?.trim() || source.sourceId;
-                    return <div className="utilization" key={source.sourceId}><div><span><ItemIcon item={item(source.itemId)} size={24} />{item(source.itemId)?.name ?? source.itemId} · {sourceName}</span><strong>{format(source.rate, 6)} <small>/ {source.limit === null ? '∞' : format(source.limit)} {unit(item(source.itemId))}</small></strong></div><small>{configured?.kind === 'node' ? 'Месторождение · ' + (catalog.miners.find(m => m.id === configured.minerId)?.name ?? configured.minerId) + ' · ' + format(configured.clock) + '% · доступно узлов: ' + configured.count : 'Внешняя поставка · энергия получения неизвестна'}</small><div className="progress-track"><span className={source.limit !== null && source.limit > 0 && source.rate / source.limit > .98 ? 'full' : ''} style={{ width: source.limit === null ? '20%' : Math.min(100, source.limit > 0 ? source.rate / source.limit * 100 : 0) + '%' }} /></div></div>;
+                    return <div className="utilization" key={source.sourceId}><div><span><ItemIcon item={item(source.itemId)} size={24} />{item(source.itemId)?.name ?? source.itemId} · {sourceName}</span><strong>{format(source.rate, 6)} <small>/ {source.limit === null ? '∞' : format(source.limit)} {unit(item(source.itemId))}</small></strong></div><small>{configured?.kind === 'node' ? 'Месторождение · ' + (catalog.miners.find(m => m.id === configured.minerId)?.name ?? configured.minerId) + ' · ' + format(configured.clock) + '% · доступно узлов: ' + configured.count : configured?.kind === 'well' ? `Скважина · один компенсатор · ${format(configured.clock)}% · ${format(source.power)} МВт` : configured?.importPower != null ? `Внешняя поставка · энергия учтена: ${format(source.power)} МВт` : 'Внешняя поставка · энергия получения неизвестна'}</small><div className="progress-track"><span className={source.limit !== null && source.limit > 0 && source.rate / source.limit > .98 ? 'full' : ''} style={{ width: source.limit === null ? '20%' : Math.min(100, source.limit > 0 ? source.rate / source.limit * 100 : 0) + '%' }} /></div></div>;
                   })}{!result.resources.length && <p className="hint">Внешние источники не используются.</p>}</section>
                   <section className="panel energy-panel"><div className="section-heading"><h3><Zap size={17} /> Энергия и границы модели</h3></div><dl>
                     <div><dt>Производство · средняя</dt><dd>{format(model.productionPower)} МВт</dd></div><div><dt>Добыча · средняя</dt><dd>{format(model.extractionPower)} МВт</dd></div><div><dt>Утилизация · средняя</dt><dd>{format(model.sinkPower)} МВт</dd></div>
@@ -55,7 +57,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
                     {margin !== null && <div className="total"><dt>Запас сети после резерва и пика</dt><dd>{format(margin)} МВт</dd></div>}
                   </dl>{margin !== null && <p className={margin < -1e-6 ? 'alert error' : 'hint'} role={margin < -1e-6 ? 'alert' : undefined}>{format(peakLimit!)} − {format(reserve)} − {format(model.peakPower)} = {format(margin)} МВт.{margin < -1e-6 ? ' Пиковая нагрузка с резервом превышает лимит.' : ' По оценке модели лимит соблюдён.'}</p>}
                     <p className="hint">MW пересчитаны из каталога для показанных физических машин и заданных частот. Средняя мощность учитывает долю времени работы; пик предполагает одновременную работу всех необходимых машин на максимумах рецептов. Простои standby, пуски, накопители и фазовые сдвиги не моделируются.</p>
-                    <p className="hint">Энергия внешних поставок неизвестна и не включена. Запас относится только к учтённой фабрике; резерв не заменяет динамическую симуляцию сети.</p>{model.externalSources.map(source => <p key={source.sourceId}>Вне энергетической границы: {source.name} — {format(source.rate, 6)} {unit(item(source.itemId))}.</p>)}
+                    <p className="hint">Неизвестная энергия внешних поставок не включена; заданная стоимость импорта учтена. Запас относится только к учтённой фабрике; резерв не заменяет динамическую симуляцию сети.</p>{model.externalSources.map(source => <p key={source.sourceId}>{source.power === null ? 'Вне энергетической границы' : 'Учтённый импорт'}: {source.name} — {format(source.rate, 6)} {unit(item(source.itemId))}{source.power !== null && ` · ${format(source.power)} МВт`}.</p>)}
                   </section>
                   <div className="toolbar-actions" role="group" aria-label="Представление результата"><button className={building ? 'secondary-button' : 'primary-button'} aria-pressed={!building} onClick={() => setBuilding(false)}>Обзор</button><button className={building ? 'primary-button' : 'secondary-button'} aria-pressed={building} onClick={() => setBuilding(true)}>Построить</button></div>
                   <Construction key={model.fingerprint} catalog={catalog} model={model} building={building} />
@@ -64,7 +66,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
         {!stale && !!result.warnings.length && <div className="alert warning"><Info size={18} /><div>{result.warnings.map(w => <p key={w}>{w}</p>)}</div></div>}
         <details className="diagnostics"><summary>Диагностика {stale ? 'предыдущего ' : ''}расчёта</summary><p>Статус решателя: {statusLabels[result.status]}</p><p>{result.message}</p><p>Максимальная ошибка баланса: {result.maxBalanceError.toExponential(3)}</p>{result.diagnostics.map((d, i) => <p key={i}>{d}</p>)}</details>
       </div>}
-    <CatalogStatus catalog={catalog} />
-    <p className="result-footnote"><Info size={14} />Стационарная модель средних потоков · заданные частоты · без усилителей</p>
+    {!stale && result?.status === 'optimal' && <><BatchResult catalog={catalog} plan={plan} result={result} /><section className="panel"><p>Somersloops занято: {result.somersloops ?? 0} / {plan.somersloopBudget ?? 0}</p>{result.exports?.map(e => <p key={e.itemId}>Отгрузка: {item(e.itemId)?.name} — {format(e.rate)} {unit(item(e.itemId))} · {plan.exports?.find(x => x.itemId === e.itemId)?.name}</p>)}</section></>}<CatalogStatus catalog={catalog} />
+    <p className="result-footnote"><Info size={14} />Стационарная модель средних потоков · заданные частоты · конечный бюджет усилителей</p>
   </div>;
 }

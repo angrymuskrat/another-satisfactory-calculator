@@ -1,4 +1,5 @@
 import type { Catalog, Plan, Recipe } from '../../../packages/domain/types';
+import { recipeResearchReasons } from '../../../packages/domain/research';
 
 export type SearchScope = 'all' | 'produces' | 'uses';
 export type QuantityMode = 'cycle' | 'minute' | 'unit';
@@ -19,12 +20,16 @@ export function recipeAvailability(catalog: Catalog, plan: Plan, recipe: Recipe)
   const unlocks = catalog.unlocks?.filter(u => u.recipeIds.includes(recipe.id) && !plan.world?.unlockedMilestoneIds.includes(u.id)) ?? [];
   const reasons: string[] = [];
   if (!opened) reasons.push(unlocks.length ? `Открыть в мире: ${unlocks.map(u => u.name).join(' / ')}` : 'Рецепт не открыт в мире. Данные о конкретном исследовании отсутствуют.');
+  if (!opened && catalog.researchTrees?.length) {
+    reasons.push(...recipeResearchReasons(catalog, recipe.id, plan.world?.unlockedMilestoneIds ?? []));
+    reasons.push('Это справочная цепочка: завершение исследований, условия показа и внешние события подтверждает пользователь в разделе миров.');
+  }
   if (!buildingOpened) reasons.push(`Здание не открыто в мире: ${building?.name ?? recipe.buildingId}`);
   if (!enabled) reasons.push('Рецепт выключен в плане');
   if (!buildingEnabled) reasons.push(`Здание отключено в плане: ${building?.name ?? recipe.buildingId}`);
   return { opened, buildingOpened, enabled, buildingEnabled, usable: opened && buildingOpened && enabled && buildingEnabled, reasons };
 }
-/** Categories are manual. Preserve imported product order, then place alternatives next to the base output. */
+/** Preserve imported category/product order, then place alternatives next to the base output. */
 export function groupRecipes(recipes: Recipe[]) {
   const categories = new Map<string, { category: string; products: { itemId: string; recipes: Recipe[] }[] }>();
   for (const recipe of recipes) {

@@ -1,9 +1,11 @@
-import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
-import type { Catalog, Plan, Unlock } from '../../../packages/domain/types';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import type { Catalog, Plan, SharedResourceNode, Unlock } from '../../../packages/domain/types';
 import { createDefaultPlan } from '../../../packages/domain/defaults';
 import { applyWorldUpdate, createFactory, createWorld, grantWorldUnlocks, mergeWorkspace, previewWorldUpdate, snapshotWorld, type World, type Workspace } from '../../../packages/domain/worlds';
 import { parseCatalogWorkspace, WORKSPACE_KEY } from './planStorage';
 import type { useWorldWorkspace } from './useWorldWorkspace';
+import { ResearchGuide, ResearchChainView } from './Research';
+import { researchDescription } from '../../../packages/domain/research';
 
 type Store = ReturnType<typeof useWorldWorkspace>;
 interface Props {
@@ -28,6 +30,12 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const input = useRef<HTMLInputElement>(null);
+  const editor = useRef<HTMLElement>(null);
+  const previewRegion = useRef<HTMLElement>(null);
+  const editorTrigger = useRef<HTMLButtonElement | null>(null);
+  const editingId = draft?.id;
+  useEffect(() => { if (editingId) editor.current?.focus(); else editorTrigger.current?.focus(); }, [editingId]);
+  useEffect(() => { if (preview) previewRegion.current?.focus(); }, [preview]);
   const locked = !ready || busy;
   const run = async (action: () => Promise<void>) => {
     setError(''); setMessage('');
@@ -79,6 +87,10 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
   const matches = (value: string) => value.toLocaleLowerCase('ru-RU').includes(search.toLocaleLowerCase('ru-RU'));
   const transportName = (kind: 'belts' | 'pipes', id: string) => catalog[kind].find(t => t.id === id)?.name ?? id;
   const unlockName = (id: string) => catalog.unlocks?.find(u => u.id === id)?.name ?? id;
+  const updateNode = (id: string, patch: Partial<SharedResourceNode>) => {
+    if (!draft) return;
+    edit({ ...draft, resourceNodes: (draft.resourceNodes ?? []).map(node => node.id === id ? { ...node, ...patch } : node) });
+  };
   return <div className="worlds-view"><section className="panel">
     <h2>Миры и фабрики</h2>
     <p className="hint">{store.ownerId ? 'Рабочее пространство текущего аккаунта. Запись на сервер выполняется по кнопке сохранения.' : 'Гостевое пространство этого браузера. Для переноса используйте JSON или войдите через «Профили».'} Старые профили и локальный черновик доступны отдельно.</p>
@@ -90,7 +102,7 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
       <button className="secondary-button" onClick={() => download(JSON.stringify(workspace, null, 2), 'ficsit-workspace.json')} disabled={!ready}>Экспорт рабочего пространства в JSON</button>
       <button className="secondary-button" disabled={locked || !!draft} onClick={() => input.current?.click()}>Импорт рабочего пространства из JSON</button>
       {!ready && <button className="secondary-button" onClick={() => { const raw = localStorage.getItem(WORKSPACE_KEY); if (raw) download(raw, 'ficsit-workspace-recovery.json'); }}>Экспорт исходного гостевого файла</button>}
-      <input ref={input} className="sr-only" type="file" accept=".json,application/json" aria-label="Файл рабочего пространства JSON" onChange={e => void importWorkspace(e.target.files?.[0])} />
+      <input ref={input} hidden type="file" accept=".json,application/json" aria-label="Файл рабочего пространства JSON" onChange={e => void importWorkspace(e.target.files?.[0])} />
     </div>
     <fieldset disabled={locked || !!draft}><legend>Новое прохождение</legend>
       <label>Название мира<input aria-label="Название мира" value={name} maxLength={120} onChange={e => setName(e.target.value)} /></label>
@@ -99,7 +111,7 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
       <p className="hint">Пустой мир: рецепты и здания закрыты, транспорт — минимальный из каталога. Копия настроек плана — ручное начальное состояние, а не подтверждение прохождения HUB/MAM.</p>
     </fieldset>
     <fieldset disabled={locked || !!draft}><legend>Миры</legend>
-      {workspace.worlds.map(w => <article className="saved-profile" key={w.id}><div><h3>{w.name}</h3><p>Ревизия {w.revision} · рецептов {w.unlockedRecipeIds.length} · зданий {w.unlockedBuildingIds.length} · фабрик {workspace.factories.filter(f => f.worldId === w.id).length}</p></div><button className="secondary-button" onClick={() => { setDraft(structuredClone(w)); setPreview(null); setSearch(''); }}>Изменить прогресс {w.name}</button></article>)}
+      {workspace.worlds.map(w => <article className="saved-profile" key={w.id}><div><h3>{w.name}</h3><p>Ревизия {w.revision} · рецептов {w.unlockedRecipeIds.length} · зданий {w.unlockedBuildingIds.length} · фабрик {workspace.factories.filter(f => f.worldId === w.id).length}</p></div><button className="secondary-button" onClick={e => { editorTrigger.current = e.currentTarget; setDraft(structuredClone(w)); setPreview(null); setSearch(''); }}>Изменить прогресс {w.name}</button></article>)}
       {!workspace.worlds.length && <p>Создайте мир и отметьте доступные открытия.</p>}
     </fieldset>
     <fieldset disabled={locked || !!draft}><legend>Фабрики</legend>
@@ -111,13 +123,14 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
       {workspace.factories.map(f => <article className="saved-profile" key={f.id}><div><h3>{f.name}{f.id === activeFactoryId ? ' · открыта' : ''}</h3><p>{workspace.worlds.find(w => w.id === f.worldId)?.name ?? 'Самостоятельный план'} · {f.plan.sources.length} источников</p></div>
         <button className="secondary-button" disabled={!!dirty && f.id !== activeFactoryId} onClick={() => { setPlan(structuredClone(f.plan)); setActiveFactoryId(f.id); setMessage(`Фабрика «${f.name}» открыта. Перейдите в планировщик.`); }}>Открыть {f.name}{dirty && f.id === activeFactoryId ? ' без несохранённых изменений' : ''}</button></article>)}
     </fieldset>
-  </section>{draft && <section className="panel"><h2>Черновик прогресса: {draft.name}</h2>
+  </section>{draft && <section className="panel" ref={editor} tabIndex={-1} aria-label="Черновик прогресса мира"><h2>Черновик прогресса: {draft.name}</h2>
     <p className="hint">До применения просмотренных изменений действующий мир и фабрики не меняются. Открытие здания не открывает автоматически все его рецепты. Выбранные в плане рецепты дополнительно ограничены открытиями мира.</p>
     <fieldset disabled={busy}><legend>Открытия мира</legend>
       <label>Имя прохождения<input aria-label="Имя прохождения" value={draft.name} maxLength={120} onChange={e => edit({ ...draft, name: e.target.value })} /></label>
       <label>Поиск открытий<input type="search" aria-label="Поиск открытий мира" value={search} onChange={e => setSearch(e.target.value)} /></label>
+      <ResearchGuide catalog={catalog} completed={draft.unlockedMilestoneIds} mark={grant} />
       <details><summary>HUB / MAM / другие схемы</summary>
-        <p className="hint">Отмечайте отдельные завершённые исследования. Весь уровень автоматически не открывается. Условия открытия содержат только известные связи из источника; полный граф исследований MAM не восстановлен. Ручные открытия доступны ниже.</p>
+        <p className="hint">Отмечайте отдельные завершённые исследования. Весь уровень автоматически не открывается. Связи MAM и фазы HUB показаны в справочнике выше; внешние события и завершение не отслеживаются. Ручные открытия доступны ниже.</p>
         {!catalog.unlocks?.length && <p>Сведения о схемах пока отсутствуют в каталоге. Укажите рецепты и здания вручную.</p>}
         {!!catalog.unlocks?.length && <details><summary>Подготовить прогресс HUB по уровню</summary>
           <p>Выберите верхний уровень, затем исключите незавершённые этапы. Это заготовка для ручного подтверждения, а не автоматическое прохождение уровня. MAM и альтернативы добавляются отдельно.</p>
@@ -129,10 +142,30 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
         {(['hub', 'mam', 'other'] as const).map(kind => <details key={kind}><summary>{kind === 'hub' ? 'HUB: отдельные этапы' : kind === 'mam' ? 'MAM: отдельные исследования' : 'Альтернативы и другие схемы'}</summary>{catalog.unlocks?.filter(u => u.kind === kind && matches(`${u.name} ${u.id}`)).map(u => <article key={u.id} className="saved-profile"><div><h3>{u.name || u.id}</h3><p>{u.kind === 'hub' ? 'HUB' : u.kind === 'mam' ? 'MAM' : 'Другая схема'}{u.tier !== undefined && u.kind === 'hub' ? ` · уровень ${u.tier}` : ''}</p>
           {(u.prerequisiteGroups?.length ?? 0) > 0 ? <p>Известные условия: {u.prerequisiteGroups!.map(group => `(${group.map(unlockName).join(' ИЛИ ')})`).join(' И ')}.</p> : u.prerequisiteIds.length > 0 && <p>Известные обязательные предпосылки: {u.prerequisiteIds.map(unlockName).join(' И ')}.</p>}
           {!!u.schematicIds?.length && <p>Вместе с прямыми открытиями применятся дочерние схемы: {u.schematicIds.map(unlockName).join(', ')}.</p>}</div>
+          {u.kind === 'hub' && catalog.gamePhases?.length && <p className="hint">{researchDescription(catalog, u.id, draft.unlockedMilestoneIds).find(line => line.startsWith('Уровень HUB'))}</p>}
+          {catalog.researchTrees?.length && <ResearchChainView catalog={catalog} roots={[u.id]} completed={draft.unlockedMilestoneIds} />}
           <button className="secondary-button" disabled={draft.unlockedMilestoneIds.includes(u.id)} onClick={() => grant(u)}>{draft.unlockedMilestoneIds.includes(u.id) ? 'Отмечено открытым' : 'Добавить открытия'}</button>
           {draft.unlockedMilestoneIds.includes(u.id) && <button className="text-button" onClick={() => edit({ ...draft, unlockedMilestoneIds: draft.unlockedMilestoneIds.filter(id => id !== u.id) })}>Убрать отметку; открытия сохранятся</button>}
         </article>)}</details>)}
       </details>
+      <details><summary>Общие конечные узлы: {draft.resourceNodes?.length ?? 0}</summary>
+        <p className="hint">Узел описывает один конечный поток мира. Фабрики получают явные квоты из этого лимита; сумма проверяется при сохранении всего рабочего пространства.</p>
+        {(draft.resourceNodes ?? []).map((node, index) => <article className="source-card" key={node.id}>
+          <label><span className="field-label">Название узла</span><input aria-label={`Название общего узла ${index + 1}`} maxLength={120} value={node.name} onChange={event => updateNode(node.id, { name: event.target.value })} /></label>
+          <div className="source-fields"><label><span className="field-label">Ресурс</span><select aria-label={`Ресурс общего узла ${index + 1}`} value={node.itemId} onChange={event => updateNode(node.id, { itemId: event.target.value })}>{catalog.items.filter(item => item.raw).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+            <label><span className="field-label">Общий лимит в минуту</span><input type="number" min={0} max={1e9} step="any" aria-label={`Лимит общего узла ${index + 1}`} value={node.limit} onChange={event => updateNode(node.id, { limit: Number(event.target.value) })} /></label></div>
+          <button className="text-button danger" onClick={() => edit({ ...draft, resourceNodes: draft.resourceNodes?.filter(candidate => candidate.id !== node.id) })}>Удалить узел</button>
+        </article>)}
+        <button className="secondary-button" disabled={!catalog.items.some(item => item.raw)} onClick={() => {
+          const item = catalog.items.find(candidate => candidate.raw);
+          if (item) edit({ ...draft, resourceNodes: [...(draft.resourceNodes ?? []), { id: crypto.randomUUID(), name: `Общий узел ${item.name}`, itemId: item.id, limit: 120 }] });
+        }}>Добавить общий узел</button>
+      </details>
+      <fieldset><legend>Ручные возможности P2</legend>
+        <p className="hint">Отметьте только уже открытые в игре возможности. Полный граф исследований для этих механик не восстановлен.</p>
+        <label><input type="checkbox" checked={draft.unlockedMilestoneIds.includes('p2:resource-wells')} onChange={() => edit({ ...draft, unlockedMilestoneIds: toggle(draft.unlockedMilestoneIds, 'p2:resource-wells') })} />Скважины ресурсов открыты</label>
+        <label><input type="checkbox" checked={draft.unlockedMilestoneIds.includes('p2:production-amplifier')} onChange={() => edit({ ...draft, unlockedMilestoneIds: toggle(draft.unlockedMilestoneIds, 'p2:production-amplifier') })} />Усилители производства открыты</label>
+      </fieldset>
       <p className="hint">Итоговые открытия можно уточнить вручную. Удаление отметки исследования сохраняет доступность рецептов и зданий; закрывайте их явно ниже, чтобы не потерять ручные открытия.</p>
       <details><summary>Рецепты: открыто {draft.unlockedRecipeIds.length} из {catalog.recipes.length}</summary>
         {catalog.recipes.filter(r => matches(`${r.name} ${r.nameEn}`)).map(r => {
@@ -152,7 +185,7 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
       <label><input type="checkbox" checked={draft.overclockUnlocked} onChange={e => edit({ ...draft, overclockUnlocked: e.target.checked })} />Разгон открыт в мире</label>
       <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}><button className="primary-button" disabled={!draft.name.trim()} onClick={() => { try { setPreview(previewWorldUpdate(workspace, draft)); setError(''); } catch (e) { setError(e instanceof Error ? e.message : 'Не удалось подготовить просмотр изменений.'); } }}>Просмотреть изменения мира</button><button className="secondary-button" onClick={() => { setDraft(null); setPreview(null); }}>Отменить черновик мира</button></div>
     </fieldset>
-    {preview && <section aria-label="Просмотр изменений мира"><h3>Изменения до применения</h3>
+    {preview && <section ref={previewRegion} tabIndex={-1} aria-label="Просмотр изменений мира"><h3>Изменения до применения</h3>
       <p>{preview.before.name} → {preview.after.name}. Ревизия {preview.before.revision} → {preview.after.revision}.</p>
       <p>Фабрики: {preview.factories.map(f => f.name).join(', ') || 'связанных фабрик нет'}.</p>
       <ul>{(['recipes', 'buildings', 'milestones'] as const).map(kind => {
@@ -160,6 +193,7 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
         const nameOf = (id: string) => kind === 'recipes' ? catalog.recipes.find(r => r.id === id)?.name ?? id : kind === 'buildings' ? catalog.buildings.find(b => b.id === id)?.name ?? catalog.miners.find(m => m.id === id)?.name ?? id : unlockName(id);
         return <li key={kind}>{label}: добавить {preview[kind].added.map(nameOf).join(', ') || '—'}; убрать {preview[kind].removed.map(nameOf).join(', ') || '—'}.</li>;
       })}</ul>
+      <p>Общие узлы: добавить {preview.resources.added.map(node => node.name).join(', ') || '—'}; убрать {preview.resources.removed.map(node => node.name).join(', ') || '—'}; изменить {preview.resources.changed.map(change => `${change.before.name}: ${change.before.limit} → ${change.after.limit}/мин`).join(', ') || '—'}.</p>
       <p>Лента: {transportName('belts', preview.before.beltId)} → {transportName('belts', preview.after.beltId)}.<br />Труба: {transportName('pipes', preview.before.pipeId)} → {transportName('pipes', preview.after.pipeId)}.<br />Разгон: {preview.before.overclockUnlocked ? 'открыт' : 'закрыт'} → {preview.after.overclockUnlocked ? 'открыт' : 'закрыт'}.</p>
       <p className="hint">Заказы, источники и локальные исключения сохраняются. Новые открытия разрешают только то, что также выбрано в плане. Закрытые рецепты и здания исключаются из следующего расчёта; действующие результаты потребуют пересчёта.</p>
       {!preview.after.overclockUnlocked && <p>Разгон закрыт: фабрики с частотой выше 100% потребуют ручного изменения частоты перед расчётом.</p>}

@@ -11,7 +11,253 @@
       "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
       "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
     },
-    "verification": "pinned-local-game-docs; no-new-external-source"
+    "verification": "pinned-local-game-docs; no-new-external-source",
+    "researchAssets": {
+      "steamBuildId": "24656030",
+      "gameCL": 502094,
+      "extractedAt": "2026-09-06",
+      "source": "Installed Satisfactory FactoryGame-Windows.pak and FactoryGame-Windows.utoc",
+      "parser": {
+        "name": "CUE4Parse",
+        "version": "1.2.2.202609",
+        "commit": "b4e95441bcf0c975eb3adb68c0fb44c740c2cf62",
+        "ueVersion": "GAME_UE5_6",
+        "packageVersion": [
+          522,
+          1017
+        ],
+        "compatibility": "44 unused OptionalProperty entries were converted to Unknown because pinned usmap v1 omits their inner type; selected inheritance chains must be independently checked"
+      },
+      "hashes": [
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ActorsBuiltDependency.uasset",
+          "sha256": "ee8ea9a7b6ed798998b711fe6cc9c131c01e5ec9dd021f24757b895a0a8b410f",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_CurrentOnboardingStepDependency.uasset",
+          "sha256": "df89650ae2141a9f01f8906c3fccbf0db8918f82798b1e8d2aff2cc8c4d858e8",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GameCompletedDependency.uasset",
+          "sha256": "c37a92b41e137da179eea1187f840f4f790177332653b15537867b327ba9159a",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GamePhaseReachedDependency.uasset",
+          "sha256": "b9e009886469403d4526b50e01c0c12afce417d6e1179d05037739f87db8b095",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemFailedToSinkDependency.uasset",
+          "sha256": "c2f044d1675363e2cdc637b8c6cb99510c687069414a921275f561843b3557e5",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemPickedUpDependency.uasset",
+          "sha256": "93a34eea1ea277782f9584d60fc5e59bfab5803bcd494b754a09651973b82820",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_LockSpaceElevatorShipmentDependency.uasset",
+          "sha256": "bafcd12bf2ff12262f8d0fb6b58abd0cb8accb95996b2103a879efd622cc0cef",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageInterruptedDependency.uasset",
+          "sha256": "56e6747a0d05a2557060675cef60c39365c0586fadccfe3e14bbeab6ab5d5d54",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageNotPlayedDependency.uasset",
+          "sha256": "5aaed21dd9aafca3aa96c0570cf478c40530e79d6476a375941ad5620278677e",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessagePlayedDependency.uasset",
+          "sha256": "9cdb8d1668dae47235dcf928abf702edae1458f5a17f7234ab7a044288cd1ce7",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_RandomChanceDependency.uasset",
+          "sha256": "5b21f219f28d914f392134fd6fb0a22656e90b949c9a30535b64105ad40b9d3d",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ResearchTreeProgressionDependency.uasset",
+          "sha256": "6edcf61af79ca64a4487211aaa7669c5a62a623fd199ae7d0c4d0922463866a8",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicNotPurchasedDependency.uasset",
+          "sha256": "2fb322b4a74ba42c28e88709c39ce3a43fd1b886e789eb0569dcce1f1c04ed68",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicPurchasedDependency.uasset",
+          "sha256": "519d15c8df446d3078adfc18e9ae8d11559669eb441b9a7f44e4a52e4b53d400",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicSpammedDependency.uasset",
+          "sha256": "b9d77ef26d1bddcd66a896a8273ed18e0880edacc4330d2ab4966b8c66f6f82a",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicTypeDependency.uasset",
+          "sha256": "1ce8ea255eaced55d7c7a752c0db3ebc6149cfb12c58e46f1209424568ade6af",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SpaceElevatorFullyBuiltDependency.uasset",
+          "sha256": "bd3afdf390d9383000f6880beb8213b8e24b0ade9ec418475b547ca972e440bc",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BPI_AvailabilityDependencyInterface.uasset",
+          "sha256": "a6a3a734be14b4964c5466cd6f27b35e435f33a7ca165fbb5151b0d79cae2f3a",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/FAvailabilityDependencyData.uasset",
+          "sha256": "d611033bf691d6ac3889917a241acc447c698f17a1c1f94da8ff0b5518162324",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_0.uasset",
+          "sha256": "8f4713cdb346bf81747d5f03173a6c5001758a76b3ce6010dc9b9015c5afb8cc",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_1.uasset",
+          "sha256": "8227bbe89971a66933a9a02291e1d50c877e73ca5b53181360c70507cbf1911e",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_2.uasset",
+          "sha256": "356f7d3bb78274483ce863e8018d6d106815b7c8aec447e80a45b3c8f8a1eed5",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_3.uasset",
+          "sha256": "7d4c4397faf1658eec95649c18e560ff79235e6f1ef304026cf994ba995a22f0",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_4.uasset",
+          "sha256": "8225721209f2440ca3bce7d5e679845486b4d23f97cf79865dff93f944a1e3a2",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_5.uasset",
+          "sha256": "50be385e084224382476cc20be9a2d7de6228ce18e3b5b5791bcf11c926be8ab",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_6.uasset",
+          "sha256": "199c0494673428ef7aa53478f2935a2e06d68054558ef4019e7e44d15bac8e3a",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_7.uasset",
+          "sha256": "b68a21ce7a66d6c40c82a125e2bc121d804bab8a36c816147ddfd441d1b5d103",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienOrganisms.uasset",
+          "sha256": "0c174882fa88e77675abf8e8d5d88ba57054b797cdda50a14c4c18a4c8eedadd",
+          "exports": 14
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienTech.uasset",
+          "sha256": "5b5644cbdb0328c57b44d62a2aa5fd17f38e4ccc2440a74de66e41fdebbc571c",
+          "exports": 23
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Caterium.uasset",
+          "sha256": "8d46716c68becd92f4f91250be3315846bb029bebedcb2e1c06f4a4810714c7e",
+          "exports": 20
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_HardDrive.uasset",
+          "sha256": "c3499d19e082a1f6b2231cce7ab607b7ecf722ec71a0a082e2c9c5474aae4dfc",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Mycelia.uasset",
+          "sha256": "4b34aaa1d1558f997409edd6812e27d5d0a2467a444ebaaa85994db43d1178a5",
+          "exports": 13
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Nutrients.uasset",
+          "sha256": "3ff8cdf6369c66bd46295db7b1d5ca25d51c0840c32d06c298776511e372eb72",
+          "exports": 8
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_PowerSlugs.uasset",
+          "sha256": "e51d807e948590eb2c0d6eaa37efba9a41e3935ab0205ecd30cabf2cd7bb2208",
+          "exports": 9
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Quartz.uasset",
+          "sha256": "2511a52c162fba4c36c639dcf17022122b214b9a530975dd00567397f869a99a",
+          "exports": 15
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Sulfur.uasset",
+          "sha256": "25e968a4aa6dd85374a02ebcda9b0a3efd8b320d23655b7ab245731805f35371",
+          "exports": 19
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_XMas.uasset",
+          "sha256": "a3d98dab480e6d0e98bb37c95501c140af6b66de160e42c447e997a42317af04",
+          "exports": 16
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTreeNode.uasset",
+          "sha256": "392c1d23bdb374609bbba0953657cb243edef4ecae82eb74b27730bf00d5f852",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/Localization/AllStringTables/en-US/AllStringTables.locres",
+          "sha256": "816091d2c1cd0feb14592f7c377bf9d6e5fc8fa1f893ee7f8347e9b99751b336"
+        },
+        {
+          "path": "FactoryGame/Content/Localization/AllStringTables/ru/AllStringTables.locres",
+          "sha256": "13f5c26133eaff81bca40c33afc3c0bab159ec13584f6fe7ab17922ad0bf6a08"
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Interface/UI/InGame/MAMTree/Widget_MAMTree_Grid.uasset",
+          "sha256": "6104b3a5ba5d0a194ecda94b893e48fcbe90adbea3c56838b90329ebe7659e64"
+        }
+      ],
+      "usmapSha256": "b0e9179d1af4663cc06e54d6cbfe2ce834f3960d50891ef28a90e936978e4b35",
+      "mappingVerification": {
+        "verified": true,
+        "exportedPackagesChecked": 496,
+        "referencedTypesChecked": 658,
+        "nativeMappingsChecked": 150,
+        "optionalPropertiesPatched": 44,
+        "affectedSelectedTypes": [],
+        "method": "Transitive closure of every exported object type, Blueprint/native superclass, and embedded StructProperty (including array/set/map value structures). Object references are not loaded as property payloads. No selected type reaches a changed OptionalProperty.",
+        "hashMeaning": "SHA-256 of provider.SaveAsset(path) raw package bytes after container decompression; localization hashes likewise identify raw locres bytes. These are not JSON export hashes."
+      },
+      "containerHashes": [
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\Headers.zip",
+          "sha256": "f4d96098afb214ee73d73365425db69c839e07a07fe498ff5c8334af0c0f2a5f"
+        },
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\FactoryGame\\Content\\Paks\\FactoryGame-Windows.utoc",
+          "sha256": "310534fff8ebdf87c6a6441916e1b5fce2b3fe8e4ca009bb415fa56b5558ee49"
+        },
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\CustomVersions.json",
+          "sha256": "39fc6d2585ad5fa2df07060d630d67403e319ba2e35a7e09f9497fbdfa8b69aa"
+        }
+      ]
+    }
   },
   "coverage": {
     "sourceSchematics": 574,
@@ -58,7 +304,7 @@
     "overclockIds": [
       "Research_PowerSlugs_2_C"
     ],
-    "researchTreeExported": false,
+    "researchTreeExported": true,
     "prerequisitesComplete": false,
     "unprojectedDependencies": [],
     "excluded": [
@@ -1258,7 +1504,9 @@
     "missingSchematicReferences": [
       "Research_Caterium_6_1_C",
       "Schematic_6-4_C"
-    ]
+    ],
+    "researchAssetNodes": 110,
+    "researchUnresolvedNodes": 5
   },
   "semantics": {
     "catalogUnlocks": "Прямые эффекты купленной схемы. Наличие схемы в списке не означает её доступность или покупку.",
@@ -1268,7 +1516,7 @@
     "schematicIds": "Ссылки BP_UnlockSchematic_C сохранены отдельно; не развёрнуты в прямые recipeIds родителя.",
     "minerIds": "ID из Catalog.miners, также опубликованы в Catalog.unlocks. buildingIds остаётся списком ID из Catalog.buildings.",
     "tier": "Исходный mTechTier; не подтверждение автоматического открытия tier или порядка ветки MAM.",
-    "prerequisites": "FGResearchTree не экспортирован; пустые dependencies не доказывают отсутствие требований. Не использовать как полный gate прогресса.",
+    "prerequisites": "MAM parents и unhiddenBy: OR внутри каждого списка, отдельные условия. Docs groups: AND между группами, OR внутри. Неизвестные координаты сохраняются. События подбора, видимость, сезонность и завершение фаз не отслеживаются; граф справочный, не автоматический gate.",
     "cost": "Исходные количества mCost со стабильными игровыми className, без выдуманных ID отсутствующих в каталоге предметов."
   },
   "schematics": [
@@ -2303,7 +2551,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -2997,7 +3245,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -3040,7 +3288,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -3278,7 +3526,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -8046,7 +8294,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -9621,7 +9869,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -10317,7 +10565,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -11609,7 +11857,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -12117,7 +12365,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -12338,7 +12586,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -12497,7 +12745,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -13940,7 +14188,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -14097,7 +14345,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_Alternate_TurboFuel_C"
@@ -14544,7 +14792,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -14856,7 +15104,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -15219,7 +15467,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_Alternate_EnrichedCoal_C"
@@ -15435,7 +15683,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -15795,7 +16043,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -16058,7 +16306,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -16534,7 +16782,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Research_Sulfur_5_2_Hidden_C"
@@ -16644,7 +16892,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -16744,7 +16992,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -16844,7 +17092,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -16944,7 +17192,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17158,7 +17406,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17258,7 +17506,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17362,7 +17610,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17460,7 +17708,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17507,7 +17755,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17558,7 +17806,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17603,7 +17851,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17770,7 +18018,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -17917,7 +18165,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18023,7 +18271,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18209,7 +18457,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_XMassTree_T4_C"
@@ -18290,7 +18538,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_XMassTree_T3_C"
@@ -18348,7 +18596,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18399,7 +18647,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18482,7 +18730,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_XMassTree_T2_C"
@@ -18545,7 +18793,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18601,7 +18849,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18688,7 +18936,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [
         "Schematic_XMassTree_T1_C"
@@ -18747,7 +18995,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18798,7 +19046,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18846,7 +19094,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18895,7 +19143,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18939,7 +19187,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -18983,7 +19231,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19027,7 +19275,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19074,7 +19322,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19123,7 +19371,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19244,7 +19492,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19291,7 +19539,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19336,7 +19584,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19381,7 +19629,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19432,7 +19680,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19520,7 +19768,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19564,7 +19812,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19619,7 +19867,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19672,7 +19920,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19722,7 +19970,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19767,7 +20015,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19813,7 +20061,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19864,7 +20112,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19909,7 +20157,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -19960,7 +20208,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20000,7 +20248,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20049,7 +20297,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20096,7 +20344,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20177,7 +20425,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20233,7 +20481,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20284,7 +20532,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20332,7 +20580,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20379,7 +20627,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20426,7 +20674,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20473,7 +20721,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20520,7 +20768,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20561,7 +20809,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20597,7 +20845,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20646,7 +20894,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20687,7 +20935,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20729,7 +20977,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20776,7 +21024,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20825,7 +21073,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20867,7 +21115,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20915,7 +21163,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -20966,7 +21214,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21017,7 +21265,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21062,7 +21310,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21107,7 +21355,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21152,7 +21400,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21197,7 +21445,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21242,7 +21490,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21289,7 +21537,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21334,7 +21582,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21379,7 +21627,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21424,7 +21672,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21469,7 +21717,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21520,7 +21768,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21569,7 +21817,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21607,7 +21855,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21650,7 +21898,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21695,7 +21943,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21737,7 +21985,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21785,7 +22033,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21826,7 +22074,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21909,7 +22157,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -21954,7 +22202,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -22047,7 +22295,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -22130,7 +22378,7 @@
       "prerequisiteGroups": [],
       "prerequisitesKnown": false,
       "prerequisitesUnknownReasons": [
-        "research-tree-not-exported"
+        "external-events-and-manual-completion-not-tracked"
       ],
       "schematicIds": [],
       "dependencies": [],
@@ -30258,6 +30506,1587 @@
         "Recipe_FluidTruckStation_C",
         "Recipe_VehiclePath_Truck_C"
       ]
+    }
+  ],
+  "researchTrees": [
+    {
+      "id": "BPD_ResearchTree_AlienOrganisms_C",
+      "name": "Инопланетная мегафауна",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Останки кабана (1), Останки плевателя (1), Останки гнезда (1), Останки жалоносца (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_AOrgans_3_C",
+          "name": "Увеличенный объём инвентаря",
+          "parents": [
+            "Research_AO_DNACapsule_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AOrganisms_2_C",
+          "name": "Обнаружение враждебных организмов",
+          "parents": [
+            "Research_AO_DNACapsule_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_ACarapace_3_C",
+          "name": "Улучшенный пояс для инструментов",
+          "parents": [
+            "Research_AOrgans_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AO_DNACapsule_C",
+          "name": "Биоорганические свойства",
+          "parents": [
+            "Research_AOrgans_0_C",
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AO_Stinger_C",
+          "name": "Исследование жалоносца",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AO_Hatcher_C",
+          "name": "Исследование гнезда",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_ACarapace_0_C",
+          "name": "Исследование кабана",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AOrgans_0_C",
+          "name": "Исследование плевателя",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AO_Pre_Rebar_C",
+          "name": "Структурный анализ",
+          "parents": [
+            "Research_AO_DNACapsule_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_AOrgans_2_C",
+          "name": "Протеиновый ингалятор",
+          "parents": [
+            "Research_AO_DNACapsule_C"
+          ],
+          "unhiddenBy": [
+            "Research_AO_Hatcher_C",
+            "Research_ACarapace_0_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_ACarapace_2_C",
+          "name": "Арматурный пистолет",
+          "parents": [
+            "Research_AO_Pre_Rebar_C"
+          ],
+          "unhiddenBy": [
+            "Research_ACarapace_0_C",
+            "Research_AO_Hatcher_C",
+            "Research_AO_Stinger_C",
+            "Research_AOrgans_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_AlienTech_C",
+      "name": "Инопланетные технологии",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: СИМ (1), Петлевик (1), Сфера Мерсера (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Alien_SAM_C",
+          "name": "Анализ СИМ",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_SAMFluctuator_C",
+          "name": "Флуктуатор СИМ",
+          "parents": [
+            "Research_Alien_ActiveSAM_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_SAM_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralStorage_C",
+          "name": "Пространственное хранилище",
+          "parents": [
+            "Research_Alien_SAMFluctuator_C",
+            "Research_Alien_MercerSphere_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_MercerSphere_C",
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralUploadBoost_04_C",
+          "name": "Улучшение выгрузки: 240/мин",
+          "parents": [
+            "Research_Alien_CentralUploadBoost_03_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralStackExpansion_01_C",
+          "name": "Расширение хранилища (200%)",
+          "parents": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralStackExpansion_02_C",
+          "name": "Расширение хранилища (300%)",
+          "parents": [
+            "Research_Alien_CentralStackExpansion_01_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralStackExpansion_03_C",
+          "name": "Расширение хранилища (400%)",
+          "parents": [
+            "Research_Alien_CentralStackExpansion_02_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralStackExpansion_04_C",
+          "name": "Расширение хранилища (500%)",
+          "parents": [
+            "Research_Alien_CentralStackExpansion_03_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralUploadBoost_03_C",
+          "name": "Улучшение выгрузки: 120/мин",
+          "parents": [
+            "Research_Alien_CentralUploadBoost_02_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralUploadBoost_02_C",
+          "name": "Улучшение выгрузки: 60/мин",
+          "parents": [
+            "Research_Alien_CentralUploadBoost_01_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralUploadBoost_01_C",
+          "name": "Улучшение выгрузки: 30/мин",
+          "parents": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_MercerSphere_C",
+          "name": "Анализ сферы Мерсера",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_Somersloop_C",
+          "name": "Анализ петлевика",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_ActiveSAM_C",
+          "name": "Активизация СИМ",
+          "parents": [
+            "Research_Alien_SAM_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_SAM_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_ProductionBooster_C",
+          "name": "Ускоритель производства",
+          "parents": [
+            "Research_Alien_SAMFluctuator_C",
+            "Research_Alien_BoosterBlocker_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_Somersloop_C",
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_PowerBooster_C",
+          "name": "Экстрактор энергии",
+          "parents": [
+            "Research_Alien_Somersloop_C",
+            "Research_Alien_BoosterBlocker_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_Somersloop_C",
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_BoosterFuel_C",
+          "name": "Инопланетная энергоматрица",
+          "parents": [
+            "Research_Alien_PowerBooster_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_PowerBooster_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_BoosterBlocker_C",
+          "name": "Освоение инопланетной энергии",
+          "parents": [
+            "Research_Alien_Somersloop_C",
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_Somersloop_C",
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_CentralInventory_C",
+          "name": "Ручное средство выгрузки в хранилище",
+          "parents": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_CentralStorage_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Alien_PortalPotty_C",
+          "name": "МСПО",
+          "parents": [
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unhiddenBy": [
+            "Research_Alien_SAMFluctuator_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_Caterium_C",
+      "name": "Катерий",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Катерийная руда (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Caterium_3_C",
+          "name": "Катерийная электроника",
+          "parents": [
+            "Research_Caterium_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_5_C",
+          "name": "Скоростной разъём",
+          "parents": [
+            "Research_Caterium_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_0_C",
+          "name": "Катерий",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_1_C",
+          "name": "Катерийные слитки",
+          "parents": [
+            "Research_Caterium_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_2_C",
+          "name": "Сверхпроволока",
+          "parents": [
+            "Research_Caterium_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_7_1_C",
+          "name": "Программируемый разветвитель",
+          "parents": [
+            "Research_Caterium_4_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_4_1_C",
+            "Research_Caterium_5_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_4_2_C",
+          "name": "Электростолбы ур. 2",
+          "parents": [
+            "Research_Caterium_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_4_1_C",
+          "name": "Ограничитель ИИ",
+          "parents": [
+            "Research_Caterium_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_2_1_C",
+          "name": "Зиплайн",
+          "parents": [
+            "Research_Caterium_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_5_2_C",
+          "name": "Улучшенные разъемы электропитания",
+          "parents": [
+            "Research_Caterium_6_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_6_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_3_2_C",
+          "name": "Парализующий болт",
+          "parents": [
+            "Research_Caterium_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_6_2_C",
+          "name": "Электростолбы ур. 3",
+          "parents": [
+            "Research_Caterium_4_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_4_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_4_1_2_C",
+          "name": "Рубильник",
+          "parents": [
+            "Research_Caterium_4_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_4_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_5_1_C",
+          "name": "Приоритетный рубильник",
+          "parents": [
+            "Research_Caterium_5_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_5_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_7_2_C",
+          "name": "Геотермальный генератор",
+          "parents": [
+            "Research_Caterium_5_C"
+          ],
+          "unhiddenBy": [
+            "Research_Caterium_4_1_C",
+            "Research_Caterium_5_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_4_1_1_C",
+          "name": "Умный разветвитель",
+          "parents": [
+            "Research_Caterium_4_1_C"
+          ],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_6_3_C",
+          "name": "Система самонаведения",
+          "parents": [
+            "Research_Caterium_5_C"
+          ],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_HardDrive_C",
+      "name": "Жёсткие диски",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Desc_HardDrive_C (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": []
+    },
+    {
+      "id": "BPD_ResearchTree_Mycelia_C",
+      "name": "Мицелий",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Мицелий (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Mycelia_6_C",
+          "name": "Терапевтический ингалятор",
+          "parents": [
+            "Research_Mycelia_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_7_C",
+          "name": "Улучшенный пояс для инструментов",
+          "parents": [
+            "Research_Mycelia_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_1_C",
+          "name": "Мицелий",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_2_C",
+          "name": "Ткань",
+          "parents": [
+            "Research_Mycelia_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_4_C",
+          "name": "Целебные свойства",
+          "parents": [
+            "Research_Mycelia_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_8_C",
+          "name": "Токсичная клеточная модификация",
+          "parents": [
+            "Research_Mycelia_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_5_C",
+          "name": "Витаминный ингалятор",
+          "parents": [
+            "Research_Mycelia_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_3_C",
+          "name": "Парашют",
+          "parents": [
+            "Research_Mycelia_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_2_1_C",
+          "name": "Синтетическая ткань",
+          "parents": [
+            "Research_Mycelia_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Mycelia_GasMask_C",
+          "name": "Респиратор",
+          "parents": [
+            "Research_Mycelia_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Mycelia_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_Nutrients_C",
+      "name": "Питательные вещества",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Палеоягода (1), Берилловый орех (1), Шпиковый мухомор (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Nutrients_2_C",
+          "name": "Шпиковый мухомор",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Nutrients_1_C",
+          "name": "Берилловый орех",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Nutrients_0_C",
+          "name": "Палеоягода",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Nutrients_3_C",
+          "name": "Питательный процессор",
+          "parents": [
+            "Research_Nutrients_1_C",
+            "Research_Nutrients_2_C",
+            "Research_Nutrients_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Nutrients_2_C",
+            "Research_Nutrients_0_C",
+            "Research_Nutrients_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Nutrients_4_C",
+          "name": "Пищевой ингалятор",
+          "parents": [
+            "Research_Nutrients_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Nutrients_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_PowerSlugs_C",
+      "name": "Энергослизни",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Desc_C (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_PowerSlugs_6_C",
+          "name": "Синтетические энергомодули",
+          "parents": [
+            "Research_PowerSlugs_5_C"
+          ],
+          "unhiddenBy": [
+            "Research_PowerSlugs_5_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_PowerSlugs_3_C",
+          "name": "Сканирование слизней",
+          "parents": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_PowerSlugs_1_C",
+          "name": "Синие энергослизни",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_PowerSlugs_4_C",
+          "name": "Жёлтые энергослизни",
+          "parents": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_PowerSlugs_5_C",
+          "name": "Фиолетовые энергослизни",
+          "parents": [
+            "Research_PowerSlugs_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_PowerSlugs_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_PowerSlugs_2_C",
+          "name": "Разгон производства",
+          "parents": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_PowerSlugs_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_Quartz_C",
+      "name": "Кварц",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Неогранённый кварц (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Quartz_2_C",
+          "name": "Кварцевый резонатор",
+          "parents": [
+            "Research_Quartz_1_1_C",
+            null
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_1_1_C"
+          ],
+          "unresolvedCoordinates": [
+            [
+              3,
+              1
+            ]
+          ],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_1_1_C",
+          "name": "Кварцевые кристаллы",
+          "parents": [
+            "Research_Quartz_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_0_C",
+          "name": "Кварц",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_2_1_C",
+          "name": "Дробный болт",
+          "parents": [
+            "Research_Quartz_1_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_1_2_C",
+          "name": "Кремнезём",
+          "parents": [
+            "Research_Quartz_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_3_1_C",
+          "name": "Исследователь",
+          "parents": [
+            "Research_Quartz_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_1_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_4_3_C",
+          "name": "Экзоскелет",
+          "parents": [
+            "Research_Quartz_1_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_PriorityMerger_C",
+          "name": "Отслеживание резонанса материи",
+          "parents": [
+            "Research_Quartz_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_1_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_4_1_C",
+          "name": "Сканирование радиосигналов",
+          "parents": [
+            null,
+            "Research_Quartz_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_2_C"
+          ],
+          "unresolvedCoordinates": [
+            [
+              3,
+              5
+            ]
+          ],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Caterium_3_1_C",
+          "name": "Увеличенный объём инвентаря",
+          "parents": [
+            "Research_Quartz_1_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_4_C",
+          "name": "Радиолокационная технология",
+          "parents": [
+            null,
+            "Research_Quartz_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_2_C"
+          ],
+          "unresolvedCoordinates": [
+            [
+              3,
+              5
+            ]
+          ],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Quartz_3_4_C",
+          "name": "Применение взрывного резонанса",
+          "parents": [
+            "Research_Quartz_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_Quartz_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_Sulfur_C",
+      "name": "Сера",
+      "seasonal": false,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Сера (1). События подбора в калькуляторе не отслеживаются."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_Sulfur_3_1_C",
+          "name": "Детонатор нобелиска",
+          "parents": [
+            "Research_Sulfur_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_3_C",
+          "name": "Бездымный порох",
+          "parents": [
+            null,
+            "Research_Sulfur_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_1_C"
+          ],
+          "unresolvedCoordinates": [
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_0_C",
+          "name": "Сера",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_4_1_C",
+          "name": "Винтовка",
+          "parents": [
+            "Research_Sulfur_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_CompactedCoal_C",
+          "name": "Угольный брикет",
+          "parents": [
+            "Research_Sulfur_ExperimentalPower_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_ExperimentalPower_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_1_C",
+          "name": "Чёрный порох",
+          "parents": [
+            "Research_Sulfur_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_4_2_C",
+          "name": "Разрывной болт",
+          "parents": [
+            "Research_Sulfur_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_4_C",
+          "name": "Осколочный нобелиск",
+          "parents": [
+            "Research_Sulfur_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_RocketFuel_C",
+          "name": "Ракетное топливо",
+          "parents": [
+            "Research_Sulfur_TurboFuel_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_TurboFuel_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_ExperimentalPower_C",
+          "name": "Экспериментальные способы выработки электроэнергии",
+          "parents": [
+            "Research_Sulfur_0_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_5_C",
+          "name": "Улучшенный пояс для инструментов",
+          "parents": [
+            "Research_Sulfur_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_0_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_IonizedFuel_C",
+          "name": "Ионизированное топливо",
+          "parents": [
+            "Research_Sulfur_TurboFuel_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_TurboFuel_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_5_2_C",
+          "name": "Турбопатроны для винтовки",
+          "parents": [
+            "Research_Sulfur_4_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_TurboFuel_C",
+          "name": "Турботопливо",
+          "parents": [
+            "Research_Sulfur_ExperimentalPower_C",
+            null
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_ExperimentalPower_C"
+          ],
+          "unresolvedCoordinates": [
+            [
+              5,
+              2
+            ]
+          ],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_5_1_C",
+          "name": "Разработка средств ядерного сдерживания",
+          "parents": [
+            "Research_Sulfur_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_Sulfur_6_C",
+          "name": "Увеличенный объём инвентаря",
+          "parents": [
+            "Research_Sulfur_4_C",
+            "Research_Sulfur_4_1_C",
+            "Research_Sulfur_5_2_C",
+            "Research_Sulfur_5_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_Sulfur_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "id": "BPD_ResearchTree_XMas_C",
+      "name": "Рождественские праздники FICSIT™",
+      "seasonal": true,
+      "conditions": [
+        "Условие открытия ветки связано с подбором предметов: Рождественский картридж данных FICSIT, день 1 (0). События подбора в калькуляторе не отслеживаются.",
+        "Сезонная ветка FICSMAS: события не отслеживаются; её рецепты не входят в расчётный каталог."
+      ],
+      "nodes": [
+        {
+          "schematicId": "Research_XMas_2_C",
+          "name": "Огромная рождественская ёлка FICSIT: улучшение 1",
+          "parents": [
+            "Research_XMas_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_3_C",
+          "name": "Огромная рождественская ёлка FICSIT: улучшение 2",
+          "parents": [
+            "Research_XMas_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_1-2_C",
+          "name": "Декоративная карамельная трость",
+          "parents": [
+            "Research_XMas_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_4-2_C",
+          "name": "Игра в снежки!",
+          "parents": [
+            "Research_XMas_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_4-1_C",
+          "name": "Рождественское украшение FICSIT",
+          "parents": [
+            "Research_XMas_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_1_C",
+          "name": "Рождественская ёлка FICSIT™",
+          "parents": [],
+          "unhiddenBy": [],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_1-1_C",
+          "name": "Карамельная трость-дубинка",
+          "parents": [
+            "Research_XMas_1_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_1_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_4_C",
+          "name": "Огромная рождественская ёлка FICSIT: улучшение 3",
+          "parents": [
+            "Research_XMas_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_5_C",
+          "name": "Огромная рождественская ёлка FICSIT: улучшение 4",
+          "parents": [
+            "Research_XMas_4_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_4_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_2-2_C",
+          "name": "Ёлка с подарками FICSIT™",
+          "parents": [
+            "Research_XMas_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_3-2_C",
+          "name": "Снежок идёт!",
+          "parents": [
+            "Research_XMas_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_2-1_C",
+          "name": "Друг",
+          "parents": [
+            "Research_XMas_2_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_2_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        },
+        {
+          "schematicId": "Research_XMas_3-1_C",
+          "name": "Рождественская гирлянда FICSIT™",
+          "parents": [
+            "Research_XMas_3_C"
+          ],
+          "unhiddenBy": [
+            "Research_XMas_3_C"
+          ],
+          "unresolvedCoordinates": [],
+          "prerequisiteGroups": [],
+          "conditions": []
+        }
+      ]
+    }
+  ],
+  "gamePhases": [
+    {
+      "id": "GP_Project_Assembly_Phase_0",
+      "name": "Инструктаж",
+      "lastTier": 2
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_1",
+      "name": "Распределительная платформа",
+      "lastTier": 4
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_2",
+      "name": "Строительный док",
+      "lastTier": 6
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_3",
+      "name": "Основная часть",
+      "lastTier": 8
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_4",
+      "name": "Силовые установки",
+      "lastTier": 9
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_5",
+      "name": "Сборка",
+      "lastTier": 9
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_6",
+      "name": "Запуск",
+      "lastTier": 9
+    },
+    {
+      "id": "GP_Project_Assembly_Phase_7",
+      "name": "Завершено",
+      "lastTier": 9
     }
   ]
 }

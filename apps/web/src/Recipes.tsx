@@ -43,13 +43,13 @@ export function Recipes({ catalog, plan, setPlan }: PlanProps) {
       <select aria-label="Фильтр рецептов" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Все рецепты</option><option value="alternate">Альтернативные</option><option value="enabled">Разрешены в плане</option><option value="opened">Открыты в мире</option><option value="available">Доступны для расчёта</option></select>
     </div>
     <div className="panel">
-      <p>Категории составлены вручную; точное соответствие меню игры не подтверждено. Порядок продуктов основан на данных каталога, альтернативы показаны рядом.</p>
+      <p>{catalog.categorySource === 'game-assets' ? 'Названия и состав категорий взяты из игровых файлов и русской локализации. Где приоритет категории не задан, применяется русский алфавит; полное совпадение порядка меню не подтверждено.' : 'Категории составлены вручную; точное соответствие меню игры не подтверждено.'} Альтернативы показаны рядом с основным продуктом.</p>
       <label>Количество <select aria-label="Единицы карточек рецептов" value={mode} onChange={e => setMode(e.target.value as QuantityMode)}><option value="cycle">За цикл</option><option value="minute">В минуту</option><option value="unit">На единицу выхода</option></select></label>{' '}
       <NumberField label="Частота предпросмотра рецептов" value={clock} onChange={setClock} min={1} max={250} suffix="%" />
       <p className="muted">Частота предпросмотра не меняет план. Показатели относятся к одной непрерывно работающей машине. Ограничения транспорта учитываются при сравнении всей фабрики.</p>
       {plan.world && !plan.world.overclockUnlocked && clock > 100 && <p>Разгон не открыт в мире; это только справочный предпросмотр.</p>}
     </div>
-    <div className="catalog-summary"><span>Найдено {filtered.length} · открыто {openedCount} · разрешено в плане {enabledCount} из {catalog.recipes.length}</span><div>
+    <div className="catalog-summary"><span role="status">Найдено {filtered.length} · открыто {openedCount} · разрешено в плане {enabledCount} из {catalog.recipes.length}</span><div>
       <button className="text-button" onClick={() => toggle(filtered.map(r => r.id), true)}>Включить найденные открытые</button>
       <button className="text-button muted" onClick={() => toggle(filtered.map(r => r.id), false)}>Выключить найденные</button>
     </div></div>

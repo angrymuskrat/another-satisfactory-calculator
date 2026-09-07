@@ -113,7 +113,7 @@ test('миры на ширине 390: русские подписи и отсу�
   await page.getByText('MAM: отдельные исследования', { exact: true }).click();
   await checkWidth();
   await expect(view).not.toContainText(/workspace|preview|prerequisites/i);
-  await expect(view).toContainText('полный граф исследований MAM не восстановлен');
+  await expect(page.locator('.research-guide > summary')).toHaveText('Граф исследований MAM и фазы HUB');
   await page.getByRole('button', { name: 'Просмотреть изменения мира', exact: true }).click();
   await checkWidth();
   await page.screenshot({ path: 'output/playwright/worlds-mobile-390.png', fullPage: true });

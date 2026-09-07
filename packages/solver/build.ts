@@ -1,7 +1,8 @@
 import type { Catalog, Plan, Recipe, Source } from '../domain/types';
 import { add, Model, type Expression } from './model';
+import { productionConfigurations, wellConfiguration, type ProductionConfiguration } from '../domain/production';
 const EXPONENT = Math.log2(2.5);
-export interface RecipeVariable { recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number }
+export interface RecipeVariable { configuration: ProductionConfiguration; recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number }
 export interface SourceVariable { source: Source; variable: string; countVariable: string | null; capacity: number; limit: number | null; powerPerUnit: number; installedPower: number }
 
 export function buildModel(catalog: Catalog, plan: Plan) {
@@ -9,7 +10,8 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   const power: Expression = new Map(); const resources: Expression = new Map(); const activity: Expression = new Map();
   const peakPower: Expression = new Map(); const machineCount: Expression = new Map();
   const countsByBuilding = new Map<string, Expression>();
-  const needsCounts = plan.settings.objective === 'buildings' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
+  const loops: Expression = new Map();
+  const needsCounts = !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
   const countFor = (id: string, upper: number | null = null) => {
     const variable = model.variable(upper, true);
     add(machineCount, variable, 1);
@@ -29,15 +31,16 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   if (plan.settings.enabledRecipeIds.some(id => !knownRecipes.has(id)) || plan.settings.enabledBuildingIds.some(id => !buildings.has(id))) throw new Error('Сохранённые рецепты или здания отсутствуют в каталоге. Обновите конфигурацию.');
   const enabledRecipes = new Set(plan.settings.enabledRecipeIds);
   const enabledBuildings = new Set(plan.settings.enabledBuildingIds);
-  const clock = plan.settings.clock / 100;
   const recipeVariables: RecipeVariable[] = [];
-  for (const recipe of catalog.recipes) {
+  for (const configuration of productionConfigurations(catalog, plan)) {
+    const recipe = { ...configuration.recipe, outputs: configuration.recipe.outputs.map(i => ({ ...i, amount: i.amount * configuration.boost })) };
+    const clock = configuration.clock / 100;
     if (!enabledRecipes.has(recipe.id) || !enabledBuildings.has(recipe.buildingId)) continue;
     const building = buildings.get(recipe.buildingId);
     if (!building || recipe.seconds <= 0 || recipe.outputs.length === 0) throw new Error(`Некорректный рецепт ${recipe.id}.`);
     const cyclesAtClock = 60 / recipe.seconds * clock;
-    const machinePower = (recipe.power ?? building.power) * clock ** EXPONENT;
-    const machineMax = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** EXPONENT;
+    const machinePower = (recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
+    const machineMax = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
     if (!Number.isFinite(machinePower) || machinePower < 0) throw new Error(`Неизвестная мощность рецепта ${recipe.id}.`);
     let capacity = cyclesAtClock;
     const variable = model.variable();
@@ -50,13 +53,16 @@ export function buildModel(catalog: Catalog, plan: Plan) {
       }
     }
     const powerPerCycle = machinePower / cyclesAtClock;
-    const countVariable = needsCounts ? countFor(recipe.buildingId) : null;
+    const countVariable = needsCounts ? countFor(recipe.buildingId, configuration.existing || null) : null;
     if (countVariable) {
+      if (configuration.existing) model.constrain(new Map([[countVariable, 1]]), '=', configuration.existing);
+      if (configuration.duty !== null) model.constrain(new Map([[variable, 1]]), '=', configuration.existing * cyclesAtClock * configuration.duty);
       model.constrain(new Map([[variable, 1 / capacity], [countVariable, -1]]), '<=', 0);
       add(peakPower, countVariable, machineMax);
+      add(loops, countVariable, configuration.somersloops);
     }
     add(power, variable, powerPerCycle); add(activity, variable, 1);
-    recipeVariables.push({ recipe, variable, countVariable, capacity, cyclesAtClock, power: machinePower, powerMax: machineMax, powerPerCycle });
+    recipeVariables.push({ configuration, recipe, variable, countVariable, capacity, cyclesAtClock, power: machinePower, powerMax: machineMax, powerPerCycle });
   }
   const allSources = [...plan.sources];
   if (plan.settings.resourcePolicy === 'unlimited-unlisted') {
@@ -66,7 +72,7 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     }
   }
   const sourceVariables: SourceVariable[] = allSources.map(source => {
-    let limit = source.limit; let powerPerUnit = 0; let installedPower = 0; let perMachineCapacity = 0;
+    let limit = source.limit; let powerPerUnit = source.kind === 'flow' ? source.importPower ?? 0 : 0; let installedPower = 0; let perMachineCapacity = 0;
     if (source.kind === 'node') {
       const miner = catalog.miners.find(m => m.id === source.minerId);
       if (!miner || !miner.resourceIds.includes(source.itemId)) throw new Error('Выбранный добытчик не добывает ресурс этого месторождения.');
@@ -80,12 +86,21 @@ export function buildModel(catalog: Catalog, plan: Plan) {
       powerPerUnit = perNodePower / rate;
       installedPower = perNodePower;
     }
+    if (source.kind === 'well') {
+      const well = wellConfiguration(catalog, plan, source);
+      perMachineCapacity = well.capacity; installedPower = well.power;
+      limit = limit === null ? well.capacity : Math.min(limit, well.capacity);
+    }
+    if (limit === null && (source.reserve ?? 0) > 0) throw new Error('Для резерва задайте конечную мощность источника.');
+    if (limit !== null) limit = Math.max(0, limit - (source.reserve ?? 0));
     const variable = model.variable(limit);
-    const countVariable = needsCounts && source.kind === 'node' ? countFor(source.minerId, source.count) : null;
+    const countVariable = source.kind === 'well' ? countFor('resource-well-pressurizer', 1) : needsCounts && source.kind === 'node' ? countFor(source.minerId, source.count) : null;
     if (countVariable) {
       model.constrain(new Map([[variable, 1 / perMachineCapacity], [countVariable, -1]]), '<=', 0);
       add(peakPower, countVariable, installedPower);
+      if (source.kind === 'well') { add(power, countVariable, installedPower); add(machineCount, countVariable, wellConfiguration(catalog, plan, source).count); }
     }
+    if (source.kind === 'flow') add(peakPower, variable, powerPerUnit);
     add(balance.get(source.itemId)!, variable, 1);
     add(power, variable, powerPerUnit); add(resources, variable, plan.settings.resourceWeights[source.itemId] ?? 1);
     return { source, variable, countVariable, capacity: perMachineCapacity, limit, powerPerUnit, installedPower };
@@ -104,6 +119,10 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     for (const { target, variable } of targets) model.constrain(new Map([[variable, 1], [ratio, -target.rate / scale]]), '=', 0);
   }
   const disposal: { itemId: string; variable: string }[] = [];
+  const exports = (plan.exports ?? []).map(e => {
+    check(e.itemId); const variable = model.variable(e.limit); add(balance.get(e.itemId)!, variable, -1);
+    return { itemId: e.itemId, variable };
+  });
   let sinkCount: string | null = null;
   const sink = buildings.get('awesome-sink');
   if (plan.settings.allowSink && enabledBuildings.has('awesome-sink') && sink) {
@@ -118,11 +137,12 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     model.constrain(throughput, '<=', 0);
   }
   for (const expression of balance.values()) model.constrain(expression, '=', 0);
+  model.constrain(loops, '<=', plan.somersloopBudget ?? 0);
   if (plan.settings.powerLimit !== null) model.constrain(power, '<=', plan.settings.powerLimit);
   if (plan.settings.peakPowerLimit != null) model.constrain(peakPower, '<=', plan.settings.peakPowerLimit - (plan.settings.powerReserve ?? 0));
   for (const [id, limit] of Object.entries(plan.settings.buildingLimits ?? {})) {
-    if (!buildings.has(id) && !catalog.miners.some(m => m.id === id)) throw new Error('Тип здания для лимита отсутствует в каталоге.');
+    if (!buildings.has(id) && !catalog.miners.some(m => m.id === id) && id !== 'resource-well-pressurizer') throw new Error('Тип здания для лимита отсутствует в каталоге.');
     model.constrain(countsByBuilding.get(id) ?? new Map(), '<=', limit);
   }
-  return { model, power, peakPower, machineCount, needsCounts, resources, activity, recipeVariables, sourceVariables, targets, ratio, disposal, sinkCount, sinkPower: sink?.power ?? 30 };
+  return { model, power, peakPower, machineCount, needsCounts, loops, exports, resources, activity, recipeVariables, sourceVariables, targets, ratio, disposal, sinkCount, sinkPower: sink?.power ?? 30 };
 }

@@ -121,6 +121,19 @@ describe('API миров и фабрик', () => {
 });
 
 describe('API пользователей и сохранённых конфигураций', () => {
+  it('сохраняет все поля P2 без потерь и отклоняет отрицательный резерв', async () => {
+    const instance = app(); const { cookie } = await register(instance);
+    const data: Plan = { ...structuredClone(plan), batch: { minutes: 30, items: [{ itemId: 'iron-plate', required: 100, stock: 40 }] },
+      lines: [{ id: 'old', name: 'Цех', recipeId: 'iron-ingot', count: 2, clock: 50, duty: 0.5, somersloops: 0, locked: true }], expansion: 'add', somersloopBudget: 3,
+      exports: [{ itemId: 'iron-plate', limit: 5, name: 'Снабжение' }] };
+    data.sources[0] = { ...data.sources[0], name: 'Запад', notes: 'Для соседней фабрики', reserve: 10, importPower: 2 };
+    const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'P2', data } });
+    expect(created.statusCode).toBe(201);
+    const restored = await instance.inject({ url: `/api/profiles/${created.json().profile.id}`, headers: { cookie } });
+    expect(restored.json().profile.data).toEqual(data);
+    data.sources[0].reserve = -1;
+    expect((await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Ошибка', data } })).statusCode).toBe(400);
+  });
   it('создаёт сессию, сохраняет и восстанавливает полный профиль', async () => {
     const instance = app();
     expect((await instance.inject('/api/session')).json()).toEqual({ user: null });

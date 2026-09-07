@@ -67,6 +67,24 @@ describe('официальный каталог', () => {
       expect(values, category).toEqual([...values].sort((a, b) => a-b));
     }
   });
+  it('использует русские игровые категории и переопределение категории распаковки и конверсии', () => {
+    const c = read();
+    expect(c.categorySource).toBe('game-assets');
+    expect(c.items.find(i => i.id === 'iron-ingot')?.category).toBe('Слитки');
+    expect(c.recipes.find(r => r.id === 'unpackage-nitric-acid')?.category).toBe('Опустошение ёмкостей');
+    expect(c.recipes.find(r => r.id === 'coal-iron')?.category).toBe('Преобразование необработанных ресурсов');
+    const source = JSON.parse(readFileSync('packages/game-data/source/menu-assets.json', 'utf8'));
+    const categories = new Map(source.categories.map((c: { className: string; name: string }) => [c.className, c.name]));
+    for (const item of c.items) {
+      const evidence = source.items.find((i: { id: string }) => i.id === item.id);
+      expect(item.category, item.id).toBe(categories.get(evidence.categoryClass));
+    }
+    for (const recipe of c.recipes) {
+      const evidence = source.recipes.find((r: { id: string }) => r.id === recipe.id);
+      const item = source.items.find((i: { className: string }) => i.className === evidence.firstProductClass);
+      expect(recipe.category, recipe.id).toBe(categories.get(evidence.overriddenCategoryClass ?? item.categoryClass));
+    }
+  });
 });
 
 // Локальный тип позволяет проверять импорт до параллельного изменения domain.
@@ -145,7 +163,9 @@ describe('P1: исходные стоимости и открытия', () => {
     expect(p.schematics).toHaveLength(574);
     const clock = p.schematics.find((s: { id: string }) => s.id === 'Research_PowerSlugs_2_C');
     expect(clock.dependencies).toEqual([]);
-    expect(p.coverage.researchTreeExported).toBe(false);
+    expect(p.coverage.researchTreeExported).toBe(true);
+    expect(p.coverage.researchAssetNodes).toBe(110);
+    expect(p.coverage.researchUnresolvedNodes).toBe(5);
     expect(p.coverage.prerequisitesComplete).toBe(false);
     expect(p.schematics.find((s: { id: string }) => s.id === 'Schematic_4-1_C').minerIds).toEqual(['miner-mk2']);
     expect(p.schematics.find((s: { id: string }) => s.id === 'Schematic_5-1_C').schematicIds).toContain('Schematic_5-1-1_C');

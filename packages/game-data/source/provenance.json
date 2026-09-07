@@ -19,6 +19,9 @@
     "LICENSE.upstream": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "upstream-tree.json": "1f82d8e6a11959dfc9da3687048dc53b4a9c0e49eba2fc4eb2a88595317ec3f4",
     "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
-    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e",
+    "menu-assets.json": "c3fdac0cfaa5c102c36985cf09d7385bb8d9fbb460f06e3893dc95d44d72d689",
+    "research-assets.json": "ad944cebf4620af9761e03f0f9fcd883762885def04ebc1356bd2ba5bd7a76c2",
+    "buildable-defaults.json": "8129a8e71e340b1d10c396c71a9700d8a75f673a9d2ef7ae02773168d9a691e3"
   }
 }

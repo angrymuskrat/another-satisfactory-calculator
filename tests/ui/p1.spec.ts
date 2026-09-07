@@ -24,7 +24,7 @@ test('границы продукта, сеть и именованные ист
   await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('100');
   await page.getByLabel('Резерв сети', { exact: true }).fill('5');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.results-column')).toContainText('Железо у озера');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.targets[0]).toMatchObject({ minRate: 5, maxRate: 10 });

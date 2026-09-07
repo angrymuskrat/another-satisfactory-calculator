@@ -7,6 +7,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { importP1Data } from './import-p1-game-data.mjs';
+import { importMenuAssets } from './import-menu-assets.mjs';
+import { importResearchAssets } from './import-research-assets.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const path = p => resolve(root, p);
@@ -21,7 +23,7 @@ const en = readDocs('en-US'), ru = new Map(readDocs('ru').map(c => [c.ClassName,
 const byClass = new Map(en.map(c => [c.ClassName, c]));
 const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const localized = c => ru.get(c.ClassName)?.mDisplayName || c.mDisplayName;
-const sourceFiles = ['upstream.json', 'LICENSE.upstream', 'upstream-tree.json', 'Docs-en-US.json.gz', 'Docs-ru.json.gz'];
+const sourceFiles = ['upstream.json', 'LICENSE.upstream', 'upstream-tree.json', 'Docs-en-US.json.gz', 'Docs-ru.json.gz', 'menu-assets.json', 'research-assets.json', 'buildable-defaults.json'];
 const hashes = Object.fromEntries(sourceFiles.map(f => [f, createHash('sha256').update(readFileSync(path(sourcePath + f))).digest('hex')]));
 const pinned = json(sourcePath + 'provenance.json');
 for (const [file, hash] of Object.entries(pinned.sha256)) if (hashes[file] !== hash) throw new Error(`Исходный файл изменён: ${file}`);
@@ -63,28 +65,10 @@ for (const game of en.filter(c => c.nativeClass.endsWith(".FGRecipe'"))) {
   production.push({ game, buildingClass, input, out });
 }
 
-function category(game, id, fluid) {
-  const n = game.mDisplayName;
-  if (/SpaceElevatorPart/.test(game.ClassName)) return 'space';
-  if (up.resources.some(r => r.key_name === id)) return 'resources';
-  if (/Packaged|Empty Canister|Empty Fluid Tank/.test(n)) return 'packaging';
-  if (/Waste|Uranium|Plutonium|Ficsonium/.test(n)) return 'nuclear';
-  if (/SAM|Ficsite|Dark Matter|Photonic|Diamond|Time Crystal|Power Shard|Singularity/.test(n)) return 'quantum';
-  if (/Ingot/.test(n)) return 'ingots';
-  if (/Quartz|Silica|Copper Powder|Aluminum Scrap/.test(n)) return 'minerals';
-  if (/Biomass|Biofuel|Leaves|Wood|Remains|Protein|Mycelia|DNA/.test(n)) return 'biomass';
-  if (fluid || /Fuel|Petroleum|Polymer|Rubber|Plastic/.test(n)) return 'oil';
-  if (/Computer|Processor|Oscillator|Connector|Server|Control|Radio/.test(n)) return 'communications';
-  if (/Wire|Cable|Circuit|Limiter|Battery/.test(n)) return 'electronics';
-  if (/Motor|Rotor|Stator|Frame|Cooling|Heat Sink|Pressure/.test(n)) return 'industrial';
-  if (/Plate|Rod|Screw|Beam|Pipe|Concrete|Casing|Sheet/.test(n)) return 'standard';
-  return 'equipment';
-}
 const items = [...mappedItems].map(([className, id]) => {
   const game = byClass.get(className), fluid = game.mForm !== 'RF_SOLID';
-  return { id, name: localized(game), nameEn: game.mDisplayName, category: overrides.categoryLabels[category(game, id, fluid)], fluid, raw: up.resources.some(r => r.key_name === id), sinkable: !fluid && Number(game.mResourceSinkPoints) > 0 };
+  return { id, name: localized(game), nameEn: game.mDisplayName, category: '', fluid, raw: up.resources.some(r => r.key_name === id), sinkable: !fluid && Number(game.mResourceSinkPoints) > 0 };
 });
-const itemById = new Map(items.map(i => [i.id, i]));
 const documentedBuildingPower = { accelerator: 1000, converter: 250, 'quantum-encoder': 1000 };
 const buildings = [...buildingData].map(([id, game]) => ({ id, name: localized(game), nameEn: game.mDisplayName, power: Number(game.mPowerConsumption) || documentedBuildingPower[id], ...(game.mEstimatedMaximumPowerConsumption ? { powerMax: Number(game.mEstimatedMaximumPowerConsumption) } : {}) }));
 const sink = byClass.get('Build_ResourceSink_C');
@@ -99,8 +83,7 @@ const recipes = production.map(({ game, buildingClass, input, out }) => {
   report.recipeClasses[id] = game.ClassName;
   const outputs = convert(out), inputs = convert(input), buildingId = gameBuildings.get(buildingClass);
   if (u) mappedRecipes.add(u.key_name);
-  const recipe = { id, name: localized(game), nameEn: game.mDisplayName, category: itemById.get(outputs[0].itemId).category, buildingId, seconds: Number(game.mManufactoringDuration), inputs, outputs, alternate: game.ClassName.startsWith('Recipe_Alternate_') };
-  if (game.mDisplayName.startsWith('Unpackage')) recipe.category = overrides.categoryLabels.packaging;
+  const recipe = { id, name: localized(game), nameEn: game.mDisplayName, category: '', buildingId, seconds: Number(game.mManufactoringDuration), inputs, outputs, alternate: game.ClassName.startsWith('Recipe_Alternate_') };
   if (buildingData.get(buildingId).nativeClass.includes('VariablePower')) {
     const constant = Number(game.mVariablePowerConsumptionConstant), factor = Number(game.mVariablePowerConsumptionFactor);
     const description = byClass.get(out[0].className).mDescription || '';
@@ -159,7 +142,7 @@ if (process.argv.includes('--download-icons')) {
     }
   }));
 }
-const catalog = { version: `steam-${overrides.steamBuildId}-v1`, provenance: {source: 'Satisfactory CommunityResources Docs en-US/ru; https://github.com/KirkMcDonald/satisfactory-calculator', commit: 'c5664fc8fba4ff7dcb3f29f84f74278f497e9bb6', importedAt: overrides.importedAt, verified: false, notes: overrides.notes}, items, buildings, recipes, miners, belts, pipes, categories: Object.values(overrides.categoryLabels) };
+const catalog = { version: `steam-${overrides.steamBuildId}-v1`, provenance: {source: 'Satisfactory CommunityResources Docs en-US/ru; https://github.com/KirkMcDonald/satisfactory-calculator', commit: 'c5664fc8fba4ff7dcb3f29f84f74278f497e9bb6', importedAt: overrides.importedAt, verified: false, notes: overrides.notes}, items, buildings, recipes, miners, belts, pipes, categories: [] };
 report.counts = { upstreamRecipes:up.recipes.length, gameRecipes:en.filter(c=>c.nativeClass.endsWith(".FGRecipe'")).length, items:items.length, buildings:buildings.length, recipes:recipes.length, alternates:recipes.filter(r=>r.alternate).length, excluded:report.excluded.length, icons:iconTasks.length };
 report.itemClasses = Object.fromEntries([...mappedItems].map(([className,id])=>[id,className]));
 report.buildingClasses = Object.fromEntries([...gameBuildings].map(([className,id])=>[id,className]));
@@ -179,8 +162,11 @@ const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, pars
   machineClasses: { ...report.buildingClasses, 'awesome-sink': 'Build_ResourceSink_C', ...minerClasses },
   transportClasses: Object.fromEntries([...belts.map((b, i) => [b.id, `Build_ConveyorBeltMk${i+1}_C`]), ...pipes.map((p, i) => [p.id, i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'])]),
 });
+importMenuAssets({ source: json(sourcePath + 'menu-assets.json'), catalog, report, pinned });
+importResearchAssets({ source: json(sourcePath + 'research-assets.json'), catalog, progression, report, en, ru, pinned });
 output('packages/game-data/catalog.json', catalog);
 output('packages/game-data/audit-report.json', report);
 output('packages/game-data/progression.json', progression);
 output('packages/game-data/source/icon-manifest.json', iconTasks);
 console.log(JSON.stringify(report.counts));
+await import('./import-p2-mechanics.mjs');

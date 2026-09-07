@@ -44,3 +44,20 @@ table th{color:#cad4da;font-weight:600}.table-scroll{overflow-x:auto}
 .production-step>summary>span:not(:first-child) small{line-height:1.5}.page-footer{line-height:1.7}
 @media(max-width:1180px){.planner-layout{grid-template-columns:1fr}.planner-inputs{display:flex;flex-direction:column}.results-column{margin-top:18px}.kpi>strong{font-size:25px}}
 @media(max-width:720px){.sidebar nav{overflow-x:auto;justify-content:flex-start}.nav-item{flex:1;min-width:max-content;padding:12px 8px;gap:5px}.nav-item svg{display:none}.plan-toolbar{flex-wrap:wrap}.plan-name{flex:1}.plan-name input{width:100%}.constraint-summary{padding:14px}.kpi-grid{grid-template-columns:1fr}.kpi{display:flex;justify-content:space-between;gap:15px;align-items:center}.kpi>strong{margin:0;text-align:right}.kpi small{margin-top:3px}.mode-switch{grid-template-columns:1fr}.mode-switch button{padding:12px}.target-bounds{gap:8px}.catalog-summary{flex-wrap:wrap}.page-footer{flex-direction:column}.page-footer details,.page-footer>span{max-width:100%;text-align:left}.empty-steps{flex-wrap:wrap;justify-content:center}.empty-result{padding:25px 12px}}
+
+/* P2 forms remain usable on narrow screens. */
+.planner-inputs fieldset{min-width:0;margin:12px 0;border:1px solid var(--border)}
+.planner-inputs textarea{width:100%;min-height:70px;background:var(--bg);color:inherit;border:1px solid var(--border);border-radius:6px}
+.planner-inputs details>summary{cursor:pointer;line-height:1.7;padding:10px 0}
+.planner-inputs .field-label>select,.planner-inputs .field-label>input{display:block;width:100%;max-width:100%}
+@media(max-width:600px){.batch-panel .targets-header{display:none}.batch-panel .target-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 28px!important}.batch-panel .item-select{grid-column:1/-1}.batch-panel .number-field{min-width:0}.planner-inputs fieldset{padding:10px}.planner-inputs .target-bounds{grid-template-columns:repeat(2,minmax(0,1fr))}.batch-result .output-row{flex-wrap:wrap}}
+
+.batch-input-label{display:none}
+@media(max-width:600px){.batch-input-label{display:block;color:#b9c4cb;font-size:12px;margin-bottom:6px}.batch-panel .target-row>label{min-width:0}}
+
+.number-control{display:block;min-width:0;width:100%}.number-notice{display:block;color:#df9b92;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.number-notice:not(:empty){margin-top:6px}input[aria-invalid=true]{border-color:#df9b92}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.skip-link{position:fixed;top:8px;left:8px;transform:translateY(-150%);z-index:110;background:#15191c;color:#f5a14c;padding:12px;border:2px solid #f5a14c;border-radius:6px}.skip-link:focus{transform:none}textarea:focus-visible,[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+@media(max-width:720px){html{scroll-padding-top:110px}}

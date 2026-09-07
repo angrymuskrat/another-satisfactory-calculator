@@ -23,6 +23,24 @@ function fixture() {
 }
 
 describe('инструкция строительства при заданных частотах', () => {
+  it('считает материалы одного компенсатора и всех трёх спутников даже при малом расходе', () => {
+    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+    plan.sources = [{ id: 'well', itemId: 'water', kind: 'well', limit: null, count: 1, purity: 1, minerId: '', clock: 100,
+      well: { satellites: [{ purity: 0.5, count: 1 }, { purity: 2, count: 2 }] } }];
+    const result = fixture().result;
+    result.steps = []; result.resources = [{ sourceId: 'well', itemId: 'water', rate: 10, limit: 270, power: 150 }];
+    const model = buildConstruction(catalog, plan, result);
+    expect(model.materials.complete).toBe(true);
+    expect(model.materials.knownMachines).toBe(4);
+    expect(Object.fromEntries(model.materials.items.map(i => [i.itemId, i.amount]))).toEqual({
+      'radio-control-unit': 10, 'heavy-modular-frame': 25, motor: 50,
+      'alclad-aluminum-sheet': 50, rubber: 100, 'steel-beam': 30, 'aluminum-casing': 30,
+    });
+    expect(model.addedMaterials).toEqual(model.materials);
+    expect(buildConstruction({ ...catalog, version: 'unverified-build' }, plan, result).materials.complete).toBe(false);
+    result.resources[0].rate = 0;
+    expect(buildConstruction(catalog, plan, result).materials.totalMachines).toBe(0);
+  });
   it('оставляет 2 машины на 100% с duty 75%, пересчитывая потоки и MW без доверия итогам solver', () => {
     const { catalog, plan, result } = fixture();
     const { production: [group] } = buildConstruction(catalog, plan, result);

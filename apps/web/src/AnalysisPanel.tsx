@@ -22,6 +22,7 @@ function AnalysisControls({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
     <p>Полный пересчёт с тем же заказом, миром, частотами и ограничениями. Исходный план сохраняется.</p>
     <p>Частота производства: {format(plan.settings.clock)}%. Предел потери выпуска: {format(plan.settings.outputSlack)}%.</p>
     <button className="primary-button" disabled={analysis.running || !plan.targets.length} onClick={() => analysis.calculate({ kind: 'objectives' })}>Сравнить энергию, сырьё и здания</button>
+    {!!plan.lines?.length && <button className="secondary-button" disabled={analysis.running} onClick={() => analysis.calculate({ kind: 'expansion' })}>Сравнить оставить / добавить / перестроить</button>}
     <details><summary>Проверить полезное расширение · выбрано {selected.length} из {candidates.length}</summary>
       <p>Каждое изменение проверяется отдельно; выбранные изменения также проверяются совместно. До 12 изменений за запуск.</p>
       <input aria-label="Поиск ограничений для анализа" placeholder="Источник, рецепт или здание" value={query} onChange={e => setQuery(e.target.value)} />
@@ -36,8 +37,9 @@ function AnalysisControls({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
   </section>;
 }
 export function AnalysisFeedback({ analysis, catalog }: { analysis: ReturnType<typeof useAnalysis>; catalog: Catalog }) {
-  return <div aria-live="polite">
-    {analysis.running && <p role="status">Пересчитываем варианты… <button className="secondary-button" onClick={analysis.cancel}>Отменить анализ</button></p>}
+  return <div>
+    <p className="sr-only" role="status">{analysis.running ? 'Пересчитываем варианты…' : analysis.report ? 'Сравнение вариантов завершено.' : ''}</p>
+    {analysis.running && <p>Пересчитываем варианты… <button className="secondary-button" onClick={analysis.cancel}>Отменить анализ</button></p>}
     {analysis.error && <p role="alert">{analysis.error}</p>}
     {analysis.report && <AnalysisReportView catalog={catalog} report={analysis.report} />}
   </div>;

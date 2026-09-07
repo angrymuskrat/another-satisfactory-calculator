@@ -5,6 +5,7 @@ import { effectivePlan } from '../domain/availability';
 import { buildModel } from './build';
 import { dot, type Expression } from './model';
 import { validateResult } from './validate';
+import { applyBatch } from '../domain/batch';
 type Highs = Awaited<ReturnType<typeof loadHighs>>;
 const tolerance = (value: number) => 1e-8 + Math.abs(value) * 1e-9;
 const clean = (value: number) => Math.max(0, value);
@@ -13,9 +14,12 @@ export function emptyResult(status: Result['status'], message: string): Result {
   return { status, message, products: [], steps: [], resources: [], surplus: [], power: 0, productionPower: 0, extractionPower: 0, sinkPower: 0, installedPower: 0, objectiveValue: 0, warnings: [], diagnostics: [], maxBalanceError: 0 };
 }
 export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000): Result {
+  let requested = input;
   try {
-    const plan = effectivePlan(catalog, parsePlan(input));
-    if (plan.targets.some(t => (plan.mode === 'target' && t.rate < 1e-6)
+    const plan = effectivePlan(catalog, applyBatch(parsePlan(input)));
+    requested = plan;
+    if (plan.mode === 'maximize' && plan.targets.some(t => t.rate <= 0)) return emptyResult('error', 'Пропорция должна быть положительной.');
+    if (plan.targets.some(t => (plan.mode === 'target' && t.rate > 0 && t.rate < 1e-6)
       || ((t.minRate ?? 0) > 0 && t.minRate! < 1e-6) || (t.maxRate != null && t.maxRate > 0 && t.maxRate < 1e-6))) {
       return emptyResult('error', 'Положительные границы и заданный выпуск должны быть не меньше 0,000001 в минуту. Увеличьте масштаб расчёта; ноль остаётся отдельным запретом.');
     }
@@ -121,14 +125,16 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       const powerLock = costLocks.find(lock => lock.expression === built.power)!;
       const budget = model.constraints[powerLock.index].rhs; const recipeCount: Expression = new Map();
       const selections: { used: string; flow: string }[] = [];
+      const recipeSelections = new Map<string, string>();
       for (const r of built.recipeVariables) {
         if (r.powerPerCycle <= 0) continue;
-        const used = model.variable(1, true);
+        const used = recipeSelections.get(r.recipe.id) ?? model.variable(1, true);
+        recipeSelections.set(r.recipe.id, used);
         const upper = (budget + tolerance(budget)) / r.powerPerCycle;
         model.constrain(new Map([[r.variable, 1], [used, -upper]]), '<=', 0);
         recipeCount.set(used, 1);
         selections.push({ used, flow: r.variable });
-        integerFlows.set(used, [r.variable]);
+        integerFlows.set(used, [...(integerFlows.get(used) ?? []), r.variable]);
       }
       optimize(recipeCount);
       for (const { used, flow } of selections) {
@@ -180,32 +186,37 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     const result = emptyResult('optimal', 'Оптимальная схема найдена в модели заданных частот.');
     result.objectiveValue = objectiveValue;
     result.products = built.targets.map(t => ({ itemId: t.target.itemId, rate: clean(values[t.variable] ?? 0) }));
-    result.steps = built.recipeVariables.filter(r => (values[r.variable] ?? 0) > 1e-12).map(r => {
+    result.steps = built.recipeVariables.filter(r => r.configuration.existing || (values[r.variable] ?? 0) > 1e-12).map(r => {
       const cycles = values[r.variable]; const machines = cycles / r.capacity;
-      return { recipeId: r.recipe.id, cycles, machines, installedMachines: physicalCount(machines),
-        power: cycles * r.powerPerCycle, powerMax: physicalCount(machines) * r.powerMax,
+      const installedMachines = r.configuration.existing || physicalCount(machines);
+      return { recipeId: r.recipe.id, ...(r.configuration.id !== r.recipe.id ? { configurationId: r.configuration.id } : {}), cycles, machines, installedMachines,
+        power: cycles * r.powerPerCycle, powerMax: installedMachines * r.powerMax,
         inputs: r.recipe.inputs.map(i => ({ itemId: i.itemId, rate: cycles * i.amount })),
         outputs: r.recipe.outputs.map(i => ({ itemId: i.itemId, rate: cycles * i.amount })),
       };
     });
     result.resources = built.sourceVariables.map(s => ({ sourceId: s.source.id, itemId: s.source.itemId, rate: clean(values[s.variable] ?? 0), limit: s.limit,
-      installedMachines: s.source.kind === 'node' && (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) : 0,
-      power: clean((values[s.variable] ?? 0) * s.powerPerUnit) }));
+      installedMachines: s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) : s.source.kind === 'node' && (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) : 0,
+      power: s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : clean((values[s.variable] ?? 0) * s.powerPerUnit) }));
+    result.exports = built.exports.filter(e => (values[e.variable] ?? 0) > 1e-12).map(e => ({ itemId: e.itemId, rate: values[e.variable] }));
+    result.somersloops = Math.round(dot(built.loops, values));
     result.surplus = built.disposal.filter(d => (values[d.variable] ?? 0) > 1e-12).map(d => ({ itemId: d.itemId, rate: values[d.variable] }));
     result.productionPower = result.steps.reduce((s, r) => s + r.power, 0);
     result.extractionPower = result.resources.reduce((s, r) => s + r.power, 0);
     result.sinkPower = built.sinkCount ? Math.round(values[built.sinkCount] ?? 0) * built.sinkPower : 0;
     result.power = result.productionPower + result.extractionPower + result.sinkPower;
     result.installedPower = result.steps.reduce((s, r) => s + r.powerMax, 0) + result.sinkPower
-      + built.sourceVariables.filter(s => s.source.kind === 'node' && (values[s.variable] ?? 0) > 1e-12)
-        .reduce((sum, s) => sum + physicalCount(values[s.variable] / s.capacity) * s.installedPower, 0);
+      + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.warnings.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
-    if (built.sourceVariables.some(s => s.source.kind === 'flow' && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков не включена в расчёт. Для учёта добычи укажите месторождения.');
+    if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
+    if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');
+    if (result.exports.length) result.warnings.push('Отгрузки требуют постоянного потребления в другой фабрике. Они не создают там источник автоматически.');
     if (built.recipeVariables.some(r => (values[r.variable] ?? 0) > 1e-7 && (r.recipe.powerEstimated || catalog.buildings.find(b => b.id === r.recipe.buildingId)?.powerEstimated))) result.warnings.push('Для некоторых зданий мощность оценочная: см. отчёт каталога. Оптимум относится к этим коэффициентам.');
     if (!catalog.provenance.verified) result.warnings.push('Полная сверка каталога не подтверждена. Статус рецептов, мощности, локализации и группировки указан отдельно в сведениях о данных.');
     if (plan.settings.allowSink && !plan.settings.enabledBuildingIds.includes('awesome-sink')) result.warnings.push('Утилизация включена, но Умный утилизатор недоступен в технологиях.');
     if (plan.policy === 'weighted' && plan.mode === 'maximize') result.warnings.push('После выполнения заданных минимумов взвешенный выпуск может выделить оставшиеся ресурсы одному продукту.');
-    if (result.products.every(p => p.rate < 1e-7)) result.diagnostics.push('Доступные источники и рецепты не обеспечивают положительный выпуск выбранных продуктов.');
+    if (plan.batch && plan.targets.every(t => t.rate === 0)) result.message = 'Партия уже есть на складе. Новая выработка не требуется.';
+    else if (result.products.every(p => p.rate < 1e-7)) result.diagnostics.push('Доступные источники и рецепты не обеспечивают положительный выпуск выбранных продуктов.');
     for (const r of result.resources) if (r.limit !== null && r.limit > 0 && r.limit - r.rate < 1e-5) result.diagnostics.push(`Исчерпан источник: ${catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId} (${plan.sources.find(s => s.id === r.sourceId)?.name || r.sourceId}). Это не доказывает пользу расширения — проверьте повторным расчётом.`);
     if (plan.settings.powerLimit !== null && Math.abs(result.power - plan.settings.powerLimit) < 1e-5) result.diagnostics.push('Достигнут лимит средней мощности.');
     const validation = validateResult(catalog, plan, result);
@@ -224,10 +235,11 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       if (error.status === 'infeasible') {
         if (input.targets.some(t => (t.minRate ?? 0) > 0)) result.message = 'Заказ и заданные минимумы невыполнимы совместно с текущими ограничениями. Минимумы не были сняты.';
         result.diagnostics.push('Проверьте необходимые ресурсы, выключенные здания и рецепты, побочные продукты и возможность утилизации. Ограничения не были изменены.');
-        if (input.mode === 'target' && performance.now() < deadline) {
-          const alternative = solve(catalog, { ...input, mode: 'maximize', policy: 'proportional', settings: { ...input.settings, outputSlack: 0 } }, highs, deadline);
+        if (requested.mode === 'target' && requested.targets.some(t => t.rate > 0) && performance.now() < deadline) {
+          const targets = requested.targets.filter(t => t.rate > 0);
+          const alternative = solve(catalog, { ...requested, batch: undefined, targets, mode: 'maximize', policy: 'proportional', settings: { ...requested.settings, outputSlack: 0 } }, highs, deadline);
           if (alternative.status === 'optimal') {
-            const fraction = Math.min(...input.targets.map(t => (alternative.products.find(p => p.itemId === t.itemId)?.rate ?? 0) / t.rate));
+            const fraction = Math.min(...targets.map(t => (alternative.products.find(p => p.itemId === t.itemId)?.rate ?? 0) / t.rate));
             result.feasibleAlternative = { products: alternative.products, fraction, power: alternative.power, bottlenecks: alternative.diagnostics };
           } else result.diagnostics.push('Дополнительная оценка достижимого выпуска не завершена.');
         }

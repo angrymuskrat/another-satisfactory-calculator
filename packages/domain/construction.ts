@@ -1,7 +1,11 @@
 import type { Catalog, Ingredient, Plan, ProductResult, Result } from './types';
 import { effectivePlan } from './availability';
+import { productionConfigurations, wellConfiguration } from './production';
+import mechanics from '../game-data/p2-mechanics.json';
 
 export interface ConstructionGroup {
+  existing?: number;
+  somersloops?: number;
   id: string;
   kind: 'production' | 'extraction' | 'sink';
   buildingId: string;
@@ -36,6 +40,7 @@ const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(
 /** Recompute the shown fixed-clock/duty configuration from catalog coefficients, independently of solver MW and flow totals. */
 export function buildConstruction(catalog: Catalog, input: Plan, result: Result) {
   const plan = effectivePlan(catalog, input);
+  const configurations = productionConfigurations(catalog, plan);
   const belt = catalog.belts.find(t => t.id === plan.settings.beltId), pipe = catalog.pipes.find(t => t.id === plan.settings.pipeId);
   if (!belt || !pipe) throw new Error('Транспорт отсутствует в каталоге.');
   const production: ConstructionGroup[] = result.steps.map(step => {
@@ -43,28 +48,43 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     if (!recipe) throw new Error(`Не найден рецепт ${step.recipeId}.`);
     const building = catalog.buildings.find(b => b.id === recipe.buildingId);
     if (!building) throw new Error(`Не найдено здание ${recipe.buildingId}.`);
-    const clock = plan.settings.clock / 100, cyclesAtClock = 60 / recipe.seconds * clock;
+    const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId));
+    if (!configuration) throw new Error('Конфигурация этапа отсутствует в плане.');
+    const clock = configuration.clock / 100, cyclesAtClock = 60 / recipe.seconds * clock;
     const count = step.installedMachines;
     if (!Number.isInteger(count) || count <= 0 || !(cyclesAtClock > 0)) throw new Error(`Некорректная конфигурация ${recipe.name}.`);
     const activeDuty = step.cycles / (count * cyclesAtClock);
-    const activePower = (recipe.power ?? building.power) * clock ** exponent;
-    const peak = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent;
+    const activePower = (recipe.power ?? building.power) * clock ** exponent * configuration.boost ** 2;
+    const peak = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent * configuration.boost ** 2;
+    const outputs = recipe.outputs.map(i => ({ ...i, amount: i.amount * configuration.boost }));
     const flows = (ingredients: Ingredient[], cycles: number) => ingredients.map(i => ({ itemId: i.itemId, rate: i.amount * cycles }));
-    return { id: `recipe:${recipe.id}`, kind: 'production', buildingId: building.id, name: recipe.name, recipeId: recipe.id,
-      count, clock: plan.settings.clock, activeDuty, activeInputs: flows(recipe.inputs, cyclesAtClock), activeOutputs: flows(recipe.outputs, cyclesAtClock),
-      averageInputs: flows(recipe.inputs, step.cycles), averageOutputs: flows(recipe.outputs, step.cycles),
+    return { id: step.configurationId ?? `recipe:${recipe.id}`, kind: 'production', buildingId: building.id, name: configuration.name, recipeId: recipe.id,
+      existing: configuration.existing, somersloops: configuration.somersloops, count, clock: configuration.clock, activeDuty, activeInputs: flows(recipe.inputs, cyclesAtClock), activeOutputs: flows(outputs, cyclesAtClock),
+      averageInputs: flows(recipe.inputs, step.cycles), averageOutputs: flows(outputs, step.cycles),
       activePower, averagePower: activePower * step.cycles / cyclesAtClock, peakPower: count * peak,
       powerEstimated: !!(recipe.powerEstimated || building.powerEstimated) };
   });
   const extraction: ConstructionGroup[] = [];
-  const externalSources: { sourceId: string; name: string; itemId: string; rate: number; power: null }[] = [];
+  const externalSources: { sourceId: string; name: string; itemId: string; rate: number; power: number | null }[] = [];
   for (const resource of result.resources) {
     if (!(resource.rate > 0)) continue;
     const source = plan.sources.find(s => s.id === resource.sourceId);
     const item = catalog.items.find(i => i.id === resource.itemId);
     const name = source?.name?.trim() || `${item?.name ?? resource.itemId} · ${resource.sourceId}`;
     if (!source || source.kind === 'flow') {
-      externalSources.push({ sourceId: resource.sourceId, name, itemId: resource.itemId, rate: resource.rate, power: null }); continue;
+      externalSources.push({ sourceId: resource.sourceId, name, itemId: resource.itemId, rate: resource.rate, power: source?.importPower == null ? null : source.importPower * resource.rate }); continue;
+    }
+    if (source.kind === 'well') {
+      const well = wellConfiguration(catalog, plan, source);
+      extraction.push({ id: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-pressurizer', name: `${name} · компенсатор`, count: 1, clock: source.clock,
+        activeDuty: 1, activeInputs: [], activeOutputs: [], averageInputs: [], averageOutputs: [], activePower: well.power, averagePower: well.power, peakPower: well.power, powerEstimated: false });
+      for (const [i, satellite] of source.well!.satellites.entries()) {
+        const nominal = 60 * satellite.purity * source.clock / 100;
+        const rate = resource.rate * satellite.count * Math.min(pipe.rate, nominal) / well.capacity;
+        extraction.push({ id: `satellites:${source.id}:${i}`, kind: 'extraction', buildingId: 'resource-well-extractor', name: `${name} · спутники ×${satellite.purity}`, count: satellite.count, clock: source.clock,
+          activeDuty: rate / (satellite.count * nominal), activeInputs: [], activeOutputs: [{ itemId: source.itemId, rate: nominal }], averageInputs: [], averageOutputs: [{ itemId: source.itemId, rate }], activePower: 0, averagePower: 0, peakPower: 0, powerEstimated: false });
+      }
+      continue;
     }
     const miner = catalog.miners.find(m => m.id === source.minerId);
     if (!miner) throw new Error(`Не найден добытчик ${source.minerId}.`);
@@ -95,12 +115,14 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     }
   }
   const materials = constructionMaterials(catalog, groups);
+  const addedMaterials = constructionMaterials(catalog, groups.map(g => ({ ...g, count: g.count - (g.existing ?? 0) })).filter(g => g.count > 0));
+  const importPower = externalSources.reduce((s, e) => s + (e.power ?? 0), 0);
   // Exact canonical configuration, no hash collisions. Persist as a value, not a storage key.
   const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups, materials }));
-  return { production, extraction, sinks, externalSources, materials, fingerprint, transport: { belt, pipe },
-    productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0),
+  return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe },
+    productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0) + importPower,
     sinkPower: sinks.reduce((s, g) => s + g.averagePower, 0),
-    averagePower: groups.reduce((s, g) => s + g.averagePower, 0), peakPower: groups.reduce((s, g) => s + g.peakPower, 0) };
+    averagePower: groups.reduce((s, g) => s + g.averagePower, 0) + importPower, peakPower: groups.reduce((s, g) => s + g.peakPower, 0) + importPower };
 }
 export type ConstructionModel = ReturnType<typeof buildConstruction>;
 
@@ -110,7 +132,9 @@ export function constructionMaterials(catalog: Catalog, groups: ConstructionGrou
   for (const group of groups) {
     totalMachines += group.count;
     const building = group.kind === 'extraction' ? catalog.miners.find(b => b.id === group.buildingId) : catalog.buildings.find(b => b.id === group.buildingId);
-    const cost = building?.buildCost;
+    const wellCost = group.kind === 'extraction' && catalog.version === mechanics.provenance.catalogVersion
+      ? (mechanics.well.buildCosts as Record<string, Ingredient[]>)[group.buildingId] : undefined;
+    const cost = building?.buildCost ?? wellCost;
     if (!cost || !cost.every(i => catalog.items.some(item => item.id === i.itemId) && Number.isFinite(i.amount) && i.amount > 0)) {
       const previous = unknown.get(group.buildingId);
       unknown.set(group.buildingId, { buildingId: group.buildingId, name: building?.name ?? group.buildingId, count: (previous?.count ?? 0) + group.count });

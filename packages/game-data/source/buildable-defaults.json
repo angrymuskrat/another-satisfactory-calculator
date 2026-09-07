@@ -1,0 +1,77 @@
+{
+  "provenance": {
+    "steamBuildId": "24656030",
+    "gameCL": 502094,
+    "extractedAt": "2026-09-06",
+    "source": "Installed Satisfactory FactoryGame-Windows.pak and FactoryGame-Windows.utoc",
+    "parser": {
+      "name": "CUE4Parse",
+      "version": "1.2.2.202609",
+      "commit": "b4e95441bcf0c975eb3adb68c0fb44c740c2cf62",
+      "ueVersion": "GAME_UE5_6",
+      "packageVersion": [
+        522,
+        1017
+      ],
+      "compatibility": "44 unused OptionalProperty entries were converted to Unknown because pinned usmap v1 omits their inner type; selected inheritance chains must be independently checked"
+    },
+    "hashes": [
+      {
+        "path": "FactoryGame/Content/FactoryGame/-Shared/Blueprint/BP_BuildableSubsystem.uasset",
+        "sha256": "9da7413f35340925b0c7fa315aebe2134273d786f4f8991750c2707970244aae"
+      },
+      {
+        "path": "FactoryGame/Content/FactoryGame/Buildable/Factory/SmelterMk1/Build_SmelterMk1.uasset",
+        "sha256": "028e3502cd1335f31938f60d2d3bedbf7e1dbfbf512dc715bee23188e261a532"
+      }
+    ],
+    "usmapSha256": "b0e9179d1af4663cc06e54d6cbfe2ce834f3960d50891ef28a90e936978e4b35",
+    "mappingVerification": {
+      "verified": true,
+      "exportedPackagesChecked": 496,
+      "referencedTypesChecked": 658,
+      "nativeMappingsChecked": 150,
+      "optionalPropertiesPatched": 44,
+      "affectedSelectedTypes": [],
+      "method": "Transitive closure of every exported object type, Blueprint/native superclass, and embedded StructProperty (including array/set/map value structures). Object references are not loaded as property payloads. No selected type reaches a changed OptionalProperty.",
+      "hashMeaning": "SHA-256 of provider.SaveAsset(path) raw package bytes after container decompression; localization hashes likewise identify raw locres bytes. These are not JSON export hashes."
+    },
+    "containerHashes": [
+      {
+        "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\Headers.zip",
+        "sha256": "f4d96098afb214ee73d73365425db69c839e07a07fe498ff5c8334af0c0f2a5f"
+      },
+      {
+        "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\FactoryGame\\Content\\Paks\\FactoryGame-Windows.utoc",
+        "sha256": "310534fff8ebdf87c6a6441916e1b5fce2b3fe8e4ca009bb415fa56b5558ee49"
+      },
+      {
+        "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\CustomVersions.json",
+        "sha256": "39fc6d2585ad5fa2df07060d630d67403e319ba2e35a7e09f9497fbdfa8b69aa"
+      }
+    ]
+  },
+  "className": "BP_BuildableSubsystem_C",
+  "path": "/Game/FactoryGame/-Shared/Blueprint/BP_BuildableSubsystem",
+  "mDefaultProductionShardSlotSize": 1,
+  "evidence": [
+    {
+      "source": "CommunityResources/Headers.zip",
+      "path": "Source/FactoryGame/Public/FGBuildableSubsystem.h",
+      "field": "mDefaultProductionShardSlotSize",
+      "comment": "Default slot size for the production boost power shards. This is the default for all buildables that do not have an override."
+    },
+    {
+      "source": "CommunityResources/Headers.zip",
+      "path": "Source/FactoryGame/Public/Buildables/FGBuildableFactory.h",
+      "field": "mOverrideProductionShardSlotSize",
+      "comment": "Whenever this buildable has a custom value for Production Shard Slot Size"
+    },
+    {
+      "source": "BP_BuildableSubsystem asset",
+      "field": "mDefaultProductionShardSlotSize",
+      "value": 1
+    }
+  ],
+  "resolution": "canBoost=false => 0; override=true => class mProductionShardSlotSize; override=false => subsystem mDefaultProductionShardSlotSize. Smelter has canBoost=True and override=False in pinned Docs; effective slots=1."
+}

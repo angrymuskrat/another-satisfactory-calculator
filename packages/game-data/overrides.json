@@ -3,17 +3,35 @@
   "gameVersion": "Steam build 24656030",
   "steamBuildId": "24656030",
   "importedAt": "2026-09-06",
-  "itemAliases": { "screw": "Desc_IronScrew_C", "iodine-infused-filter": "Desc_HazmatFilter_C", "non-fissile-uranium": "Desc_NonFissibleUranium_C" },
-  "recipeAliases": { "screw": "Recipe_Screw_C", "alt-screw": "Recipe_Alternate_Screw_C", "alt-steel-screw": "Recipe_Alternate_Screw_2_C", "alt-high-speed-connector": "Recipe_Alternate_HighSpeedConnector_C", "turbo-rifle-ammo": "Recipe_CartridgeChaos_Packaged_C", "alt-turbo-rifle-ammo": "Recipe_CartridgeChaos_C" },
-  "newItemIds": { "Desc_SpaceElevatorPart_10_C": "biochemical-sculptor" },
-  "newRecipeIds": { "Recipe_SpaceElevatorPart_10_C": "biochemical-sculptor", "Recipe_Alternate_Quartz_Fused_C": "alt-fused-quartz-crystal", "Recipe_Alternate_IronIngot_Basic_C": "alt-basic-iron-ingot", "Recipe_Alternate_CopperIngot_Tempered_C": "alt-tempered-copper-ingot", "Recipe_Alternate_CateriumIngot_Tempered_C": "alt-tempered-caterium-ingot", "Recipe_Alternate_SteelBeam_Molded_C": "alt-molded-beam" },
-  "categoryLabels": { "resources": "Сырьё", "ingots": "Слитки", "standard": "Стандартные детали", "industrial": "Промышленные детали", "electronics": "Электроника", "communications": "Связь и вычисления", "oil": "Нефтепродукты", "packaging": "Упаковка и распаковка", "minerals": "Минералы", "biomass": "Биомасса", "nuclear": "Ядерные материалы", "quantum": "Квантовые материалы", "space": "Детали космического лифта", "equipment": "Расходные материалы" },
+  "itemAliases": {
+    "screw": "Desc_IronScrew_C",
+    "iodine-infused-filter": "Desc_HazmatFilter_C",
+    "non-fissile-uranium": "Desc_NonFissibleUranium_C"
+  },
+  "recipeAliases": {
+    "screw": "Recipe_Screw_C",
+    "alt-screw": "Recipe_Alternate_Screw_C",
+    "alt-steel-screw": "Recipe_Alternate_Screw_2_C",
+    "alt-high-speed-connector": "Recipe_Alternate_HighSpeedConnector_C",
+    "turbo-rifle-ammo": "Recipe_CartridgeChaos_Packaged_C",
+    "alt-turbo-rifle-ammo": "Recipe_CartridgeChaos_C"
+  },
+  "newItemIds": {
+    "Desc_SpaceElevatorPart_10_C": "biochemical-sculptor"
+  },
+  "newRecipeIds": {
+    "Recipe_SpaceElevatorPart_10_C": "biochemical-sculptor",
+    "Recipe_Alternate_Quartz_Fused_C": "alt-fused-quartz-crystal",
+    "Recipe_Alternate_IronIngot_Basic_C": "alt-basic-iron-ingot",
+    "Recipe_Alternate_CopperIngot_Tempered_C": "alt-tempered-copper-ingot",
+    "Recipe_Alternate_CateriumIngot_Tempered_C": "alt-tempered-caterium-ingot",
+    "Recipe_Alternate_SteelBeam_Molded_C": "alt-molded-beam"
+  },
   "categoryNotes": "Ручные тематические группы: Docs не экспортирует UFGItemDescriptor.mCategory, UFGRecipe.mOverriddenCategory и классы FGItemCategory с названиями/приоритетами. mSubCategories относится к Build Menu зданий, не к категориям производства. Внутри групп соблюдается игровой mManufacturingMenuPriority; равные приоритеты сортируются по русскому имени. Точное совпадение групп и порядка с UI игры не проверено.",
   "notes": [
     "Количества, длительности, здания, названия RU/EN, утилизация и параметры добычи получены из CommunityResources установленной игры Steam build 24656030; это не утверждение о последней публичной версии.",
     "Переменная мощность: минимум и максимум взяты из constant/factor рецепта; средняя подтверждена описаниями предметов в Docs (ускоритель: 500/1000 МВт, квантовый кодировщик: 1000 МВт) и Official Satisfactory Wiki (конвертер: 250 МВт). Сама кривая UCurveFloat из сборки не извлечена; расчёт использует документированную среднюю модель.",
-    "Группы тематические: названия/порядок групп и принадлежность им не аттестованы, потому что Docs не экспортирует mCategory/mOverriddenCategory и FGItemCategory. Внутри групп используется игровой mManufacturingMenuPriority; порядок равных приоритетов — русский алфавит, без аттестации. Названия предметов, рецептов и зданий взяты из ru.json.",
-    "Скважины с общим компенсатором давления 150 МВт не представлены независимыми узлами; азот доступен как внешний поток с неучтённой энергией поставки.",
+    "Скважины описываются общим компенсатором и группами спутников в дополнении p2-mechanics; в основном каталоге они не выдаются за независимые добывающие узлы. Азот доступен через скважину или внешний поток; неизвестная энергия внешней поставки не принимается за ноль.",
     "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены из производственной модели. Стоимости 17 новых зданий/добытчиков импортированы отдельно из строительных рецептов. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется.",
     "Прямые эффекты открытий и названия схем импортированы из FGSchematic Docs; полный граф требований MAM/этапов не восстановлен, prerequisitesKnown=false. Catalog.unlocks содержит minerIds, schematicIds и prerequisiteGroups (AND групп, OR внутри); пустые prerequisites не доказывают доступность. Исходные зависимости и ограничения сохранены в progression.json; см. README пакета."
   ]

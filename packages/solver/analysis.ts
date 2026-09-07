@@ -1,8 +1,9 @@
 import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
 import { emptyResult, solve } from './solve';
+import { applyBatch } from '../domain/batch';
 
-export type AnalysisRequest = { kind: 'objectives' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] };
+export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] };
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
 type Change =
   | { kind: 'source-limit' | 'source-node'; id: string; value: number }
@@ -104,7 +105,7 @@ export function summarizeResult(catalog: Catalog, input: Plan, result: Result): 
   const production = result.steps.reduce((sum, r) => sum + r.installedMachines, 0);
   const extraction = result.resources.reduce((sum, r) => {
     const source = plan.sources.find(s => s.id === r.sourceId);
-    return sum + (source?.kind === 'node' && r.rate > 1e-12 ? r.installedMachines ?? source.count : 0);
+    return sum + (source?.kind === 'well' && r.rate > 1e-12 ? 1 + (source.well?.satellites.reduce((s, n) => s + n.count, 0) ?? 0) : source?.kind === 'node' && r.rate > 1e-12 ? r.installedMachines ?? source.count : 0);
   }, 0);
   const sinkPower = catalog.buildings.find(b => b.id === 'awesome-sink')?.power ?? 30;
   const sinks = sinkPower > 0 ? Math.round(result.sinkPower / sinkPower)
@@ -117,8 +118,8 @@ function compare(before: Result, after: Result, a: Summary, b: Summary): Compari
   const flows = (left: { id: string; itemId: string; rate: number }[], right: { id: string; itemId: string; rate: number }[]): FlowDelta[] =>
     [...new Set([...left, ...right].map(r => r.id))].map(id => ({ id, itemId: [...left, ...right].find(r => r.id === id)!.itemId, ...delta(left.find(r => r.id === id)?.rate ?? 0, right.find(r => r.id === id)?.rate ?? 0) }));
   const recipes = [...new Set([...before.steps, ...after.steps].map(r => r.recipeId))].map(id => {
-    const left = before.steps.find(r => r.recipeId === id), right = after.steps.find(r => r.recipeId === id);
-    return { id, cycles: delta(left?.cycles ?? 0, right?.cycles ?? 0), machines: delta(left?.installedMachines ?? 0, right?.installedMachines ?? 0) };
+    const total = (r: Result, key: 'cycles' | 'installedMachines') => r.steps.filter(s => s.recipeId === id).reduce((sum, s) => sum + s[key], 0);
+    return { id, cycles: delta(total(before, 'cycles'), total(after, 'cycles')), machines: delta(total(before, 'installedMachines'), total(after, 'installedMachines')) };
   }).filter(r => differs(r.cycles.before, r.cycles.after) || r.machines.delta !== 0);
   return { power: delta(a.power, b.power), installedPower: delta(a.installedPower, b.installedPower), resourceCost: delta(a.resourceCost, b.resourceCost),
     physical: { production: delta(a.physical.production, b.physical.production), extraction: delta(a.physical.extraction, b.physical.extraction), sinks: delta(a.physical.sinks, b.physical.sinks), total: delta(a.physical.total, b.physical.total) },
@@ -153,7 +154,7 @@ function benefit(plan: Plan, baseline: Result, result: Result, comparison: Compa
 
 /** Full independent solves; one shared deadline and a per-solve allowance leave room for other probes. */
 export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], request: AnalysisRequest, deadline = performance.now() + 20000): AnalysisReport {
-  const plan = structuredClone(input);
+  const plan = applyBatch(structuredClone(input));
   const run = (variant: Plan) => performance.now() >= deadline ? emptyResult('timeout', 'Бюджет времени анализа исчерпан.')
     : solve(catalog, variant, highs, Math.min(deadline, performance.now() + 5000));
   const baseline = run(plan);
@@ -167,7 +168,10 @@ export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof 
     report.variants.push({ id, label, candidateIds, result, summary, comparison, benefit: benefit(plan, baseline, result, comparison) });
     if (['timeout', 'error'].includes(result.status)) report.complete = false;
   };
-  if (request.kind === 'objectives') {
+  if (request.kind === 'expansion') {
+    for (const [expansion, label] of [['keep', 'Оставить существующее производство'], ['add', 'Сохранить и добавить'], ['rebuild', 'Перестроить производство']] as const) add(expansion, label, { ...structuredClone(plan), expansion });
+    report.notes.push('Один заказ, источники и бюджет. «Оставить» использует только существующие производственные линии; «добавить» сохраняет их настройки; «перестроить» разрешает заменить все линии. Добыча и утилизация рассчитываются заново. Возврат материалов после демонтажа не моделируется.');
+  } else if (request.kind === 'objectives') {
     for (const objective of ['power', 'resources', 'buildings'] as const) add(objective, objectiveLabels[objective], { ...structuredClone(plan), settings: { ...structuredClone(plan.settings), objective } });
     report.notes.push('Заказ, разрешённая потеря выпуска, частоты, мир и все ограничения одинаковы. Меняется только порядок целей. Расход сырья — условная стоимость с весами плана, а не универсальная мера дефицита.');
   } else if (request.kind === 'recipes') {

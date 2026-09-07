@@ -39,6 +39,10 @@ export interface Miner {
 }
 export interface Transport { id: string; name: string; rate: number }
 export interface Catalog {
+  researchTrees?: ResearchTree[];
+  researchNames?: Record<string, string>;
+  gamePhases?: GamePhase[];
+  categorySource?: 'game-assets';
   unlocks?: Unlock[];
   version: string;
   provenance: { source: string; commit: string; importedAt: string; verified: boolean; notes: string[] };
@@ -50,11 +54,26 @@ export interface Catalog {
   pipes: Transport[];
   categories: string[];
 }
+export interface ResearchNode {
+  schematicId: string; name: string;
+  parents: (string | null)[]; unhiddenBy: (string | null)[];
+  unresolvedCoordinates: number[][]; prerequisiteGroups: string[][];
+  conditions?: string[];
+}
+export interface ResearchTree {
+  id: string; name: string; seasonal: boolean; conditions: string[]; nodes: ResearchNode[];
+}
+export interface GamePhase { id: string; name: string; lastTier: number }
 export interface Source {
+  notes?: string;
+  reserve?: number;
+  sharedNodeId?: string;
+  importPower?: number | null;
+  well?: { satellites: { purity: 0.5 | 1 | 2; count: number }[] };
   name?: string;
   id: string;
   itemId: string;
-  kind: 'flow' | 'node';
+  kind: 'flow' | 'node' | 'well';
   limit: number | null;
   count: number;
   purity: 0.5 | 1 | 2;
@@ -71,7 +90,9 @@ export interface Unlock {
 export interface WorldSnapshot {
   id: string; revision: number; unlockedRecipeIds: string[]; unlockedBuildingIds: string[];
   beltId: string; pipeId: string; overclockUnlocked: boolean; unlockedMilestoneIds: string[];
+  resourceNodes?: SharedResourceNode[];
 }
+export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
 export interface Settings {
   enabledRecipeIds: string[];
@@ -90,6 +111,11 @@ export interface Settings {
   resourceWeights: Record<string, number>;
 }
 export interface Plan {
+  batch?: { minutes: number; items: { itemId: string; required: number; stock: number }[] };
+  lines?: { id: string; name: string; recipeId: string; count: number; clock: number; somersloops: number; duty: number; locked: boolean }[];
+  expansion?: 'keep' | 'add' | 'rebuild';
+  somersloopBudget?: number;
+  exports?: { itemId: string; limit: number; name: string }[];
   world?: WorldSnapshot;
   schemaVersion: 1;
   catalogVersion: string;
@@ -102,6 +128,7 @@ export interface Plan {
 }
 export interface ProductResult { itemId: string; rate: number }
 export interface StepResult {
+  configurationId?: string;
   recipeId: string; cycles: number; machines: number; installedMachines: number;
   power: number; powerMax: number; inputs: ProductResult[]; outputs: ProductResult[];
 }
@@ -110,6 +137,8 @@ export interface ResourceResult {
   sourceId: string; itemId: string; rate: number; limit: number | null; power: number;
 }
 export interface Result {
+  exports?: ProductResult[];
+  somersloops?: number;
   feasibleAlternative?: { products: ProductResult[]; fraction: number; power: number; bottlenecks: string[] };
   status: 'optimal' | 'infeasible' | 'unbounded' | 'error' | 'timeout';
   message: string;

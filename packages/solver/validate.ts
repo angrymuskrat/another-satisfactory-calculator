@@ -1,16 +1,20 @@
 import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
+import { productionConfigurations, wellConfiguration } from '../domain/production';
+import { applyBatch } from '../domain/batch';
 /** Recomputes conservation from catalog coefficients, independent of LP serialization. */
 export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const errors: string[] = [];
-  try { plan = effectivePlan(catalog, plan); } catch (error) { return { maxBalanceError: Infinity, errors: [error instanceof Error ? error.message : 'Недоступные технологии мира.'] }; }
+  try { plan = effectivePlan(catalog, applyBatch(plan)); } catch (error) { return { maxBalanceError: Infinity, errors: [error instanceof Error ? error.message : 'Недоступные технологии мира.'] }; }
   const counts = new Map<string, number>();
   const count = (id: string, amount: number) => counts.set(id, (counts.get(id) ?? 0) + amount);
   const close = (actual: number, expected: number) => Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-6 + Math.abs(expected) * 1e-8;
   const beltRate = catalog.belts.find(b => b.id === plan.settings.beltId)?.rate ?? 0;
   const pipeRate = catalog.pipes.find(p => p.id === plan.settings.pipeId)?.rate ?? 0;
   const exponent = Math.log2(2.5);
-  const clock = plan.settings.clock / 100;
+  let configurations: ReturnType<typeof productionConfigurations>;
+  try { configurations = productionConfigurations(catalog, plan); } catch (error) { return { maxBalanceError: Infinity, errors: [String(error)] }; }
+  let somersloops = 0;
   let productionPower = 0; let extractionPower = 0; let installedPower = 0;
   const seenRecipes = new Set<string>(); const seenSources = new Set<string>();
   const balances = new Map(catalog.items.map(i => [i.id, 0]));
@@ -20,26 +24,37 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     magnitude.set(id, (magnitude.get(id) ?? 0) + Math.abs(rate));
   };
   for (const step of result.steps) {
+    const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId) && c.recipe.id === step.recipeId);
+    if (!configuration) { errors.push('Недопустимая конфигурация производства.'); continue; }
+    const clock = configuration.clock / 100, boost = configuration.boost;
     const recipe = catalog.recipes.find(r => r.id === step.recipeId);
     if (!recipe || !plan.settings.enabledRecipeIds.includes(step.recipeId) || !plan.settings.enabledBuildingIds.includes(recipe.buildingId)) { errors.push('Использован недоступный рецепт.'); continue; }
-    if (seenRecipes.has(step.recipeId)) errors.push('Рецепт повторяется в результате.');
-    seenRecipes.add(step.recipeId);
+    if (seenRecipes.has(configuration.id)) errors.push('Конфигурация повторяется в результате.');
+    seenRecipes.add(configuration.id);
     if (!Number.isFinite(step.cycles) || step.cycles < -1e-7) errors.push('Некорректная загрузка рецепта.');
     const building = catalog.buildings.find(b => b.id === recipe.buildingId)!;
     const activeRate = 60 / recipe.seconds * clock;
-    const power = (recipe.power ?? building.power) * clock ** exponent * step.cycles / activeRate;
+    const power = (recipe.power ?? building.power) * clock ** exponent * boost ** 2 * step.cycles / activeRate;
     let capacity = activeRate;
-    for (const ingredient of [...recipe.inputs, ...recipe.outputs]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
+    for (const ingredient of [...recipe.inputs, ...recipe.outputs.map(i => ({ ...i, amount: i.amount * boost }))]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
     const machines = step.cycles / capacity;
-    const physical = Math.max(1, Math.ceil(machines - 1e-7));
+    const physical = configuration.existing || Math.max(1, Math.ceil(machines - 1e-7));
+    if (machines > physical + 1e-7) errors.push('Превышена мощность существующей линии.');
+    if (configuration.duty !== null && !close(step.cycles, configuration.existing * activeRate * configuration.duty)) errors.push('Изменена закреплённая линия.');
+    somersloops += physical * configuration.somersloops;
     count(recipe.buildingId, physical);
-    const peak = physical * (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent;
+    const peak = physical * (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent * boost ** 2;
     if (!close(step.power, power) || !close(step.powerMax, peak)) errors.push('Неверная мощность этапа.');
     if (!close(step.machines, machines) || step.installedMachines !== physical) errors.push('Недостаточно машин для потока.');
     productionPower += power; installedPower += peak;
     for (const i of recipe.inputs) bump(i.itemId, -i.amount * step.cycles);
-    for (const i of recipe.outputs) bump(i.itemId, i.amount * step.cycles);
+    for (const i of recipe.outputs) bump(i.itemId, i.amount * boost * step.cycles);
+    for (const [shown, expected] of [[step.inputs, recipe.inputs], [step.outputs, recipe.outputs.map(i => ({ ...i, amount: i.amount * boost }))]] as const) {
+      if (shown.length !== expected.length || shown.some((f, i) => f.itemId !== expected[i]?.itemId || !close(f.rate, expected[i].amount * step.cycles))) errors.push('Подменены потоки этапа.');
+    }
   }
+  if (configurations.some(c => c.existing > 0 && !seenRecipes.has(c.id))) errors.push('Пропущена существующая линия.');
+  if (somersloops > (plan.somersloopBudget ?? 0) || (result.somersloops ?? 0) !== somersloops) errors.push('Нарушен бюджет усилителей.');
   for (const source of result.resources) {
     if (seenSources.has(source.sourceId)) errors.push('Источник повторяется в результате.');
     seenSources.add(source.sourceId);
@@ -49,6 +64,16 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     if (original) {
       if (original.itemId !== source.itemId) errors.push('Подменён ресурс источника.');
       limit = original.limit;
+      if (original.kind === 'flow') { sourcePower = source.rate * (original.importPower ?? 0); installedPower += sourcePower; }
+      if (original.kind === 'well') {
+        try {
+          const well = wellConfiguration(catalog, plan, original);
+          limit = limit === null ? well.capacity : Math.min(limit, well.capacity);
+          const physical = source.rate > 1e-12 ? 1 : 0;
+          if (source.installedMachines !== physical) errors.push('Неверное число компенсаторов скважины.');
+          sourcePower = physical * well.power; installedPower += sourcePower; count('resource-well-pressurizer', physical);
+        } catch { errors.push('Недопустимая скважина.'); }
+      }
       if (original.kind === 'node') {
         const miner = catalog.miners.find(m => m.id === original.minerId);
         if (!miner || !miner.resourceIds.includes(original.itemId)) { errors.push('Недопустимое месторождение.'); continue; }
@@ -61,6 +86,8 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
         if (source.installedMachines !== undefined && source.installedMachines !== physical) errors.push('Неверное количество добытчиков.');
         count(original.minerId, physical); installedPower += physical * activePower;
       }
+      if (limit === null && (original.reserve ?? 0) > 0) errors.push('Резерв требует конечного источника.');
+      if (limit !== null) limit = Math.max(0, limit - (original.reserve ?? 0));
     } else if (plan.settings.resourcePolicy !== 'unlimited-unlisted' || plan.sources.some(s => s.itemId === source.itemId)
       || !catalog.items.find(i => i.id === source.itemId)?.raw || source.sourceId !== `implicit:${source.itemId}`) errors.push('Не разрешён внешний источник.');
     if (source.limit === null ? limit !== null : limit === null || !close(source.limit, limit)) errors.push('Неверный лимит в результате.');
@@ -74,6 +101,12 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     productIds.add(p.itemId); bump(p.itemId, -p.rate);
   }
   if (productIds.size !== plan.targets.length) errors.push('В результате отсутствует продукт.');
+  const exportIds = new Set<string>();
+  for (const flow of result.exports ?? []) {
+    const allowed = plan.exports?.find(e => e.itemId === flow.itemId);
+    if (exportIds.has(flow.itemId) || !allowed || !Number.isFinite(flow.rate) || flow.rate < 0 || flow.rate > allowed.limit + 1e-7) errors.push('Недопустимая отгрузка побочного продукта.');
+    exportIds.add(flow.itemId); bump(flow.itemId, -flow.rate);
+  }
   let sinkRate = 0;
   for (const p of result.surplus) {
     bump(p.itemId, -p.rate);

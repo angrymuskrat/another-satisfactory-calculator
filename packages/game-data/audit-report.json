@@ -7,7 +7,10 @@
     "LICENSE.upstream": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "upstream-tree.json": "1f82d8e6a11959dfc9da3687048dc53b4a9c0e49eba2fc4eb2a88595317ec3f4",
     "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
-    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
+    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e",
+    "menu-assets.json": "c3fdac0cfaa5c102c36985cf09d7385bb8d9fbb460f06e3893dc95d44d72d689",
+    "research-assets.json": "ad944cebf4620af9761e03f0f9fcd883762885def04ebc1356bd2ba5bd7a76c2",
+    "buildable-defaults.json": "8129a8e71e340b1d10c396c71a9700d8a75f673a9d2ef7ae02773168d9a691e3"
   },
   "counts": {
     "upstreamRecipes": 272,
@@ -3849,10 +3852,10 @@
   "notes": [
     "Количества, длительности, здания, названия RU/EN, утилизация и параметры добычи получены из CommunityResources установленной игры Steam build 24656030; это не утверждение о последней публичной версии.",
     "Переменная мощность: минимум и максимум взяты из constant/factor рецепта; средняя подтверждена описаниями предметов в Docs (ускоритель: 500/1000 МВт, квантовый кодировщик: 1000 МВт) и Official Satisfactory Wiki (конвертер: 250 МВт). Сама кривая UCurveFloat из сборки не извлечена; расчёт использует документированную среднюю модель.",
-    "Группы тематические: названия/порядок групп и принадлежность им не аттестованы, потому что Docs не экспортирует mCategory/mOverriddenCategory и FGItemCategory. Внутри групп используется игровой mManufacturingMenuPriority; порядок равных приоритетов — русский алфавит, без аттестации. Названия предметов, рецептов и зданий взяты из ru.json.",
-    "Скважины с общим компенсатором давления 150 МВт не представлены независимыми узлами; азот доступен как внешний поток с неучтённой энергией поставки.",
+    "Скважины описываются общим компенсатором и группами спутников в дополнении p2-mechanics; в основном каталоге они не выдаются за независимые добывающие узлы. Азот доступен через скважину или внешний поток; неизвестная энергия внешней поставки не принимается за ноль.",
     "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены из производственной модели. Стоимости 17 новых зданий/добытчиков импортированы отдельно из строительных рецептов. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется.",
-    "Прямые эффекты открытий и названия схем импортированы из FGSchematic Docs; полный граф требований MAM/этапов не восстановлен, prerequisitesKnown=false. Catalog.unlocks содержит minerIds, schematicIds и prerequisiteGroups (AND групп, OR внутри); пустые prerequisites не доказывают доступность. Исходные зависимости и ограничения сохранены в progression.json; см. README пакета."
+    "Названия и принадлежность категорий подтверждены assets и русской игровой локализацией той же сборки; учитываются mCategory и mOverriddenCategory. Приоритеты рецептов из Docs; для категорий без сериализованного приоритета и равных приоритетов используется русский алфавит. Полное совпадение порядка меню не заявляется.",
+    "Прямые открытия схем сверены с Docs, граф MAM и фазы HUB — с assets той же сборки. Внешние события и завершение отмечаются пользователем; пять узлов сохраняют неизвестные координатные связи. prerequisitesKnown=false: справочные связи не являются полным автоматическим условием доступа."
   ],
   "itemClasses": {
     "iron-ore": "Desc_OreIron_C",
@@ -4027,140 +4030,277 @@
     "recipePowerRanges": "game-docs",
     "averagePower": "game-description-and-official-wiki",
     "itemLocalization": "game-ru-docs",
-    "menuCategories": "approximate-manual",
+    "menuCategories": "pinned-game-assets-and-ru-localization; partial-order",
     "mineralsOilWater": "game-docs",
     "transport": "game-docs; belt mSpeed/2, pipe mFlowLimit*60",
     "resourceWellNodes": "unsupported"
   },
   "menuEvidence": {
-    "source": "source/menu-evidence.json",
+    "source": "source/menu-assets.json",
     "categoryClassesExported": 0,
     "itemCategoryFieldsExported": 0,
     "recipeCategoryOverridesExported": 0,
     "recipePrioritiesExported": 276,
     "recipePriorities": {
-      "biomass-from-leaves": 1,
-      "hog-protein": 1,
-      "biomass-from-wood": 2,
-      "hatcher-protein": 2,
-      "biomass-from-mycelia": 3,
-      "liquid-biofuel": 3,
-      "stinger-protein": 3,
-      "biomass-from-alien-protein": 4,
-      "spitter-protein": 4,
-      "solid-biofuel": 5,
-      "alien-dna-capsule": 10,
-      "alt-smart-plating": 0,
-      "biochemical-sculptor": 0,
-      "ai-expansion-server": 0,
-      "smart-plating": 0,
-      "nuclear-pasta": 0,
-      "alt-versatile-framework": 1,
-      "versatile-framework": 1,
-      "automated-wiring": 2,
-      "alt-automated-wiring": 2,
-      "modular-engine": 3,
-      "assembly-director-system": 3,
-      "adaptive-control-unit": 4,
-      "magnetic-field-generator": 5,
-      "thermal-propulsion-rocket": 6,
-      "ballistic-warp-drive": 7,
       "diamonds": 0,
+      "automated-miner": 0,
+      "alt-motor": 0,
+      "alt-distilled-silica": 0,
+      "alt-coated-iron-canister": 0,
+      "alt-iron-plate": 0,
+      "alt-uranium-cell": 0,
+      "alt-coated-cable": 0,
+      "alt-concrete": 0,
+      "alt-smart-plating": 0,
+      "alt-diluted-fuel": 0,
       "alt-diamonds-pink": 0,
+      "alt-iron-ingot": 0,
+      "alt-pure-iron-ingot": 0,
+      "alt-fused-wire": 0,
+      "alt-wet-concrete": 0,
+      "smokeless-powder": 0,
+      "concrete": 0,
+      "biochemical-sculptor": 0,
+      "packaged-water": 0,
+      "unpackage-water": 0,
+      "filter": 0,
+      "iron-plate": 0,
+      "iron-ore-limestone": 0,
+      "iron-ingot": 0,
+      "computer": 0,
       "time-crystal": 0,
       "dark-matter-crystal": 0,
+      "non-fissile-uranium": 0,
+      "uranium-cell": 0,
+      "plastic": 0,
+      "plutonium-pellet": 0,
+      "wire": 0,
+      "empty-canister": 0,
+      "ai-expansion-server": 0,
+      "rotor": 0,
       "synthetic-power-shard": 0,
       "ficsite-ingot-iron": 0,
-      "power-shard-blue": 0,
-      "alt-diamonds-cloudy": 1,
-      "excited-photonic-matter": 1,
-      "ficsite-ingot-caterium": 1,
-      "power-shard-yellow": 1,
-      "alt-diamonds-oil": 2,
-      "dark-matter-residue": 2,
-      "ficsite-ingot-aluminum": 2,
-      "power-shard-purple": 2,
-      "alt-diamonds-petroleum": 3,
-      "alt-diamonds-turbo": 4,
-      "singularity-cell": 12,
-      "reanimated-sam": 13,
-      "sam-fluctuator": 14,
-      "ficsite-trigon": 19,
-      "alt-dark-matter-crystal": 999,
-      "alt-dark-matter-trap": 999,
-      "alt-distilled-silica": 0,
-      "alt-instant-scrap": 1,
-      "alt-quartz-crystal": 1,
-      "quartz-crystal": 1,
-      "aluminum-scrap": 2,
-      "silica": 2,
-      "alt-silica": 3,
-      "alt-aluminum-scrap": 3,
-      "copper-powder": 3,
-      "alt-quartz-purification": 999,
-      "alt-fused-quartz-crystal": 999,
-      "alt-diluted-fuel": 0,
-      "plastic": 0,
+      "superposition-oscillator": 0,
       "fuel": 0,
+      "smart-plating": 0,
+      "ficsonium-fuel-rod": 0,
+      "black-powder": 0,
+      "power-shard-blue": 0,
+      "nuclear-pasta": 0,
+      "alt-plutonium-cell": 1,
+      "alt-instant-scrap": 1,
+      "alt-leached-iron-ingot": 1,
+      "alt-versatile-framework": 1,
+      "alt-iron-wire": 1,
+      "alt-cable": 1,
+      "alt-computer": 1,
+      "alt-steel-cast-plate": 1,
+      "alt-diamonds-cloudy": 1,
+      "alt-copper-rotor": 1,
+      "alt-black-powder": 1,
+      "alt-basic-iron-ingot": 1,
+      "alt-copper-sheet": 1,
+      "alt-rubber-concrete": 1,
       "alt-alumina-solution": 1,
       "alt-turbo-blend-fuel": 1,
+      "alt-steel-canister": 1,
       "alt-dark-ion-fuel": 1,
+      "alt-quartz-crystal": 1,
+      "biomass-from-leaves": 1,
+      "packaged-oil": 1,
+      "excited-photonic-matter": 1,
+      "iron-rod": 1,
+      "iodine-infused-filter": 1,
+      "quartz-crystal": 1,
+      "copper-ore-sulfur": 1,
+      "copper-ingot": 1,
+      "neural-quantum-processor": 1,
+      "unpackage-oil": 1,
       "residual-fuel": 1,
       "alt-residual-plastic": 1,
+      "hog-protein": 1,
       "alumina-solution": 1,
-      "nitric-acid": 2,
-      "alt-plastic": 2,
-      "rocket-fuel": 2,
-      "alt-rocket-fuel": 3,
-      "alt-polymer-resin": 3,
-      "rubber": 4,
-      "sulfuric-acid": 4,
-      "turbofuel": 4,
-      "alt-turbofuel": 5,
-      "alt-residual-rubber": 5,
-      "alt-recycled-rubber": 6,
-      "ionized-fuel": 6,
-      "alt-heavy-oil-residue": 7,
-      "petroleum-coke": 8,
-      "alt-motor": 0,
-      "rotor": 0,
-      "alt-copper-rotor": 1,
       "cooling-system": 1,
+      "ficsite-ingot-caterium": 1,
+      "versatile-framework": 1,
+      "uranium-fuel-rod": 1,
+      "em-control-rod": 1,
+      "power-shard-yellow": 1,
+      "automated-wiring": 2,
+      "nitric-acid": 2,
+      "alt-em-control-rod": 2,
+      "alt-diamonds-oil": 2,
+      "alt-packaged-fuel": 2,
+      "alt-caterium-wire": 2,
+      "alt-plastic": 2,
+      "alt-quickwire-cable": 2,
+      "alt-fabric": 2,
+      "alt-automated-wiring": 2,
+      "alt-copper-ingot": 2,
+      "alt-pure-copper-ingot": 2,
+      "alt-iron-rod": 2,
       "alt-rotor": 2,
+      "alt-coal": 2,
+      "alt-uranium-fuel-unit": 2,
       "alt-cooling-device": 2,
+      "alt-molded-beam": 2,
+      "aluminum-scrap": 2,
+      "biomass-from-wood": 2,
+      "packaged-heavy-oil-residue": 2,
+      "alien-power-matrix": 2,
+      "silica": 2,
+      "unpackage-heavy-oil-residue": 2,
+      "copper-ore-quartz": 2,
+      "encased-plutonium-cell": 2,
+      "dark-matter-residue": 2,
+      "hatcher-protein": 2,
+      "empty-fluid-tank": 2,
+      "rocket-fuel": 2,
+      "ficsite-ingot-aluminum": 2,
+      "supercomputer": 2,
+      "ficsonium": 2,
+      "power-shard-purple": 2,
+      "alt-aluminum-rod": 3,
+      "alt-leached-copper-ingot": 3,
+      "alt-silica": 3,
+      "alt-tempered-copper-ingot": 3,
+      "alt-super-state-computer": 3,
+      "alt-diamonds-petroleum": 3,
+      "alt-rocket-fuel": 3,
+      "alt-fertile-uranium": 3,
+      "alt-polymer-resin": 3,
+      "alt-molded-steel-pipe": 3,
+      "alt-aluminum-scrap": 3,
+      "biomass-from-mycelia": 3,
+      "liquid-biofuel": 3,
+      "unpackage-liquid-biofuel": 3,
+      "limestone-sulfur": 3,
+      "cable": 3,
+      "packaged-liquid-biofuel": 3,
       "pressure-conversion-cube": 3,
+      "copper-powder": 3,
+      "modular-engine": 3,
+      "plutonium-fuel-rod": 3,
+      "stinger-protein": 3,
+      "assembly-director-system": 3,
       "fused-modular-frame": 3,
       "stator": 3,
+      "adaptive-control-unit": 4,
+      "alt-crystal-oscillator": 4,
+      "alt-plutonium-fuel-rod": 4,
+      "alt-pure-caterium-ingot": 4,
       "alt-stator": 4,
       "alt-fused-modular-frame": 4,
+      "alt-diamonds-turbo": 4,
+      "biomass-from-alien-protein": 4,
+      "screw": 4,
+      "packaged-fuel": 4,
+      "crystal-oscillator": 4,
+      "circuit-board": 4,
+      "spitter-protein": 4,
+      "rubber": 4,
+      "sulfuric-acid": 4,
+      "steel-ingot": 4,
+      "unpackage-fuel": 4,
+      "turbofuel": 4,
+      "coal-limestone": 4,
+      "battery": 5,
+      "alt-leached-caterium-ingot": 5,
+      "alt-screw": 5,
+      "alt-steel-ingot": 5,
+      "alt-turbofuel": 5,
+      "alt-electrode-circuit-board": 5,
+      "radio-control-unit": 5,
+      "magnetic-field-generator": 5,
+      "packaged-turbofuel": 5,
+      "caterium-ingot": 5,
       "motor": 5,
-      "alt-electric-motor": 6,
-      "heat-sink": 7,
-      "alt-heat-sink": 8,
-      "turbo-motor": 8,
-      "alt-turbo-electric-motor": 9,
-      "alt-turbo-pressure-motor": 10,
-      "modular-frame": 10,
-      "alt-modular-frame2": 11,
-      "alt-modular-frame": 12,
-      "heavy-modular-frame": 16,
-      "alt-heavy-modular-frame": 17,
-      "alt-heavy-flexible-frame": 18,
-      "automated-miner": 0,
-      "smokeless-powder": 0,
-      "filter": 0,
-      "black-powder": 0,
-      "alt-black-powder": 1,
-      "iodine-infused-filter": 1,
-      "alt-fabric": 2,
-      "alt-coal": 2,
-      "alien-power-matrix": 2,
-      "supercomputer": 2,
-      "alt-super-state-computer": 3,
+      "alt-residual-rubber": 5,
       "quickwire": 5,
+      "solid-biofuel": 5,
       "fabric": 5,
+      "unpackage-turbofuel": 5,
+      "coal-iron": 5,
+      "alt-biocoal": 6,
+      "alt-radio-connection-unit": 6,
+      "alt-caterium-circuit-board": 6,
+      "alt-coke-steel-ingot": 6,
+      "alt-recycled-rubber": 6,
+      "alt-aluminum-ingot": 6,
+      "alt-steel-screw": 6,
+      "alt-electric-motor": 6,
+      "packaged-rocket-fuel": 6,
+      "ionized-fuel": 6,
+      "thermal-propulsion-rocket": 6,
+      "unpackage-rocket-fuel": 6,
+      "sulfur-iron": 6,
+      "reinforced-iron-plate": 6,
+      "alt-charcoal": 7,
+      "alt-circuit-board": 7,
+      "alt-heavy-oil-residue": 7,
+      "alt-compacted-steel-ingot": 7,
+      "alt-bolted-iron-plate": 7,
+      "ballistic-warp-drive": 7,
+      "packaged-ionized-fuel": 7,
+      "unpackage-ionized-fuel": 7,
+      "heat-sink": 7,
+      "sulfur-coal": 7,
+      "alt-tempered-caterium-ingot": 8,
+      "alt-stitched-iron-plate": 8,
+      "alt-radio-control-unit": 8,
       "alt-quickwire": 8,
+      "alt-heat-sink": 8,
+      "packaged-alumina-solution": 8,
+      "caterium-ore-copper": 8,
+      "petroleum-coke": 8,
+      "unpackage-alumina-solution": 8,
+      "turbo-motor": 8,
+      "alt-adhered-iron-plate": 9,
+      "alt-turbo-electric-motor": 9,
+      "aluminum-ingot": 9,
+      "packaged-sulfuric-acid": 9,
+      "caterium-ore-quartz": 9,
+      "ai-limiter": 9,
+      "unpackage-sulfuric-acid": 9,
+      "unpackage-nitrogen-gas": 10,
+      "alt-ai-limiter": 10,
+      "alt-turbo-pressure-motor": 10,
+      "packaged-nitrogen-gas": 10,
+      "alien-dna-capsule": 10,
+      "modular-frame": 10,
+      "raw-quartz-coal": 10,
+      "high-speed-connector": 10,
+      "unpackage-nitric-acid": 11,
+      "alt-crystal-computer": 11,
+      "alt-battery": 11,
+      "alt-high-speed-connector": 11,
+      "alt-modular-frame2": 11,
+      "packaged-nitric-acid": 11,
+      "copper-sheet": 11,
+      "raw-quartz-bauxite": 11,
+      "alt-modular-frame": 12,
       "alt-oc-supercomputer": 12,
+      "bauxite-copper": 12,
+      "steel-beam": 12,
+      "singularity-cell": 12,
+      "reanimated-sam": 13,
+      "alt-steel-beam": 13,
+      "bauxite-caterium": 13,
+      "nitrogen-gas-caterium": 14,
+      "steel-pipe": 14,
+      "sam-fluctuator": 14,
+      "nitrogen-gas-bauxite": 15,
+      "alt-iron-pipe": 15,
+      "encased-industrial-beam": 15,
+      "alt-encased-industrial-beam": 16,
+      "heavy-modular-frame": 16,
+      "uranium-ore-bauxite": 16,
+      "alt-heavy-modular-frame": 17,
+      "alclad-aluminum-sheet": 17,
+      "alt-aluminum-casing": 18,
+      "alt-heavy-flexible-frame": 18,
+      "aluminum-casing": 18,
+      "ficsite-trigon": 19,
       "iron-rebar": 101,
       "stun-rebar": 102,
       "shatter-rebar": 103,
@@ -4174,151 +4314,142 @@
       "homing-rifle-ammo": 302,
       "alt-turbo-rifle-ammo": 303,
       "turbo-rifle-ammo": 303,
-      "computer": 0,
-      "superposition-oscillator": 0,
-      "alt-computer": 1,
-      "neural-quantum-processor": 1,
-      "em-control-rod": 1,
-      "alt-em-control-rod": 2,
-      "alt-crystal-oscillator": 4,
-      "crystal-oscillator": 4,
-      "radio-control-unit": 5,
-      "alt-radio-connection-unit": 6,
-      "alt-radio-control-unit": 8,
-      "high-speed-connector": 10,
-      "alt-crystal-computer": 11,
-      "alt-high-speed-connector": 11,
-      "alt-iron-ingot": 0,
-      "alt-pure-iron-ingot": 0,
-      "iron-ingot": 0,
-      "alt-leached-iron-ingot": 1,
-      "alt-basic-iron-ingot": 1,
-      "copper-ingot": 1,
-      "alt-copper-ingot": 2,
-      "alt-pure-copper-ingot": 2,
-      "alt-leached-copper-ingot": 3,
-      "alt-tempered-copper-ingot": 3,
-      "alt-pure-caterium-ingot": 4,
-      "steel-ingot": 4,
-      "alt-leached-caterium-ingot": 5,
-      "alt-steel-ingot": 5,
-      "caterium-ingot": 5,
-      "alt-coke-steel-ingot": 6,
-      "alt-aluminum-ingot": 6,
-      "alt-compacted-steel-ingot": 7,
-      "alt-tempered-caterium-ingot": 8,
-      "aluminum-ingot": 9,
-      "alt-iron-plate": 0,
-      "alt-concrete": 0,
-      "alt-wet-concrete": 0,
-      "concrete": 0,
-      "iron-plate": 0,
-      "alt-steel-cast-plate": 1,
-      "alt-copper-sheet": 1,
-      "alt-rubber-concrete": 1,
-      "iron-rod": 1,
-      "alt-iron-rod": 2,
-      "alt-molded-beam": 2,
-      "alt-aluminum-rod": 3,
-      "alt-molded-steel-pipe": 3,
-      "screw": 4,
-      "alt-screw": 5,
-      "alt-steel-screw": 6,
-      "reinforced-iron-plate": 6,
-      "alt-bolted-iron-plate": 7,
-      "alt-stitched-iron-plate": 8,
-      "alt-adhered-iron-plate": 9,
-      "copper-sheet": 11,
-      "steel-beam": 12,
-      "alt-steel-beam": 13,
-      "steel-pipe": 14,
-      "alt-iron-pipe": 15,
-      "encased-industrial-beam": 15,
-      "alt-encased-industrial-beam": 16,
-      "alclad-aluminum-sheet": 17,
-      "alt-aluminum-casing": 18,
-      "aluminum-casing": 18,
-      "iron-ore-limestone": 0,
-      "copper-ore-sulfur": 1,
-      "copper-ore-quartz": 2,
-      "limestone-sulfur": 3,
-      "coal-limestone": 4,
-      "coal-iron": 5,
-      "alt-biocoal": 6,
-      "sulfur-iron": 6,
-      "alt-charcoal": 7,
-      "sulfur-coal": 7,
-      "caterium-ore-copper": 8,
-      "caterium-ore-quartz": 9,
-      "raw-quartz-coal": 10,
-      "raw-quartz-bauxite": 11,
-      "bauxite-copper": 12,
-      "bauxite-caterium": 13,
-      "nitrogen-gas-caterium": 14,
-      "nitrogen-gas-bauxite": 15,
-      "uranium-ore-bauxite": 16,
-      "alt-coated-iron-canister": 0,
-      "packaged-water": 0,
-      "unpackage-water": 0,
-      "empty-canister": 0,
-      "alt-steel-canister": 1,
-      "packaged-oil": 1,
-      "unpackage-oil": 1,
-      "alt-packaged-fuel": 2,
-      "packaged-heavy-oil-residue": 2,
-      "unpackage-heavy-oil-residue": 2,
-      "empty-fluid-tank": 2,
-      "unpackage-liquid-biofuel": 3,
-      "packaged-liquid-biofuel": 3,
-      "packaged-fuel": 4,
-      "unpackage-fuel": 4,
-      "packaged-turbofuel": 5,
-      "unpackage-turbofuel": 5,
-      "packaged-rocket-fuel": 6,
-      "unpackage-rocket-fuel": 6,
-      "packaged-ionized-fuel": 7,
-      "unpackage-ionized-fuel": 7,
-      "packaged-alumina-solution": 8,
-      "unpackage-alumina-solution": 8,
-      "packaged-sulfuric-acid": 9,
-      "unpackage-sulfuric-acid": 9,
-      "unpackage-nitrogen-gas": 10,
-      "packaged-nitrogen-gas": 10,
-      "unpackage-nitric-acid": 11,
-      "packaged-nitric-acid": 11,
-      "alt-coated-cable": 0,
-      "alt-fused-wire": 0,
-      "wire": 0,
-      "alt-iron-wire": 1,
-      "alt-cable": 1,
-      "alt-caterium-wire": 2,
-      "alt-quickwire-cable": 2,
-      "cable": 3,
-      "circuit-board": 4,
-      "battery": 5,
-      "alt-electrode-circuit-board": 5,
-      "alt-caterium-circuit-board": 6,
-      "alt-circuit-board": 7,
-      "ai-limiter": 9,
-      "alt-ai-limiter": 10,
-      "alt-battery": 11,
-      "alt-uranium-cell": 0,
-      "non-fissile-uranium": 0,
-      "uranium-cell": 0,
-      "plutonium-pellet": 0,
-      "ficsonium-fuel-rod": 0,
-      "alt-plutonium-cell": 1,
-      "uranium-fuel-rod": 1,
-      "alt-uranium-fuel-unit": 2,
-      "encased-plutonium-cell": 2,
-      "ficsonium": 2,
-      "alt-fertile-uranium": 3,
-      "plutonium-fuel-rod": 3,
-      "alt-plutonium-fuel-rod": 4
+      "alt-dark-matter-crystal": 999,
+      "alt-dark-matter-trap": 999,
+      "alt-quartz-purification": 999,
+      "alt-fused-quartz-crystal": 999
     },
     "groupNamesAndOrderVerified": false,
     "recipePriorityOrderApplied": true,
-    "equalPriorityOrder": "alphabetical-ru; not-verified-in-game"
+    "equalPriorityOrder": "alphabetical-ru; not-verified-in-game",
+    "docsEvidenceSource": "source/menu-evidence.json",
+    "labelsAndMembershipVerified": true,
+    "categoryClassesExportedFromAssets": 28,
+    "itemMembershipCoverage": 152,
+    "recipeMembershipCoverage": 276,
+    "categories": [
+      {
+        "className": "Cat_Quantum_C",
+        "name": "Квантовые технологии",
+        "menuPriority": 1
+      },
+      {
+        "className": "Cat_AdvancedRefinement_C",
+        "name": "Продвинутая переработка",
+        "menuPriority": 3
+      },
+      {
+        "className": "Cat_Fuel_C",
+        "name": "Топливо",
+        "menuPriority": 4
+      },
+      {
+        "className": "Cat_Ingots_C",
+        "name": "Слитки",
+        "menuPriority": 5
+      },
+      {
+        "className": "Cat_StandardParts_C",
+        "name": "Стандартные детали",
+        "menuPriority": 6
+      },
+      {
+        "className": "Cat_Electronics_C",
+        "name": "Электроника",
+        "menuPriority": 7
+      },
+      {
+        "className": "Cat_Minerals_C",
+        "name": "Соединения",
+        "menuPriority": 8
+      },
+      {
+        "className": "Cat_Biomass_C",
+        "name": "Биомасса",
+        "menuPriority": 9
+      },
+      {
+        "className": "Cat_IndustrialParts_C",
+        "name": "Промышленные детали",
+        "menuPriority": 10
+      },
+      {
+        "className": "Cat_Communications_C",
+        "name": "Коммуникации",
+        "menuPriority": 11
+      },
+      {
+        "className": "Cat_Containers_C",
+        "name": "Ёмкости",
+        "menuPriority": 12
+      },
+      {
+        "className": "Cat_Nuclear_C",
+        "name": "Ядерная энергия",
+        "menuPriority": 13
+      },
+      {
+        "className": "Cat_Other_C",
+        "name": "Другое",
+        "menuPriority": 14
+      },
+      {
+        "className": "Cat_AlienRemains_C",
+        "name": "Инопланетные останки",
+        "menuPriority": 15
+      },
+      {
+        "className": "Cat_RawConversion_C",
+        "name": "Преобразование необработанных ресурсов",
+        "menuPriority": 16
+      },
+      {
+        "className": "Cat_PowerShards_C",
+        "name": "Энергомодули",
+        "menuPriority": 17
+      },
+      {
+        "className": "Cat_Hands_C",
+        "name": "Инструменты",
+        "menuPriority": 20
+      },
+      {
+        "className": "Cat_Consumables_C",
+        "name": "Расходуемые предметы",
+        "menuPriority": 23
+      },
+      {
+        "className": "Cat_Ammunition_C",
+        "name": "Боеприпасы",
+        "menuPriority": 24
+      },
+      {
+        "className": "Cat_SpaceElevator_C",
+        "name": "Космический лифт",
+        "menuPriority": null
+      },
+      {
+        "className": "Cat_SolidOilProducts_C",
+        "name": "Нефтепродукты",
+        "menuPriority": null
+      },
+      {
+        "className": "Cat_Unpackaging_C",
+        "name": "Опустошение ёмкостей",
+        "menuPriority": null
+      },
+      {
+        "className": "Cat_Packaging_C",
+        "name": "Распределение по ёмкостям",
+        "menuPriority": null
+      }
+    ],
+    "missingCategoryPriorities": [
+      "Cat_SpaceElevator_C",
+      "Cat_SolidOilProducts_C",
+      "Cat_Unpackaging_C",
+      "Cat_Packaging_C"
+    ]
   },
   "buildCosts": {
     "provenance": {
@@ -4331,7 +4462,253 @@
         "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
         "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
       },
-      "verification": "pinned-local-game-docs; no-new-external-source"
+      "verification": "pinned-local-game-docs; no-new-external-source",
+      "researchAssets": {
+        "steamBuildId": "24656030",
+        "gameCL": 502094,
+        "extractedAt": "2026-09-06",
+        "source": "Installed Satisfactory FactoryGame-Windows.pak and FactoryGame-Windows.utoc",
+        "parser": {
+          "name": "CUE4Parse",
+          "version": "1.2.2.202609",
+          "commit": "b4e95441bcf0c975eb3adb68c0fb44c740c2cf62",
+          "ueVersion": "GAME_UE5_6",
+          "packageVersion": [
+            522,
+            1017
+          ],
+          "compatibility": "44 unused OptionalProperty entries were converted to Unknown because pinned usmap v1 omits their inner type; selected inheritance chains must be independently checked"
+        },
+        "hashes": [
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ActorsBuiltDependency.uasset",
+            "sha256": "ee8ea9a7b6ed798998b711fe6cc9c131c01e5ec9dd021f24757b895a0a8b410f",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_CurrentOnboardingStepDependency.uasset",
+            "sha256": "df89650ae2141a9f01f8906c3fccbf0db8918f82798b1e8d2aff2cc8c4d858e8",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GameCompletedDependency.uasset",
+            "sha256": "c37a92b41e137da179eea1187f840f4f790177332653b15537867b327ba9159a",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GamePhaseReachedDependency.uasset",
+            "sha256": "b9e009886469403d4526b50e01c0c12afce417d6e1179d05037739f87db8b095",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemFailedToSinkDependency.uasset",
+            "sha256": "c2f044d1675363e2cdc637b8c6cb99510c687069414a921275f561843b3557e5",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemPickedUpDependency.uasset",
+            "sha256": "93a34eea1ea277782f9584d60fc5e59bfab5803bcd494b754a09651973b82820",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_LockSpaceElevatorShipmentDependency.uasset",
+            "sha256": "bafcd12bf2ff12262f8d0fb6b58abd0cb8accb95996b2103a879efd622cc0cef",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageInterruptedDependency.uasset",
+            "sha256": "56e6747a0d05a2557060675cef60c39365c0586fadccfe3e14bbeab6ab5d5d54",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageNotPlayedDependency.uasset",
+            "sha256": "5aaed21dd9aafca3aa96c0570cf478c40530e79d6476a375941ad5620278677e",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessagePlayedDependency.uasset",
+            "sha256": "9cdb8d1668dae47235dcf928abf702edae1458f5a17f7234ab7a044288cd1ce7",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_RandomChanceDependency.uasset",
+            "sha256": "5b21f219f28d914f392134fd6fb0a22656e90b949c9a30535b64105ad40b9d3d",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ResearchTreeProgressionDependency.uasset",
+            "sha256": "6edcf61af79ca64a4487211aaa7669c5a62a623fd199ae7d0c4d0922463866a8",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicNotPurchasedDependency.uasset",
+            "sha256": "2fb322b4a74ba42c28e88709c39ce3a43fd1b886e789eb0569dcce1f1c04ed68",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicPurchasedDependency.uasset",
+            "sha256": "519d15c8df446d3078adfc18e9ae8d11559669eb441b9a7f44e4a52e4b53d400",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicSpammedDependency.uasset",
+            "sha256": "b9d77ef26d1bddcd66a896a8273ed18e0880edacc4330d2ab4966b8c66f6f82a",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicTypeDependency.uasset",
+            "sha256": "1ce8ea255eaced55d7c7a752c0db3ebc6149cfb12c58e46f1209424568ade6af",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SpaceElevatorFullyBuiltDependency.uasset",
+            "sha256": "bd3afdf390d9383000f6880beb8213b8e24b0ade9ec418475b547ca972e440bc",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BPI_AvailabilityDependencyInterface.uasset",
+            "sha256": "a6a3a734be14b4964c5466cd6f27b35e435f33a7ca165fbb5151b0d79cae2f3a",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/FAvailabilityDependencyData.uasset",
+            "sha256": "d611033bf691d6ac3889917a241acc447c698f17a1c1f94da8ff0b5518162324",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_0.uasset",
+            "sha256": "8f4713cdb346bf81747d5f03173a6c5001758a76b3ce6010dc9b9015c5afb8cc",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_1.uasset",
+            "sha256": "8227bbe89971a66933a9a02291e1d50c877e73ca5b53181360c70507cbf1911e",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_2.uasset",
+            "sha256": "356f7d3bb78274483ce863e8018d6d106815b7c8aec447e80a45b3c8f8a1eed5",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_3.uasset",
+            "sha256": "7d4c4397faf1658eec95649c18e560ff79235e6f1ef304026cf994ba995a22f0",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_4.uasset",
+            "sha256": "8225721209f2440ca3bce7d5e679845486b4d23f97cf79865dff93f944a1e3a2",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_5.uasset",
+            "sha256": "50be385e084224382476cc20be9a2d7de6228ce18e3b5b5791bcf11c926be8ab",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_6.uasset",
+            "sha256": "199c0494673428ef7aa53478f2935a2e06d68054558ef4019e7e44d15bac8e3a",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_7.uasset",
+            "sha256": "b68a21ce7a66d6c40c82a125e2bc121d804bab8a36c816147ddfd441d1b5d103",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienOrganisms.uasset",
+            "sha256": "0c174882fa88e77675abf8e8d5d88ba57054b797cdda50a14c4c18a4c8eedadd",
+            "exports": 14
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienTech.uasset",
+            "sha256": "5b5644cbdb0328c57b44d62a2aa5fd17f38e4ccc2440a74de66e41fdebbc571c",
+            "exports": 23
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Caterium.uasset",
+            "sha256": "8d46716c68becd92f4f91250be3315846bb029bebedcb2e1c06f4a4810714c7e",
+            "exports": 20
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_HardDrive.uasset",
+            "sha256": "c3499d19e082a1f6b2231cce7ab607b7ecf722ec71a0a082e2c9c5474aae4dfc",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Mycelia.uasset",
+            "sha256": "4b34aaa1d1558f997409edd6812e27d5d0a2467a444ebaaa85994db43d1178a5",
+            "exports": 13
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Nutrients.uasset",
+            "sha256": "3ff8cdf6369c66bd46295db7b1d5ca25d51c0840c32d06c298776511e372eb72",
+            "exports": 8
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_PowerSlugs.uasset",
+            "sha256": "e51d807e948590eb2c0d6eaa37efba9a41e3935ab0205ecd30cabf2cd7bb2208",
+            "exports": 9
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Quartz.uasset",
+            "sha256": "2511a52c162fba4c36c639dcf17022122b214b9a530975dd00567397f869a99a",
+            "exports": 15
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Sulfur.uasset",
+            "sha256": "25e968a4aa6dd85374a02ebcda9b0a3efd8b320d23655b7ab245731805f35371",
+            "exports": 19
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_XMas.uasset",
+            "sha256": "a3d98dab480e6d0e98bb37c95501c140af6b66de160e42c447e997a42317af04",
+            "exports": 16
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTreeNode.uasset",
+            "sha256": "392c1d23bdb374609bbba0953657cb243edef4ecae82eb74b27730bf00d5f852",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/Localization/AllStringTables/en-US/AllStringTables.locres",
+            "sha256": "816091d2c1cd0feb14592f7c377bf9d6e5fc8fa1f893ee7f8347e9b99751b336"
+          },
+          {
+            "path": "FactoryGame/Content/Localization/AllStringTables/ru/AllStringTables.locres",
+            "sha256": "13f5c26133eaff81bca40c33afc3c0bab159ec13584f6fe7ab17922ad0bf6a08"
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Interface/UI/InGame/MAMTree/Widget_MAMTree_Grid.uasset",
+            "sha256": "6104b3a5ba5d0a194ecda94b893e48fcbe90adbea3c56838b90329ebe7659e64"
+          }
+        ],
+        "usmapSha256": "b0e9179d1af4663cc06e54d6cbfe2ce834f3960d50891ef28a90e936978e4b35",
+        "mappingVerification": {
+          "verified": true,
+          "exportedPackagesChecked": 496,
+          "referencedTypesChecked": 658,
+          "nativeMappingsChecked": 150,
+          "optionalPropertiesPatched": 44,
+          "affectedSelectedTypes": [],
+          "method": "Transitive closure of every exported object type, Blueprint/native superclass, and embedded StructProperty (including array/set/map value structures). Object references are not loaded as property payloads. No selected type reaches a changed OptionalProperty.",
+          "hashMeaning": "SHA-256 of provider.SaveAsset(path) raw package bytes after container decompression; localization hashes likewise identify raw locres bytes. These are not JSON export hashes."
+        },
+        "containerHashes": [
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\Headers.zip",
+            "sha256": "f4d96098afb214ee73d73365425db69c839e07a07fe498ff5c8334af0c0f2a5f"
+          },
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\FactoryGame\\Content\\Paks\\FactoryGame-Windows.utoc",
+            "sha256": "310534fff8ebdf87c6a6441916e1b5fce2b3fe8e4ca009bb415fa56b5558ee49"
+          },
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\CustomVersions.json",
+            "sha256": "39fc6d2585ad5fa2df07060d630d67403e319ba2e35a7e09f9497fbdfa8b69aa"
+          }
+        ]
+      }
     },
     "unit": "items-per-new-machine",
     "entries": [
@@ -5027,7 +5404,253 @@
         "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
         "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e"
       },
-      "verification": "pinned-local-game-docs; no-new-external-source"
+      "verification": "pinned-local-game-docs; no-new-external-source",
+      "researchAssets": {
+        "steamBuildId": "24656030",
+        "gameCL": 502094,
+        "extractedAt": "2026-09-06",
+        "source": "Installed Satisfactory FactoryGame-Windows.pak and FactoryGame-Windows.utoc",
+        "parser": {
+          "name": "CUE4Parse",
+          "version": "1.2.2.202609",
+          "commit": "b4e95441bcf0c975eb3adb68c0fb44c740c2cf62",
+          "ueVersion": "GAME_UE5_6",
+          "packageVersion": [
+            522,
+            1017
+          ],
+          "compatibility": "44 unused OptionalProperty entries were converted to Unknown because pinned usmap v1 omits their inner type; selected inheritance chains must be independently checked"
+        },
+        "hashes": [
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ActorsBuiltDependency.uasset",
+            "sha256": "ee8ea9a7b6ed798998b711fe6cc9c131c01e5ec9dd021f24757b895a0a8b410f",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_CurrentOnboardingStepDependency.uasset",
+            "sha256": "df89650ae2141a9f01f8906c3fccbf0db8918f82798b1e8d2aff2cc8c4d858e8",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GameCompletedDependency.uasset",
+            "sha256": "c37a92b41e137da179eea1187f840f4f790177332653b15537867b327ba9159a",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GamePhaseReachedDependency.uasset",
+            "sha256": "b9e009886469403d4526b50e01c0c12afce417d6e1179d05037739f87db8b095",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemFailedToSinkDependency.uasset",
+            "sha256": "c2f044d1675363e2cdc637b8c6cb99510c687069414a921275f561843b3557e5",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemPickedUpDependency.uasset",
+            "sha256": "93a34eea1ea277782f9584d60fc5e59bfab5803bcd494b754a09651973b82820",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_LockSpaceElevatorShipmentDependency.uasset",
+            "sha256": "bafcd12bf2ff12262f8d0fb6b58abd0cb8accb95996b2103a879efd622cc0cef",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageInterruptedDependency.uasset",
+            "sha256": "56e6747a0d05a2557060675cef60c39365c0586fadccfe3e14bbeab6ab5d5d54",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageNotPlayedDependency.uasset",
+            "sha256": "5aaed21dd9aafca3aa96c0570cf478c40530e79d6476a375941ad5620278677e",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessagePlayedDependency.uasset",
+            "sha256": "9cdb8d1668dae47235dcf928abf702edae1458f5a17f7234ab7a044288cd1ce7",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_RandomChanceDependency.uasset",
+            "sha256": "5b21f219f28d914f392134fd6fb0a22656e90b949c9a30535b64105ad40b9d3d",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ResearchTreeProgressionDependency.uasset",
+            "sha256": "6edcf61af79ca64a4487211aaa7669c5a62a623fd199ae7d0c4d0922463866a8",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicNotPurchasedDependency.uasset",
+            "sha256": "2fb322b4a74ba42c28e88709c39ce3a43fd1b886e789eb0569dcce1f1c04ed68",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicPurchasedDependency.uasset",
+            "sha256": "519d15c8df446d3078adfc18e9ae8d11559669eb441b9a7f44e4a52e4b53d400",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicSpammedDependency.uasset",
+            "sha256": "b9d77ef26d1bddcd66a896a8273ed18e0880edacc4330d2ab4966b8c66f6f82a",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicTypeDependency.uasset",
+            "sha256": "1ce8ea255eaced55d7c7a752c0db3ebc6149cfb12c58e46f1209424568ade6af",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SpaceElevatorFullyBuiltDependency.uasset",
+            "sha256": "bd3afdf390d9383000f6880beb8213b8e24b0ade9ec418475b547ca972e440bc",
+            "exports": 2
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BPI_AvailabilityDependencyInterface.uasset",
+            "sha256": "a6a3a734be14b4964c5466cd6f27b35e435f33a7ca165fbb5151b0d79cae2f3a",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/FAvailabilityDependencyData.uasset",
+            "sha256": "d611033bf691d6ac3889917a241acc447c698f17a1c1f94da8ff0b5518162324",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_0.uasset",
+            "sha256": "8f4713cdb346bf81747d5f03173a6c5001758a76b3ce6010dc9b9015c5afb8cc",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_1.uasset",
+            "sha256": "8227bbe89971a66933a9a02291e1d50c877e73ca5b53181360c70507cbf1911e",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_2.uasset",
+            "sha256": "356f7d3bb78274483ce863e8018d6d106815b7c8aec447e80a45b3c8f8a1eed5",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_3.uasset",
+            "sha256": "7d4c4397faf1658eec95649c18e560ff79235e6f1ef304026cf994ba995a22f0",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_4.uasset",
+            "sha256": "8225721209f2440ca3bce7d5e679845486b4d23f97cf79865dff93f944a1e3a2",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_5.uasset",
+            "sha256": "50be385e084224382476cc20be9a2d7de6228ce18e3b5b5791bcf11c926be8ab",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_6.uasset",
+            "sha256": "199c0494673428ef7aa53478f2935a2e06d68054558ef4019e7e44d15bac8e3a",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_7.uasset",
+            "sha256": "b68a21ce7a66d6c40c82a125e2bc121d804bab8a36c816147ddfd441d1b5d103",
+            "exports": 1
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienOrganisms.uasset",
+            "sha256": "0c174882fa88e77675abf8e8d5d88ba57054b797cdda50a14c4c18a4c8eedadd",
+            "exports": 14
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienTech.uasset",
+            "sha256": "5b5644cbdb0328c57b44d62a2aa5fd17f38e4ccc2440a74de66e41fdebbc571c",
+            "exports": 23
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Caterium.uasset",
+            "sha256": "8d46716c68becd92f4f91250be3315846bb029bebedcb2e1c06f4a4810714c7e",
+            "exports": 20
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_HardDrive.uasset",
+            "sha256": "c3499d19e082a1f6b2231cce7ab607b7ecf722ec71a0a082e2c9c5474aae4dfc",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Mycelia.uasset",
+            "sha256": "4b34aaa1d1558f997409edd6812e27d5d0a2467a444ebaaa85994db43d1178a5",
+            "exports": 13
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Nutrients.uasset",
+            "sha256": "3ff8cdf6369c66bd46295db7b1d5ca25d51c0840c32d06c298776511e372eb72",
+            "exports": 8
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_PowerSlugs.uasset",
+            "sha256": "e51d807e948590eb2c0d6eaa37efba9a41e3935ab0205ecd30cabf2cd7bb2208",
+            "exports": 9
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Quartz.uasset",
+            "sha256": "2511a52c162fba4c36c639dcf17022122b214b9a530975dd00567397f869a99a",
+            "exports": 15
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Sulfur.uasset",
+            "sha256": "25e968a4aa6dd85374a02ebcda9b0a3efd8b320d23655b7ab245731805f35371",
+            "exports": 19
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_XMas.uasset",
+            "sha256": "a3d98dab480e6d0e98bb37c95501c140af6b66de160e42c447e997a42317af04",
+            "exports": 16
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTreeNode.uasset",
+            "sha256": "392c1d23bdb374609bbba0953657cb243edef4ecae82eb74b27730bf00d5f852",
+            "exports": 3
+          },
+          {
+            "path": "FactoryGame/Content/Localization/AllStringTables/en-US/AllStringTables.locres",
+            "sha256": "816091d2c1cd0feb14592f7c377bf9d6e5fc8fa1f893ee7f8347e9b99751b336"
+          },
+          {
+            "path": "FactoryGame/Content/Localization/AllStringTables/ru/AllStringTables.locres",
+            "sha256": "13f5c26133eaff81bca40c33afc3c0bab159ec13584f6fe7ab17922ad0bf6a08"
+          },
+          {
+            "path": "FactoryGame/Content/FactoryGame/Interface/UI/InGame/MAMTree/Widget_MAMTree_Grid.uasset",
+            "sha256": "6104b3a5ba5d0a194ecda94b893e48fcbe90adbea3c56838b90329ebe7659e64"
+          }
+        ],
+        "usmapSha256": "b0e9179d1af4663cc06e54d6cbfe2ce834f3960d50891ef28a90e936978e4b35",
+        "mappingVerification": {
+          "verified": true,
+          "exportedPackagesChecked": 496,
+          "referencedTypesChecked": 658,
+          "nativeMappingsChecked": 150,
+          "optionalPropertiesPatched": 44,
+          "affectedSelectedTypes": [],
+          "method": "Transitive closure of every exported object type, Blueprint/native superclass, and embedded StructProperty (including array/set/map value structures). Object references are not loaded as property payloads. No selected type reaches a changed OptionalProperty.",
+          "hashMeaning": "SHA-256 of provider.SaveAsset(path) raw package bytes after container decompression; localization hashes likewise identify raw locres bytes. These are not JSON export hashes."
+        },
+        "containerHashes": [
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\Headers.zip",
+            "sha256": "f4d96098afb214ee73d73365425db69c839e07a07fe498ff5c8334af0c0f2a5f"
+          },
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\FactoryGame\\Content\\Paks\\FactoryGame-Windows.utoc",
+            "sha256": "310534fff8ebdf87c6a6441916e1b5fce2b3fe8e4ca009bb415fa56b5558ee49"
+          },
+          {
+            "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\CustomVersions.json",
+            "sha256": "39fc6d2585ad5fa2df07060d630d67403e319ba2e35a7e09f9497fbdfa8b69aa"
+          }
+        ]
+      }
     },
     "coverage": {
       "sourceSchematics": 574,
@@ -5074,7 +5697,7 @@
       "overclockIds": [
         "Research_PowerSlugs_2_C"
       ],
-      "researchTreeExported": false,
+      "researchTreeExported": true,
       "prerequisitesComplete": false,
       "unprojectedDependencies": [],
       "excluded": [
@@ -6274,8 +6897,283 @@
       "missingSchematicReferences": [
         "Research_Caterium_6_1_C",
         "Schematic_6-4_C"
-      ]
+      ],
+      "researchAssetNodes": 110,
+      "researchUnresolvedNodes": 5
     },
     "dataFile": "progression.json"
+  },
+  "researchAssets": {
+    "provenance": {
+      "steamBuildId": "24656030",
+      "gameCL": 502094,
+      "extractedAt": "2026-09-06",
+      "source": "Installed Satisfactory FactoryGame-Windows.pak and FactoryGame-Windows.utoc",
+      "parser": {
+        "name": "CUE4Parse",
+        "version": "1.2.2.202609",
+        "commit": "b4e95441bcf0c975eb3adb68c0fb44c740c2cf62",
+        "ueVersion": "GAME_UE5_6",
+        "packageVersion": [
+          522,
+          1017
+        ],
+        "compatibility": "44 unused OptionalProperty entries were converted to Unknown because pinned usmap v1 omits their inner type; selected inheritance chains must be independently checked"
+      },
+      "hashes": [
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ActorsBuiltDependency.uasset",
+          "sha256": "ee8ea9a7b6ed798998b711fe6cc9c131c01e5ec9dd021f24757b895a0a8b410f",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_CurrentOnboardingStepDependency.uasset",
+          "sha256": "df89650ae2141a9f01f8906c3fccbf0db8918f82798b1e8d2aff2cc8c4d858e8",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GameCompletedDependency.uasset",
+          "sha256": "c37a92b41e137da179eea1187f840f4f790177332653b15537867b327ba9159a",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_GamePhaseReachedDependency.uasset",
+          "sha256": "b9e009886469403d4526b50e01c0c12afce417d6e1179d05037739f87db8b095",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemFailedToSinkDependency.uasset",
+          "sha256": "c2f044d1675363e2cdc637b8c6cb99510c687069414a921275f561843b3557e5",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ItemPickedUpDependency.uasset",
+          "sha256": "93a34eea1ea277782f9584d60fc5e59bfab5803bcd494b754a09651973b82820",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_LockSpaceElevatorShipmentDependency.uasset",
+          "sha256": "bafcd12bf2ff12262f8d0fb6b58abd0cb8accb95996b2103a879efd622cc0cef",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageInterruptedDependency.uasset",
+          "sha256": "56e6747a0d05a2557060675cef60c39365c0586fadccfe3e14bbeab6ab5d5d54",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessageNotPlayedDependency.uasset",
+          "sha256": "5aaed21dd9aafca3aa96c0570cf478c40530e79d6476a375941ad5620278677e",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_MessagePlayedDependency.uasset",
+          "sha256": "9cdb8d1668dae47235dcf928abf702edae1458f5a17f7234ab7a044288cd1ce7",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_RandomChanceDependency.uasset",
+          "sha256": "5b21f219f28d914f392134fd6fb0a22656e90b949c9a30535b64105ad40b9d3d",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_ResearchTreeProgressionDependency.uasset",
+          "sha256": "6edcf61af79ca64a4487211aaa7669c5a62a623fd199ae7d0c4d0922463866a8",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicNotPurchasedDependency.uasset",
+          "sha256": "2fb322b4a74ba42c28e88709c39ce3a43fd1b886e789eb0569dcce1f1c04ed68",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicPurchasedDependency.uasset",
+          "sha256": "519d15c8df446d3078adfc18e9ae8d11559669eb441b9a7f44e4a52e4b53d400",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicSpammedDependency.uasset",
+          "sha256": "b9d77ef26d1bddcd66a896a8273ed18e0880edacc4330d2ab4966b8c66f6f82a",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SchematicTypeDependency.uasset",
+          "sha256": "1ce8ea255eaced55d7c7a752c0db3ebc6149cfb12c58e46f1209424568ade6af",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BP_SpaceElevatorFullyBuiltDependency.uasset",
+          "sha256": "bd3afdf390d9383000f6880beb8213b8e24b0ade9ec418475b547ca972e440bc",
+          "exports": 2
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/BPI_AvailabilityDependencyInterface.uasset",
+          "sha256": "a6a3a734be14b4964c5466cd6f27b35e435f33a7ca165fbb5151b0d79cae2f3a",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/AvailabilityDependencies/FAvailabilityDependencyData.uasset",
+          "sha256": "d611033bf691d6ac3889917a241acc447c698f17a1c1f94da8ff0b5518162324",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_0.uasset",
+          "sha256": "8f4713cdb346bf81747d5f03173a6c5001758a76b3ce6010dc9b9015c5afb8cc",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_1.uasset",
+          "sha256": "8227bbe89971a66933a9a02291e1d50c877e73ca5b53181360c70507cbf1911e",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_2.uasset",
+          "sha256": "356f7d3bb78274483ce863e8018d6d106815b7c8aec447e80a45b3c8f8a1eed5",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_3.uasset",
+          "sha256": "7d4c4397faf1658eec95649c18e560ff79235e6f1ef304026cf994ba995a22f0",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_4.uasset",
+          "sha256": "8225721209f2440ca3bce7d5e679845486b4d23f97cf79865dff93f944a1e3a2",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_5.uasset",
+          "sha256": "50be385e084224382476cc20be9a2d7de6228ce18e3b5b5791bcf11c926be8ab",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_6.uasset",
+          "sha256": "199c0494673428ef7aa53478f2935a2e06d68054558ef4019e7e44d15bac8e3a",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/GamePhases/GP_Project_Assembly_Phase_7.uasset",
+          "sha256": "b68a21ce7a66d6c40c82a125e2bc121d804bab8a36c816147ddfd441d1b5d103",
+          "exports": 1
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienOrganisms.uasset",
+          "sha256": "0c174882fa88e77675abf8e8d5d88ba57054b797cdda50a14c4c18a4c8eedadd",
+          "exports": 14
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_AlienTech.uasset",
+          "sha256": "5b5644cbdb0328c57b44d62a2aa5fd17f38e4ccc2440a74de66e41fdebbc571c",
+          "exports": 23
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Caterium.uasset",
+          "sha256": "8d46716c68becd92f4f91250be3315846bb029bebedcb2e1c06f4a4810714c7e",
+          "exports": 20
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_HardDrive.uasset",
+          "sha256": "c3499d19e082a1f6b2231cce7ab607b7ecf722ec71a0a082e2c9c5474aae4dfc",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Mycelia.uasset",
+          "sha256": "4b34aaa1d1558f997409edd6812e27d5d0a2467a444ebaaa85994db43d1178a5",
+          "exports": 13
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Nutrients.uasset",
+          "sha256": "3ff8cdf6369c66bd46295db7b1d5ca25d51c0840c32d06c298776511e372eb72",
+          "exports": 8
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_PowerSlugs.uasset",
+          "sha256": "e51d807e948590eb2c0d6eaa37efba9a41e3935ab0205ecd30cabf2cd7bb2208",
+          "exports": 9
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Quartz.uasset",
+          "sha256": "2511a52c162fba4c36c639dcf17022122b214b9a530975dd00567397f869a99a",
+          "exports": 15
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_Sulfur.uasset",
+          "sha256": "25e968a4aa6dd85374a02ebcda9b0a3efd8b320d23655b7ab245731805f35371",
+          "exports": 19
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTree_XMas.uasset",
+          "sha256": "a3d98dab480e6d0e98bb37c95501c140af6b66de160e42c447e997a42317af04",
+          "exports": 16
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Schematics/Research/BPD_ResearchTreeNode.uasset",
+          "sha256": "392c1d23bdb374609bbba0953657cb243edef4ecae82eb74b27730bf00d5f852",
+          "exports": 3
+        },
+        {
+          "path": "FactoryGame/Content/Localization/AllStringTables/en-US/AllStringTables.locres",
+          "sha256": "816091d2c1cd0feb14592f7c377bf9d6e5fc8fa1f893ee7f8347e9b99751b336"
+        },
+        {
+          "path": "FactoryGame/Content/Localization/AllStringTables/ru/AllStringTables.locres",
+          "sha256": "13f5c26133eaff81bca40c33afc3c0bab159ec13584f6fe7ab17922ad0bf6a08"
+        },
+        {
+          "path": "FactoryGame/Content/FactoryGame/Interface/UI/InGame/MAMTree/Widget_MAMTree_Grid.uasset",
+          "sha256": "6104b3a5ba5d0a194ecda94b893e48fcbe90adbea3c56838b90329ebe7659e64"
+        }
+      ],
+      "usmapSha256": "b0e9179d1af4663cc06e54d6cbfe2ce834f3960d50891ef28a90e936978e4b35",
+      "mappingVerification": {
+        "verified": true,
+        "exportedPackagesChecked": 496,
+        "referencedTypesChecked": 658,
+        "nativeMappingsChecked": 150,
+        "optionalPropertiesPatched": 44,
+        "affectedSelectedTypes": [],
+        "method": "Transitive closure of every exported object type, Blueprint/native superclass, and embedded StructProperty (including array/set/map value structures). Object references are not loaded as property payloads. No selected type reaches a changed OptionalProperty.",
+        "hashMeaning": "SHA-256 of provider.SaveAsset(path) raw package bytes after container decompression; localization hashes likewise identify raw locres bytes. These are not JSON export hashes."
+      },
+      "containerHashes": [
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\Headers.zip",
+          "sha256": "f4d96098afb214ee73d73365425db69c839e07a07fe498ff5c8334af0c0f2a5f"
+        },
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\FactoryGame\\Content\\Paks\\FactoryGame-Windows.utoc",
+          "sha256": "310534fff8ebdf87c6a6441916e1b5fce2b3fe8e4ca009bb415fa56b5558ee49"
+        },
+        {
+          "path": "E:\\SteamLibrary\\steamapps\\common\\Satisfactory\\CommunityResources\\CustomVersions.json",
+          "sha256": "39fc6d2585ad5fa2df07060d630d67403e319ba2e35a7e09f9497fbdfa8b69aa"
+        }
+      ]
+    },
+    "semantics": {
+      "parents": "OR",
+      "emptyParents": true,
+      "unhiddenBy": "OR",
+      "emptyUnhiddenBy": true,
+      "evidence": {
+        "asset": "/Game/FactoryGame/Interface/UI/InGame/MAMTree/Widget_MAMTree_Grid",
+        "function": "GetNodeState",
+        "statements": {
+          "initializeAvailable": 513,
+          "loopParents": 690,
+          "resetAvailable": 880,
+          "testParent": 1097,
+          "acceptParent": 1149,
+          "breakOnFirstResearchedParent": 1160
+        }
+      },
+      "notes": "Parent research conditions apply in addition to tree unlock dependencies and schematic dependencies. Tree pickup/event/visibility requirements remain separate; completion is user-reported.",
+      "danglingCoordinates": "Five nodes in Quartz/Sulfur contain stale parent coordinates absent from the exported tree. The unresolved alternatives are retained explicitly; each affected node also has at least one resolved parent. Never map unresolved alternatives to automatic availability."
+    },
+    "trees": 10,
+    "nodes": 110,
+    "seasonalNodes": 13,
+    "unresolvedNodes": 5,
+    "gamePhases": 8
   }
 }

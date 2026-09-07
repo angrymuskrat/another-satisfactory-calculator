@@ -1,0 +1,212 @@
+{
+  "provenance": {
+    "catalogVersion": "steam-24656030-v1",
+    "source": "source/Docs-en-US.json.gz",
+    "sha256": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+    "defaultsSource": "source/buildable-defaults.json",
+    "defaultsSha256": "8129a8e71e340b1d10c396c71a9700d8a75f673a9d2ef7ae02773168d9a691e3",
+    "importedAt": "2026-09-06",
+    "verification": "Механики из закреплённых Docs и assets. Без индивидуального override используется mDefaultProductionShardSlotSize подсистемы зданий. Эффективное число слотов Smelter — 1; исходный ноль Docs не является размером действующего слота."
+  },
+  "slots": {
+    "constructor": 1,
+    "assembler": 2,
+    "manufacturer": 4,
+    "smelter": 1,
+    "foundry": 2,
+    "oil-refinery": 2,
+    "packager": 0,
+    "blender": 4,
+    "accelerator": 4,
+    "converter": 2,
+    "quantum-encoder": 4,
+    "awesome-sink": 0
+  },
+  "well": {
+    "resourceIds": [
+      "water",
+      "crude-oil",
+      "nitrogen-gas"
+    ],
+    "power": 150,
+    "rate": 60,
+    "buildCosts": {
+      "resource-well-pressurizer": [
+        {
+          "itemId": "radio-control-unit",
+          "amount": 10
+        },
+        {
+          "itemId": "heavy-modular-frame",
+          "amount": 25
+        },
+        {
+          "itemId": "motor",
+          "amount": 50
+        },
+        {
+          "itemId": "alclad-aluminum-sheet",
+          "amount": 50
+        },
+        {
+          "itemId": "rubber",
+          "amount": 100
+        }
+      ],
+      "resource-well-extractor": [
+        {
+          "itemId": "steel-beam",
+          "amount": 10
+        },
+        {
+          "itemId": "aluminum-casing",
+          "amount": 10
+        }
+      ]
+    },
+    "costEvidence": {
+      "resource-well-pressurizer": {
+        "buildClass": "Build_FrackingSmasher_C",
+        "descriptorClass": "Desc_FrackingSmasher_C",
+        "recipeClass": "Recipe_FrackingSmasher_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_FrackingSmasher.Recipe_FrackingSmasher_C",
+        "rawCost": [
+          {
+            "className": "Desc_ModularFrameLightweight_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ModularFrameHeavy_C",
+            "amount": 25
+          },
+          {
+            "className": "Desc_Motor_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_AluminumPlate_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_Rubber_C",
+            "amount": 100
+          }
+        ]
+      },
+      "resource-well-extractor": {
+        "buildClass": "Build_FrackingExtractor_C",
+        "descriptorClass": "Desc_FrackingExtractor_C",
+        "recipeClass": "Recipe_FrackingExtractor_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_FrackingExtractor.Recipe_FrackingExtractor_C",
+        "rawCost": [
+          {
+            "className": "Desc_SteelPlate_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_AluminumCasing_C",
+            "amount": 10
+          }
+        ]
+      }
+    }
+  },
+  "evidence": {
+    "constructor": {
+      "className": "Build_ConstructorMk1_C",
+      "slots": "1",
+      "override": "False",
+      "effectiveSlots": 1,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "assembler": {
+      "className": "Build_AssemblerMk1_C",
+      "slots": "2",
+      "override": "True",
+      "effectiveSlots": 2,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "manufacturer": {
+      "className": "Build_ManufacturerMk1_C",
+      "slots": "4",
+      "override": "True",
+      "effectiveSlots": 4,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "smelter": {
+      "className": "Build_SmelterMk1_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 1,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "foundry": {
+      "className": "Build_FoundryMk1_C",
+      "slots": "2",
+      "override": "True",
+      "effectiveSlots": 2,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "oil-refinery": {
+      "className": "Build_OilRefinery_C",
+      "slots": "2",
+      "override": "True",
+      "effectiveSlots": 2,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "packager": {
+      "className": "Build_Packager_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 0,
+      "canBoost": "False",
+      "exponent": "2.000000"
+    },
+    "blender": {
+      "className": "Build_Blender_C",
+      "slots": "4",
+      "override": "True",
+      "effectiveSlots": 4,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "accelerator": {
+      "className": "Build_HadronCollider_C",
+      "slots": "4",
+      "override": "True",
+      "effectiveSlots": 4,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "converter": {
+      "className": "Build_Converter_C",
+      "slots": "2",
+      "override": "True",
+      "effectiveSlots": 2,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "quantum-encoder": {
+      "className": "Build_QuantumEncoder_C",
+      "slots": "4",
+      "override": "True",
+      "effectiveSlots": 4,
+      "canBoost": "True",
+      "exponent": "2.000000"
+    },
+    "awesome-sink": {
+      "className": "Build_ResourceSink_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 0,
+      "canBoost": "False",
+      "exponent": "2.000000"
+    }
+  }
+}
