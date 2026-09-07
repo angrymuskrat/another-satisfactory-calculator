@@ -1,6 +1,6 @@
 import type { Catalog, Ingredient, Plan, ProductResult, Result } from './types';
 import { effectivePlan } from './availability';
-import { productionConfigurations, wellConfiguration } from './production';
+import { balancedClock, canOptimizeClock, productionConfigurations, wellConfiguration } from './production';
 import mechanics from '../game-data/p2-mechanics.json';
 
 export interface ConstructionGroup {
@@ -50,8 +50,10 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     if (!building) throw new Error(`Не найдено здание ${recipe.buildingId}.`);
     const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId));
     if (!configuration) throw new Error('Конфигурация этапа отсутствует в плане.');
-    const clock = configuration.clock / 100, cyclesAtClock = 60 / recipe.seconds * clock;
     const count = step.installedMachines;
+    const expectedClock = canOptimizeClock(plan, configuration) ? balancedClock(configuration, step.cycles, count) : configuration.clock;
+    if ((step.clock !== undefined || canOptimizeClock(plan, configuration)) && (!Number.isFinite(step.clock) || Math.abs(step.clock! - expectedClock) > 1e-6)) throw new Error('Некорректная рабочая частота этапа.');
+    const clock = expectedClock / 100, cyclesAtClock = 60 / recipe.seconds * clock;
     if (!Number.isInteger(count) || count <= 0 || !(cyclesAtClock > 0)) throw new Error(`Некорректная конфигурация ${recipe.name}.`);
     const activeDuty = step.cycles / (count * cyclesAtClock);
     const activePower = (recipe.power ?? building.power) * clock ** exponent * configuration.boost ** 2;
@@ -59,7 +61,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     const outputs = recipe.outputs.map(i => ({ ...i, amount: i.amount * configuration.boost }));
     const flows = (ingredients: Ingredient[], cycles: number) => ingredients.map(i => ({ itemId: i.itemId, rate: i.amount * cycles }));
     return { id: step.configurationId ?? `recipe:${recipe.id}`, kind: 'production', buildingId: building.id, name: configuration.name, recipeId: recipe.id,
-      existing: configuration.existing, somersloops: configuration.somersloops, count, clock: configuration.clock, activeDuty, activeInputs: flows(recipe.inputs, cyclesAtClock), activeOutputs: flows(outputs, cyclesAtClock),
+      existing: configuration.existing, somersloops: configuration.somersloops, count, clock: expectedClock, activeDuty, activeInputs: flows(recipe.inputs, cyclesAtClock), activeOutputs: flows(outputs, cyclesAtClock),
       averageInputs: flows(recipe.inputs, step.cycles), averageOutputs: flows(outputs, step.cycles),
       activePower, averagePower: activePower * step.cycles / cyclesAtClock, peakPower: count * peak,
       powerEstimated: !!(recipe.powerEstimated || building.powerEstimated) };
@@ -120,6 +122,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   // Exact canonical configuration, no hash collisions. Persist as a value, not a storage key.
   const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups, materials }));
   return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe },
+    productionIdlePower: production.reduce((s, g) => s + Math.max(0, g.count * g.activePower - g.averagePower), 0),
     productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0) + importPower,
     sinkPower: sinks.reduce((s, g) => s + g.averagePower, 0),
     averagePower: groups.reduce((s, g) => s + g.averagePower, 0) + importPower, peakPower: groups.reduce((s, g) => s + g.peakPower, 0) + importPower };

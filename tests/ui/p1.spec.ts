@@ -7,7 +7,7 @@ const catalogJson = JSON.parse(readFileSync(new URL('../../packages/game-data/ca
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
 test('границы продукта, сеть и именованные источники сохраняются в черновике', async ({ page }) => {
-  const plan = createDefaultPlan(catalogJson as Catalog);
+  const plan = createDefaultPlan(catalogJson as Catalog); plan.settings.objective = 'power';
   plan.mode = 'target'; plan.targets[0].rate = 7.5;
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
   await page.goto('/');

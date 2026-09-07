@@ -61,3 +61,5 @@ table th{color:#cad4da;font-weight:600}.table-scroll{overflow-x:auto}
 .skip-link{position:fixed;top:8px;left:8px;transform:translateY(-150%);z-index:110;background:#15191c;color:#f5a14c;padding:12px;border:2px solid #f5a14c;border-radius:6px}.skip-link:focus{transform:none}textarea:focus-visible,[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 @media(max-width:720px){html{scroll-padding-top:110px}}
+
+.status-badge.approximate{color:#eac37b;background:#40351f}

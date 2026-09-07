@@ -6,6 +6,8 @@ import { buildModel } from './build';
 import { dot, type Expression } from './model';
 import { validateResult } from './validate';
 import { applyBatch } from '../domain/batch';
+import { balancedClock } from '../domain/production';
+import { hasSolution } from '../domain/types';
 type Highs = Awaited<ReturnType<typeof loadHighs>>;
 const tolerance = (value: number) => 1e-8 + Math.abs(value) * 1e-9;
 const clean = (value: number) => Math.max(0, value);
@@ -15,6 +17,7 @@ export function emptyResult(status: Result['status'], message: string): Result {
 }
 export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000): Result {
   let requested = input;
+  let approximatePower = false;
   try {
     const plan = effectivePlan(catalog, applyBatch(parsePlan(input)));
     requested = plan;
@@ -24,6 +27,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       return emptyResult('error', 'Положительные границы и заданный выпуск должны быть не меньше 0,000001 в минуту. Увеличьте масштаб расчёта; ноль остаётся отдельным запретом.');
     }
     const built = buildModel(catalog, plan);
+    approximatePower = built.recipeVariables.some(r => r.autoClock);
     const { model } = built;
     let values: Record<string, number> = {};
     let confirmed = false;
@@ -104,7 +108,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         model.constrain(expression, '>=', Math.max(0, optimum * (1 - plan.settings.outputSlack / 100) - tolerance(optimum)));
       }
     }
-    const costGoals = plan.settings.objective === 'buildings' ? [built.machineCount, built.power, normalize(built.resources)]
+    const costGoals = plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
       : plan.settings.objective === 'power' ? [built.power, normalize(built.resources)] : [normalize(built.resources), built.power];
     const costLocks: { index: number; expression: Expression; optimum: number }[] = [];
     for (const expression of costGoals) {
@@ -112,7 +116,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       costLocks.push({ index: model.constraints.length, expression, optimum });
       model.constrain(expression, '<=', optimum + tolerance(optimum));
     }
-    if (built.needsCounts && plan.settings.objective !== 'buildings') {
+    if (built.needsCounts && plan.settings.objective !== 'buildings' && plan.settings.objective !== 'smooth-power') {
       const optimum = optimize(built.machineCount);
       model.constrain(built.machineCount, '<=', Math.round(optimum));
     }
@@ -127,10 +131,10 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       const selections: { used: string; flow: string }[] = [];
       const recipeSelections = new Map<string, string>();
       for (const r of built.recipeVariables) {
-        if (r.powerPerCycle <= 0) continue;
+        if (r.minimumPowerPerCycle <= 0) continue;
         const used = recipeSelections.get(r.recipe.id) ?? model.variable(1, true);
         recipeSelections.set(r.recipe.id, used);
-        const upper = (budget + tolerance(budget)) / r.powerPerCycle;
+        const upper = (budget + tolerance(budget)) / r.minimumPowerPerCycle;
         model.constrain(new Map([[r.variable, 1], [used, -upper]]), '<=', 0);
         recipeCount.set(used, 1);
         selections.push({ used, flow: r.variable });
@@ -184,13 +188,24 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       }
     }
     const result = emptyResult('optimal', 'Оптимальная схема найдена в модели заданных частот.');
+    if (approximatePower) {
+      result.status = 'approximate';
+      result.message = 'Подобраны число машин и рабочие частоты. Допустимый план с приближённой оптимизацией энергии; точные мощности проверены.';
+    }
     result.objectiveValue = objectiveValue;
     result.products = built.targets.map(t => ({ itemId: t.target.itemId, rate: clean(values[t.variable] ?? 0) }));
     result.steps = built.recipeVariables.filter(r => r.configuration.existing || (values[r.variable] ?? 0) > 1e-12).map(r => {
-      const cycles = values[r.variable]; const machines = cycles / r.capacity;
-      const installedMachines = r.configuration.existing || physicalCount(machines);
+      const cycles = values[r.variable];
+      const installedMachines = r.autoClock ? Math.round(values[r.countVariable!] ?? 0) : r.configuration.existing || physicalCount(cycles / r.capacity);
+      const clock = r.autoClock ? balancedClock(r.configuration, cycles, installedMachines) : r.configuration.clock;
+      const clockRatio = clock / r.configuration.clock;
+      const capacity = Math.min(r.capacity, r.cyclesAtClock * clockRatio);
+      const machines = cycles / capacity;
+      const machinePower = r.power * clockRatio ** Math.log2(2.5);
+      const machineMax = r.powerMax * clockRatio ** Math.log2(2.5);
       return { recipeId: r.recipe.id, ...(r.configuration.id !== r.recipe.id ? { configurationId: r.configuration.id } : {}), cycles, machines, installedMachines,
-        power: cycles * r.powerPerCycle, powerMax: installedMachines * r.powerMax,
+        ...(r.autoClock ? { clock } : {}),
+        power: cycles / (r.cyclesAtClock * clockRatio) * machinePower, powerMax: installedMachines * machineMax,
         inputs: r.recipe.inputs.map(i => ({ itemId: i.itemId, rate: cycles * i.amount })),
         outputs: r.recipe.outputs.map(i => ({ itemId: i.itemId, rate: cycles * i.amount })),
       };
@@ -208,6 +223,8 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     result.installedPower = result.steps.reduce((s, r) => s + r.powerMax, 0) + result.sinkPower
       + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.warnings.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
+    if (plan.settings.objective === 'smooth-power') result.warnings.push('После выпуска минимизируется число машин, затем энергия с подбором частот от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.');
+    if (approximatePower) result.warnings.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
     if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
     if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');
     if (result.exports.length) result.warnings.push('Отгрузки требуют постоянного потребления в другой фабрике. Они не создают там источник автоматически.');
@@ -225,11 +242,12 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     return result;
   } catch (error) {
     if (error instanceof SolveFailure) {
+      if (approximatePower && error.status === 'infeasible') return emptyResult('error', 'В консервативной модели автоподбора частот допустимый план не найден. Невыполнимость точной нелинейной модели не доказана; проверьте ресурсы и лимиты мощности.');
       const result = emptyResult(error.status, {
         infeasible: 'Заказ невыполним при текущих ресурсах, рецептах, технологиях и лимите мощности.',
         unbounded: 'Выпуск не ограничен. Задайте конечные источники или лимит мощности.',
         timeout: 'Время расчёта истекло. Уменьшите число целей или доступных альтернатив.',
-        error: 'Решатель не смог подтвердить результат.', optimal: '',
+        error: 'Решатель не смог подтвердить результат.', optimal: '', approximate: '',
       }[error.status]);
       if (error.detail) result.message = error.detail;
       if (error.status === 'infeasible') {
@@ -238,7 +256,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         if (requested.mode === 'target' && requested.targets.some(t => t.rate > 0) && performance.now() < deadline) {
           const targets = requested.targets.filter(t => t.rate > 0);
           const alternative = solve(catalog, { ...requested, batch: undefined, targets, mode: 'maximize', policy: 'proportional', settings: { ...requested.settings, outputSlack: 0 } }, highs, deadline);
-          if (alternative.status === 'optimal') {
+          if (hasSolution(alternative)) {
             const fraction = Math.min(...targets.map(t => (alternative.products.find(p => p.itemId === t.itemId)?.rate ?? 0) / t.rate));
             result.feasibleAlternative = { products: alternative.products, fraction, power: alternative.power, bottlenecks: alternative.diagnostics };
           } else result.diagnostics.push('Дополнительная оценка достижимого выпуска не завершена.');

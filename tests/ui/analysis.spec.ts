@@ -19,7 +19,7 @@ async function selectChecks(page: Page, names: RegExp[]) {
 }
 
 test('F04: области русского поиска, сворачивание клавиатурой, единицы и сравнение цепочки без изменения плана', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.targets[0].rate = 10;
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.targets[0].rate = 10;
   await openPlan(page, plan);
   await page.getByRole('button', { name: 'Рецепты', exact: true }).click();
   await page.getByLabel('Поиск рецептов', { exact: true }).fill('винт');
@@ -56,7 +56,7 @@ test('F04: области русского поиска, сворачивани�
 });
 
 test('F06: отсутствующая медь предлагается конечным внешним источником и подтверждается пересчётом', async ({ page }) => {
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.targets = [{ itemId: 'copper-ingot', rate: 10, weight: 1, scale: 1 }];
   await openPlan(page, plan);
   await selectChecks(page, [/Добавить Медная руда: внешний поток 60/]);
@@ -70,7 +70,7 @@ test('F06: отсутствующая медь предлагается коне
 });
 
 test('F06: одиночное насыщение двух ограничений не выдается за доказательство, совместное расширение проверено', async ({ page }) => {
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.targets = [{ itemId: 'iron-ingot', rate: 10, weight: 1, scale: 1 }];
   plan.sources = [{ id: 'iron-flow', name: 'Подача железа', itemId: 'iron-ore', kind: 'flow', limit: 30, count: 1, purity: 1, minerId: '', clock: 100 }];
   plan.settings.powerLimit = 4;
@@ -83,12 +83,12 @@ test('F06: одиночное насыщение двух ограничений
 });
 
 test('worker анализа отменяется; поздний ответ старого плана не показывается', async ({ page }) => {
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   await openPlan(page, plan);
   let release!: () => void;
   const pending = new Promise<void>(resolve => { release = resolve; });
   await page.route(/analysis\.worker.*\.js/, async route => { await pending; await route.continue().catch(() => {}); });
-  await page.getByRole('button', { name: 'Сравнить энергию, сырьё и здания' }).click();
+  await page.getByRole('button', { name: 'Сравнить цели оптимизации' }).click();
   await expect(page.getByRole('button', { name: 'Отменить анализ' })).toBeVisible();
   await page.getByRole('button', { name: 'Отменить анализ' }).click();
   await expect(page.getByText('Анализ отменён.', { exact: true })).toBeVisible();
@@ -98,13 +98,13 @@ test('worker анализа отменяется; поздний ответ ст
   // A separate in-flight run is terminated when its input changes.
   const secondPending = new Promise<void>(resolve => { release = resolve; });
   await page.route(/analysis\.worker.*\.js/, async route => { await secondPending; await route.continue().catch(() => {}); });
-  await page.getByRole('button', { name: 'Сравнить энергию, сырьё и здания' }).click();
+  await page.getByRole('button', { name: 'Сравнить цели оптимизации' }).click();
   await expect(page.getByRole('button', { name: 'Отменить анализ' })).toBeVisible();
   await page.getByLabel('Название плана', { exact: true }).fill('Изменён во время анализа');
   release();
   await expect(page.getByRole('button', { name: 'Отменить анализ' })).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Результаты анализа' })).toHaveCount(0);
   await page.unroute(/analysis\.worker.*\.js/);
-  await page.getByRole('button', { name: 'Сравнить энергию, сырьё и здания' }).click();
+  await page.getByRole('button', { name: 'Сравнить цели оптимизации' }).click();
   await expect(page.getByRole('heading', { name: 'Результаты сравнения', exact: true })).toBeVisible({ timeout: 25000 });
 });

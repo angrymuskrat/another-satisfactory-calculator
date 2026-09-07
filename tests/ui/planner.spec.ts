@@ -5,9 +5,10 @@ test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' }
 
 test('расчёт, русский поиск, политики и невыполнимый заказ', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('complementary', { name: 'Активные ограничения' })).toContainText('здания → энергия с подбором частот');
   await expect(page.getByRole('heading', { name: 'Спланируйте следующую фабрику' })).toBeVisible();
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'Готовая продукция' })).toBeVisible();
   await page.screenshot({ path: 'output/playwright/planner-result.png', fullPage: true });
   await page.getByRole('button', { name: 'Добавить продукт' }).click();
@@ -30,7 +31,9 @@ test('расчёт, русский поиск, политики и невыпо�
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1');
   await page.getByRole('textbox', { name: 'Количество продукта 2', exact: true }).fill('1');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await page.getByText('Цели и ограничения', { exact: true }).click();
+  await page.getByRole('combobox', { name: 'Порядок целей после выпуска', exact: true }).selectOption('power');
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1000000');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Заказ невыполним' })).toBeVisible({ timeout: 30_000 });

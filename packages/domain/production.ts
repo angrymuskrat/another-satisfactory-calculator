@@ -6,6 +6,12 @@ export interface ProductionConfiguration {
   id: string; recipe: Recipe; clock: number; somersloops: number; boost: number;
   existing: number; duty: number | null; name: string;
 }
+export const canOptimizeClock = (plan: Plan, configuration: ProductionConfiguration) => plan.settings.objective === 'smooth-power' && configuration.duty === null;
+
+/** Balanced load per installed machine; below 1% the machine still needs idle time. */
+export function balancedClock(configuration: ProductionConfiguration, cycles: number, count: number): number {
+  return Math.min(configuration.clock, Math.max(1, cycles * configuration.recipe.seconds / (60 * count) * 100));
+}
 /** Finite configurations; clock is an input, never a post-solve correction. */
 export function productionConfigurations(catalog: Catalog, plan: Plan): ProductionConfiguration[] {
   const configs: ProductionConfiguration[] = [];

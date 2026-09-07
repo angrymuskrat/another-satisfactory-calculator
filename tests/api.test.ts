@@ -50,6 +50,14 @@ function worldFixture() {
   ] };
 }
 describe('API миров и фабрик', () => {
+  it('сохраняет и восстанавливает профиль с целью ровной нагрузки', async () => {
+    const instance = app(); const { cookie } = await register(instance);
+    const data = structuredClone(plan); data.settings.objective = 'smooth-power';
+    const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Ровная нагрузка', data } });
+    expect(created.statusCode).toBe(201);
+    const restored = await instance.inject({ url: `/api/profiles/${created.json().profile.id}`, headers: { cookie } });
+    expect(restored.statusCode).toBe(200); expect(restored.json().profile.data).toEqual(data);
+  });
   it('изолирует workspace аккаунтов, не принимает чужого владельца и сохраняет полные фабрики', async () => {
     const instance = app();
     expect((await instance.inject('/api/workspace')).statusCode).toBe(401);

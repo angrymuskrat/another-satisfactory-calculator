@@ -1,8 +1,9 @@
 import type { Catalog, Plan, Recipe, Source } from '../domain/types';
 import { add, Model, type Expression } from './model';
-import { productionConfigurations, wellConfiguration, type ProductionConfiguration } from '../domain/production';
+import { canOptimizeClock, productionConfigurations, wellConfiguration, type ProductionConfiguration } from '../domain/production';
+import { clockPower, MIN_CLOCK } from './clockPower';
 const EXPONENT = Math.log2(2.5);
-export interface RecipeVariable { configuration: ProductionConfiguration; recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number }
+export interface RecipeVariable { configuration: ProductionConfiguration; recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number; minimumPowerPerCycle: number; autoClock: boolean }
 export interface SourceVariable { source: Source; variable: string; countVariable: string | null; capacity: number; limit: number | null; powerPerUnit: number; installedPower: number }
 
 export function buildModel(catalog: Catalog, plan: Plan) {
@@ -11,7 +12,7 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   const peakPower: Expression = new Map(); const machineCount: Expression = new Map();
   const countsByBuilding = new Map<string, Expression>();
   const loops: Expression = new Map();
-  const needsCounts = !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
+  const needsCounts = !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
   const countFor = (id: string, upper: number | null = null) => {
     const variable = model.variable(upper, true);
     add(machineCount, variable, 1);
@@ -53,16 +54,23 @@ export function buildModel(catalog: Catalog, plan: Plan) {
       }
     }
     const powerPerCycle = machinePower / cyclesAtClock;
+    const autoClock = canOptimizeClock(plan, configuration);
+    const minimumPowerPerCycle = autoClock ? powerPerCycle * (MIN_CLOCK / clock) ** (EXPONENT - 1) : powerPerCycle;
     const countVariable = needsCounts ? countFor(recipe.buildingId, configuration.existing || null) : null;
     if (countVariable) {
       if (configuration.existing) model.constrain(new Map([[countVariable, 1]]), '=', configuration.existing);
       if (configuration.duty !== null) model.constrain(new Map([[variable, 1]]), '=', configuration.existing * cyclesAtClock * configuration.duty);
       model.constrain(new Map([[variable, 1 / capacity], [countVariable, -1]]), '<=', 0);
-      add(peakPower, countVariable, machineMax);
+      if (autoClock) {
+        const envelope = clockPower(model, variable, countVariable, 60 / recipe.seconds, clock);
+        add(power, envelope.average, machinePower / clock ** EXPONENT);
+        add(peakPower, envelope.peak, machineMax / clock ** EXPONENT);
+      } else add(peakPower, countVariable, machineMax);
       add(loops, countVariable, configuration.somersloops);
     }
-    add(power, variable, powerPerCycle); add(activity, variable, 1);
-    recipeVariables.push({ configuration, recipe, variable, countVariable, capacity, cyclesAtClock, power: machinePower, powerMax: machineMax, powerPerCycle });
+    if (!autoClock) add(power, variable, powerPerCycle);
+    add(activity, variable, 1);
+    recipeVariables.push({ configuration, recipe, variable, countVariable, capacity, cyclesAtClock, power: machinePower, powerMax: machineMax, powerPerCycle, minimumPowerPerCycle, autoClock });
   }
   const allSources = [...plan.sources];
   if (plan.settings.resourcePolicy === 'unlimited-unlisted') {

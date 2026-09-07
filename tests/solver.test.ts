@@ -5,6 +5,7 @@ import { validateResult } from '../packages/solver/validate';
 import type { Catalog, Plan, Recipe, Result } from '../packages/domain/types';
 import gameCatalog from '../packages/game-data/catalog.json';
 import { createDefaultPlan } from '../packages/domain/defaults';
+import { buildConstruction } from '../packages/domain/construction';
 
 let highs: Awaited<ReturnType<typeof loadHighs>>;
 beforeAll(async () => { highs = await loadHighs(); });
@@ -32,6 +33,135 @@ function fixture(): { catalog: Catalog; plan: Plan } {
 const output = (r: Result, id: string) => r.products.find(p => p.itemId === id)?.rate ?? 0;
 
 describe('совместная оптимизация производства', () => {
+  it.each(['target', 'proportional', 'priority', 'weighted'] as const)('ровная нагрузка подбирает частоту и снижает энергию: %s', mode => {
+    const { catalog, plan } = fixture();
+    plan.mode = mode === 'target' ? 'target' : 'maximize';
+    if (mode !== 'target') plan.policy = mode;
+    plan.targets[0].rate = 20; plan.targets[0].maxRate = 20;
+    // После подбора: slow 100%, 4 МВт; fast 50% частоты, 100% времени, 3,2 МВт.
+    catalog.recipes = [recipe('slow', 'plate', 6, 2, 6, 4), recipe('fast', 'plate', 3, 2, 3, 8)];
+    plan.settings.enabledRecipeIds = ['slow', 'fast'];
+    const energy = solve(catalog, plan, highs);
+    expect(energy.status).toBe('optimal'); expect(energy.steps.map(s => s.recipeId)).toEqual(['fast']);
+    plan.settings.objective = 'smooth-power';
+    const before = structuredClone(plan);
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(output(result, 'plate')).toBeCloseTo(20, 5);
+    expect(result.power).toBeCloseTo(3.2, 5);
+    expect(result.steps.map(s => s.recipeId)).toEqual(['fast']);
+    expect(result.steps[0].installedMachines).toBe(1);
+    const group = buildConstruction(catalog, plan, result).production[0];
+    expect(group.activeDuty).toBeCloseTo(1, 6); expect(group.clock).toBeCloseTo(50, 5);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+    expect(plan).toEqual(before);
+  });
+  it('ровная нагрузка выполняет неделимый заказ на пониженной частоте без простоев', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 15;
+    plan.settings.objective = 'smooth-power'; plan.settings.clock = 150;
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    const group = buildConstruction(catalog, plan, result).production[0];
+    expect(group.count).toBe(1); expect(group.clock).toBeCloseTo(75, 5); expect(group.activeDuty).toBeCloseTo(1, 6);
+    expect(output(result, 'plate')).toBeCloseTo(15, 6); expect(result.surplus).toEqual([]);
+  });
+  it('снижение энергии входит в выбор рецепта до решения, а не в коррекцию результата', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    catalog.recipes.push(recipe('fast', 'plate', 3, 2, 3, 9)); plan.settings.enabledRecipeIds.push('fast');
+    const fixed = solve(catalog, plan, highs);
+    expect(fixed.steps.map(s => s.recipeId)).toEqual(['plate']); expect(fixed.power).toBeCloseTo(4, 5);
+    plan.settings.objective = 'smooth-power';
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(result.steps.map(s => s.recipeId)).toEqual(['fast']); expect(result.power).toBeCloseTo(3.6, 5);
+  });
+  it('подбор частот учитывается в лимитах энергии и пика с резервом', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 10;
+    plan.settings.powerLimit = 1.61; plan.settings.peakPowerLimit = 2.61; plan.settings.powerReserve = 1;
+    expect(solve(catalog, plan, highs).status).toBe('infeasible');
+    plan.settings.objective = 'smooth-power';
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(result.steps[0].installedMachines).toBe(1); expect(result.power).toBeCloseTo(1.6, 5);
+    expect(result.installedPower).toBeCloseTo(1.6, 5); expect(validateResult(catalog, plan, result).errors).toEqual([]);
+    const tampered = structuredClone(result); tampered.steps[0].clock = 100;
+    expect(validateResult(catalog, plan, tampered).errors.join(' ')).toContain('частота');
+    plan.settings.peakPowerLimit = 2;
+    expect(validateResult(catalog, plan, result).errors.join(' ')).toContain('максимальной');
+  });
+  it.each(['proportional', 'priority', 'weighted'] as const)('сохраняет границы нескольких продуктов и допустимую потерю выпуска с автоподбором: %s', policy => {
+    const { catalog, plan } = fixture(); plan.settings.objective = 'smooth-power'; plan.policy = policy;
+    plan.targets = [{ itemId: 'plate', rate: 1, weight: 2, scale: 1, minRate: 10, maxRate: 20 }, { itemId: 'rod', rate: 1, weight: 1, scale: 1, minRate: 10, maxRate: 20 }];
+    plan.settings.outputSlack = 20;
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+    for (const product of result.products) { expect(product.rate).toBeGreaterThanOrEqual(10 - 1e-6); expect(product.rate).toBeLessThanOrEqual(20 + 1e-6); }
+    for (const group of buildConstruction(catalog, plan, result).production) expect(group.activeDuty).toBeCloseTo(1, 5);
+  });
+  it('ниже минимальной частоты честно показывает остаточный простой и физический пик', () => {
+    const { catalog, plan } = fixture(); plan.settings.objective = 'smooth-power'; plan.mode = 'target'; plan.targets[0].rate = 0.1;
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    const group = buildConstruction(catalog, plan, result).production[0];
+    expect(group.clock).toBe(1); expect(group.activeDuty).toBeCloseTo(0.5, 6);
+    expect(group.peakPower).toBeCloseTo(group.averagePower * 2, 8);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+  });
+  it('незакреплённая существующая линия настраивается по выпуску с сохранением оборудования', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 30;
+    plan.settings.objective = 'smooth-power'; plan.expansion = 'keep';
+    plan.lines = [{ id: 'old', name: 'Старая линия', recipeId: 'plate', count: 2, clock: 100, duty: 0.25, locked: false, somersloops: 0 }];
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    const group = buildConstruction(catalog, plan, result).production[0];
+    expect(group.count).toBe(2); expect(group.clock).toBeCloseTo(75, 6); expect(group.activeDuty).toBeCloseTo(1, 6);
+    expect(plan.lines[0].clock).toBe(100); expect(plan.lines[0].duty).toBe(0.25);
+  });
+  it('ровная нагрузка сначала минимизирует машины и настраивает оставшуюся на непрерывный выпуск', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 40;
+    catalog.recipes.push(recipe('fast', 'plate', 3, 3, 3, 12)); plan.settings.enabledRecipeIds.push('fast');
+    plan.settings.objective = 'smooth-power';
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(result.steps.map(s => s.recipeId)).toEqual(['fast']);
+    expect(result.steps[0].installedMachines).toBe(1); expect(result.steps[0].clock).toBeCloseTo(200 / 3, 5);
+    expect(result.power).toBeCloseTo(12 * (2 / 3) ** Math.log2(2.5), 5);
+    expect(buildConstruction(catalog, plan, result).productionIdlePower).toBeCloseTo(0, 5);
+  });
+  it('ровная нагрузка не увеличивает среднюю энергию ради полной загрузки', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    catalog.recipes[0].power = 8;
+    catalog.recipes.push(recipe('fast', 'plate', 3, 2, 3, 8)); plan.settings.enabledRecipeIds.push('fast');
+    plan.settings.objective = 'smooth-power'; plan.settings.allowSink = true;
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(result.steps.map(s => s.recipeId)).toEqual(['fast']); expect(result.power).toBeCloseTo(3.2, 5);
+    expect(result.surplus).toEqual([]); expect(output(result, 'plate')).toBeCloseTo(20, 6);
+  });
+  it('ровная нагрузка устраняет простой из-за транспорта снижением частоты', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    catalog.belts[0].rate = 15; plan.settings.objective = 'smooth-power';
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    const construction = buildConstruction(catalog, plan, result);
+    expect(construction.production[0].count).toBe(2);
+    expect(construction.production[0].activeDuty).toBeCloseTo(1, 6);
+    expect(construction.production[0].clock).toBeCloseTo(50, 5);
+    expect(construction.productionIdlePower).toBeCloseTo(0, 6);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+  });
+  it('ровная нагрузка сохраняет закреплённую линию и её усилители', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.targets[0].rate = 20;
+    plan.settings.objective = 'smooth-power'; plan.somersloopBudget = 2; plan.expansion = 'keep';
+    plan.lines = [{ id: 'old', name: 'Старая линия', recipeId: 'plate', count: 2, clock: 100, duty: 0.25, locked: true, somersloops: 1 }];
+    const result = solve(catalog, plan, highs);
+    expect(result.status, result.message).toBe('optimal'); expect(result.somersloops).toBe(2);
+    const construction = buildConstruction(catalog, plan, result);
+    expect(construction.production[0].count).toBe(2); expect(construction.production[0].activeDuty).toBeCloseTo(0.25, 6);
+    expect(construction.productionIdlePower).toBeCloseTo(24, 6); expect(result.power).toBeCloseTo(8, 6);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+  });
   it.each(['priority', 'weighted'] as const)('сохраняет минимум младшего продукта и при потере выпуска: %s', policy => {
     const { catalog, plan } = fixture(); plan.policy = policy;
     plan.targets[0].weight = 10;
@@ -117,7 +247,7 @@ describe('совместная оптимизация производства',
     expect(solve(catalog, plan, highs).status).toBe('infeasible');
   });
   it.each(['aluminum-ingot', 'battery'])('сохраняет баланс малых потоков в реальной цепочке %s', itemId => {
-    const catalog = gameCatalog as Catalog; const plan = createDefaultPlan(catalog);
+    const catalog = gameCatalog as Catalog; const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
     plan.mode = 'target'; plan.targets = [{ itemId, rate: 10, weight: 1, scale: 1 }]; plan.sources = [];
     plan.settings.resourcePolicy = 'unlimited-unlisted'; plan.settings.allowSink = true;
     plan.settings.enabledRecipeIds = catalog.recipes.map(r => r.id);

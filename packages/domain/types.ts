@@ -101,7 +101,7 @@ export interface Settings {
   pipeId: string;
   clock: number;
   resourcePolicy: 'listed-only' | 'unlimited-unlisted';
-  objective: 'power' | 'resources' | 'buildings';
+  objective: 'power' | 'smooth-power' | 'resources' | 'buildings';
   peakPowerLimit?: number | null;
   powerReserve?: number;
   buildingLimits?: Record<string, number>;
@@ -128,6 +128,7 @@ export interface Plan {
 }
 export interface ProductResult { itemId: string; rate: number }
 export interface StepResult {
+  clock?: number;
   configurationId?: string;
   recipeId: string; cycles: number; machines: number; installedMachines: number;
   power: number; powerMax: number; inputs: ProductResult[]; outputs: ProductResult[];
@@ -140,7 +141,7 @@ export interface Result {
   exports?: ProductResult[];
   somersloops?: number;
   feasibleAlternative?: { products: ProductResult[]; fraction: number; power: number; bottlenecks: string[] };
-  status: 'optimal' | 'infeasible' | 'unbounded' | 'error' | 'timeout';
+  status: 'optimal' | 'approximate' | 'infeasible' | 'unbounded' | 'error' | 'timeout';
   message: string;
   products: ProductResult[];
   steps: StepResult[];
@@ -156,3 +157,4 @@ export interface Result {
   diagnostics: string[];
   maxBalanceError: number;
 }
+export const hasSolution = (result: Result | null | undefined): result is Result & { status: 'optimal' | 'approximate' } => result?.status === 'optimal' || result?.status === 'approximate';

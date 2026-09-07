@@ -16,14 +16,29 @@ function fixture() {
     miners: [{ id: 'mk1', name: 'Mk1', rate: 60, power: 5, resourceIds: ['ore'] }],
     belts: [{ id: 'belt1', name: 'Лента', rate: 60 }], pipes: [{ id: 'pipe1', name: 'Труба', rate: 300 }], categories: ['Детали'],
   };
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.targets = [{ itemId: 'plate', rate: 20, weight: 1, scale: 1 }];
   plan.sources = [{ id: 'ore1', itemId: 'ore', kind: 'flow', limit: 60, count: 1, purity: 1, minerId: 'mk1', clock: 100 }];
   return { catalog, plan };
 }
 describe('повторный анализ полного плана', () => {
+  it('сравнивает энергию допустимых планов с подобранными частотами при большем расходе сырья', () => {
+    const { catalog, plan } = fixture(); plan.mode = 'target'; plan.settings.objective = 'smooth-power';
+    catalog.recipes[0].inputs[0].amount = 6;
+    catalog.recipes.push({ ...catalog.recipes[0], id: 'fast', seconds: 3, power: 8, inputs: [{ itemId: 'ore', amount: 3 }] });
+    catalog.recipes[0].power = 2;
+    plan.settings.enabledRecipeIds = ['fast'];
+    const report = analyze(catalog, plan, highs, { kind: 'recipes', recipeIds: ['plate'] });
+    expect(report.baseline.status).toBe('approximate');
+    const variant = report.variants[0]; expect(variant.result.status).toBe('approximate');
+    expect(variant.comparison?.power.delta).toBeCloseTo(-1.2, 5);
+    expect(variant.comparison?.productionIdlePower.before).toBeCloseTo(0, 5);
+    expect(variant.comparison?.productionIdlePower.after).toBeCloseTo(0, 5);
+    expect(variant.comparison?.resourceCost.delta).toBeCloseTo(30, 5);
+    expect(variant.benefit).toBe('cost');
+  });
   it('литой винт меняет всю цепочку, экономит 10,4 MW и две производственные машины без изменения плана', () => {
-    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
     plan.mode = 'target'; plan.targets[0].rate = 10;
     const original = structuredClone(plan);
     const report = analyze(catalog, plan, highs, { kind: 'recipes', recipeIds: ['alt-screw'] });
@@ -108,16 +123,16 @@ describe('повторный анализ полного плана', () => {
     expect(report.variants[0].summary?.physical.extraction).toBe(1);
     expect(plan.world.unlockedBuildingIds).not.toContain('mk1');
   });
-  it('три цели показывают измеримый компромисс при одном заказе и неизменных ограничениях', () => {
+  it('четыре цели показывают измеримый компромисс при одном заказе и неизменных ограничениях', () => {
     const { catalog, plan } = fixture(); plan.mode = 'target'; catalog.recipes[0].seconds = 12;
     catalog.recipes.push({ ...catalog.recipes[0], id: 'eco', alternate: true, power: 2, inputs: [{ itemId: 'ore', amount: 4 }] },
       { ...catalog.recipes[0], id: 'compact', alternate: true, power: 10, seconds: 60, inputs: [{ itemId: 'ore', amount: 40 }], outputs: [{ itemId: 'plate', amount: 20 }] });
     plan.settings.enabledRecipeIds.push('eco', 'compact');
     const before = structuredClone(plan);
     const report = analyze(catalog, plan, highs, { kind: 'objectives' });
-    expect(report.variants.map(v => v.result.status)).toEqual(['optimal', 'optimal', 'optimal']);
-    expect(report.variants.map(v => v.result.steps[0].recipeId)).toEqual(['eco', 'plate', 'compact']);
-    expect(report.variants.map(v => v.summary?.physical.production)).toEqual([2, 2, 1]);
+    expect(report.variants.map(v => v.result.status)).toEqual(['optimal', 'approximate', 'optimal', 'optimal']);
+    expect(report.variants.map(v => v.result.steps[0].recipeId)).toEqual(['eco', 'compact', 'plate', 'compact']);
+    expect(report.variants.map(v => v.summary?.physical.production)).toEqual([2, 1, 2, 1]);
     for (const v of report.variants) expect(v.result.products[0].rate).toBeCloseTo(20, 4);
     expect(plan).toEqual(before);
   });

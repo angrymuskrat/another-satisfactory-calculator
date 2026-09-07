@@ -26,7 +26,10 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   for (const step of result.steps) {
     const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId) && c.recipe.id === step.recipeId);
     if (!configuration) { errors.push('Недопустимая конфигурация производства.'); continue; }
-    const clock = configuration.clock / 100, boost = configuration.boost;
+    const autoClock = plan.settings.objective === 'smooth-power' && configuration.duty === null;
+    const expectedClock = autoClock ? Math.min(configuration.clock, Math.max(1, step.cycles * configuration.recipe.seconds / (60 * step.installedMachines) * 100)) : configuration.clock;
+    if ((autoClock || step.clock !== undefined) && !close(step.clock!, expectedClock)) errors.push('Неверная рабочая частота этапа.');
+    const clock = expectedClock / 100, boost = configuration.boost;
     const recipe = catalog.recipes.find(r => r.id === step.recipeId);
     if (!recipe || !plan.settings.enabledRecipeIds.includes(step.recipeId) || !plan.settings.enabledBuildingIds.includes(recipe.buildingId)) { errors.push('Использован недоступный рецепт.'); continue; }
     if (seenRecipes.has(configuration.id)) errors.push('Конфигурация повторяется в результате.');
@@ -38,7 +41,8 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     let capacity = activeRate;
     for (const ingredient of [...recipe.inputs, ...recipe.outputs.map(i => ({ ...i, amount: i.amount * boost }))]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
     const machines = step.cycles / capacity;
-    const physical = configuration.existing || Math.max(1, Math.ceil(machines - 1e-7));
+    const physical = configuration.existing || (autoClock ? step.installedMachines : Math.max(1, Math.ceil(machines - 1e-7)));
+    if (!Number.isInteger(physical) || physical <= 0) errors.push('Некорректное число производственных машин.');
     if (machines > physical + 1e-7) errors.push('Превышена мощность существующей линии.');
     if (configuration.duty !== null && !close(step.cycles, configuration.existing * activeRate * configuration.duty)) errors.push('Изменена закреплённая линия.');
     somersloops += physical * configuration.somersloops;

@@ -1,22 +1,23 @@
 import { useMemo, useState } from 'react';
 import { ArrowRight, Boxes, Factory, Info, Layers, TriangleAlert, Zap } from 'lucide-react';
 import type { Catalog, Plan, Result } from '../../../packages/domain/types';
+import { hasSolution } from '../../../packages/domain/types';
 import { buildConstruction } from '../../../packages/domain/construction';
 import { CatalogStatus, Construction, CopyNumber } from './Construction';
 import { BatchResult } from './Batch';
 import { format, ItemIcon, unit } from './controls';
 
-const statusLabels = { optimal: 'Оптимум найден', infeasible: 'Заказ невыполним', unbounded: 'Выпуск не ограничен', error: 'Ошибка расчёта', timeout: 'Время расчёта истекло' };
+const statusLabels = { optimal: 'Оптимум найден', approximate: 'Допустимое приближение', infeasible: 'Заказ невыполним', unbounded: 'Выпуск не ограничен', error: 'Ошибка расчёта', timeout: 'Время расчёта истекло' };
 export function Results({ catalog, plan, result, stale, running, error }: { catalog: Catalog; plan: Plan; result: Result | null; stale: boolean; running: boolean; error: string | null }) {
   const [building, setBuilding] = useState(false);
   const item = (id: string) => catalog.items.find(i => i.id === id);
   const calculated = useMemo(() => {
-    if (!result || result.status !== 'optimal' || stale) return { model: null, error: '' };
+    if (!hasSolution(result) || stale) return { model: null, error: '' };
     try { return { model: buildConstruction(catalog, plan, result), error: '' }; }
     catch (e) { return { model: null, error: e instanceof Error ? e.message : 'Не удалось проверить конфигурацию.' }; }
   }, [catalog, plan, result, stale]);
   const model = calculated.model;
-  const empty = !plan.batch?.items.every(i => i.stock >= i.required) && result?.status === 'optimal' && !result.products.some(p => p.rate > 0);
+  const empty = !plan.batch?.items.every(i => i.stock >= i.required) && hasSolution(result) && !result.products.some(p => p.rate > 0);
   const settings = plan.settings;
   const peakLimit = settings.peakPowerLimit ?? null, reserve = settings.powerReserve ?? 0;
   const margin = model && peakLimit !== null ? peakLimit - reserve - model.peakPower : null;
@@ -37,8 +38,8 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
     {!result ? <div className="empty-result"><div className="factory-illustration"><span className="orbit one" /><span className="orbit two" /><Factory size={72} strokeWidth={1.2} /><span className="factory-dot" /></div><span className="eyebrow">ОТ РУДЫ ДО ГОТОВОГО ПРОДУКТА</span><h3>У каждого ресурса есть потенциал</h3><p>Задайте выпуск и доступное сырьё.<br />Мы подберём рецепты, рассчитаем машины<br />и проверим материальный баланс.</p><div className="empty-steps"><span><Boxes size={16} />Ресурсы</span><ArrowRight size={14} /><span><Factory size={16} />Производство</span><ArrowRight size={14} /><span><Layers size={16} />Продукты</span></div></div>
       : <div className={stale ? 'result-content stale-content' : 'result-content'}>
         {stale ? <section className="panel"><h3>Настройки изменились</h3><p>Пересчитайте план, чтобы получить потоки, мощность и инструкцию строительства для текущей конфигурации.</p></section>
-          : result.status !== 'optimal' ? <div className="panel result-problem"><TriangleAlert size={32} /><h3>{statusLabels[result.status]}</h3><p>{result.message}</p>{result.status === 'infeasible' && <p className="hint">Проверьте лимиты сырья и мощности, доступность зданий и рецептов, а также назначение побочных продуктов. Заказ не был автоматически уменьшен.</p>}{result.status === 'unbounded' && <p className="hint">Укажите конечные лимиты источников или мощности.</p>}</div>
-            : empty ? <section className="panel result-problem"><Factory size={32} /><h3>Нет производственного пути с положительным выпуском</h3><p>Решатель подтвердил математический оптимум с нулевым выпуском. Строить производственную линию по этому результату не требуется.</p><p>Проверьте доступное сырьё, рецепты и здания, лимиты средней и пиковой мощности, ограничения числа машин и возможность утилизации побочных продуктов.</p></section>
+          : !hasSolution(result) ? <div className="panel result-problem"><TriangleAlert size={32} /><h3>{statusLabels[result.status]}</h3><p>{result.message}</p>{result.status === 'infeasible' && <p className="hint">Проверьте лимиты сырья и мощности, доступность зданий и рецептов, а также назначение побочных продуктов. Заказ не был автоматически уменьшен.</p>}{result.status === 'unbounded' && <p className="hint">Укажите конечные лимиты источников или мощности.</p>}</div>
+            : empty ? <section className="panel result-problem"><Factory size={32} /><h3>{result.status === 'approximate' ? 'В этом плане выпуск нулевой' : 'Нет производственного пути с положительным выпуском'}</h3><p>{result.status === 'approximate' ? 'В приближённой модели положительный выпуск не найден. Это не доказывает невыполнимость точной модели.' : 'Решатель подтвердил математический оптимум с нулевым выпуском. Строить производственную линию по этому результату не требуется.'}</p><p>Проверьте доступное сырьё, рецепты и здания, лимиты средней и пиковой мощности, ограничения числа машин и возможность утилизации побочных продуктов.</p></section>
               : calculated.error ? <section className="panel" role="alert"><h3>Инструкция не прошла перепроверку</h3><p>{calculated.error}</p></section>
                 : model && <>
                   <div className="kpi-grid"><div className="kpi"><span><Layers size={16} />{result.products.length === 1 ? item(result.products[0].itemId)?.name ?? result.products[0].itemId : 'Продукты'}</span><strong>{result.products.length === 1 ? format(result.products[0].rate, 6) : result.products.filter(p => p.rate > 0).length}<small>{result.products.length === 1 ? unit(item(result.products[0].itemId)) : 'позиций с выпуском'}</small></strong></div><div className="kpi"><span><Zap size={16} />Средняя мощность</span><strong>{format(model.averagePower)}<small>МВт</small></strong></div><div className="kpi"><span><Factory size={16} />Машины производства</span><strong>{model.production.reduce((sum, group) => sum + group.count, 0)}<small>зданий</small></strong></div></div>
@@ -50,6 +51,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
                   })}{!result.resources.length && <p className="hint">Внешние источники не используются.</p>}</section>
                   <section className="panel energy-panel"><div className="section-heading"><h3><Zap size={17} /> Энергия и границы модели</h3></div><dl>
                     <div><dt>Производство · средняя</dt><dd>{format(model.productionPower)} МВт</dd></div><div><dt>Добыча · средняя</dt><dd>{format(model.extractionPower)} МВт</dd></div><div><dt>Утилизация · средняя</dt><dd>{format(model.sinkPower)} МВт</dd></div>
+                    <div><dt>Незагруженная мощность производств</dt><dd>{format(model.productionIdlePower)} МВт</dd></div>
                     <div><dt>Бюджет средней мощности</dt><dd>{plan.settings.powerLimit === null ? 'Не ограничен' : format(plan.settings.powerLimit) + ' МВт'}</dd></div>
                     {plan.settings.powerLimit !== null && <div><dt>Остаток среднего бюджета</dt><dd>{format(plan.settings.powerLimit - model.averagePower)} МВт</dd></div>}
                     <div className="total"><dt>Консервативный пик физических машин</dt><dd>{format(model.peakPower)} МВт</dd></div>
@@ -66,7 +68,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
         {!stale && !!result.warnings.length && <div className="alert warning"><Info size={18} /><div>{result.warnings.map(w => <p key={w}>{w}</p>)}</div></div>}
         <details className="diagnostics"><summary>Диагностика {stale ? 'предыдущего ' : ''}расчёта</summary><p>Статус решателя: {statusLabels[result.status]}</p><p>{result.message}</p><p>Максимальная ошибка баланса: {result.maxBalanceError.toExponential(3)}</p>{result.diagnostics.map((d, i) => <p key={i}>{d}</p>)}</details>
       </div>}
-    {!stale && result?.status === 'optimal' && <><BatchResult catalog={catalog} plan={plan} result={result} /><section className="panel"><p>Somersloops занято: {result.somersloops ?? 0} / {plan.somersloopBudget ?? 0}</p>{result.exports?.map(e => <p key={e.itemId}>Отгрузка: {item(e.itemId)?.name} — {format(e.rate)} {unit(item(e.itemId))} · {plan.exports?.find(x => x.itemId === e.itemId)?.name}</p>)}</section></>}<CatalogStatus catalog={catalog} />
+    {!stale && hasSolution(result) && <><BatchResult catalog={catalog} plan={plan} result={result} /><section className="panel"><p>Somersloops занято: {result.somersloops ?? 0} / {plan.somersloopBudget ?? 0}</p>{result.exports?.map(e => <p key={e.itemId}>Отгрузка: {item(e.itemId)?.name} — {format(e.rate)} {unit(item(e.itemId))} · {plan.exports?.find(x => x.itemId === e.itemId)?.name}</p>)}</section></>}<CatalogStatus catalog={catalog} />
     <p className="result-footnote"><Info size={14} />Стационарная модель средних потоков · заданные частоты · конечный бюджет усилителей</p>
   </div>;
 }

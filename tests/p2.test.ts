@@ -10,7 +10,7 @@ import { createDefaultPlan } from '../packages/domain/defaults';
 let highs: Awaited<ReturnType<typeof createHighs>>;
 beforeAll(async () => { highs = await createHighs(); });
 it('плавильня использует общий слот подсистемы: один Somersloop, 60 слитков из 30 руды, 16 МВт', () => {
-  const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+  const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.targets = [{ itemId: 'iron-ingot', rate: 1, weight: 1, scale: 1 }];
   plan.sources = [{ id: 'ore', itemId: 'iron-ore', kind: 'flow', limit: 30, count: 1, purity: 1, minerId: '', clock: 100 }];
   plan.settings.enabledRecipeIds = ['iron-ingot']; plan.somersloopBudget = 1;

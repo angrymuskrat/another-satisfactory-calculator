@@ -8,16 +8,16 @@ const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalo
 const reinforced = catalog.recipes.find(r => r.id === 'reinforced-iron-plate')!.name;
 const copy = (page: Page, suffix: string) => page.getByRole('button', { name: `Скопировать: ${reinforced}: ${suffix}`, exact: true });
 async function seed(page: Page) {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.targets[0].rate = 7.5;
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.targets[0].rate = 7.5;
   plan.settings.peakPowerLimit = 100; plan.settings.powerReserve = 5;
   await page.addInitScript(value => {
     if (!localStorage.getItem('ficsit-plan-v1')) localStorage.setItem('ficsit-plan-v1', JSON.stringify(value));
   }, plan);
   await page.goto('/');
 }
-async function build(page: Page) {
+async function build(page: Page, approximate = false) {
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.status-badge.optimal').first()).toHaveText('Оптимум найден', { timeout: 30000 });
+  await expect(page.locator(approximate ? '.status-badge.approximate' : '.status-badge.optimal').first()).toHaveText(approximate ? 'Допустимое приближение' : 'Оптимум найден', { timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
 }
@@ -39,6 +39,24 @@ test('7,5 пластин: две машины на 100%, работа 75%, не�
   await expect(bill).toContainText('Все показанные здания учтены');
   // Eight constructors cost 16 plates; two assemblers cost another 16.
   await expect(bill.getByRole('button', { name: 'Скопировать: Материалы: ' + catalog.items.find(i => i.id === 'reinforced-iron-plate')!.name, exact: true })).toHaveText('32 шт');
+});
+
+test('ровная нагрузка сохраняется, подбирает частоту и устраняет простои без изменения заказа', async ({ page }) => {
+  await seed(page);
+  await page.getByText('Цели и ограничения', { exact: true }).click();
+  const objective = page.getByRole('combobox', { name: 'Порядок целей после выпуска', exact: true });
+  await objective.focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter');
+  await expect(objective).toHaveValue('smooth-power');
+  await expect(page.getByRole('complementary', { name: 'Активные ограничения' })).toContainText('здания → энергия с подбором частот');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.objective)).toBe('smooth-power');
+  await page.reload();
+  await page.getByText('Цели и ограничения', { exact: true }).click();
+  await expect(objective).toHaveValue('smooth-power');
+  await build(page, true);
+  await expect(copy(page, 'частота')).toHaveText('75 %');
+  await expect(copy(page, 'активная доля времени')).toHaveText('100 %');
+  await expect(page.locator('.energy-panel')).toContainText('Незагруженная мощность производств');
+  await expect(page.getByLabel('Количество продукта 1', { exact: true })).toHaveValue('7.5');
 });
 
 test('отметки переживают перезагрузку и другую конфигурацию, не переходя на изменённый выпуск', async ({ page }) => {

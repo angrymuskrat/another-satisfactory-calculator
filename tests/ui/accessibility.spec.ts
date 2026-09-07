@@ -114,7 +114,7 @@ test('рецепты и расчёт объявляют краткий стат�
   await page.keyboard.press('Space');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('.results-column').getByRole('status')).toHaveText('Оптимум найден', { timeout: 35_000 });
+  await expect(page.locator('.results-column').getByRole('status')).toHaveText('Допустимое приближение', { timeout: 35_000 });
   await expect(page.locator('.results-column')).not.toHaveAttribute('aria-live');
   await page.getByRole('textbox', { name: 'Минимум продукта 1', exact: true }).fill('1');
   await expect(page.locator('.results-column').getByRole('status')).toContainText('Требуется пересчёт');

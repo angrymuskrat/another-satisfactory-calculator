@@ -13,7 +13,7 @@ test('партия: запас, срок, готовые позиции и со�
   await page.getByLabel(/^Требуется:/).fill('100');
   await page.getByLabel(/^На складе:/).fill('40');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.batch-result')).toContainText('30');
   await page.getByLabel(/^На складе:/).fill('100');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
@@ -26,7 +26,7 @@ test('партия: запас, срок, готовые позиции и со�
 });
 
 test('усилитель, существующая линия, сравнение и строительная ведомость', async ({ page }) => {
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.targets = [{ itemId: 'iron-rod', rate: 1, weight: 1, scale: 1 }];
   plan.sources = [{ id: 'ingot', name: 'Со склада фабрики', itemId: 'iron-ingot', kind: 'flow', limit: 15, count: 1, purity: 1, minerId: '', clock: 100, importPower: 2 }];
   plan.settings.enabledRecipeIds = ['iron-rod'];
@@ -50,7 +50,7 @@ test('усилитель, существующая линия, сравнени�
 });
 
 test('скважина, заметки, резерв и мощность сохраняются', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.targets = [{ itemId: 'water', rate: 1, weight: 1, scale: 1 }];
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.targets = [{ itemId: 'water', rate: 1, weight: 1, scale: 1 }];
   await page.addInitScript(p => localStorage.setItem('ficsit-plan-v1', JSON.stringify(p)), plan);
   await page.goto('/');
   await page.getByLabel('Тип источника 1', { exact: true }).selectOption('well');
@@ -67,7 +67,7 @@ test('скважина, заметки, резерв и мощность сох�
 });
 
 test('квоты двух фабрик не могут превысить общий узел при сохранении', async ({ page }) => {
-  const plan = createDefaultPlan(catalog); plan.name = 'Первая';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.name = 'Первая';
   const world = { ...createWorld(catalog, 'Общий мир', 'shared', plan), resourceNodes: [{ id: 'iron-node', name: 'Северный узел', itemId: 'iron-ore', limit: 120 }] };
   plan.sources = [{ id: 'quota', itemId: 'iron-ore', kind: 'flow', limit: 70, count: 1, purity: 1, minerId: '', clock: 100, sharedNodeId: 'iron-node' }];
   const first = createFactory(plan, 'first', world);

@@ -12,7 +12,7 @@ let highs: Awaited<ReturnType<typeof createHighs>>;
 beforeAll(async () => { highs = await createHighs(); });
 
 it.each(['reinforced-iron-plate', 'motor', 'plastic', 'rubber', 'aluminum-ingot', 'battery', 'computer'])('инструкция %s совпадает с потоками и MW решателя', itemId => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target';
   plan.targets = [{ itemId, rate: 1, weight: 1, scale: 1 }]; plan.sources = [];
   plan.settings.resourcePolicy = 'unlimited-unlisted'; plan.settings.allowSink = true;
   const result = solve(catalog, plan, highs);
@@ -31,7 +31,7 @@ it.each(['reinforced-iron-plate', 'motor', 'plastic', 'rubber', 'aluminum-ingot'
 });
 
 it('контрольный заказ 7,5 пластин: 69,75 МВт в среднем, пик 89 МВт, заданные частоты', () => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.targets[0].rate = 7.5;
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.targets[0].rate = 7.5;
   const result = solve(catalog, plan, highs);
   expect(result.status).toBe('optimal'); expect(result.power).toBeCloseTo(69.75, 4);
   expect(result.installedPower).toBeCloseTo(89, 4);
@@ -45,7 +45,7 @@ it('контрольный заказ 7,5 пластин: 69,75 МВт в сре
 });
 
 it('10 алюминиевых слитков с минимумом зданий не получают ложную невыполнимость', () => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target';
   plan.targets = [{ itemId: 'aluminum-ingot', rate: 10, weight: 1, scale: 1 }]; plan.sources = [];
   plan.settings.objective = 'buildings'; plan.settings.resourcePolicy = 'unlimited-unlisted'; plan.settings.allowSink = true;
   const result = solve(catalog, plan, highs);
@@ -54,7 +54,7 @@ it('10 алюминиевых слитков с минимумом зданий 
 });
 
 it.each(['plastic', 'reinforced-iron-plate'])('не объявляет оптимумом неподдерживаемый масштаб выпуска %s', itemId => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.sources = [];
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.sources = [];
   plan.targets = [{ itemId, rate: 1e-9, minRate: 1e-9, maxRate: 1e-9, weight: 1, scale: 1 }];
   plan.settings.resourcePolicy = 'unlimited-unlisted'; plan.settings.allowSink = true;
   const result = solve(catalog, plan, highs);
@@ -62,7 +62,7 @@ it.each(['plastic', 'reinforced-iron-plate'])('не объявляет опти�
 });
 
 it('поддерживаемый малый выпуск пластика учитывает целый Sink до фиксации энергии', () => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.sources = [];
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.sources = [];
   plan.targets = [{ itemId: 'plastic', rate: 1e-6, minRate: 1e-6, weight: 1, scale: 1 }];
   plan.settings.beltId = catalog.belts.at(-1)!.id;
   plan.settings.resourcePolicy = 'unlimited-unlisted'; plan.settings.allowSink = true;
@@ -73,7 +73,7 @@ it('поддерживаемый малый выпуск пластика учи
 });
 
 it('независимый validator не поглощает полностью положительный минимум', () => {
-  const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.targets[0].rate = 1e-9; plan.targets[0].minRate = 1e-9;
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power'; plan.mode = 'target'; plan.targets[0].rate = 1e-9; plan.targets[0].minRate = 1e-9;
   const result = solve(catalog, createDefaultPlan(catalog), highs);
   result.products[0].rate = 0;
   expect(validateResult(catalog, plan, result).errors).toContain('Не выполнен минимум продукта.');

@@ -1,7 +1,9 @@
 import type { Catalog, Plan, Result } from '../domain/types';
+import { hasSolution } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
 import { emptyResult, solve } from './solve';
 import { applyBatch } from '../domain/batch';
+import { buildConstruction } from '../domain/construction';
 
 export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] };
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
@@ -16,11 +18,11 @@ export interface ConstraintCandidate { id: string; label: string; change: Change
 export interface Delta { before: number; after: number; delta: number }
 export interface FlowDelta extends Delta { id: string; itemId: string }
 export interface Summary {
-  power: number; installedPower: number; resourceCost: number;
+  power: number; installedPower: number; productionIdlePower: number; resourceCost: number;
   physical: { production: number; extraction: number; sinks: number; total: number };
 }
 export interface Comparison {
-  power: Delta; installedPower: Delta; resourceCost: Delta;
+  power: Delta; installedPower: Delta; productionIdlePower: Delta; resourceCost: Delta;
   physical: Record<keyof Summary['physical'], Delta>;
   outputs: FlowDelta[]; sources: FlowDelta[];
   recipes: { id: string; cycles: Delta; machines: Delta }[];
@@ -38,7 +40,7 @@ const EPSILON = 1e-5;
 const delta = (before: number, after: number): Delta => ({ before, after, delta: after - before });
 const differs = (a: number, b: number) => Math.abs(a - b) > EPSILON + Math.max(Math.abs(a), Math.abs(b)) * 1e-7;
 const increasedLimit = (value: number, minimum: number) => Math.min(1e9, value + Math.max(minimum, value));
-export const objectiveLabels: Record<Plan['settings']['objective'], string> = { power: 'Экономия энергии', resources: 'Экономия выбранного сырья', buildings: 'Меньше зданий' };
+export const objectiveLabels: Record<Plan['settings']['objective'], string> = { power: 'Экономия энергии', 'smooth-power': 'Ровная нагрузка с подбором частот', resources: 'Экономия выбранного сырья', buildings: 'Меньше зданий' };
 
 /** Each proposal changes one named restriction. Node count and its optional cap are independent. */
 export function constraintCandidates(catalog: Catalog, plan: Plan): ConstraintCandidate[] {
@@ -111,6 +113,7 @@ export function summarizeResult(catalog: Catalog, input: Plan, result: Result): 
   const sinks = sinkPower > 0 ? Math.round(result.sinkPower / sinkPower)
     : Math.ceil(result.surplus.reduce((sum, r) => sum + r.rate, 0) / (catalog.belts.find(b => b.id === plan.settings.beltId)?.rate ?? 1) - 1e-7);
   return { power: result.power, installedPower: result.installedPower,
+    productionIdlePower: buildConstruction(catalog, plan, result).productionIdlePower,
     resourceCost: result.resources.reduce((sum, r) => sum + r.rate * (plan.settings.resourceWeights[r.itemId] ?? 1), 0),
     physical: { production, extraction, sinks: Math.max(0, sinks), total: production + extraction + Math.max(0, sinks) } };
 }
@@ -122,12 +125,13 @@ function compare(before: Result, after: Result, a: Summary, b: Summary): Compari
     return { id, cycles: delta(total(before, 'cycles'), total(after, 'cycles')), machines: delta(total(before, 'installedMachines'), total(after, 'installedMachines')) };
   }).filter(r => differs(r.cycles.before, r.cycles.after) || r.machines.delta !== 0);
   return { power: delta(a.power, b.power), installedPower: delta(a.installedPower, b.installedPower), resourceCost: delta(a.resourceCost, b.resourceCost),
+    productionIdlePower: delta(a.productionIdlePower, b.productionIdlePower),
     physical: { production: delta(a.physical.production, b.physical.production), extraction: delta(a.physical.extraction, b.physical.extraction), sinks: delta(a.physical.sinks, b.physical.sinks), total: delta(a.physical.total, b.physical.total) },
     outputs: flows(before.products.map(r => ({ ...r, id: r.itemId })), after.products.map(r => ({ ...r, id: r.itemId }))),
     sources: flows(before.resources.map(r => ({ ...r, id: r.sourceId })), after.resources.map(r => ({ ...r, id: r.sourceId }))), recipes };
 }
 function benefit(plan: Plan, baseline: Result, result: Result, comparison: Comparison | null): Benefit {
-  if (baseline.status === 'infeasible' && result.status === 'optimal') return 'feasibility';
+  if (baseline.status === 'infeasible' && hasSolution(result)) return 'feasibility';
   if (baseline.status === 'infeasible' && result.status === 'infeasible') {
     const a = baseline.feasibleAlternative?.fraction, b = result.feasibleAlternative?.fraction;
     return a != null && b != null ? b > a && differs(a, b) ? 'reachable-output' : 'none' : 'unknown';
@@ -146,6 +150,7 @@ function benefit(plan: Plan, baseline: Result, result: Result, comparison: Compa
     }
   }
   const costs = plan.settings.objective === 'power' ? [comparison.power, comparison.resourceCost, comparison.physical.total]
+    : plan.settings.objective === 'smooth-power' ? [comparison.physical.total, comparison.power, comparison.resourceCost]
     : plan.settings.objective === 'resources' ? [comparison.resourceCost, comparison.power, comparison.physical.total]
       : [comparison.physical.total, comparison.power, comparison.resourceCost];
   const changed = costs.find(r => differs(r.before, r.after));
@@ -158,12 +163,12 @@ export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof 
   const run = (variant: Plan) => performance.now() >= deadline ? emptyResult('timeout', 'Бюджет времени анализа исчерпан.')
     : solve(catalog, variant, highs, Math.min(deadline, performance.now() + 5000));
   const baseline = run(plan);
-  const baselineSummary = baseline.status === 'optimal' ? summarizeResult(catalog, plan, baseline) : null;
+  const baselineSummary = hasSolution(baseline) ? summarizeResult(catalog, plan, baseline) : null;
   const report: AnalysisReport = { kind: request.kind, baseline, baselineSummary, variants: [],
     noProductionPath: plan.mode === 'maximize' && baseline.status === 'optimal' && baseline.objectiveValue <= 0 && baseline.products.every(p => p.rate === 0),
     complete: !['timeout', 'error'].includes(baseline.status), omittedCandidates: 0, notes: [] };
   const add = (id: string, label: string, variant: Plan, candidateIds: string[] = []) => {
-    const result = run(variant), summary = result.status === 'optimal' ? summarizeResult(catalog, variant, result) : null;
+    const result = run(variant), summary = hasSolution(result) ? summarizeResult(catalog, variant, result) : null;
     const comparison = baselineSummary && summary ? compare(baseline, result, baselineSummary, summary) : null;
     report.variants.push({ id, label, candidateIds, result, summary, comparison, benefit: benefit(plan, baseline, result, comparison) });
     if (['timeout', 'error'].includes(result.status)) report.complete = false;
@@ -172,8 +177,8 @@ export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof 
     for (const [expansion, label] of [['keep', 'Оставить существующее производство'], ['add', 'Сохранить и добавить'], ['rebuild', 'Перестроить производство']] as const) add(expansion, label, { ...structuredClone(plan), expansion });
     report.notes.push('Один заказ, источники и бюджет. «Оставить» использует только существующие производственные линии; «добавить» сохраняет их настройки; «перестроить» разрешает заменить все линии. Добыча и утилизация рассчитываются заново. Возврат материалов после демонтажа не моделируется.');
   } else if (request.kind === 'objectives') {
-    for (const objective of ['power', 'resources', 'buildings'] as const) add(objective, objectiveLabels[objective], { ...structuredClone(plan), settings: { ...structuredClone(plan.settings), objective } });
-    report.notes.push('Заказ, разрешённая потеря выпуска, частоты, мир и все ограничения одинаковы. Меняется только порядок целей. Расход сырья — условная стоимость с весами плана, а не универсальная мера дефицита.');
+    for (const objective of ['power', 'smooth-power', 'resources', 'buildings'] as const) add(objective, objectiveLabels[objective], { ...structuredClone(plan), settings: { ...structuredClone(plan.settings), objective } });
+    report.notes.push('Заказ, разрешённая потеря выпуска, мир и ограничения одинаковы. «Ровная нагрузка» сначала минимизирует число машин, затем подбирает частоты не выше заданных для экономии энергии. Остальные варианты используют фиксированные частоты. Приближённый расчёт не доказывает глобальный энергетический оптимум. Расход сырья — условная стоимость с весами плана.');
   } else if (request.kind === 'recipes') {
     const ids = [...new Set(request.recipeIds)];
     if (!ids.length || ids.some(id => !catalog.recipes.some(r => r.id === id))) throw new Error('Выберите существующие рецепты для сравнения.');

@@ -13,7 +13,7 @@ function fixture() {
     miners: [{ id: 'miner', name: 'Бур', rate: 60, power: 5, resourceIds: ['ore'] }],
     belts: [{ id: 'belt', name: 'Лента', rate: 60 }], pipes: [{ id: 'pipe', name: 'Труба', rate: 300 }], categories: [],
   };
-  const plan = createDefaultPlan(catalog);
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
   plan.sources = [{ id: 'node', itemId: 'ore', kind: 'node', count: 10, purity: 1, clock: 200, minerId: 'miner', limit: null }];
   const result: Result = { status: 'optimal', message: '', products: [{ itemId: 'plate', rate: 30 }],
     steps: [{ recipeId: 'plate', cycles: 15, machines: 999, installedMachines: 2, power: 999, powerMax: 999, inputs: [], outputs: [] }],
@@ -24,7 +24,7 @@ function fixture() {
 
 describe('инструкция строительства при заданных частотах', () => {
   it('считает материалы одного компенсатора и всех трёх спутников даже при малом расходе', () => {
-    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
     plan.sources = [{ id: 'well', itemId: 'water', kind: 'well', limit: null, count: 1, purity: 1, minerId: '', clock: 100,
       well: { satellites: [{ purity: 0.5, count: 1 }, { purity: 2, count: 2 }] } }];
     const result = fixture().result;
@@ -130,7 +130,7 @@ describe('инструкция строительства при заданны�
     expect(model.materials.unknown.map(b => b.buildingId)).toEqual(['constructor', 'miner']);
   });
   it('материалы реального каталога покрывают производство, добытчики и утилизаторы', () => {
-    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
+    const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog); plan.settings.objective = 'power';
     const { result } = fixture(); const recipe = catalog.recipes.find(r => r.id === 'iron-plate')!;
     result.steps = [{ ...result.steps[0], recipeId: recipe.id, cycles: 1, installedMachines: 1 }];
     result.resources = [{ sourceId: plan.sources[0].id, itemId: plan.sources[0].itemId, rate: 1, power: 0, limit: null }];
