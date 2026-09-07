@@ -15,6 +15,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   let configurations: ReturnType<typeof productionConfigurations>;
   try { configurations = productionConfigurations(catalog, plan); } catch (error) { return { maxBalanceError: Infinity, errors: [String(error)] }; }
   let somersloops = 0;
+  let wellSatellites = 0;
   let productionPower = 0; let extractionPower = 0; let installedPower = 0;
   const seenRecipes = new Set<string>(); const seenSources = new Set<string>();
   const balances = new Map(catalog.items.map(i => [i.id, 0]));
@@ -74,6 +75,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
           const well = wellConfiguration(catalog, plan, original);
           limit = limit === null ? well.capacity : Math.min(limit, well.capacity);
           const physical = source.rate > 1e-12 ? 1 : 0;
+          wellSatellites += physical * well.count;
           if (source.installedMachines !== physical) errors.push('Неверное число компенсаторов скважины.');
           sourcePower = physical * well.power; installedPower += sourcePower; count('resource-well-pressurizer', physical);
         } catch { errors.push('Недопустимая скважина.'); }
@@ -151,5 +153,14 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const peakLimit = plan.settings.peakPowerLimit;
   if (peakLimit != null && installedPower + sinks * sinkPower + (plan.settings.powerReserve ?? 0) > peakLimit + 1e-6 + peakLimit * 1e-8) errors.push('Превышен лимит максимальной нагрузки с резервом.');
   for (const [id, limit] of Object.entries(plan.settings.buildingLimits ?? {})) if ((counts.get(id) ?? 0) > limit) errors.push(`Превышен лимит зданий ${id}.`);
+  if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
+    const budget = result.machineBudget;
+    const used = [...counts.values()].reduce((sum, value) => sum + value, wellSatellites);
+    // Минимум получен отдельной целью решателя; здесь независимо проверяются
+    // физическое количество и соблюдение объявленного конечного бюджета.
+    if (!budget || ![budget.minimum, budget.limit, budget.used].every(value => Number.isInteger(value) && value >= 0)
+      || budget.limit !== budget.minimum + plan.settings.smoothPowerExtraMachines
+      || budget.used !== used || used > budget.limit || used < budget.minimum) errors.push('Нарушен бюджет физических машин.');
+  }
   return { maxBalanceError, errors };
 }

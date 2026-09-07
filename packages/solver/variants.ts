@@ -45,7 +45,7 @@ function equivalentResults(a: Result, b: Result): boolean {
 }
 
 function close(a: unknown, b: unknown): boolean {
-  if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= 1e-6 + Math.max(Math.abs(a), Math.abs(b)) * 1e-8;
+  if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= 1e-9 + Math.max(Math.abs(a), Math.abs(b)) * 1e-8;
   if (a === b) return true;
   if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return false;
   if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((value, i) => close(value, b[i]));

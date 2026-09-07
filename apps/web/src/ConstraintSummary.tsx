@@ -7,7 +7,7 @@ export function ConstraintSummary({ catalog, plan }: { catalog: Catalog; plan: P
   try { active = effectivePlan(catalog, plan); } catch (error) { return <p className="alert error" role="alert">{error instanceof Error ? error.message : 'Проверьте технологии мира.'}</p>; }
   const s = active.settings;
   const recipes = catalog.recipes.filter(r => s.enabledRecipeIds.includes(r.id) && s.enabledBuildingIds.includes(r.buildingId)).length;
-  const order = s.objective === 'smooth-power' ? 'здания → энергия с подбором частот → условная стоимость сырья' : s.objective === 'buildings' ? 'здания → энергия → условная стоимость сырья' : s.objective === 'power' ? 'энергия → условная стоимость сырья' : 'условная стоимость сырья → энергия';
+  const order = s.objective === 'smooth-power' ? s.smoothPowerExtraMachines !== undefined ? `энергия с подбором частот в бюджете «минимум машин + ${s.smoothPowerExtraMachines}» → условная стоимость сырья` : 'здания → энергия с подбором частот → условная стоимость сырья' : s.objective === 'buildings' ? 'здания → энергия → условная стоимость сырья' : s.objective === 'power' ? 'энергия → условная стоимость сырья' : 'условная стоимость сырья → энергия';
   return <aside className="constraint-summary" aria-label="Активные ограничения">
     <strong>{plan.batch ? `Партия за ${format(plan.batch.minutes)} мин` : plan.mode === 'maximize' ? 'Максимум выпуска' : 'Заданный заказ'} → {order}</strong>
     <p>Рецептов: {recipes} / {catalog.recipes.length} · типов зданий: {s.enabledBuildingIds.length} · {catalog.belts.find(b => b.id === s.beltId)?.name} · {catalog.pipes.find(p => p.id === s.pipeId)?.name} · {s.objective === 'smooth-power' ? 'предел частоты' : 'частота'} {format(s.clock)}%</p>

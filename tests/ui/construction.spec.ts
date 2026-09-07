@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -17,6 +18,7 @@ async function seed(page: Page) {
 }
 async function build(page: Page, approximate = false) {
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator(approximate ? '.status-badge.approximate' : '.status-badge.approximate').first()).toHaveText(approximate ? 'Допустимое приближение' : 'Допустимое приближение', { timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
@@ -47,13 +49,13 @@ test('7,5 пластин: две машины на 75%, работа 100%, не�
 test('ровная нагрузка сохраняется, подбирает частоту и устраняет простои без изменения заказа', async ({ page }) => {
   await seed(page);
   await page.getByText('Энергия и ограничения', { exact: true }).click();
-  await expect(page.locator('.objective-description')).toContainText('Ровная нагрузка: здания → энергия → сырьё');
+  await expect(page.locator('.objective-description')).toContainText('Подбор частот для непрерывной работы');
   await expect(page.getByRole('combobox', { name: 'Порядок целей после выпуска', exact: true })).toHaveCount(0);
   await expect(page.getByRole('complementary', { name: 'Активные ограничения' })).toContainText('здания → энергия с подбором частот');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.objective)).toBe('smooth-power');
   await page.reload();
   await page.getByText('Энергия и ограничения', { exact: true }).click();
-  await expect(page.locator('.objective-description')).toContainText('Ровная нагрузка');
+  await expect(page.locator('.objective-description')).toContainText('Подбор частот для непрерывной работы');
   await build(page, true);
   await expect(copy(page, 'частота')).toHaveText('75 %');
   await expect(copy(page, 'активная доля времени')).toHaveText('100 %');

@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createHighs } from '../packages/solver/highs';
 import { solve } from '../packages/solver/solve';
 import { parsePlan } from '../packages/domain/validation';
@@ -7,6 +7,7 @@ import { createDefaultPlan } from '../packages/domain/defaults';
 import gameCatalog from '../packages/game-data/catalog.json';
 import type { Catalog, Plan } from '../packages/domain/types';
 import { solveVariants } from '../packages/solver/variants';
+import { prepareRecipeSetup } from '../packages/domain/recipeProgress';
 
 const catalog = gameCatalog as Catalog;
 let highs: Awaited<ReturnType<typeof createHighs>>;
@@ -57,9 +58,60 @@ describe('бюджет машин вариантов', () => {
     const plan = ingots(); plan.settings.smoothPowerExtraMachines = 1;
     expect(solve(catalog, plan, highs).machineBudget).toEqual({ minimum: 1, limit: 2, used: 2 });
   });
+  it('учитывает добытчик и утилизатор в общем бюджете', () => {
+    const local = structuredClone(catalog);
+    local.recipes.find(r => r.id === 'iron-ingot')!.outputs.push({ itemId: 'iron-plate', amount: 1 });
+    const plan = ingots(); plan.sources[0].kind = 'node'; plan.settings.allowSink = true;
+    plan.settings.smoothPowerExtraMachines = 1;
+    const result = solve(local, plan, highs);
+    expect(result.status, result.message).toBe('approximate');
+    expect(result.machineBudget).toEqual({ minimum: 3, limit: 4, used: 4 });
+    expect(result.resources[0].installedMachines).toBe(1);
+    expect(result.sinkPower).toBe(30);
+    expect(result.steps[0].installedMachines).toBe(2);
+    expect(validateResult(local, plan, result).errors).toEqual([]);
+  });
+  it('независимая проверка обнаруживает подмену бюджета и итогового количества', () => {
+    const plan = ingots(); plan.settings.smoothPowerExtraMachines = 1;
+    const result = solve(catalog, plan, highs);
+    for (const budget of [{ minimum: 1, limit: 100, used: 2 }, { minimum: 1, limit: 2, used: 1 }, { minimum: 0, limit: 1, used: 2 }]) {
+      expect(validateResult(catalog, plan, { ...result, machineBudget: budget }).errors.join(' ')).toContain('бюджет');
+    }
+  });
+  it('бюджет скважины включает компенсатор и все настроенные спутники', () => {
+    const plan = ingots();
+    plan.targets = [{ itemId: 'water', rate: 10, weight: 1, scale: 1 }];
+    plan.sources = [{ id: 'well', itemId: 'water', kind: 'well', limit: null, count: 1, purity: 1,
+      minerId: '', clock: 100, well: { satellites: [{ purity: 1, count: 2 }] } }];
+    plan.settings.smoothPowerExtraMachines = 0;
+    const result = solve(catalog, plan, highs);
+    expect(['optimal', 'approximate'], result.message).toContain(result.status);
+    expect(result.machineBudget).toEqual({ minimum: 3, limit: 3, used: 3 });
+    expect(result.resources[0].installedMachines).toBe(1);
+    expect(result.power).toBeCloseTo(150, 5);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+  });
 });
 
 describe('два проверенных варианта', () => {
+  it('на каркасе 120 железа / 60 меди экономичный вариант меняет рецепт и снижает энергию', () => {
+    let plan = ingots(); plan.mode = 'maximize';
+    plan.targets = [{ itemId: 'modular-frame', rate: 1, weight: 1, scale: 1 }];
+    plan.sources.push({ ...plan.sources[0], id: 'copper', itemId: 'copper-ore', limit: 60 });
+    const milestones = ['Schematic_StartingRecipes_C', ...catalog.unlocks!.filter(u => u.kind === 'hub' && u.tier !== undefined && u.tier <= 2).map(u => u.id)];
+    plan = prepareRecipeSetup(catalog, plan, milestones, 'replace', 'all').plan;
+    const { variants } = solveVariants(catalog, plan, highs);
+    for (const variant of variants) {
+      expect(variant.result.status, variant.result.message).toBe('approximate');
+      expect(validateResult(catalog, variant.plan, variant.result).errors).toEqual([]);
+    }
+    const [maximum, economy] = variants.map(v => v.result);
+    expect(maximum.products[0].rate).toBeCloseTo(8.88888889, 5);
+    expect(economy.products[0].rate).toBeCloseTo(maximum.products[0].rate * 0.9, 5);
+    expect(maximum.steps.some(s => s.recipeId === 'modular-frame')).toBe(true);
+    expect(economy.steps.some(s => s.recipeId === 'alt-modular-frame2')).toBe(true);
+    expect(economy.power).toBeLessThan(maximum.power * 0.8);
+  });
   it('применяет потерю ровно один раз к исходному максимуму и не меняет вход', () => {
     const plan = ingots(); plan.mode = 'maximize'; plan.settings.outputSlack = 50;
     plan.settings.smoothPowerExtraMachines = 100;
@@ -109,6 +161,13 @@ describe('два проверенных варианта', () => {
     expect(result.equivalent).toBe(true);
     expect(result.variants).toHaveLength(2);
   });
+  it('не объединяет разные малые потоки из-за абсолютного допуска', () => {
+    const plan = ingots(); plan.mode = 'maximize'; plan.sources[0].limit = 0.000001;
+    const result = solveVariants(catalog, plan, highs);
+    for (const variant of result.variants) expect(variant.result.status, variant.result.message).toBe('approximate');
+    expect(result.variants[0].result.products[0].rate).toBeGreaterThan(result.variants[1].result.products[0].rate * 1.05);
+    expect(result.equivalent).toBe(false);
+  });
   it('не выдаёт тайм-аут или ошибки за эквивалентные варианты', () => {
     const timeout = solveVariants(catalog, ingots(), highs, performance.now() - 1);
     expect(timeout.variants.map(v => v.result.status)).toEqual(['timeout', 'timeout']);
@@ -119,13 +178,13 @@ describe('два проверенных варианта', () => {
     expect(error.equivalent).toBe(false);
   });
   it('сохраняет максимум при исчерпании общего срока экономичным вариантом', () => {
-    const realNow = performance.now.bind(performance); const start = realNow();
+    const start = performance.now();
     let expired = false;
-    const timedHighs = { ...highs, solve: (...args: Parameters<typeof highs.solve>) => {
+    const timedHighs: typeof highs = { ...highs, solve: (...args: Parameters<typeof highs.solve>) => {
       // Максимальный вариант не имеет лимита extraMachines; первый вызов
       // экономичного варианта начинается после первого решения целиком.
       const result = highs.solve(...args);
-      if (expired) return { ...result, Status: 'Time limit reached' };
+      if (expired && result.Status === 'Optimal') return { ...result, Status: 'Time limit reached' as const };
       return result;
     } };
     // Реальный HiGHS решает максимум. Время переключается при втором parse/solve
@@ -138,12 +197,9 @@ describe('два проверенных варианта', () => {
       previousLimit = limit;
       return baseSolve(...args);
     };
-    vi.spyOn(performance, 'now').mockImplementation(() => realNow());
-    try {
-      const result = solveVariants(catalog, plan, timedHighs, start + 25000);
-      expect(result.variants[0].result.status).toBe('approximate');
-      expect(result.variants[1].result.status).toBe('timeout');
-      expect(result.equivalent).toBe(false);
-    } finally { vi.restoreAllMocks(); }
+    const result = solveVariants(catalog, plan, timedHighs, start + 25000);
+    expect(result.variants[0].result.status).toBe('approximate');
+    expect(result.variants[1].result.status).toBe('timeout');
+    expect(result.equivalent).toBe(false);
   });
 });

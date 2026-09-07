@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -20,12 +21,14 @@ test('границы продукта, сеть и именованные ист
   await page.getByLabel('Без ограничения максимальной нагрузки', { exact: true }).uncheck();
   await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('10');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.getByRole('heading', { name: 'Ошибка расчёта', exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.result-problem')).toContainText('Невыполнимость точной нелинейной модели не доказана');
   await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel('Максимальная нагрузка сети', { exact: true }).fill('100');
   await page.getByLabel('Резерв сети', { exact: true }).fill('5');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.results-column')).toContainText('Железо у озера');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
@@ -47,6 +50,7 @@ test('одна цель не показывает распределение; н
   await page.getByLabel('Максимум продукта 2', { exact: true }).fill('2');
   await expect(page.getByRole('alert')).toContainText('Минимум превышает максимум');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.getByRole('heading', { name: 'Ошибка расчёта', exact: true })).toBeVisible({ timeout: 30000 });
 });
 

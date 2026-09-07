@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -15,6 +16,7 @@ test('отдельные экраны сохраняют результат и �
   await page.getByRole('button', { name: 'Заданный выпуск Выполнить производственный заказ' }).click();
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('7.5');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(nav.getByRole('button', { name: 'Результаты', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('textbox', { name: 'Количество продукта 1', exact: true })).not.toBeVisible();
   await expect(page.locator('.results-heading')).toContainText('Допустимое приближение', { timeout: 30000 });

@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -11,6 +12,7 @@ async function calculate(page: Page, mode: 'target' | 'maximize' = 'target', con
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   const fixed = plan.expansion === 'keep' && plan.lines?.every(line => line.locked);
   await expect(page.locator(fixed ? '.status-badge.optimal' : '.status-badge.approximate').first()).toBeVisible({ timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();

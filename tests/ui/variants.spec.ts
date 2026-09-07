@@ -22,13 +22,18 @@ test('выбор экономичного варианта сохраняет е
   await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
   await expect(page.getByRole('button', { name: 'Построить', exact: true })).toHaveCount(0);
   const power = await economy.locator('[data-metric="power"]').innerText();
+  await page.screenshot({ path: 'output/playwright/production-variants-desktop.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'output/playwright/production-variants-mobile.png', fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   // Loading a solver again would fail: selection must use the completed result.
   await page.route(/\/solver\.worker/, route => route.abort());
   await economy.getByRole('button', { name: 'Использовать вариант', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.kpi').filter({ hasText: 'Средняя мощность' })).toContainText(power);
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
-  await expect(page.locator('.construction')).toContainText('сборный каркас');
+  await expect(page.locator('.construction-panel')).toContainText('сборный каркас');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.settings.outputSlack).toBe(10);
   expect(saved.settings.smoothPowerExtraMachines).toBe(0);
@@ -37,6 +42,48 @@ test('выбор экономичного варианта сохраняет е
   await expect(page.locator('.kpi').first()).toContainText('8,888');
   await page.reload();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(0);
+});
+
+test('ошибки обоих вариантов остаются видимыми отдельно', async ({ page }) => {
+  const invalid = structuredClone(plan); invalid.mode = 'target'; invalid.targets[0].rate = 1000000;
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), invalid);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const cards = page.getByRole('article');
+  await expect(cards).toHaveCount(2, { timeout: 30000 });
+  await expect(cards.nth(0)).toContainText('Ошибка расчёта');
+  await expect(cards.nth(1)).toContainText('Ошибка расчёта');
+  await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
+});
+
+test('малые потоки в разных карточках не округляются в одинаковый выпуск', async ({ page }) => {
+  const small = createDefaultPlan(catalog);
+  small.targets = [{ itemId: 'iron-ingot', rate: 1, weight: 1, scale: 1 }];
+  small.settings.enabledRecipeIds = ['iron-ingot'];
+  small.sources = [{ ...plan.sources[0], limit: 0.000001 }];
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), small);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true })).toContainText(/e-7/, { timeout: 10000 });
+});
+
+test('изменение плана во время расчёта отменяет запрос и исключает поздний ответ', async ({ page }) => {
+  await page.goto('/');
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  const workerRoute = /\/solver\.worker/;
+  await page.route(workerRoute, async route => { await pending; await route.continue().catch(() => {}); });
+  try {
+    await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+    await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Потеря выпуска для экономии' }).fill('7');
+    await expect(page.getByRole('button', { name: 'Отменить расчёт' })).toHaveCount(0);
+    release();
+    await page.getByRole('button', { name: 'Результаты', exact: true }).click();
+    await expect(page.getByText('Настройки изменились. Запустите подбор вариантов заново.', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
+    await expect(page.locator('.kpi')).toHaveCount(0);
+  } finally { release(); await page.unroute(workerRoute); }
 });
 
 test('изменённые настройки запрещают выбор старого варианта; настройки сравнения сохраняются', async ({ page }) => {

@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -13,11 +14,13 @@ test('партия: запас, срок, готовые позиции и со�
   await page.getByLabel(/^Требуется:/).fill('100');
   await page.getByLabel(/^На складе:/).fill('40');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.batch-result')).toContainText('30');
   await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByLabel(/^На складе:/).fill('100');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.batch-result')).toContainText('готов', { timeout: 30000 });
   await page.reload();
   await expect(page.getByLabel(/^На складе:/)).toHaveValue('100');
@@ -35,6 +38,7 @@ test('усилитель, существующая линия, сравнени�
   await page.addInitScript(p => localStorage.setItem('ficsit-plan-v1', JSON.stringify(p)), plan);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.locator('.construction-panel')).toContainText('Старый конструктор');
@@ -49,6 +53,7 @@ test('усилитель, существующая линия, сравнени�
   await page.getByText('Расширение фабрики и усилители', { exact: true }).click();
   await page.getByLabel('Бюджет Somersloops', { exact: true }).fill('0');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.getByRole('heading', { name: 'Заказ невыполним', exact: true })).toBeVisible({ timeout: 30000 });
 });
 
@@ -62,6 +67,7 @@ test('скважина, заметки, резерв и мощность сох�
   await page.getByLabel('Заметка источника 1', { exact: true }).fill('Южная скважина');
   await page.getByLabel('Резерв источника 1', { exact: true }).fill('20');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30000 });
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.sources[0]).toMatchObject({ kind: 'well', notes: 'Южная скважина', reserve: 20, well: { satellites: [{ purity: 1, count: 2 }] } });

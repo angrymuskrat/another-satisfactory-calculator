@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
@@ -114,6 +115,7 @@ test('рецепты и расчёт объявляют краткий стат�
   await page.keyboard.press('Space');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).focus();
   await page.keyboard.press('Enter');
+  await chooseMaximum(page);
   await expect(page.locator('.results-column').getByRole('status')).toHaveText('Допустимое приближение', { timeout: 35_000 });
   await expect(page.locator('.results-column')).not.toHaveAttribute('aria-live');
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();

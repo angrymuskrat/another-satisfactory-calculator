@@ -1,3 +1,4 @@
+import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -8,6 +9,7 @@ test('расчёт, русский поиск, политики и невыпо�
   await expect(page.getByRole('complementary', { name: 'Активные ограничения' })).toContainText('здания → энергия с подбором частот');
   await expect(page.getByRole('heading', { name: 'Спланируйте следующую фабрику' })).toBeVisible();
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'Готовая продукция' })).toBeVisible();
   await page.screenshot({ path: 'output/playwright/planner-result.png', fullPage: true });
@@ -33,10 +35,12 @@ test('расчёт, русский поиск, политики и невыпо�
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1');
   await page.getByRole('textbox', { name: 'Количество продукта 2', exact: true }).fill('1');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30_000 });
   await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1000000');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
   await expect(page.getByRole('heading', { name: 'Ошибка расчёта' })).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('.result-problem')).toContainText('Невыполнимость точной нелинейной модели не доказана');
   await expect(page.locator('.feasible-alternative')).toHaveCount(0);

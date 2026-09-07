@@ -103,3 +103,16 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,.item-select-tri
 [hidden]{display:none!important}
 @media(min-width:1100px){.planner-settings>.planner-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.recipe-setup fieldset,.setup-preview{padding:10px}.setup-actions{align-items:stretch}.setup-actions>button{flex:1 1 160px}.recipe-setup details{padding-left:8px}.recipe-setup select{font-size:12px}.catalog-toolbar{grid-template-columns:minmax(0,1fr)}.recipe-setup label{overflow-wrap:anywhere}}
+.variant-title { margin: 12px 0 20px; }
+.variant-title:focus { outline: none; }
+.variant-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.variant-card { min-width: 0; }
+.variant-card h3 { margin: 16px 0 8px; }
+.variant-card > .primary-button { width: 100%; margin-top: 20px; }
+.variant-metrics { margin: 20px 0 0; }
+.variant-metrics > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border, #343a40); }
+.variant-metrics dt { flex: 1; min-width: 0; }
+.variant-metrics dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.variant-metrics small { display: block; margin-top: 4px; font-size: 12px; color: var(--text-muted, #a4aab4); }
+.variant-settings h2 { margin-top: 0; }
+@media (max-width: 850px) { .variant-grid { grid-template-columns: minmax(0, 1fr); } }

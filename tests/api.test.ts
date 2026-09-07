@@ -21,6 +21,7 @@ const plan: Plan = {
     beltId: 'mk1', pipeId: 'mk1', clock: 100, resourcePolicy: 'listed-only',
     objective: 'smooth-power', powerLimit: null, outputSlack: 0, allowSink: false,
     resourceWeights: { 'iron-ore': 2 },
+    variantOptions: { outputLoss: 7, extraMachines: 2 }, smoothPowerExtraMachines: 2,
   },
 };
 const apps: FastifyInstance[] = [];
