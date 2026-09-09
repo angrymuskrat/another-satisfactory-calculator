@@ -31,7 +31,9 @@ test('схема групп и отдельных машин сохраняет 
   await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
   await expect(graph.locator('.schematic-node[data-building-id="assembler"]')).toHaveCount(2);
   await expect(graph.locator('.schematic-node[data-kind="building"]')).toHaveCount(counts.reduce((s, n) => s + n, 0));
-  await expect(graph.locator('.schematic-node[data-kind="split"]').first()).toContainText('Разделитель');
+  await expect(graph.locator('.schematic-node[data-kind="split"], .schematic-node[data-kind="merge"]')).toHaveCount(0);
+  expect(await graph.locator('.schematic-edges g.flow').evaluateAll(nodes => nodes.every(n => Number(n.getAttribute('data-rate')) <= 120))).toBe(true);
+  expect(await graph.locator('.schematic-edges g path').evaluateAll(nodes => nodes.every(n => !/[CQ]/.test(n.getAttribute('d')!)))).toBe(true);
   await expect(graph.locator('.schematic-edges text').first()).toBeAttached();
   await page.getByRole('button', { name: 'Инструкция', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
@@ -51,10 +53,40 @@ test('четыре неравные ветви подписаны расхода
   await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node[data-kind="building"]')).toHaveCount(4);
-  await graph.locator('.schematic-node[data-kind="split"] .schematic-node-button').click();
+  await graph.locator('.schematic-node[data-kind="source"] .schematic-node-button').click();
   for (const rate of [40, 30, 20, 10]) await expect(graph.locator('.schematic-connections')).toContainText(`${rate} шт/мин · ${rate}%`);
   await graph.locator('.schematic-connections button').filter({ hasText: '40 шт/мин · 40%' }).click();
   await expect(graph.locator('.schematic-node.selected')).toContainText('133,333%');
+});
+
+test('поток 224 разделён на прямые связи до 120, а карточки ветвей не перекрываются', async ({ page }) => {
+  const plan = smelters([5], [224]); plan.settings.beltId = 'belt2';
+  await calculate(page, 'target', plan);
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
+  await expect(graph.locator('.schematic-node[data-kind="building"]')).toHaveCount(5);
+  const rates = await graph.locator('.schematic-edges g.flow').evaluateAll(nodes => nodes.map(n => Number(n.getAttribute('data-rate'))));
+  expect(rates.every(rate => rate > 0 && rate <= 120)).toBe(true);
+  expect(rates.reduce((s, rate) => s + rate, 0)).toBeCloseTo(448, 8);
+  await expect(graph.locator('.schematic-node.junction')).toHaveCount(0);
+  expect(await graph.locator('.schematic-node').evaluateAll(nodes => {
+    const rects = nodes.map(n => n.getBoundingClientRect());
+    return rects.every((a, i) => rects.slice(i + 1).every(b => a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top));
+  })).toBe(true);
+});
+
+test('конструкторы пластин и прутов показаны разными группами', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const plan = createDefaultPlan(catalog); plan.mode = 'target';
+  plan.targets = ['iron-plate', 'iron-rod'].map(itemId => ({ itemId, rate: 20, weight: 1, scale: 1 }));
+  await calculate(page, 'target', plan);
+  await page.getByRole('button', { name: 'По типам зданий', exact: true }).click();
+  await expect(page.locator('.schematic-node[data-building-id="constructor"]')).toHaveCount(2);
+  await page.getByRole('button', { name: 'На весь экран', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Схема строительства', exact: true });
+  await dialog.getByRole('button', { name: 'Уместить', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Только схема', exact: true }).click();
+  await page.screenshot({ path: 'output/playwright/schematic-recipe-branches.png' });
 });
 
 test('страницы отдельных машин сохраняют общее количество и переходы', async ({ page }) => {
@@ -125,6 +157,13 @@ test('мобильная схема прокручивается внутри п
   await graph.scrollIntoViewIfNeeded();
   await expect(graph.getByRole('button', { name: 'Уменьшить масштаб', exact: true })).toBeVisible();
   await graph.getByRole('button', { name: 'Уменьшить масштаб', exact: true }).click();
+  await expect.poll(() => graph.locator('.schematic-viewport').evaluate(viewport => {
+    const frame = viewport.getBoundingClientRect();
+    return [...viewport.querySelectorAll('.schematic-node')].some(node => {
+      const rect = node.getBoundingClientRect();
+      return rect.top < frame.bottom - 50 && rect.bottom > frame.top + 50 && rect.left < frame.right && rect.right > frame.left;
+    });
+  })).toBe(true);
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect.poll(() => graph.locator('.schematic-viewport').evaluate(n => n.scrollWidth > n.clientWidth)).toBe(true);
   await page.screenshot({ path: 'output/playwright/schematic-mobile.png' });

@@ -5,22 +5,22 @@ import type { ConstructionModel } from '../../../packages/domain/construction';
 import { buildSchematic, SCHEMATIC_PAGE_SIZE, type SchematicDestinations, type SchematicEdge, type SchematicMode, type SchematicModel, type SchematicNode } from '../../../packages/domain/schematic';
 import { format, ItemIcon, unit } from './controls';
 import { useSchematicNavigation } from './useSchematicNavigation';
+import { layoutSchematic, routeSchematicEdges } from './schematicLayout';
 import './schematic.css';
 
 const number = (n: number) => n !== 0 && Math.abs(n) < .001 ? n.toExponential(3) : format(n, 3);
 const kindLabels: Record<SchematicNode['kind'], string> = { building: 'ОБОРУДОВАНИЕ', source: 'ВНЕШНЯЯ ПОСТАВКА', product: 'ГОТОВЫЙ ПРОДУКТ', export: 'ПОТРЕБИТЕЛЬ', split: 'УСЛОВНЫЙ БЛОК', merge: 'УСЛОВНЫЙ БЛОК', continuation: 'ДРУГАЯ СТРАНИЦА' };
-type Rect = { x: number; y: number; width: number; height: number };
-
 function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog: Catalog; graph: SchematicModel; changePage: (page: number) => void; focusOnMount: boolean }) {
   const [selected, setSelected] = useState<string | null>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const { zoom, zoomTo, dragging, bindings } = useSchematicNavigation(viewport);
   const canvas = useRef<HTMLDivElement>(null), buttons = useRef(new Map<string, HTMLButtonElement>());
-  const [layout, setLayout] = useState<{ width: number; height: number; rects: Record<string, Rect> }>({ width: 1000, height: 600, rects: {} });
+  const positioned = useRef(false);
+  const [layout, setLayout] = useState(() => layoutSchematic(graph, {}));
+  const routes = useMemo(() => routeSchematicEdges(graph, layout), [graph, layout]);
   const marker = useId().replaceAll(':', ''), detailId = useId();
   useEffect(() => { if (focusOnMount) canvas.current?.closest<HTMLElement>('.schematic-viewport')?.focus(); }, [focusOnMount]);
   const item = (id?: string) => catalog.items.find(i => i.id === id);
-  const stages = [...new Set(graph.nodes.map(n => n.stage))].sort((a, b) => a - b);
   const active = graph.nodes.find(n => n.id === selected);
   const incident = graph.edges.filter(e => e.from === selected || e.to === selected);
   const neighbors = new Set(incident.flatMap(e => [e.from, e.to]));
@@ -31,42 +31,41 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
   useLayoutEffect(() => {
     const element = canvas.current;
     if (!element) return;
+    let initialFrame = 0;
     const measure = () => {
       // Скрытая вкладка не меняет геометрию схемы и не сбрасывает панорамирование.
       if (!element.getClientRects().length) return;
-      const root = element.getBoundingClientRect();
-      const rects: Record<string, Rect> = {};
+      const sizes: Record<string, { width: number; height: number }> = {};
       for (const card of element.querySelectorAll<HTMLElement>('[data-node-id]')) {
-        const rect = card.getBoundingClientRect();
-        rects[card.dataset.nodeId!] = { x: (rect.x - root.x) / zoom, y: (rect.y - root.y) / zoom, width: rect.width / zoom, height: rect.height / zoom };
+        sizes[card.dataset.nodeId!] = { width: card.offsetWidth, height: card.offsetHeight };
       }
-      const next = { width: element.offsetWidth, height: element.offsetHeight, rects };
+      const next = layoutSchematic(graph, sizes);
       setLayout(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+      if (!positioned.current) {
+        cancelAnimationFrame(initialFrame);
+        initialFrame = requestAnimationFrame(() => {
+          const first = Object.values(next.rects).sort((a, b) => a.x - b.x || a.y - b.y)[0];
+          if (first && viewport.current) viewport.current.scrollTop = Math.max(0, first.y * zoom - 65);
+          positioned.current = true;
+        });
+      }
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     for (const card of element.querySelectorAll('[data-node-id]')) observer.observe(card);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); cancelAnimationFrame(initialFrame); };
   }, [graph, zoom]);
   const edgeText = (edge: SchematicEdge) => edge.kind === 'control' ? 'Связь скважины' : `${item(edge.itemId)?.name ?? edge.itemId}: ${number(edge.rate)} ${unit(item(edge.itemId))}${edge.share !== undefined ? ` · ${number(edge.share * 100)}%` : ''}`;
   const visibleEdge = (edge: SchematicEdge) => {
-    const a = layout.rects[edge.from], b = layout.rects[edge.to];
-    if (!a || !b) return null;
-    const outgoing = graph.edges.filter(e => e.from === edge.from), incoming = graph.edges.filter(e => e.to === edge.to);
-    const x1 = a.x + a.width, y1 = a.y + 45 + (a.height - 60) * (outgoing.indexOf(edge) + 1) / (outgoing.length + 1);
-    const x2 = b.x, y2 = b.y + 45 + (b.height - 60) * (incoming.indexOf(edge) + 1) / (incoming.length + 1);
-    const backwards = x2 <= x1;
-    const route = Math.min(a.y, b.y) - 28 - (graph.edges.indexOf(edge) % 4) * 13;
-    const bend = Math.max(40, (x2 - x1) / 2);
-    const d = backwards ? `M ${x1} ${y1} C ${x1 + 35} ${y1}, ${x1 + 35} ${route}, ${x1} ${route} L ${x2} ${route} C ${x2 - 35} ${route}, ${x2 - 35} ${y2}, ${x2} ${y2}`
-      : `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`;
+    const route = routes[edge.id];
+    if (!route) return null;
+    const { d, label: position } = route;
     const highlighted = !selected || edge.from === selected || edge.to === selected;
-    // Distinct curves for fan-out; text follows each curve and full labels remain in the connection list.
     const label = edge.kind === 'control' ? 'Скважина' : `${number(edge.rate)} ${unit(item(edge.itemId))}${edge.share !== undefined ? ` · ${number(edge.share * 100)}%` : ''}`;
-    return <g key={edge.id} className={`${edge.kind} ${item(edge.itemId)?.fluid ? 'fluid' : ''} ${highlighted ? '' : 'dim'}`}>
+    return <g key={edge.id} data-rate={edge.rate} data-item-id={edge.itemId} className={`${edge.kind} ${item(edge.itemId)?.fluid ? 'fluid' : ''} ${highlighted ? '' : 'dim'}`}>
       <path d={d} markerEnd={`url(#${marker})`}><title>{edgeText(edge)}</title></path>
-      <text x={(x1 + x2) / 2} y={backwards ? route - 22 : (y1 + y2) / 2 - 23} textAnchor="middle"><tspan x={(x1 + x2) / 2}>{edge.kind === 'flow' ? item(edge.itemId)?.name ?? edge.itemId : ''}</tspan><tspan x={(x1 + x2) / 2} dy="16">{label}</tspan></text>
+      <text x={position.x} y={position.y} textAnchor="middle"><tspan x={position.x}>{edge.kind === 'flow' ? item(edge.itemId)?.name ?? edge.itemId : ''}</tspan><tspan x={position.x} dy="16">{label}{edge.parallel > 1 ? ` · ×${edge.parallel}` : ''}</tspan></text>
     </g>;
   };
   const flows = (node: SchematicNode, direction: 'inputs' | 'outputs') => <div className="schematic-flows"><span>{direction === 'inputs' ? 'ВХОД' : 'ВЫХОД'}</span>
@@ -81,15 +80,15 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
     </div><span><i className="schematic-legend-dot" /> Здания <i className="schematic-legend-dot fluid" /> Жидкости <span className="schematic-legend-line">┄</span> Связь скважины</span></div>
     <div className={`schematic-viewport${dragging ? ' is-dragging' : ''}`} ref={viewport} {...bindings} tabIndex={0} role="group" aria-label="Полотно схемы, прокрутка стрелками" aria-description="Перетаскивайте мышью для перемещения. Колесо изменяет масштаб вокруг указателя.">
       <div className="schematic-scaled" style={{ width: layout.width * zoom, height: layout.height * zoom }}>
-        <div className="schematic-canvas" ref={canvas} style={{ transform: `scale(${zoom})` }}>
+        <div className="schematic-canvas" ref={canvas} style={{ transform: `scale(${zoom})`, width: layout.width, height: layout.height }}>
           <svg className="schematic-edges" width={layout.width} height={layout.height} aria-hidden="true"><defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#aab5bd" /></marker></defs>{graph.edges.map(visibleEdge)}</svg>
-          {stages.map(stage => <div className="schematic-column" key={stage}>
-            {graph.nodes.filter(n => n.stage === stage).map(node => {
+            {graph.nodes.map(node => {
               const junction = node.kind === 'merge' || node.kind === 'split';
               const differentClocks = new Set(node.configurations.map(g => g.clock)).size > 1;
               const differentDuties = new Set(node.configurations.map(g => g.activeDuty)).size > 1;
               const duty = node.count ? node.configurations.reduce((s, g) => s + g.count * g.activeDuty, 0) / node.count : null;
               return <article key={node.id} data-node-id={node.id} data-kind={node.kind} data-building-id={node.buildingId} data-count={node.count}
+                style={{ left: layout.rects[node.id]?.x ?? 90, top: layout.rects[node.id]?.y ?? 90 }}
                 className={`schematic-node ${junction ? 'junction' : ''} ${item(node.itemId)?.fluid ? 'fluid' : ''} ${selected === node.id ? 'selected' : selected && !neighbors.has(node.id) ? 'muted-node' : ''}`}>
                 <button type="button" ref={el => { if (el) buttons.current.set(node.id, el); else buttons.current.delete(node.id); }} className="schematic-node-button" aria-pressed={selected === node.id} aria-controls={detailId} onClick={() => select(node.id)}>
                   <span className="schematic-kind">{kindLabels[node.kind]}</span><span className="schematic-node-title">{junction ? <GitFork size={22} /> : node.count ? <Factory size={22} /> : <ItemIcon item={item(node.itemId)} size={28} />}<strong>{node.label}</strong>{node.count > 0 && <b>×{node.count}</b>}</span>
@@ -101,7 +100,6 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
                 {node.kind === 'continuation' && <button type="button" className="secondary-button schematic-page-link" onClick={() => changePage(node.page!)}>К этим зданиям · стр. {node.page! + 1}<ArrowRight size={15} /></button>}
               </article>;
             })}
-          </div>)}
         </div>
       </div>
     </div>
@@ -136,12 +134,12 @@ export function Schematic({ catalog, model, destinations, mode }: { catalog: Cat
   const graph = computed.graph;
   if (!graph) return <section className="panel" role="alert"><h3>Схема не прошла перепроверку</h3><p>{computed.error}</p><p>Исходная инструкция остаётся доступна.</p></section>;
   const content = (full: boolean) => <>
-    <div className="schematic-heading"><div><span className="eyebrow">ОТ РЕСУРСА ДО ПРОДУКТА</span><h3>Схема строительства</h3><p>{mode === 'types' ? 'Один узел — один тип здания' : 'Один узел — одно физическое здание'} · всего {graph.machineCount} зданий</p></div>
+    <div className="schematic-heading"><div><span className="eyebrow">ОТ РЕСУРСА ДО ПРОДУКТА</span><h3>Схема строительства</h3><p>{mode === 'types' ? 'Один узел — одинаковые здания с одним рецептом' : 'Один узел — одно физическое здание'} · всего {graph.machineCount} зданий</p></div>
       {full ? <div className="schematic-full-actions"><button type="button" className="secondary-button" ref={onlyButton} onClick={() => setCanvasOnly(true)}>Только схема</button><button type="button" className="secondary-button" onClick={() => dialog.current?.close()}><X size={17} />Закрыть схему</button></div> : <button type="button" className="secondary-button" ref={expandButton} onClick={() => setExpanded(true)}><Maximize2 size={17} />На весь экран</button>}
     </div>
     {mode === 'machines' && graph.pages > 1 && <nav className="schematic-pagination" aria-label="Страницы зданий"><button type="button" className="secondary-button" disabled={graph.page === 0} onClick={() => { setFocusCanvas(false); setPage(graph.page - 1); }}>Назад</button><span>Страница {graph.page + 1} из {graph.pages} · здания {graph.page * SCHEMATIC_PAGE_SIZE + 1}–{Math.min(graph.machineCount, (graph.page + 1) * SCHEMATIC_PAGE_SIZE)}<small>Остальные здания показаны переходами с полными потоками.</small></span><button type="button" className="secondary-button" disabled={graph.page + 1 === graph.pages} onClick={() => { setFocusCanvas(false); setPage(graph.page + 1); }}>Далее</button></nav>}
     <SchematicCanvas key={`${mode}:${graph.page}`} catalog={catalog} graph={graph} focusOnMount={focusCanvas} changePage={next => { setFocusCanvas(true); setPage(next); }} />
-    <details className="schematic-notes"><summary>Как читать схему{graph.cycles.length > 0 ? ` · циклов: ${graph.cycles.length}` : ''}</summary><p>Частота — настройка машины; работа — доля активного времени. Средняя частота разных конфигураций справочная: настройки каждой смотрите в составе узла. МВт суммируются по исходным конфигурациям.</p><p>Разделитель и соединитель здесь условные: количество выходов и проценты задают нужные потоки. Соберите блок распределения самостоятельно. Линия может означать несколько параллельных лент или труб; их точная разводка и размещение не рассчитаны.</p><p>Средняя мощность учитывает работу, пик — одновременную нагрузку физических машин. Простои standby, синхронизация и запуск не моделируются. Неизвестная энергия импорта остаётся вне расчёта.</p>{graph.cycles.map(c => <div className="alert warning" key={c.recipeIds.join('|')}><div><strong>Совместный контур: {c.names.join(' → ')}</strong><p>Возвратные потоки сохраняются. Обеспечьте начальное заполнение, приоритет возврата и отвод побочных продуктов. Стартовый запас и время запуска не рассчитаны.</p>{c.internalFlows.map(f => <p key={f.itemId}>{catalog.items.find(i => i.id === f.itemId)?.name ?? f.itemId}: внутри произведено {number(f.produced)}, потреблено {number(f.consumed)} {unit(catalog.items.find(i => i.id === f.itemId))}.</p>)}</div></div>)}<p>Связь внутри одного типа здания не обязательно означает цикл: его рецепты могут быть последовательными стадиями.</p></details>
+    <details className="schematic-notes"><summary>Как читать схему{graph.cycles.length > 0 ? ` · циклов: ${graph.cycles.length}` : ''}</summary><p>Частота — настройка машины; работа — доля активного времени. Средняя частота разных конфигураций справочная: настройки каждой смотрите в составе узла. МВт суммируются по исходным конфигурациям.</p><p>{mode === 'types' ? 'Разделитель и соединитель здесь условные. Линия может означать несколько параллельных лент или труб; их количество подписано на ребре.' : `Связи идут напрямую между машинами. Каждая линия передаёт не более ${number(model.transport.belt.rate)} шт/мин или ${number(model.transport.pipe.rate)} м³/мин. Большие потоки показаны отдельными параллельными линиями; проценты — доля общего потока предмета.`} Точная разводка, физические порты и размещение распределителей не рассчитаны.</p><p>Средняя мощность учитывает работу, пик — одновременную нагрузку физических машин. Простои standby, синхронизация и запуск не моделируются. Неизвестная энергия импорта остаётся вне расчёта.</p>{graph.cycles.map(c => <div className="alert warning" key={c.recipeIds.join('|')}><div><strong>Совместный контур: {c.names.join(' → ')}</strong><p>Возвратные потоки сохраняются. Обеспечьте начальное заполнение, приоритет возврата и отвод побочных продуктов. Стартовый запас и время запуска не рассчитаны.</p>{c.internalFlows.map(f => <p key={f.itemId}>{catalog.items.find(i => i.id === f.itemId)?.name ?? f.itemId}: внутри произведено {number(f.produced)}, потреблено {number(f.consumed)} {unit(catalog.items.find(i => i.id === f.itemId))}.</p>)}</div></div>)}<p>Разные рецепты показаны отдельными узлами. Возвратные связи обходят производственные ветви сверху.</p></details>
     {graph.warnings.length > 0 && <details className="schematic-notes"><summary>Численные остатки потоков ({graph.warnings.length})</summary>{graph.warnings.map(w => <p key={w}>{w}</p>)}</details>}
   </>;
   return <><section className="panel schematic-panel" role="region" aria-label="Схема строительства">{content(false)}</section><dialog className={`schematic-dialog${canvasOnly ? ' schematic-only' : ''}`} aria-label="Схема строительства" ref={dialog} onCancel={event => { event.preventDefault(); if (canvasOnly) setCanvasOnly(false); else dialog.current?.close(); }} onClose={() => { setCanvasOnly(false); setExpanded(false); expandButton.current?.focus(); }}>{expanded && <>{content(true)}<button type="button" className="secondary-button schematic-restore" hidden={!canvasOnly} ref={restoreButton} title="Показать панели (Escape)" onClick={() => setCanvasOnly(false)}>Показать панели</button></>}</dialog></>;

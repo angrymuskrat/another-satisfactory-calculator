@@ -51,7 +51,7 @@ const baseNode = (id: string, kind: SchematicNode['kind'], label: string, stage:
   inputs: [], outputs: [], configurations: [],
 });
 
-/** A view of the checked configuration, with item buses, not a physical routing solver. */
+/** A view of the checked configuration, not a physical port/routing solver. */
 export function buildSchematic(catalog: Catalog, model: ConstructionModel, destinations: SchematicDestinations, mode: SchematicMode, requestedPage = 0) {
   const dependencies = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })));
   const stageByGroup = new Map<string, number>();
@@ -92,7 +92,13 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
   };
   if (mode === 'types') {
     const types = new Map<string, ConstructionGroup[]>();
-    for (const g of groups) types.set(g.buildingId, [...(types.get(g.buildingId) ?? []), g]);
+    for (const g of groups) {
+      // Recipes remain distinct even when they produce the same item. Extraction
+      // has no recipe: distinguish its resource and well controller instead.
+      const id = key(g.kind, g.buildingId, g.recipeId ?? '', g.controllerId ?? '',
+        ...g.activeInputs.map(f => f.itemId).sort(), 'outputs', ...g.activeOutputs.map(f => f.itemId).sort());
+      types.set(id, [...(types.get(id) ?? []), g]);
+    }
     for (const [id, members] of types) addBuilding(key('type', id), 'building', buildingName(members[0]), members);
   } else {
     let offset = 0;
@@ -138,7 +144,17 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
   }
   const addFlow = (from: string, to: string, itemId: string, rate: number, share?: number) => {
     const capacity = catalog.items.find(i => i.id === itemId)?.fluid ? model.transport.pipe.rate : model.transport.belt.rate;
-    if (!(capacity > 0)) throw new Error('Неизвестна пропускная способность транспорта.');
+    if (!(capacity > 0) || !Number.isFinite(capacity)) throw new Error('Неизвестна пропускная способность транспорта.');
+    if (mode === 'machines') {
+      const lanes = Math.ceil(rate / capacity);
+      if (!Number.isSafeInteger(lanes) || edges.length + lanes > 20000) throw new Error('Слишком много отдельных линий транспорта. Откройте схему по типам зданий.');
+      for (let lane = 0; lane < lanes; lane++) {
+        const part = Math.min(capacity, rate - lane * capacity);
+        if (part > 0) edges.push({ id: key('edge', edges.length), from, to, kind: 'flow', itemId, rate: part,
+          share: share === undefined ? undefined : share * part / rate, parallel: 1 });
+      }
+      return;
+    }
     edges.push({ id: key('edge', edges.length), from, to, kind: 'flow', itemId, rate, share,
       parallel: Math.max(1, Math.ceil(rate / capacity - Math.min(1e-7, rate / capacity * 1e-8))) });
   };
@@ -151,6 +167,27 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
       throw new Error(`Не сходится баланс схемы: ${name}. Подача ${supply}, расход ${demand}.`);
     }
     if (difference !== 0) warnings.push(`${name}: численный остаток подачи минус расход ${difference.toExponential(3)} ${item?.fluid ? 'м³/мин' : 'шт/мин'}.`);
+    if (mode === 'machines') {
+      // Allocate already solved flows in stable endpoint order. This only chooses
+      // displayed connections; it never selects recipes or changes production.
+      let p = 0, c = 0, available = providers[0].rate, needed = consumers[0].rate;
+      while (p < providers.length && c < consumers.length) {
+        const rate = Math.min(available, needed);
+        if (rate > 0) addFlow(providers[p].node.id, consumers[c].node.id, itemId, rate, rate / supply);
+        available -= rate; needed -= rate;
+        if (available === 0) available = providers[++p]?.rate ?? 0;
+        if (needed === 0) needed = consumers[++c]?.rate ?? 0;
+      }
+      // Keep positive numerical tails visible; the total mismatch is disclosed
+      // above, never silently replaced with storage or disposal.
+      for (; p < providers.length; p++, available = providers[p]?.rate ?? 0) {
+        if (available > 0) addFlow(providers[p].node.id, consumers.at(-1)!.node.id, itemId, available, available / supply);
+      }
+      for (; c < consumers.length; c++, needed = consumers[c]?.rate ?? 0) {
+        if (needed > 0) addFlow(providers.at(-1)!.node.id, consumers[c].node.id, itemId, needed, needed / supply);
+      }
+      continue;
+    }
     const stage = Math.min(...providers.map(e => e.node.stage)) + 1;
     const junction = (kind: 'merge' | 'split', rate: number) => {
       const label = item?.fluid ? (kind === 'merge' ? 'Объединение труб' : 'Распределение труб') : (kind === 'merge' ? 'Соединитель' : 'Разделитель');

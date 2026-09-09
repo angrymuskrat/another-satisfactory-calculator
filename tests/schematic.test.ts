@@ -27,8 +27,8 @@ function model(production: ConstructionGroup[], supply = 80.4): ConstructionMode
 const destinations = { products: [flow('ingot', 80.4)] };
 
 describe('схема строительства', () => {
-  it('группирует один тип, суммирует МВт и взвешивает частоты по числу машин', () => {
-    const second = { ...group('copper', 2, 20), clock: 100, activeDuty: .5, averagePower: 5, existing: 2 };
+  it('группирует одинаковый рецепт, суммирует МВт и взвешивает частоты по числу машин', () => {
+    const second = { ...group('second-line', 2, 20), recipeId: 'iron', clock: 100, activeDuty: .5, averagePower: 5, existing: 2 };
     const graph = buildSchematic(catalog, model([group('iron'), second], 100.4), { products: [flow('ingot', 100.4)] }, 'types');
     const nodes = graph.nodes.filter(n => n.kind === 'building');
     expect(nodes).toHaveLength(1);
@@ -46,11 +46,11 @@ describe('схема строительства', () => {
       expect(n).toMatchObject({ count: 1, clock: 67, averagePower: 2, peakPower: 3 });
       expect(n.inputs).toEqual([flow('ore', 20.1)]);
     }
-    const splitter = graph.nodes.find(n => n.kind === 'split')!;
-    const branches = graph.edges.filter(e => e.from === splitter.id);
+    const source = graph.nodes.find(n => n.kind === 'source')!;
+    const branches = graph.edges.filter(e => e.from === source.id);
     expect(branches.map(e => e.rate)).toEqual([20.1, 20.1, 20.1, 20.1]);
     expect(branches.map(e => e.share)).toEqual([.25, .25, .25, .25]);
-    expect(graph.nodes.some(n => n.kind === 'merge')).toBe(true);
+    expect(graph.nodes.some(n => n.kind === 'merge' || n.kind === 'split')).toBe(false);
   });
 
   it('подписывает неравные 40/30/20/10 процентов, не выбирая пары поставщиков и потребителей', () => {
@@ -60,7 +60,7 @@ describe('схема строительства', () => {
       { sourceId: 'a', name: 'A', itemId: 'ore', rate: 55, power: 5 },
       { sourceId: 'b', name: 'B', itemId: 'ore', rate: 45, power: null },
     ];
-    const graph = buildSchematic(catalog, m, { products: [flow('ingot', 100)] }, 'machines');
+    const graph = buildSchematic(catalog, m, { products: [flow('ingot', 100)] }, 'types');
     const split = graph.nodes.find(n => n.kind === 'split' && n.itemId === 'ore')!;
     const merge = graph.nodes.find(n => n.kind === 'merge' && n.itemId === 'ore')!;
     expect(graph.edges.filter(e => e.from === split.id).map(e => e.share)).toEqual([.4, .3, .2, .1]);
@@ -71,9 +71,46 @@ describe('схема строительства', () => {
     const a = group('a', 1, 10);
     const b = { ...group('b', 1, 10), averageInputs: [flow('ingot', 10)], averageOutputs: [flow('plate', 10)] };
     const graph = buildSchematic(catalog, model([a, b], 10), { products: [flow('plate', 10)] }, 'types');
-    expect(graph.nodes.filter(n => n.kind === 'building')).toHaveLength(1);
+    expect(graph.nodes.filter(n => n.kind === 'building')).toHaveLength(2);
     expect(graph.cycles).toHaveLength(0);
-    expect(graph.edges.some(e => e.from === e.to && e.itemId === 'ingot')).toBe(true);
+    expect(graph.edges.some(e => e.from === e.to)).toBe(false);
+    expect(graph.edges.some(e => e.itemId === 'ingot')).toBe(true);
+  });
+
+  it('разные рецепты одного продукта и разные добываемые ресурсы не объединяются', () => {
+    const m = model([group('normal', 1, 40), group('alternate', 1, 40)], 80);
+    m.externalSources = [];
+    m.extraction = ['ore', 'water'].map(itemId => ({ ...group(itemId, 1, 80), recipeId: undefined,
+      kind: 'extraction', activeInputs: [], activeOutputs: [flow(itemId, 80)], averageInputs: [], averageOutputs: [flow(itemId, 80)] }));
+    const graph = buildSchematic(catalog, m, { products: [flow('ingot', 80), flow('water', 80)] }, 'types');
+    expect(graph.nodes.filter(n => n.kind === 'building')).toHaveLength(4);
+  });
+
+  it.each([0, 1])('распределяет 224 напрямую, соблюдая 120 на каждом ребре и баланс на странице %i', page => {
+    const m = model([group('a', 50, 224)], 224);
+    m.transport.belt.rate = 120;
+    m.externalSources = [
+      { sourceId: 'a', name: 'A', itemId: 'ore', rate: 130, power: null },
+      { sourceId: 'b', name: 'B', itemId: 'ore', rate: 94, power: null },
+    ];
+    const graph = buildSchematic(catalog, m, { products: [flow('ingot', 224)] }, 'machines', page);
+    expect(graph.nodes.some(n => ['merge', 'split'].includes(n.kind))).toBe(false);
+    expect(graph.edges.every(e => e.rate > 0 && e.rate <= 120 && e.parallel === 1)).toBe(true);
+    for (const n of graph.nodes) for (const direction of ['inputs', 'outputs'] as const) {
+      for (const f of n[direction]) expect(graph.edges.filter(e => e.itemId === f.itemId &&
+        (direction === 'inputs' ? e.to === n.id : e.from === n.id)).reduce((s, e) => s + e.rate, 0)).toBeCloseTo(f.rate, 10);
+    }
+  });
+
+  it('делит большие потоки на ленты/трубы, сохраняя малый положительный остаток', () => {
+    const m = model([], 0); m.externalSources = [];
+    for (const [itemId, rate] of [['ore', 120 + 1e-10], ['water', 650]] as const) {
+      m.externalSources.push({ sourceId: itemId, name: itemId, itemId, rate, power: null });
+    }
+    m.transport.belt.rate = 120;
+    const graph = buildSchematic(catalog, m, { products: m.externalSources }, 'machines');
+    expect(graph.edges.filter(e => e.itemId === 'ore').map(e => e.rate)).toEqual([120, 120 + 1e-10 - 120]);
+    expect(graph.edges.filter(e => e.itemId === 'water').map(e => e.rate)).toEqual([300, 300, 50]);
   });
 
   it('сохраняет настоящий самовозврат, а также следовые потоки', () => {

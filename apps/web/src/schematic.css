@@ -15,9 +15,8 @@
 .schematic-viewport{cursor:grab;user-select:none;overflow-anchor:none}
 .schematic-viewport.is-dragging,.schematic-viewport.is-dragging *{cursor:grabbing!important}
 .schematic-scaled{position:relative;min-width:100%}
-.schematic-canvas{position:absolute;left:0;top:0;display:flex;align-items:flex-start;gap:175px;width:max-content;padding:95px 90px;transform-origin:top left}
-.schematic-column{display:flex;flex-direction:column;gap:95px;width:280px}
-.schematic-node{position:relative;z-index:1;width:280px;background:#1c252c;border:1px solid #51606a;border-top:3px solid #edab64;border-radius:10px;box-shadow:0 7px 18px #0003;overflow:hidden;color:#e6e8ea;transition:opacity .15s}
+.schematic-canvas{position:absolute;left:0;top:0;transform-origin:top left}
+.schematic-node{position:absolute;z-index:1;width:280px;background:#1c252c;border:1px solid #51606a;border-top:3px solid #edab64;border-radius:10px;box-shadow:0 7px 18px #0003;overflow:hidden;color:#e6e8ea;transition:opacity .15s}
 .schematic-node.selected{outline:3px solid #f5a14c;outline-offset:5px}.schematic-node.muted-node{opacity:.4}
 .schematic-node[data-kind=source]{border-top-color:#a3b7a6}.schematic-node[data-kind=product],.schematic-node[data-kind=export]{border-top-color:#92c8a9}
 .schematic-node.fluid{border-top-color:#71bad7}.schematic-node[data-kind=continuation]{border-style:dashed;background:#182127}
