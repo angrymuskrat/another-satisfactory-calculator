@@ -115,6 +115,20 @@ test('малый положительный выпуск не превращае
   await expect(graph.locator('.schematic-connections')).toContainText('2.000e-4 шт/мин');
 });
 
+test('схема скрывает связи ниже 0,01 процента, сохраняя данные карточек', async ({ page }) => {
+  const plan = smelters([1, 1], [30, .001]);
+  plan.lines![1].clock = 1; plan.lines![1].duty = .001 / .3;
+  await calculate(page, 'target', plan);
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
+  await expect(graph.locator('.schematic-node[data-kind="building"]')).toHaveCount(2);
+  await expect(graph.locator('.schematic-hint')).toContainText('Связи меньше 0,01%');
+  const rates = await graph.locator('.schematic-edges g.flow').evaluateAll(nodes => nodes.map(n => Number(n.getAttribute('data-rate'))));
+  expect(rates.length).toBeGreaterThan(0);
+  expect(rates.every(rate => rate >= 30.001 * .0001)).toBe(true);
+  expect(await graph.locator('.schematic-node[data-kind="building"]').allTextContents()).toEqual(expect.arrayContaining([expect.stringContaining('0,001')]));
+});
+
 test('разная доля работы одного типа явно подписана как средняя при одинаковой частоте', async ({ page }) => {
   const plan = smelters([1, 1], [6, 24]);
   plan.lines!.forEach((line, i) => { line.clock = 100; line.duty = [.2, .8][i]; });
@@ -209,6 +223,39 @@ test('перетаскивание мышью перемещает полотн�
   await expect(graph.locator('.schematic-node.selected')).toHaveCount(0);
   await button.click();
   await expect(button).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('вся карточка выделяет здание, а перетаскивание за её нижнюю часть не выделяет', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await calculate(page);
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
+  await expect(graph.locator('.schematic-canvas')).toHaveAttribute('data-layout', 'short-links');
+  const card = graph.locator('.schematic-node[data-kind="building"]').first();
+  for (const selector of ['.schematic-settings', '.schematic-flows', '.schematic-power']) {
+    const part = card.locator(selector).first();
+    await part.scrollIntoViewIfNeeded();
+    const box = (await part.boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(card.locator('.schematic-node-button')).toHaveAttribute('aria-pressed', 'true');
+    await graph.getByRole('button', { name: 'Снять выделение', exact: true }).click();
+  }
+  const footer = card.locator('.schematic-power');
+  await footer.scrollIntoViewIfNeeded();
+  const box = (await footer.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 60, box.y + box.height / 2 - 45, { steps: 6 });
+  await page.mouse.up();
+  await expect(graph.locator('.schematic-node.selected')).toHaveCount(0);
+  const button = card.locator('.schematic-node-button');
+  await button.focus(); await page.keyboard.press('Enter');
+  await expect(button).toHaveAttribute('aria-pressed', 'true');
+  await graph.getByRole('button', { name: 'На весь экран', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Схема строительства', exact: true });
+  await dialog.getByRole('button', { name: 'Уместить', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Только схема', exact: true }).click();
+  await page.screenshot({ path: 'output/playwright/schematic-short-links.png' });
 });
 
 test('колесо меняет масштаб вокруг указателя без прокрутки страницы и соблюдает пределы', async ({ page }) => {

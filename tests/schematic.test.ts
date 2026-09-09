@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildSchematic, SCHEMATIC_PAGE_SIZE } from '../packages/domain/schematic';
+import { buildSchematic, filterSchematicFlows, SCHEMATIC_PAGE_SIZE } from '../packages/domain/schematic';
 import type { ConstructionGroup, ConstructionModel } from '../packages/domain/construction';
 import type { Catalog } from '../packages/domain/types';
 
@@ -27,6 +27,32 @@ function model(production: ConstructionGroup[], supply = 80.4): ConstructionMode
 const destinations = { products: [flow('ingot', 80.4)] };
 
 describe('схема строительства', () => {
+  it.each(['types', 'machines'] as const)('скрывает связи ниже 0,01%% общего потока предмета в виде %s', mode => {
+    const m = model([group('large', 1, 99.985), group('boundary', 1, .01), group('tiny', 1, .005)], 100);
+    m.transport.belt.rate = 120;
+    const raw = buildSchematic(catalog, m, { products: [flow('ingot', 100)] }, mode);
+    const before = structuredClone(raw);
+    const visible = filterSchematicFlows(raw);
+    expect(visible.edges.some(e => e.rate === .005)).toBe(false);
+    expect(visible.edges.some(e => Math.abs(e.rate - .01) < 1e-12)).toBe(true);
+    expect(visible.edges.length).toBeLessThan(raw.edges.length);
+    expect(raw).toEqual(before);
+    expect(visible.nodes).toEqual(raw.nodes);
+  });
+
+  it('порог относительный: сохраняет самостоятельный малый выпуск и управляющую связь', () => {
+    const raw = buildSchematic(catalog, model([group('small', 1, 1e-12)], 1e-12), { products: [flow('ingot', 1e-12)] }, 'machines');
+    raw.edges.push({ id: 'control', from: raw.nodes[0].id, to: raw.nodes[1].id, kind: 'control', rate: 0, parallel: 0 });
+    expect(filterSchematicFlows(raw).edges).toEqual(raw.edges);
+  });
+
+  it('отбрасывает численный хвост параллельной ленты без увеличения остальных рёбер', () => {
+    const m = model([], 120 + 1e-10); m.transport.belt.rate = 120;
+    const raw = buildSchematic(catalog, m, { products: [flow('ore', 120 + 1e-10)] }, 'machines');
+    expect(raw.edges).toHaveLength(2);
+    expect(filterSchematicFlows(raw).edges.map(e => e.rate)).toEqual([120]);
+  });
+
   it('группирует одинаковый рецепт, суммирует МВт и взвешивает частоты по числу машин', () => {
     const second = { ...group('second-line', 2, 20), recipeId: 'iron', clock: 100, activeDuty: .5, averagePower: 5, existing: 2 };
     const graph = buildSchematic(catalog, model([group('iron'), second], 100.4), { products: [flow('ingot', 100.4)] }, 'types');

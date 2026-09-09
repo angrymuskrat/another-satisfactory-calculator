@@ -22,6 +22,38 @@ it('размещает ветви в глубину, центрирует общ
   }
   expect(layoutSchematic(g, { c: { width: 280, height: 470 } })).toEqual(layout);
 });
+
+const length = (g: SchematicModel, layout: ReturnType<typeof layoutSchematic>) => Object.values(routeSchematicEdges(g, layout))
+  .reduce((sum, route) => sum + route.points.slice(1).reduce((s, p, i) => s + Math.hypot(p.x - route.points[i].x, p.y - route.points[i].y), 0), 0);
+
+it('отдельные машины сокращают суммарную длину общих связей, сохраняя граф и размеры', () => {
+  const g = graph();
+  const sizes = { c: { width: 280, height: 470 } };
+  const before = structuredClone(g);
+  const dfs = layoutSchematic(g, sizes);
+  const optimized = layoutSchematic(g, sizes, 'machines');
+  expect(length(g, optimized)).toBeLessThan(length(g, dfs) - 50);
+  expect(g).toEqual(before);
+  expect(optimized.rects.c.height).toBe(470);
+  expect(layoutSchematic(g, sizes, 'machines')).toEqual(optimized);
+  const rects = Object.values(optimized.rects);
+  for (const a of rects) for (const b of rects) if (a !== b) {
+    expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y).toBe(true);
+  }
+});
+
+it('оптимизация не удлиняет циклы, параллельные связи и переходы через стадии', () => {
+  const g = graph();
+  g.nodes.push({ id: 'isolated', stage: 0 } as SchematicNode);
+  g.edges.push({ ...g.edges[0], id: 'cycle', from: 'end', to: 'a' }, { ...g.edges[0], id: 'skip', from: 'source', to: 'end' });
+  for (let i = 0; i < 20; i++) g.edges.push({ ...g.edges[0], id: `parallel${i}` });
+  const dfs = layoutSchematic(g, {}), optimized = layoutSchematic(g, {}, 'machines');
+  expect(length(g, optimized)).toBeLessThanOrEqual(length(g, dfs));
+  expect(Object.keys(optimized.rects)).toHaveLength(g.nodes.length);
+  const routes = routeSchematicEdges(g, optimized);
+  expect(Object.keys(routes)).toHaveLength(g.edges.length);
+  expect(Object.values(routes).every(r => r.points.every(p => p.x >= 0 && p.y >= 0 && p.x <= optimized.width && p.y <= optimized.height))).toBe(true);
+});
 it('сохраняет циклы, длинные связи и изолированные узлы в границах полотна', () => {
   const g = graph();
   g.nodes.push({ id: 'isolated', stage: 0 } as SchematicNode);

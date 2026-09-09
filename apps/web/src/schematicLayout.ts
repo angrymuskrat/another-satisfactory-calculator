@@ -1,4 +1,4 @@
-import type { SchematicEdge, SchematicModel } from '../../../packages/domain/schematic';
+import type { SchematicEdge, SchematicMode, SchematicModel } from '../../../packages/domain/schematic';
 
 export type Rect = { x: number; y: number; width: number; height: number };
 type Size = Pick<Rect, 'width' | 'height'>;
@@ -8,7 +8,7 @@ const padding = 90, gap = 240, rowGap = 90;
 
 /** A DFS spanning forest reserves a vertical band per branch. Shared nodes and
  * cycles are drawn once; all non-tree edges remain in the original graph. */
-export function layoutSchematic(graph: SchematicModel, sizes: Record<string, Size>): SchematicLayout {
+export function layoutSchematic(graph: SchematicModel, sizes: Record<string, Size>, mode: SchematicMode = 'types'): SchematicLayout {
   const nodes = [...graph.nodes].sort((a, b) => a.stage - b.stage || a.id.localeCompare(b.id));
   const byId = new Map(nodes.map(n => [n.id, n]));
   const stages = [...new Set(nodes.map(n => n.stage))];
@@ -47,8 +47,79 @@ export function layoutSchematic(graph: SchematicModel, sizes: Record<string, Siz
     const branch = visit(node.id);
     place(branch, cursor); cursor += branch.height + rowGap;
   }
-  return { width: Math.max(1000, padding * 2 + stages.length * (width + gap) - gap),
+  const layout = { width: Math.max(1000, padding * 2 + stages.length * (width + gap) - gap),
     height: Math.max(600, cursor - rowGap + padding), rects };
+  return mode === 'machines' ? shortenConnections(graph, layout) : layout;
+}
+
+/** Bounded, deterministic local search. The objective is the actual sum of
+ * polyline lengths (each parallel edge counts once), not flow-weighted distance.
+ * DFS is only a baseline: never replace it with a longer measured candidate. */
+function shortenConnections(graph: SchematicModel, initial: SchematicLayout): SchematicLayout {
+  const ids = Object.keys(initial.rects);
+  if (ids.length < 2 || !graph.edges.length) return initial;
+  const columns = [...new Set(ids.map(id => initial.rects[id].x))].sort((a, b) => a - b)
+    .map(x => ids.filter(id => initial.rects[id].x === x));
+  const neighbors = new Map(ids.map(id => [id, [] as string[]]));
+  for (const e of graph.edges) if (e.from !== e.to) {
+    neighbors.get(e.from)!.push(e.to); neighbors.get(e.to)!.push(e.from);
+  }
+  const top = Math.min(...ids.map(id => initial.rects[id].y));
+  const median = (values: number[]) => {
+    values.sort((a, b) => a - b);
+    return (values[Math.floor((values.length - 1) / 2)] + values[Math.floor(values.length / 2)]) / 2;
+  };
+  const cost = (layout: SchematicLayout) => Object.values(routeSchematicEdges(graph, layout)).reduce((sum, route) =>
+    sum + route.points.slice(1).reduce((s, p, i) => s + Math.hypot(p.x - route.points[i].x, p.y - route.points[i].y), 0), 0);
+  let best = initial, bestCost = cost(initial);
+  const accept = (rects: Record<string, Rect>) => {
+    const candidate = { ...initial, rects, height: Math.max(600, ...ids.map(id => rects[id].y + rects[id].height + padding)) };
+    const nextCost = cost(candidate);
+    if (nextCost >= bestCost - 1e-6) return false;
+    best = candidate; bestCost = nextCost; return true;
+  };
+  // Compact column seeds give shared suppliers/consumers a chance to move
+  // together, instead of being trapped in the first branch visited by DFS.
+  const heights = columns.map(column => column.reduce((s, id) => s + initial.rects[id].height, 0) + (column.length - 1) * rowGap);
+  for (const centered of [false, true]) {
+    const rects = { ...initial.rects };
+    columns.forEach((column, i) => {
+      let y = top + (centered ? (Math.max(...heights) - heights[i]) / 2 : 0);
+      for (const id of [...column].sort((a, b) => initial.rects[a].y - initial.rects[b].y || a.localeCompare(b))) {
+        rects[id] = { ...rects[id], y }; y += rects[id].height + rowGap;
+      }
+    });
+    accept(rects);
+  }
+  // Bound route evaluations for large transport graphs; no timer-dependent
+  // result and no repeated search during zoom or selection.
+  const passes = Math.max(1, Math.min(8, Math.floor(200000 / (graph.edges.length * columns.length * 2))));
+  for (let pass = 0; pass < passes; pass++) {
+    let improved = false;
+    for (const column of pass % 2 ? [...columns].reverse() : columns) {
+      const desired = new Map(column.map(id => {
+        const adjacent = neighbors.get(id)!;
+        const center = adjacent.length ? median(adjacent.map(other => best.rects[other].y + best.rects[other].height / 2))
+          : best.rects[id].y + best.rects[id].height / 2;
+        return [id, center - best.rects[id].height / 2];
+      }));
+      for (const reorder of [false, true]) {
+        const order = [...column].sort((a, b) => (reorder ? desired.get(a)! - desired.get(b)! : 0)
+          || best.rects[a].y - best.rects[b].y || a.localeCompare(b));
+        const rects = { ...best.rects };
+        let y = top;
+        for (const id of order) {
+          rects[id] = { ...rects[id], y: Math.max(y, desired.get(id)!) };
+          y = rects[id].y + rects[id].height + rowGap;
+        }
+        const shift = Math.max(top - rects[order[0]].y, median(order.map(id => desired.get(id)! - rects[id].y)));
+        for (const id of order) rects[id] = { ...rects[id], y: rects[id].y + shift };
+        improved = accept(rects) || improved;
+      }
+    }
+    if (!improved) break;
+  }
+  return best;
 }
 
 /** Horizontal exits/entries, with 45-degree diagonals and vertical runs for

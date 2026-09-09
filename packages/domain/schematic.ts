@@ -36,6 +36,19 @@ export interface SchematicEdge {
   parallel: number;
 }
 export type SchematicModel = ReturnType<typeof buildSchematic>;
+export const SCHEMATIC_MIN_FLOW_SHARE = 0.0001; // 0.01% of this item's total supply.
+
+/** Presentation only: keep the checked graph and solver values intact. */
+export function filterSchematicFlows(graph: SchematicModel): SchematicModel {
+  const totals = new Map<string, number>();
+  for (const node of graph.nodes) {
+    // Junctions repeat a flow already counted at its actual suppliers.
+    if (node.kind === 'merge' || node.kind === 'split') continue;
+    for (const flow of node.outputs) totals.set(flow.itemId, (totals.get(flow.itemId) ?? 0) + flow.rate);
+  }
+  return { ...graph, edges: graph.edges.filter(edge => edge.kind === 'control'
+    || edge.rate >= (totals.get(edge.itemId!) ?? 0) * SCHEMATIC_MIN_FLOW_SHARE) };
+}
 
 const key = (...parts: (string | number)[]) => JSON.stringify(parts);
 const sumFlows = (flows: ProductResult[]): ProductResult[] => {

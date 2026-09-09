@@ -2,7 +2,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 're
 import { ArrowRight, Factory, GitFork, Maximize2, Minus, Plus, X, Zap } from 'lucide-react';
 import type { Catalog } from '../../../packages/domain/types';
 import type { ConstructionModel } from '../../../packages/domain/construction';
-import { buildSchematic, SCHEMATIC_PAGE_SIZE, type SchematicDestinations, type SchematicEdge, type SchematicMode, type SchematicModel, type SchematicNode } from '../../../packages/domain/schematic';
+import { buildSchematic, filterSchematicFlows, SCHEMATIC_MIN_FLOW_SHARE, SCHEMATIC_PAGE_SIZE, type SchematicDestinations, type SchematicEdge, type SchematicMode, type SchematicModel, type SchematicNode } from '../../../packages/domain/schematic';
 import { format, ItemIcon, unit } from './controls';
 import { useSchematicNavigation } from './useSchematicNavigation';
 import { layoutSchematic, routeSchematicEdges } from './schematicLayout';
@@ -10,13 +10,14 @@ import './schematic.css';
 
 const number = (n: number) => n !== 0 && Math.abs(n) < .001 ? n.toExponential(3) : format(n, 3);
 const kindLabels: Record<SchematicNode['kind'], string> = { building: 'ОБОРУДОВАНИЕ', source: 'ВНЕШНЯЯ ПОСТАВКА', product: 'ГОТОВЫЙ ПРОДУКТ', export: 'ПОТРЕБИТЕЛЬ', split: 'УСЛОВНЫЙ БЛОК', merge: 'УСЛОВНЫЙ БЛОК', continuation: 'ДРУГАЯ СТРАНИЦА' };
-function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog: Catalog; graph: SchematicModel; changePage: (page: number) => void; focusOnMount: boolean }) {
+function SchematicCanvas({ catalog, graph, mode, changePage, focusOnMount }: { catalog: Catalog; graph: SchematicModel; mode: SchematicMode; changePage: (page: number) => void; focusOnMount: boolean }) {
   const [selected, setSelected] = useState<string | null>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const { zoom, zoomTo, dragging, bindings } = useSchematicNavigation(viewport);
   const canvas = useRef<HTMLDivElement>(null), buttons = useRef(new Map<string, HTMLButtonElement>());
   const positioned = useRef(false);
   const [layout, setLayout] = useState(() => layoutSchematic(graph, {}));
+  const measured = useRef<{ graph: SchematicModel; mode: SchematicMode; sizes: string; layout: typeof layout } | null>(null);
   const routes = useMemo(() => routeSchematicEdges(graph, layout), [graph, layout]);
   const marker = useId().replaceAll(':', ''), detailId = useId();
   useEffect(() => { if (focusOnMount) canvas.current?.closest<HTMLElement>('.schematic-viewport')?.focus(); }, [focusOnMount]);
@@ -39,7 +40,11 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
       for (const card of element.querySelectorAll<HTMLElement>('[data-node-id]')) {
         sizes[card.dataset.nodeId!] = { width: card.offsetWidth, height: card.offsetHeight };
       }
-      const next = layoutSchematic(graph, sizes);
+      const sizeKey = JSON.stringify(sizes);
+      const cached = measured.current;
+      const next = cached?.graph === graph && cached.mode === mode && cached.sizes === sizeKey
+        ? cached.layout : layoutSchematic(graph, sizes, mode);
+      measured.current = { graph, mode, sizes: sizeKey, layout: next };
       setLayout(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
       if (!positioned.current) {
         cancelAnimationFrame(initialFrame);
@@ -55,7 +60,7 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
     observer.observe(element);
     for (const card of element.querySelectorAll('[data-node-id]')) observer.observe(card);
     return () => { observer.disconnect(); cancelAnimationFrame(initialFrame); };
-  }, [graph, zoom]);
+  }, [graph, mode, zoom]);
   const edgeText = (edge: SchematicEdge) => edge.kind === 'control' ? 'Связь скважины' : `${item(edge.itemId)?.name ?? edge.itemId}: ${number(edge.rate)} ${unit(item(edge.itemId))}${edge.share !== undefined ? ` · ${number(edge.share * 100)}%` : ''}`;
   const visibleEdge = (edge: SchematicEdge) => {
     const route = routes[edge.id];
@@ -80,7 +85,7 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
     </div><span><i className="schematic-legend-dot" /> Здания <i className="schematic-legend-dot fluid" /> Жидкости <span className="schematic-legend-line">┄</span> Связь скважины</span></div>
     <div className={`schematic-viewport${dragging ? ' is-dragging' : ''}`} ref={viewport} {...bindings} tabIndex={0} role="group" aria-label="Полотно схемы, прокрутка стрелками" aria-description="Перетаскивайте мышью для перемещения. Колесо изменяет масштаб вокруг указателя.">
       <div className="schematic-scaled" style={{ width: layout.width * zoom, height: layout.height * zoom }}>
-        <div className="schematic-canvas" ref={canvas} style={{ transform: `scale(${zoom})`, width: layout.width, height: layout.height }}>
+        <div className="schematic-canvas" data-layout={mode === 'machines' ? 'short-links' : 'branches'} ref={canvas} style={{ transform: `scale(${zoom})`, width: layout.width, height: layout.height }}>
           <svg className="schematic-edges" width={layout.width} height={layout.height} aria-hidden="true"><defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#aab5bd" /></marker></defs>{graph.edges.map(visibleEdge)}</svg>
             {graph.nodes.map(node => {
               const junction = node.kind === 'merge' || node.kind === 'split';
@@ -103,14 +108,14 @@ function SchematicCanvas({ catalog, graph, changePage, focusOnMount }: { catalog
         </div>
       </div>
     </div>
-    <p className="hint schematic-hint">Зажмите левую или среднюю кнопку мыши и тяните полотно. Колесо меняет масштаб вокруг указателя. Щелчок по узлу показывает рецепты и соединения; стрелки обозначают средние потоки.</p>
+    <p className="hint schematic-hint">Зажмите левую или среднюю кнопку мыши и тяните полотно. Колесо меняет масштаб вокруг указателя. Щелчок по узлу показывает рецепты и соединения; стрелки обозначают средние потоки. Связи меньше {number(SCHEMATIC_MIN_FLOW_SHARE * 100)}% общего потока предмета скрыты.</p>
     <div id={detailId} className="schematic-details">
       {active ? <><div className="section-heading"><h3>{active.label}{active.count > 0 && ` ×${active.count}`}</h3><button type="button" className="text-button" onClick={() => setSelected(null)}>Снять выделение</button></div>
         {active.configurations.length > 0 && <div className="schematic-configurations">{active.configurations.map(g => <div key={g.id}><strong>{g.name} · {g.count} зданий</strong>{g.recipeId && <span>Рецепт: {catalog.recipes.find(r => r.id === g.recipeId)?.name ?? g.recipeId}</span>}<span>Частота {number(g.clock)}% · работа {number(g.activeDuty * 100)}% времени · Somersloops на машину: {g.somersloops ?? 0}</span><span>Активная машина: {number(g.activePower)} МВт · средняя группы: {number(g.averagePower)} МВт · пик: {number(g.peakPower)} МВт</span>{g.powerEstimated && <span>Мощность оценочная по каталогу.</span>}</div>)}</div>}
         <h4>Соединения выбранного узла</h4><ul className="schematic-connections">{incident.map(e => {
           const other = graph.nodes.find(n => n.id === (e.from === active.id ? e.to : e.from))!;
           return <li key={e.id}><button type="button" onClick={() => select(other.id, true)}><span>{e.from === active.id ? '→ Куда: ' : '← Откуда: '}{other.label}</span><strong>{edgeText(e)}</strong>{e.kind === 'flow' && <small>Не менее {e.parallel} {item(e.itemId)?.fluid ? 'параллельных труб' : 'параллельных лент'} по среднему потоку</small>}</button></li>;
-        })}</ul>{!incident.length && <p>Предметные соединения не используются.</p>}</> : <p className="hint">Нажмите на заголовок здания или распределительного блока. Здесь появятся точные настройки и переходы к соседним узлам.</p>}
+        })}</ul>{!incident.length && <p>Предметные соединения не используются.</p>}</> : <p className="hint">Нажмите на карточку здания или распределительного блока. Здесь появятся точные настройки и переходы к соседним узлам.</p>}
     </div>
   </>;
 }
@@ -122,7 +127,7 @@ export function Schematic({ catalog, model, destinations, mode }: { catalog: Cat
   const onlyButton = useRef<HTMLButtonElement>(null), restoreButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDialogElement>(null), expandButton = useRef<HTMLButtonElement>(null);
   const computed = useMemo(() => {
-    try { return { graph: buildSchematic(catalog, model, destinations, mode, page), error: '' }; }
+    try { return { graph: filterSchematicFlows(buildSchematic(catalog, model, destinations, mode, page)), error: '' }; }
     catch (e) { return { graph: null, error: e instanceof Error ? e.message : 'Не удалось построить схему.' }; }
   }, [catalog, model, destinations, mode, page]);
   useEffect(() => { if (expanded) dialog.current?.showModal(); }, [expanded]);
@@ -138,7 +143,7 @@ export function Schematic({ catalog, model, destinations, mode }: { catalog: Cat
       {full ? <div className="schematic-full-actions"><button type="button" className="secondary-button" ref={onlyButton} onClick={() => setCanvasOnly(true)}>Только схема</button><button type="button" className="secondary-button" onClick={() => dialog.current?.close()}><X size={17} />Закрыть схему</button></div> : <button type="button" className="secondary-button" ref={expandButton} onClick={() => setExpanded(true)}><Maximize2 size={17} />На весь экран</button>}
     </div>
     {mode === 'machines' && graph.pages > 1 && <nav className="schematic-pagination" aria-label="Страницы зданий"><button type="button" className="secondary-button" disabled={graph.page === 0} onClick={() => { setFocusCanvas(false); setPage(graph.page - 1); }}>Назад</button><span>Страница {graph.page + 1} из {graph.pages} · здания {graph.page * SCHEMATIC_PAGE_SIZE + 1}–{Math.min(graph.machineCount, (graph.page + 1) * SCHEMATIC_PAGE_SIZE)}<small>Остальные здания показаны переходами с полными потоками.</small></span><button type="button" className="secondary-button" disabled={graph.page + 1 === graph.pages} onClick={() => { setFocusCanvas(false); setPage(graph.page + 1); }}>Далее</button></nav>}
-    <SchematicCanvas key={`${mode}:${graph.page}`} catalog={catalog} graph={graph} focusOnMount={focusCanvas} changePage={next => { setFocusCanvas(true); setPage(next); }} />
+    <SchematicCanvas key={`${mode}:${graph.page}`} catalog={catalog} graph={graph} mode={mode} focusOnMount={focusCanvas} changePage={next => { setFocusCanvas(true); setPage(next); }} />
     <details className="schematic-notes"><summary>Как читать схему{graph.cycles.length > 0 ? ` · циклов: ${graph.cycles.length}` : ''}</summary><p>Частота — настройка машины; работа — доля активного времени. Средняя частота разных конфигураций справочная: настройки каждой смотрите в составе узла. МВт суммируются по исходным конфигурациям.</p><p>{mode === 'types' ? 'Разделитель и соединитель здесь условные. Линия может означать несколько параллельных лент или труб; их количество подписано на ребре.' : `Связи идут напрямую между машинами. Каждая линия передаёт не более ${number(model.transport.belt.rate)} шт/мин или ${number(model.transport.pipe.rate)} м³/мин. Большие потоки показаны отдельными параллельными линиями; проценты — доля общего потока предмета.`} Точная разводка, физические порты и размещение распределителей не рассчитаны.</p><p>Средняя мощность учитывает работу, пик — одновременную нагрузку физических машин. Простои standby, синхронизация и запуск не моделируются. Неизвестная энергия импорта остаётся вне расчёта.</p>{graph.cycles.map(c => <div className="alert warning" key={c.recipeIds.join('|')}><div><strong>Совместный контур: {c.names.join(' → ')}</strong><p>Возвратные потоки сохраняются. Обеспечьте начальное заполнение, приоритет возврата и отвод побочных продуктов. Стартовый запас и время запуска не рассчитаны.</p>{c.internalFlows.map(f => <p key={f.itemId}>{catalog.items.find(i => i.id === f.itemId)?.name ?? f.itemId}: внутри произведено {number(f.produced)}, потреблено {number(f.consumed)} {unit(catalog.items.find(i => i.id === f.itemId))}.</p>)}</div></div>)}<p>Разные рецепты показаны отдельными узлами. Возвратные связи обходят производственные ветви сверху.</p></details>
     {graph.warnings.length > 0 && <details className="schematic-notes"><summary>Численные остатки потоков ({graph.warnings.length})</summary>{graph.warnings.map(w => <p key={w}>{w}</p>)}</details>}
   </>;

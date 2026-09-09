@@ -22,6 +22,9 @@
 .schematic-node.fluid{border-top-color:#71bad7}.schematic-node[data-kind=continuation]{border-style:dashed;background:#182127}
 .schematic-node-button{display:block;width:100%;padding:15px 16px;text-align:left;background:#ffffff03}
 .schematic-node-button:focus-visible{outline-offset:-4px}
+.schematic-node-button::after{content:"";position:absolute;inset:0;z-index:2;cursor:pointer}
+.schematic-node:has(.schematic-node-button:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.schematic-node .schematic-page-link{position:relative;z-index:3}
 .schematic-kind{display:block;font-size:9px;color:#bac7d0;letter-spacing:1.5px;margin-bottom:9px}
 .schematic-recipe{display:block;font-size:11px;line-height:1.6;margin-top:9px;color:#bfccd5}
 .schematic-node-title{display:flex;gap:9px;align-items:center}.schematic-node-title svg{flex-shrink:0;color:#e9b477}
