@@ -8,6 +8,7 @@ import { validateResult } from './validate';
 import { applyBatch } from '../domain/batch';
 import { balancedClock } from '../domain/production';
 import { hasSolution } from '../domain/types';
+import { configureBeltRouting, solveWithBeltRouting, type RoutingAttempt } from './beltRouting';
 type Highs = Awaited<ReturnType<typeof loadHighs>>;
 const tolerance = (value: number) => 1e-8 + Math.abs(value) * 1e-9;
 const clean = (value: number) => Math.max(0, value);
@@ -15,10 +16,11 @@ const physicalCount = (equivalent: number) => Math.max(1, Math.ceil(equivalent -
 export function emptyResult(status: Result['status'], message: string): Result {
   return { status, message, products: [], steps: [], resources: [], surplus: [], power: 0, productionPower: 0, extractionPower: 0, sinkPower: 0, installedPower: 0, objectiveValue: 0, warnings: [], diagnostics: [], maxBalanceError: 0 };
 }
-export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000): Result {
+export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000, routingAttempt?: RoutingAttempt): Result {
   let requested = input;
   let approximatePower = false;
   try {
+    if (input.settings.beltRouting?.enabled && !routingAttempt) return solveWithBeltRouting(catalog, input, deadline, (candidate, limit, attempt) => solve(catalog, candidate, highs, limit, attempt));
     const plan = effectivePlan(catalog, applyBatch(parsePlan(input)));
     requested = plan;
     if (plan.mode === 'maximize' && plan.targets.some(t => t.rate <= 0)) return emptyResult('error', 'Пропорция должна быть положительной.');
@@ -27,6 +29,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       return emptyResult('error', 'Положительные границы и заданный выпуск должны быть не меньше 0,000001 в минуту. Увеличьте масштаб расчёта; ноль остаётся отдельным запретом.');
     }
     const built = buildModel(catalog, plan);
+    const routing = routingAttempt ? configureBeltRouting(built, catalog, plan, routingAttempt, deadline) : null;
     approximatePower = built.recipeVariables.some(r => r.autoClock);
     const { model } = built;
     let values: Record<string, number> = {};
@@ -110,8 +113,8 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     }
     let machineBudget: Result['machineBudget'];
     if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
-      const minimum = Math.round(optimize(built.machineCount));
-      const limit = minimum + plan.settings.smoothPowerExtraMachines;
+      const minimum = routingAttempt?.machineBudget?.minimum ?? Math.round(optimize(built.machineCount));
+      const limit = routingAttempt?.machineBudget?.limit ?? minimum + plan.settings.smoothPowerExtraMachines;
       model.constrain(built.machineCount, '<=', limit);
       machineBudget = { minimum, limit, used: 0 };
     }
@@ -203,9 +206,9 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     result.objectiveValue = objectiveValue;
     if (machineBudget) result.machineBudget = { ...machineBudget, used: Math.round(dot(built.machineCount, values)) };
     result.products = built.targets.map(t => ({ itemId: t.target.itemId, rate: clean(values[t.variable] ?? 0) }));
-    result.steps = built.recipeVariables.filter(r => r.configuration.existing || (values[r.variable] ?? 0) > 1e-12).map(r => {
+    result.steps = built.recipeVariables.filter(r => r.configuration.existing || (values[r.variable] ?? 0) > 1e-12 || routing && (values[r.countVariable!] ?? 0) >= .5).map(r => {
       const cycles = values[r.variable];
-      const installedMachines = r.autoClock ? Math.round(values[r.countVariable!] ?? 0) : r.configuration.existing || physicalCount(cycles / r.capacity);
+      const installedMachines = r.autoClock || routing ? Math.round(values[r.countVariable!] ?? 0) : r.configuration.existing || physicalCount(cycles / r.capacity);
       const clock = r.autoClock ? balancedClock(r.configuration, cycles, installedMachines) : r.configuration.clock;
       const clockRatio = clock / r.configuration.clock;
       const capacity = Math.min(r.capacity, r.cyclesAtClock * clockRatio);
@@ -220,7 +223,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       };
     });
     result.resources = built.sourceVariables.map(s => ({ sourceId: s.source.id, itemId: s.source.itemId, rate: clean(values[s.variable] ?? 0), limit: s.limit,
-      installedMachines: s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) : s.source.kind === 'node' && (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) : 0,
+      installedMachines: s.source.kind === 'well' || routing && s.source.kind === 'node' ? Math.round(values[s.countVariable!] ?? 0) : s.source.kind === 'node' && (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) : 0,
       power: s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : clean((values[s.variable] ?? 0) * s.powerPerUnit) }));
     result.exports = built.exports.filter(e => (values[e.variable] ?? 0) > 1e-12).map(e => ({ itemId: e.itemId, rate: values[e.variable] }));
     result.somersloops = Math.round(dot(built.loops, values));
@@ -230,7 +233,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     result.sinkPower = built.sinkCount ? Math.round(values[built.sinkCount] ?? 0) * built.sinkPower : 0;
     result.power = result.productionPower + result.extractionPower + result.sinkPower;
     result.installedPower = result.steps.reduce((s, r) => s + r.powerMax, 0) + result.sinkPower
-      + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
+      + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' || routing && s.source.kind === 'node' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.warnings.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
     if (plan.settings.objective === 'smooth-power') result.warnings.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
     if (approximatePower) result.warnings.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
@@ -245,6 +248,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     else if (result.products.every(p => p.rate < 1e-7)) result.diagnostics.push('Доступные источники и рецепты не обеспечивают положительный выпуск выбранных продуктов.');
     for (const r of result.resources) if (r.limit !== null && r.limit > 0 && r.limit - r.rate < 1e-5) result.diagnostics.push(`Исчерпан источник: ${catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId} (${plan.sources.find(s => s.id === r.sourceId)?.name || r.sourceId}). Это не доказывает пользу расширения — проверьте повторным расчётом.`);
     if (plan.settings.powerLimit !== null && Math.abs(result.power - plan.settings.powerLimit) < 1e-5) result.diagnostics.push('Достигнут лимит средней мощности.');
+    routing?.complete(result, values);
     const validation = validateResult(catalog, plan, result);
     result.maxBalanceError = validation.maxBalanceError;
     if (validation.errors.length) return { ...emptyResult('error', 'Результат не прошёл проверку баланса или ограничений.'), diagnostics: validation.errors };
@@ -262,7 +266,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       if (error.status === 'infeasible') {
         if (input.targets.some(t => (t.minRate ?? 0) > 0)) result.message = 'Заказ и заданные минимумы невыполнимы совместно с текущими ограничениями. Минимумы не были сняты.';
         result.diagnostics.push('Проверьте необходимые ресурсы, выключенные здания и рецепты, побочные продукты и возможность утилизации. Ограничения не были изменены.');
-        if (requested.mode === 'target' && requested.targets.some(t => t.rate > 0) && performance.now() < deadline) {
+        if (!routingAttempt && requested.mode === 'target' && requested.targets.some(t => t.rate > 0) && performance.now() < deadline) {
           const targets = requested.targets.filter(t => t.rate > 0);
           const alternative = solve(catalog, { ...requested, batch: undefined, targets, mode: 'maximize', policy: 'proportional', settings: { ...requested.settings, outputSlack: 0 } }, highs, deadline);
           if (hasSolution(alternative)) {

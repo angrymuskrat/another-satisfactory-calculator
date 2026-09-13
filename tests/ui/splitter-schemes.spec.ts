@@ -1,0 +1,84 @@
+import { expect, test } from '@playwright/test';
+
+test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
+
+test('справочник независимо от плана показывает полный вектор, фильтры и реальные ветви', async ({ page }) => {
+  const workers: string[] = [];
+  page.on('worker', worker => workers.push(worker.url()));
+  await page.goto('/');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('ficsit-plan-v1'))).not.toBeNull();
+  const original = await page.evaluate(() => localStorage.getItem('ficsit-plan-v1'));
+  await page.getByRole('button', { name: 'Схемы разделителей', exact: true }).click({ timeout: 5000 });
+  await expect(page.getByRole('heading', { name: 'Схемы разделителей', exact: true })).toBeVisible();
+  const schemes = page.getByRole('region', { name: 'Справочник распределений' });
+  await expect(schemes.getByRole('status')).toContainText('Перебор завершён');
+  await schemes.getByLabel('Число выходов').selectOption('2');
+  await schemes.getByRole('button', { name: 'Распределение 1/2 + 1/2', exact: true }).click();
+  await expect(schemes.getByRole('table', { name: 'Конечные выходы' }).getByRole('row')).toHaveCount(3);
+  await expect(schemes.getByRole('table', { name: 'Конечные выходы' })).toContainText('50');
+  await expect(schemes.getByRole('img', { name: 'Граф распределения' })).toBeVisible();
+  await schemes.getByText('Все соединения', { exact: true }).click();
+  await expect(schemes.getByRole('list', { name: 'Соединения распределения' }).getByRole('listitem')).toHaveCount(3);
+  await schemes.getByLabel('Пробный вход, предметов/мин').fill('120');
+  await schemes.getByLabel('Пропускная способность ленты, предметов/мин').fill('60');
+  await expect(schemes.getByRole('alert')).toContainText('Превышена пропускная способность');
+  await schemes.getByLabel('Пропускная способность ленты, предметов/мин').fill('120');
+  await expect(schemes.getByText('Все участки укладываются в пропускную способность.')).toBeVisible();
+  await schemes.getByLabel('Глубина справочника').selectOption('2');
+  await expect(schemes.getByRole('status')).toContainText('Перебор завершён');
+  await schemes.getByLabel('Дробь или пропорция').fill('1:2');
+  await schemes.getByRole('button', { name: 'Распределение 1/3 + 2/3', exact: true }).click();
+  await expect(schemes.getByText('Глубина: 2. Разделителей: 1. Соединителей: 1.', { exact: true })).toBeVisible();
+  await schemes.getByText('Все соединения', { exact: true }).click();
+  await expect(schemes.getByRole('list', { name: 'Соединения распределения' }).getByRole('listitem')).toHaveCount(5);
+  const paths = await schemes.getByRole('img', { name: 'Граф распределения' }).locator('path').evaluateAll(elements => elements.map(element => element.getAttribute('d')));
+  expect(new Set(paths).size).toBe(5);
+  await schemes.getByLabel('Дробь или пропорция').fill('2:4');
+  await expect(schemes.getByRole('button', { name: /^Распределение / })).toHaveCount(1);
+  await schemes.getByLabel('Дробь или пропорция').fill('1/5');
+  await expect(schemes.getByText('Среди полученных распределений совпадений нет.')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('ficsit-plan-v1'))).toBe(original);
+  expect(workers.some(url => url.includes('solver.worker'))).toBe(false);
+});
+
+test('большой справочник листается страницами, фильтры не оставляют пустую старую страницу', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Схемы разделителей', exact: true }).click();
+  const schemes = page.getByRole('region', { name: 'Справочник распределений' });
+  await schemes.getByLabel('Глубина справочника').selectOption('3');
+  await expect(schemes.getByRole('button', { name: 'Продолжить перебор', exact: true })).toBeEnabled();
+  await expect(schemes.getByRole('button', { name: /^Распределение / })).toHaveCount(25);
+  const first = await schemes.getByRole('button', { name: /^Распределение / }).first().getAttribute('aria-label');
+  await schemes.getByRole('button', { name: 'Следующая', exact: true }).click();
+  expect(await schemes.getByRole('button', { name: /^Распределение / }).first().getAttribute('aria-label')).not.toBe(first);
+  await schemes.getByLabel('Дробь или пропорция').fill('1:1');
+  await expect(schemes.getByRole('button', { name: 'Распределение 1/2 + 1/2', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
+  await expect(schemes).toHaveCount(0);
+  await page.getByRole('button', { name: 'Схемы разделителей', exact: true }).click();
+  await expect(schemes.getByRole('status')).toContainText('Перебор завершён');
+  await expect(schemes.getByRole('button', { name: /^Распределение / })).toHaveCount(3);
+  await page.screenshot({ path: 'output/playwright/splitter-schemes-desktop.png', fullPage: true });
+});
+
+test('глубина 4 остаётся порционной, смена глубины отменяет поиск; мобильный экран и клавиатура', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const navigation = page.getByRole('button', { name: 'Схемы разделителей', exact: true });
+  await navigation.focus();
+  await page.keyboard.press('Enter');
+  const schemes = page.getByRole('region', { name: 'Справочник распределений' });
+  await schemes.getByLabel('Глубина справочника').selectOption('4');
+  await expect(schemes.getByRole('button', { name: 'Продолжить перебор', exact: true })).toBeEnabled();
+  await expect(schemes.getByRole('status')).toContainText('Перебор не завершён');
+  await schemes.getByRole('button', { name: 'Продолжить перебор', exact: true }).click();
+  await schemes.getByLabel('Глубина справочника').selectOption('1');
+  await expect(schemes.getByRole('status')).toContainText('Перебор завершён');
+  await expect(schemes.getByRole('button', { name: /^Распределение / })).toHaveCount(3);
+  const halves = schemes.getByRole('button', { name: 'Распределение 1/2 + 1/2', exact: true });
+  await halves.focus();
+  await page.keyboard.press('Enter');
+  await expect(halves).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'output/playwright/splitter-schemes-mobile.png', fullPage: true });
+});

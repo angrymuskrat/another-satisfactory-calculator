@@ -51,6 +51,45 @@ function worldFixture() {
   ] };
 }
 describe('API миров и фабрик', () => {
+  it('сохраняет включение и глубину конвейеров в профиле, отклоняет неверную глубину и чужое изменение', async () => {
+    const instance = app(), alice = await register(instance), bob = await register(instance, 'bob');
+    const data = createDefaultPlan(worldCatalog);
+    data.settings.beltRouting = { enabled: true, maxDepth: 2 };
+    const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie: alice.cookie }, payload: { name: 'Конвейеры', data } });
+    expect(created.statusCode).toBe(201);
+    const url = `/api/profiles/${created.json().profile.id}`;
+    expect((await instance.inject({ url, headers: { cookie: alice.cookie } })).json().profile.data.settings.beltRouting).toEqual({ enabled: true, maxDepth: 2 });
+    data.settings.beltRouting.enabled = false;
+    const update = { name: 'Конвейеры', revision: 1, data };
+    expect((await instance.inject({ method: 'PUT', url, headers: { cookie: bob.cookie }, payload: update })).statusCode).toBe(404);
+    expect((await instance.inject({ url, headers: { cookie: bob.cookie } })).statusCode).toBe(404);
+    expect((await instance.inject({ method: 'PUT', url, headers: { cookie: alice.cookie }, payload: update })).statusCode).toBe(200);
+    const invalid = { ...data, settings: { ...data.settings, beltRouting: { enabled: false, maxDepth: 5 } } };
+    expect((await instance.inject({ method: 'PUT', url, headers: { cookie: alice.cookie }, payload: { ...update, revision: 2, data: invalid } })).statusCode).toBe(400);
+    const restored = (await instance.inject({ url, headers: { cookie: alice.cookie } })).json().profile;
+    expect(restored.revision).toBe(2);
+    expect(restored.data.settings.beltRouting).toEqual({ enabled: false, maxDepth: 2 });
+  });
+  it('сохраняет глубину конвейеров фабрики в workspace без потери при выключении и изолирует аккаунты', async () => {
+    const instance = app(), alice = await register(instance), bob = await register(instance, 'bob');
+    const workspace = worldFixture();
+    workspace.factories[0].plan.settings.beltRouting = { enabled: true, maxDepth: 2 };
+    const payload = { expectedOwnerId: alice.user.id, revision: 0, workspace };
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: alice.cookie }, payload })).statusCode).toBe(200);
+    const enabled = (await instance.inject({ url: '/api/workspace', headers: { cookie: alice.cookie } })).json();
+    expect(enabled.workspace.factories[0].plan.settings.beltRouting).toEqual({ enabled: true, maxDepth: 2 });
+    workspace.factories[0].plan.settings.beltRouting.enabled = false;
+    const disabled = { ...payload, revision: 1 };
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: bob.cookie }, payload: disabled })).statusCode).toBe(409);
+    expect((await instance.inject({ url: '/api/workspace', headers: { cookie: bob.cookie } })).json().workspace.factories).toEqual([]);
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: alice.cookie }, payload: disabled })).statusCode).toBe(200);
+    const invalid = JSON.parse(JSON.stringify(workspace)); invalid.factories[0].plan.settings.beltRouting.maxDepth = 5;
+    expect((await instance.inject({ method: 'PUT', url: '/api/workspace', headers: { cookie: alice.cookie }, payload: { ...payload, revision: 2, workspace: invalid } })).statusCode).toBe(400);
+    const restored = (await instance.inject({ url: '/api/workspace', headers: { cookie: alice.cookie } })).json();
+    expect(restored.revision).toBe(2);
+    expect(restored.workspace.factories[0].plan.settings.beltRouting).toEqual({ enabled: false, maxDepth: 2 });
+    expect(restored.workspace.factories[1].plan.settings).not.toHaveProperty('beltRouting');
+  });
   it('сохраняет выбор прогресса рецептов в профиле и отклоняет повторяющиеся схемы', async () => {
     const instance = app(); const { cookie } = await register(instance);
     const data = createDefaultPlan(worldCatalog);

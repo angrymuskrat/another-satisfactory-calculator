@@ -12,7 +12,7 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   const peakPower: Expression = new Map(); const machineCount: Expression = new Map();
   const countsByBuilding = new Map<string, Expression>();
   const loops: Expression = new Map();
-  const needsCounts = !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
+  const needsCounts = !!plan.settings.beltRouting?.enabled || !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
   const countFor = (id: string, upper: number | null = null) => {
     const variable = model.variable(upper, true);
     add(machineCount, variable, 1);

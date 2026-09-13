@@ -1,0 +1,25 @@
+.splitter-schemes { min-width: 0; }
+.splitter-schemes > h2 { margin-bottom: 12px; }
+.splitter-filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.splitter-filters label { display: flex; flex: 1 1 160px; flex-direction: column; gap: 7px; min-width: 0; }
+.splitter-catalog-layout { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 24px; margin-top: 24px; }
+.splitter-distributions, .splitter-details { min-width: 0; }
+.splitter-distributions h3 { margin-bottom: 12px; }
+.splitter-distribution { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 13px; margin-bottom: 8px; text-align: left; border: 1px solid var(--border); border-radius: 7px; overflow-wrap: anywhere; }
+.splitter-distribution[aria-pressed=true] { border-color: var(--accent); background: #f5a14c0c; }
+.splitter-distribution strong { font-weight: 500; }
+.splitter-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; }
+.splitter-details > p { margin-top: 10px; }
+.splitter-details table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.splitter-details th, .splitter-details td { padding: 9px 6px; text-align: left; border-bottom: 1px solid var(--border); white-space: normal; }
+.splitter-graph-scroll { overflow: auto; max-height: 520px; width: 100%; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; background: #15191c; }
+.splitter-graph-scroll svg { display: block; }
+.splitter-graph-scroll path { fill: none; stroke: var(--accent); stroke-width: 2; }
+.splitter-node rect { fill: var(--surface-raised); stroke: #6c7a83; }
+.splitter-node.split rect, .splitter-node.merge rect { stroke: var(--accent); }
+.splitter-node text { fill: #e6e8ea; font-size: 12px; }
+.splitter-details details { padding: 12px 0; }
+.splitter-details summary { cursor: pointer; }
+.splitter-details li { margin: 8px 0; overflow-wrap: anywhere; }
+@media (max-width: 1050px) { .splitter-catalog-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 540px) { .splitter-filters { flex-direction: column; } .splitter-filters label { flex-basis: auto; } }

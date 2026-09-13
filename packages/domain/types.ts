@@ -97,7 +97,12 @@ export interface WorldSnapshot {
 }
 export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
+export interface BeltRoutingSettings {
+  enabled: boolean;
+  maxDepth: 1 | 2 | 3 | 4;
+}
 export interface Settings {
+  beltRouting?: BeltRoutingSettings;
   variantOptions?: { outputLoss: number; extraMachines: number };
   smoothPowerExtraMachines?: number;
   enabledRecipeIds: string[];
@@ -144,6 +149,7 @@ export interface ResourceResult {
   sourceId: string; itemId: string; rate: number; limit: number | null; power: number;
 }
 export interface Result {
+  beltRouting?: import('./beltRoutingResult').BeltRoutingResult;
   machineBudget?: { minimum: number; limit: number; used: number };
   exports?: ProductResult[];
   somersloops?: number;

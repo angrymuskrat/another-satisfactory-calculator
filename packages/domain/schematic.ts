@@ -1,6 +1,8 @@
 import type { Catalog, ProductResult } from './types';
 import type { ConstructionGroup, ConstructionModel } from './construction';
 import { orderDependencies } from './dependencies';
+import { physicalBeltEndpoints } from './beltRoutingResult';
+import { validateBeltNetwork } from './beltNetwork';
 
 export type SchematicMode = 'types' | 'machines';
 export const SCHEMATIC_PAGE_SIZE = 48;
@@ -24,6 +26,7 @@ export interface SchematicNode {
   configurations: ConstructionGroup[];
   stage: number;
   page?: number;
+  routingDepth?: number;
 }
 export interface SchematicEdge {
   id: string;
@@ -34,6 +37,7 @@ export interface SchematicEdge {
   rate: number;
   share?: number;
   parallel: number;
+  physicalRouting?: boolean;
 }
 export type SchematicModel = ReturnType<typeof buildSchematic>;
 export const SCHEMATIC_MIN_FLOW_SHARE = 0.0001; // 0.01% of this item's total supply.
@@ -46,7 +50,7 @@ export function filterSchematicFlows(graph: SchematicModel): SchematicModel {
     if (node.kind === 'merge' || node.kind === 'split') continue;
     for (const flow of node.outputs) totals.set(flow.itemId, (totals.get(flow.itemId) ?? 0) + flow.rate);
   }
-  return { ...graph, edges: graph.edges.filter(edge => edge.kind === 'control'
+  return { ...graph, edges: graph.edges.filter(edge => edge.physicalRouting || edge.kind === 'control'
     || edge.rate >= (totals.get(edge.itemId!) ?? 0) * SCHEMATIC_MIN_FLOW_SHARE) };
 }
 
@@ -87,6 +91,9 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
   const pages = Math.max(1, Math.ceil(machineCount / SCHEMATIC_PAGE_SIZE));
   const page = mode === 'types' ? 0 : Math.max(0, Math.min(pages - 1, Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 0));
   const nodes: SchematicNode[] = [], edges: SchematicEdge[] = [], warnings: string[] = [];
+  const routing = model.beltRouting;
+  const machineCards = new Map<string, { first: number; count: number; id: string }[]>();
+  const externalCards = new Map<string, string>(), destinationCards = new Map<string, string>();
   const buildingName = (g: ConstructionGroup) => catalog.buildings.find(b => b.id === g.buildingId)?.name
     ?? catalog.miners.find(b => b.id === g.buildingId)?.name
     ?? ({ 'resource-well-pressurizer': 'Компенсатор скважины', 'resource-well-extractor': 'Добытчик скважины' } as Record<string, string>)[g.buildingId] ?? g.name;
@@ -112,7 +119,11 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
         ...g.activeInputs.map(f => f.itemId).sort(), 'outputs', ...g.activeOutputs.map(f => f.itemId).sort());
       types.set(id, [...(types.get(id) ?? []), g]);
     }
-    for (const [id, members] of types) addBuilding(key('type', id), 'building', buildingName(members[0]), members);
+    for (const [id, members] of types) {
+      const card = key('type', id);
+      addBuilding(card, 'building', buildingName(members[0]), members);
+      for (const member of members) machineCards.set(member.id, [{ first: 0, count: member.count, id: card }]);
+    }
   } else {
     let offset = 0;
     const start = page * SCHEMATIC_PAGE_SIZE, end = start + SCHEMATIC_PAGE_SIZE;
@@ -124,9 +135,11 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
           averagePower: g.averagePower * ratio, peakPower: g.peakPower * ratio,
           averageInputs: g.averageInputs.map(f => ({ ...f, rate: f.rate * ratio })),
           averageOutputs: g.averageOutputs.map(f => ({ ...f, rate: f.rate * ratio })) };
-        addBuilding(key(continuation ? 'continuation' : 'machine', g.id, first), continuation ? 'continuation' : 'building',
+        const card = key(continuation ? 'continuation' : 'machine', g.id, first);
+        addBuilding(card, continuation ? 'continuation' : 'building',
           `${buildingName(g)} ${continuation ? `№${first + 1}–${first + count}` : `№${first + 1}`}`, [part],
           continuation ? Math.floor((offset + first) / SCHEMATIC_PAGE_SIZE) : undefined);
+        machineCards.set(g.id, [...(machineCards.get(g.id) ?? []), { first, count, id: card }]);
       };
       const before = Math.min(g.count, Math.max(0, start - offset));
       const visibleEnd = Math.min(g.count, Math.max(0, end - offset));
@@ -138,16 +151,30 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
   }
   for (const s of model.externalSources) {
     if (!(s.rate > 0)) continue;
-    const n = baseNode(key('source', s.sourceId), 'source', s.name, 0);
-    n.outputs = [s]; n.itemId = s.itemId; n.averagePower = s.power; n.peakPower = s.power;
-    nodes.push(n);
+    const lanes = routing && !catalog.items.find(item => item.id === s.itemId)?.fluid ? routing.externalLanes[s.sourceId] : 1;
+    if (!Number.isSafeInteger(lanes) || lanes < 1 || lanes > 100000) throw new Error('Недопустимое число входных конвейеров схемы.');
+    for (let lane = 0; lane < lanes; lane++) {
+      const id = routing ? key('source', s.sourceId, lane) : key('source', s.sourceId);
+      const n = baseNode(id, 'source', lanes > 1 ? `${s.name} · лента ${lane + 1}` : s.name, 0);
+      n.outputs = [{ ...s, rate: s.rate / lanes }]; n.itemId = s.itemId;
+      n.averagePower = n.peakPower = s.power === null ? null : s.power / lanes;
+      nodes.push(n); externalCards.set(key(s.sourceId, lane), id);
+    }
   }
   for (const [kind, flows] of [['product', destinations.products], ['export', destinations.exports ?? []]] as const) {
     flows.forEach((f, i) => {
       if (!(f.rate > 0)) return;
       const name = catalog.items.find(item => item.id === f.itemId)?.name ?? f.itemId;
-      const n = baseNode(key(kind, f.itemId, i), kind, kind === 'export' ? `Отгрузка: ${'name' in f && f.name || name}` : `Готово: ${name}`, endStage);
-      n.inputs = [f]; n.itemId = f.itemId; nodes.push(n);
+      const deliveryKey = kind === 'export' ? `export:${f.itemId}` : `product:${i}`;
+      const lanes = routing && !catalog.items.find(item => item.id === f.itemId)?.fluid ? routing.deliveryLanes[deliveryKey] : 1;
+      if (!Number.isSafeInteger(lanes) || lanes < 1 || lanes > 100000) throw new Error('Недопустимое число выходных конвейеров схемы.');
+      for (let lane = 0; lane < lanes; lane++) {
+        const id = routing ? key(kind, f.itemId, i, lane) : key(kind, f.itemId, i);
+        const label = kind === 'export' ? `Отгрузка: ${'name' in f && f.name || name}` : `Готово: ${name}`;
+        const n = baseNode(id, kind, lanes > 1 ? `${label} · лента ${lane + 1}` : label, endStage);
+        n.inputs = [{ ...f, rate: f.rate / lanes }]; n.itemId = f.itemId; nodes.push(n);
+        destinationCards.set(key(kind, i, lane), id);
+      }
     });
   }
   // Index each endpoint once; splitting/merging never multiplies all supplier-consumer pairs.
@@ -180,6 +207,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
       throw new Error(`Не сходится баланс схемы: ${name}. Подача ${supply}, расход ${demand}.`);
     }
     if (difference !== 0) warnings.push(`${name}: численный остаток подачи минус расход ${difference.toExponential(3)} ${item?.fluid ? 'м³/мин' : 'шт/мин'}.`);
+    if (routing && !item?.fluid) continue;
     if (mode === 'machines') {
       // Allocate already solved flows in stable endpoint order. This only chooses
       // displayed connections; it never selects recipes or changes production.
@@ -213,6 +241,54 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
     if (split) for (const c of consumers) addFlow(split.id, c.node.id, itemId, c.rate, c.rate / demand);
     addFlow(merge?.id ?? providers[0].node.id, split?.id ?? consumers[0].node.id, itemId, supply);
   }
+  if (routing) {
+    const endpoints = physicalBeltEndpoints(catalog, model, destinations, routing);
+    const expectedItems = new Set(endpoints.map(endpoint => endpoint.itemId));
+    if (routing.networks.length !== expectedItems.size || new Set(routing.networks.map(network => network.itemId)).size !== expectedItems.size) throw new Error('Неполная конвейерная схема.');
+    // Leave room between production stages for every physical logistics device.
+    for (const node of nodes) node.stage *= routing.depth + 1;
+    for (const network of routing.networks) {
+      if (!expectedItems.has(network.itemId)) throw new Error('Неизвестный предмет конвейерной схемы.');
+      const physical = endpoints.filter(endpoint => endpoint.itemId === network.itemId);
+      const errors = validateBeltNetwork(network, physical, routing.depth, model.transport.belt.rate);
+      if (errors.length) throw new Error(`Конвейерная схема не прошла проверку: ${errors[0]}`);
+      const cards = new Map<string, string>();
+      for (const endpoint of physical) {
+        const card = endpoint.groupId !== undefined
+          ? machineCards.get(endpoint.groupId)?.find(slice => endpoint.machineIndex! >= slice.first && endpoint.machineIndex! < slice.first + slice.count)?.id
+          : endpoint.sourceId !== undefined ? externalCards.get(key(endpoint.sourceId, endpoint.lane!))
+          : destinationCards.get(key(endpoint.destination!, endpoint.destinationIndex!, endpoint.lane!));
+        if (!card) throw new Error('Физический конец конвейера не сопоставлен карточке.');
+        cards.set(endpoint.id, card);
+      }
+      const incoming = new Map(network.nodes.map(node => [node.id, network.edges.filter(edge => edge.to === node.id)]));
+      const outgoing = new Map(network.nodes.map(node => [node.id, network.edges.filter(edge => edge.from === node.id)]));
+      const degrees = new Map(network.nodes.map(node => [node.id, incoming.get(node.id)!.length]));
+      const queue = network.nodes.filter(node => degrees.get(node.id) === 0);
+      const depths = new Map<string, number>();
+      const baseStage = Math.max(0, ...physical.filter(endpoint => endpoint.direction === 'supply').map(endpoint => nodes.find(node => node.id === cards.get(endpoint.id))!.stage));
+      const itemName = catalog.items.find(item => item.id === network.itemId)?.name ?? network.itemId;
+      for (let i = 0; i < queue.length; i++) {
+        const node = queue[i];
+        const depth = (depths.get(node.id) ?? 0) + (node.kind === 'split' || node.kind === 'merge' ? 1 : 0);
+        if (node.kind === 'split' || node.kind === 'merge') {
+          const card = key('routing-device', network.itemId, node.id);
+          const n = baseNode(card, node.kind, `${node.kind === 'split' ? 'Разделитель' : 'Соединитель'}: ${itemName}`, baseStage + depth);
+          n.count = 1; n.itemId = network.itemId; n.routingDepth = depth;
+          n.inputs = [{ itemId: network.itemId, rate: incoming.get(node.id)!.reduce((sum, edge) => sum + edge.rate, 0) }];
+          n.outputs = [{ itemId: network.itemId, rate: outgoing.get(node.id)!.reduce((sum, edge) => sum + edge.rate, 0) }];
+          nodes.push(n); cards.set(node.id, card);
+        }
+        for (const edge of outgoing.get(node.id)!) {
+          depths.set(edge.to, Math.max(depths.get(edge.to) ?? 0, depth));
+          degrees.set(edge.to, degrees.get(edge.to)! - 1);
+          if (degrees.get(edge.to) === 0) queue.push(network.nodes.find(next => next.id === edge.to)!);
+        }
+      }
+      const supply = physical.filter(endpoint => endpoint.direction === 'supply').reduce((sum, endpoint) => sum + endpoint.rate, 0);
+      network.edges.forEach((edge, index) => edges.push({ id: key('routing-edge', network.itemId, index), from: cards.get(edge.from)!, to: cards.get(edge.to)!, kind: 'flow', itemId: network.itemId, rate: edge.rate, share: edge.rate / supply, parallel: 1, physicalRouting: true }));
+    }
+  }
   const controlPairs = new Set<string>();
   for (const n of nodes) for (const g of n.configurations) if (g.controllerId) {
     for (const controller of nodes.filter(c => c.configurations.some(part => part.id === g.controllerId))) {
@@ -221,7 +297,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
       controlPairs.add(id); edges.push({ id, from: controller.id, to: n.id, kind: 'control', rate: 0, parallel: 0 });
     }
   }
-  return { nodes, edges, machineCount, pages, page, warnings,
+  return { nodes, edges, machineCount, pages, page, warnings, ...(routing ? { physicalRouting: true } : {}),
     cycles: dependencies.filter(g => g.cyclic).map(g => ({ ...g,
       names: g.recipeIds.map(id => model.production.find(p => p.id === id)!.name) })) };
 }

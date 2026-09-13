@@ -103,7 +103,17 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   }
   const sinks: ConstructionGroup[] = [];
   const disposalRate = result.surplus.reduce((sum, f) => sum + f.rate, 0);
-  if (disposalRate > 0) {
+  if (disposalRate > 0 && result.beltRouting) {
+    const sink = catalog.buildings.find(b => b.id === 'awesome-sink');
+    if (!sink) throw new Error('Утилизатор отсутствует в каталоге.');
+    for (const flow of result.surplus.filter(f => f.rate > 0)) {
+      const count = result.beltRouting.sinkCounts[flow.itemId];
+      if (!Number.isSafeInteger(count) || count < 1 || flow.rate > count * belt.rate + 1e-6) throw new Error('Недопустимая конфигурация утилизации конвейеров.');
+      sinks.push({ id: `sink:${flow.itemId}`, kind: 'sink', buildingId: sink.id, name: sink.name, count, clock: 100, activeDuty: 1,
+        activeInputs: [{ ...flow, rate: flow.rate / count }], activeOutputs: [], averageInputs: [flow], averageOutputs: [],
+        activePower: sink.power, averagePower: count * sink.power, peakPower: count * (sink.powerMax ?? sink.power), powerEstimated: !!sink.powerEstimated });
+    }
+  } else if (disposalRate > 0) {
     const sink = catalog.buildings.find(b => b.id === 'awesome-sink');
     if (!sink) throw new Error('Утилизатор отсутствует в каталоге.');
     const count = physicalCount(disposalRate / belt.rate);
@@ -123,7 +133,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   // Exact canonical configuration, no hash collisions. Persist as a value, not a storage key.
   // Derived schematic links must not invalidate existing construction checkmarks.
   const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups: groups.map(({ controllerId, ...group }) => group), materials }));
-  return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe },
+  return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe }, ...(result.beltRouting ? { beltRouting: result.beltRouting } : {}),
     productionIdlePower: production.reduce((s, g) => s + Math.max(0, g.count * g.activePower - g.averagePower), 0),
     productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0) + importPower,
     sinkPower: sinks.reduce((s, g) => s + g.averagePower, 0),

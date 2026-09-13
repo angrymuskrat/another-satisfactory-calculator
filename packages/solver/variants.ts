@@ -30,7 +30,28 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   const start = performance.now();
   variants[0].result = solve(catalog, maximum, highs, start + Math.max(0, deadline - start) * 0.45);
   variants[1].result = solve(catalog, economy, highs, deadline);
+  variants[1].result = enforceVariantOutputLoss(input, variants[0].result, variants[1].result);
   return { variants, equivalent: equivalentResults(variants[0].result, variants[1].result) };
+}
+
+export function enforceVariantOutputLoss(input: Plan, maximum: Result, economy: Result): Result {
+  if (!input.settings.beltRouting?.enabled || input.mode !== 'maximize' || input.batch || !hasSolution(maximum) || !hasSolution(economy)) return economy;
+  const weights = input.targets.map(target => target.weight / target.scale);
+  const weightScale = Math.max(...weights), proportionScale = Math.max(...input.targets.map(target => target.rate));
+  const scores = (result: Result) => {
+    const rates = input.targets.map(target => result.products.find(product => product.itemId === target.itemId)?.rate ?? 0);
+    if (input.policy === 'weighted') return [rates.reduce((sum, rate, i) => sum + rate * (weights[i] / weightScale), 0)];
+    if (input.policy === 'proportional') return [Math.min(...rates.map((rate, i) => rate * (proportionScale / input.targets[i].rate)))];
+    return rates;
+  };
+  const baseline = scores(maximum), actual = scores(economy), fraction = 1 - (input.settings.variantOptions?.outputLoss ?? 10) / 100;
+  // Recheck against the displayed maximum, independently of any weaker baseline
+  // found by the economy's bounded topology search. The tolerance follows the
+  // scale of solver goal locks and cannot swallow a positive 1e-6/min output.
+  if (baseline.some((value, i) => !Number.isFinite(value + actual[i]) || actual[i] < value * fraction - (1e-8 + Math.abs(value) * 1e-8))) {
+    return emptyResult('timeout', 'Не удалось подтвердить экономичный вариант в пределах допустимой потери выпуска относительно максимального варианта. Найденный выпуск ниже разрешённой границы; повторите расчёт или измените ограничения.');
+  }
+  return economy;
 }
 
 function equivalentResults(a: Result, b: Result): boolean {

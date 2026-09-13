@@ -2,6 +2,9 @@ import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
 import { productionConfigurations, wellConfiguration } from '../domain/production';
 import { applyBatch } from '../domain/batch';
+import { buildConstruction } from '../domain/construction';
+import { physicalBeltEndpoints } from '../domain/beltRoutingResult';
+import { validateBeltNetwork } from '../domain/beltNetwork';
 /** Recomputes conservation from catalog coefficients, independent of LP serialization. */
 export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const errors: string[] = [];
@@ -42,7 +45,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     let capacity = activeRate;
     for (const ingredient of [...recipe.inputs, ...recipe.outputs.map(i => ({ ...i, amount: i.amount * boost }))]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
     const machines = step.cycles / capacity;
-    const physical = configuration.existing || (autoClock ? step.installedMachines : Math.max(1, Math.ceil(machines - 1e-7)));
+    const physical = configuration.existing || (autoClock || plan.settings.beltRouting?.enabled ? step.installedMachines : Math.max(1, Math.ceil(machines - 1e-7)));
     if (!Number.isInteger(physical) || physical <= 0) errors.push('Некорректное число производственных машин.');
     if (machines > physical + 1e-7) errors.push('Превышена мощность существующей линии.');
     if (configuration.duty !== null && !close(step.cycles, configuration.existing * activeRate * configuration.duty)) errors.push('Изменена закреплённая линия.');
@@ -88,7 +91,9 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
         limit = limit === null ? maximum : Math.min(maximum, limit);
         const activePower = miner.power * (original.clock / 100) ** exponent;
         sourcePower = source.rate / nominalRate * activePower;
-        const physical = source.rate > 1e-12 ? Math.max(1, Math.ceil(source.rate / (maximum / original.count) - 1e-7)) : 0;
+        const minimum = source.rate > 1e-12 ? Math.max(1, Math.ceil(source.rate / (maximum / original.count) - 1e-7)) : 0;
+        const physical = plan.settings.beltRouting?.enabled ? source.installedMachines ?? minimum : minimum;
+        if (!Number.isSafeInteger(physical) || physical < minimum || physical > original.count) errors.push('Недопустимое число физических добытчиков.');
         if (source.installedMachines !== undefined && source.installedMachines !== physical) errors.push('Неверное количество добытчиков.');
         count(original.minerId, physical); installedPower += physical * activePower;
       }
@@ -161,6 +166,25 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     if (!budget || ![budget.minimum, budget.limit, budget.used].every(value => Number.isInteger(value) && value >= 0)
       || budget.limit !== budget.minimum + plan.settings.smoothPowerExtraMachines
       || budget.used !== used || used > budget.limit || used < budget.minimum) errors.push('Нарушен бюджет физических машин.');
+  }
+  if (plan.settings.beltRouting?.enabled) {
+    if (!result.beltRouting) errors.push('Нет проверенной конвейерной схемы.');
+    else try {
+      const routing = result.beltRouting;
+      if (routing.depth !== plan.settings.beltRouting.maxDepth) errors.push('Глубина схемы не совпадает с ограничением плана.');
+      const sinkCounts = Object.entries(routing.sinkCounts);
+      if (sinkCounts.some(([id, n]) => !Number.isSafeInteger(n) || n < 1 || !result.surplus.some(f => f.itemId === id && f.rate > 0))
+        || sinkCounts.reduce((sum, [, n]) => sum + n, 0) !== sinks) errors.push('Не совпадает число физических утилизаторов схемы.');
+      const model = buildConstruction(catalog, plan, result);
+      const endpoints = physicalBeltEndpoints(catalog, model, { products: result.products, exports: result.exports }, routing);
+      const items = new Set(endpoints.map(e => e.itemId)), seen = new Set<string>();
+      for (const network of routing.networks) {
+        if (!items.has(network.itemId) || seen.has(network.itemId)) errors.push('Лишняя или повторная конвейерная сеть.');
+        seen.add(network.itemId);
+        errors.push(...validateBeltNetwork(network, endpoints.filter(e => e.itemId === network.itemId), plan.settings.beltRouting.maxDepth, beltRate));
+      }
+      if ([...items].some(id => !seen.has(id))) errors.push('Пропущен предмет конвейерной схемы.');
+    } catch (error) { errors.push(error instanceof Error ? error.message : 'Ошибка проверки конвейерной схемы.'); }
   }
   return { maxBalanceError, errors };
 }
