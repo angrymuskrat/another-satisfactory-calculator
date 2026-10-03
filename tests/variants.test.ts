@@ -118,7 +118,7 @@ describe('два проверенных варианта', () => {
     const before = structuredClone(plan);
     const { variants, equivalent } = solveVariants(catalog, plan, highs);
     expect(plan).toEqual(before);
-    expect(variants.map(v => v.id)).toEqual(['maximum', 'economy']);
+    expect(variants.map(v => v.id)).toEqual(['maximum', 'economy', 'resources']);
     expect(variants[0].result.products[0].rate).toBeCloseTo(120, 5);
     expect(variants[1].result.products[0].rate).toBeCloseTo(108, 5);
     expect(variants[1].result.machineBudget).toEqual({ minimum: 4, limit: 4, used: 4 });
@@ -159,7 +159,8 @@ describe('два проверенных варианта', () => {
   it('объединяет только совпавшие допустимые конфигурации', () => {
     const result = solveVariants(catalog, ingots(), highs);
     expect(result.equivalent).toBe(true);
-    expect(result.variants).toHaveLength(2);
+    expect(result.variants).toHaveLength(3);
+    expect(result.variants.map(v => v.sameAs)).toEqual([undefined, 'maximum', 'maximum']);
   });
   it('не объединяет разные малые потоки из-за абсолютного допуска', () => {
     const plan = ingots(); plan.mode = 'maximize'; plan.sources[0].limit = 0.000001;
@@ -170,11 +171,11 @@ describe('два проверенных варианта', () => {
   });
   it('не выдаёт тайм-аут или ошибки за эквивалентные варианты', () => {
     const timeout = solveVariants(catalog, ingots(), highs, performance.now() - 1);
-    expect(timeout.variants.map(v => v.result.status)).toEqual(['timeout', 'timeout']);
+    expect(timeout.variants.map(v => v.result.status)).toEqual(['timeout', 'timeout', 'timeout']);
     expect(timeout.equivalent).toBe(false);
     const plan = ingots(); plan.catalogVersion = 'unknown';
     const error = solveVariants(catalog, plan, highs);
-    expect(error.variants.map(v => v.result.status)).toEqual(['error', 'error']);
+    expect(error.variants.map(v => v.result.status)).toEqual(['error', 'error', 'error']);
     expect(error.equivalent).toBe(false);
   });
   it('сохраняет максимум при исчерпании общего срока экономичным вариантом', () => {

@@ -3,8 +3,10 @@ import { ArrowRight, Boxes, Factory, Info, Layers, TriangleAlert, Zap } from 'lu
 import type { Catalog, Plan, ResourceResult, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { buildConstruction } from '../../../packages/domain/construction';
+import { mapResourceLimits } from '../../../packages/domain/mapResources';
 import { CatalogStatus, Construction, CopyNumber } from './Construction';
 import { BatchResult } from './Batch';
+import { AlternatesRanking } from './AlternatesRanking';
 import { format, ItemIcon, unit } from './controls';
 
 const statusLabels = { optimal: 'Оптимум найден', approximate: 'Допустимое приближение', infeasible: 'Заказ невыполним', unbounded: 'Выпуск не ограничен', error: 'Ошибка расчёта', timeout: 'Время расчёта истекло' };
@@ -17,7 +19,7 @@ export const usedResources = (plan: Plan, resources: ResourceResult[]) => resour
 export function ModelNotes({ notes }: { notes: string[] }) {
   return <details className="panel model-notes"><summary>О модели</summary><ul>{notes.map(note => <li key={note}>{note}</li>)}</ul></details>;
 }
-export function Results({ catalog, plan, result, stale, running, error }: { catalog: Catalog; plan: Plan; result: Result | null; stale: boolean; running: boolean; error: string | null }) {
+export function Results({ catalog, plan, result, stale, running, error, onEnableRecipe }: { catalog: Catalog; plan: Plan; result: Result | null; stale: boolean; running: boolean; error: string | null; onEnableRecipe?: (recipeId: string) => void }) {
   const [building, setBuilding] = useState(false);
   const item = (id: string) => catalog.items.find(i => i.id === id);
   const calculated = useMemo(() => {
@@ -26,6 +28,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
     catch (e) { return { model: null, error: e instanceof Error ? e.message : 'Не удалось проверить конфигурацию.' }; }
   }, [catalog, plan, result, stale]);
   const model = calculated.model;
+  const mapLimits = useMemo(() => mapResourceLimits(catalog), [catalog]);
   const empty = !plan.batch?.items.every(i => i.stock >= i.required) && hasSolution(result) && !result.products.some(p => p.rate > 0);
   const settings = plan.settings;
   const peakLimit = settings.peakPowerLimit ?? null, reserve = settings.powerReserve ?? 0;
@@ -57,7 +60,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
                   <section className="panel"><div className="section-heading"><h3>Загрузка источников</h3><span className="count-badge">{shownResources.length}</span></div>{shownResources.map(source => {
                     const configured = plan.sources.find(s => s.id === source.sourceId);
                     const sourceName = configured?.name?.trim() || source.sourceId;
-                    return <div className="utilization" key={source.sourceId}><div><span><ItemIcon item={item(source.itemId)} size={24} />{item(source.itemId)?.name ?? source.itemId} · {sourceName}</span><strong>{format(source.rate, 6)} <small>/ {source.limit === null ? '∞' : format(source.limit)} {unit(item(source.itemId))}</small></strong></div><small>{configured?.kind === 'node' ? 'Месторождение · ' + (catalog.miners.find(m => m.id === configured.minerId)?.name ?? configured.minerId) + ' · ' + format(configured.clock) + '% · доступно узлов: ' + configured.count : configured?.kind === 'well' ? `Скважина · один компенсатор · ${format(configured.clock)}% · ${format(source.power)} МВт` : configured?.importPower != null ? `Внешняя поставка · энергия учтена: ${format(source.power)} МВт` : 'Внешняя поставка · энергия получения неизвестна'}</small><div className="progress-track"><span className={source.limit !== null && source.limit > 0 && source.rate / source.limit > .98 ? 'full' : ''} style={{ width: source.limit === null ? '20%' : Math.min(100, source.limit > 0 ? source.rate / source.limit * 100 : 0) + '%' }} /></div></div>;
+                    return <div className="utilization" key={source.sourceId}><div><span><ItemIcon item={item(source.itemId)} size={24} />{item(source.itemId)?.name ?? source.itemId} · {sourceName}</span><strong>{format(source.rate, 6)} <small>/ {source.limit === null ? '∞' : format(source.limit)} {unit(item(source.itemId))}</small></strong></div><small>{configured?.kind === 'node' ? 'Месторождение · ' + (catalog.miners.find(m => m.id === configured.minerId)?.name ?? configured.minerId) + ' · ' + format(configured.clock) + '% · доступно узлов: ' + configured.count : configured?.kind === 'well' ? `Скважина · один компенсатор · ${format(configured.clock)}% · ${format(source.power)} МВт` : configured?.importPower != null ? `Внешняя поставка · энергия учтена: ${format(source.power)} МВт` : 'Внешняя поставка · энергия получения неизвестна'}{mapLimits[source.itemId] != null && source.rate > 0 && ` · ${format(source.rate / mapLimits[source.itemId]! * 100, 3)}% запаса карты`}</small><div className="progress-track"><span className={source.limit !== null && source.limit > 0 && source.rate / source.limit > .98 ? 'full' : ''} style={{ width: source.limit === null ? '20%' : Math.min(100, source.limit > 0 ? source.rate / source.limit * 100 : 0) + '%' }} /></div></div>;
                   })}{!shownResources.length && <p className="hint">Внешние источники не используются.</p>}{shownResources.length < result.resources.length && <p className="hint">Неиспользуемые природные ресурсы без заданного источника скрыты.</p>}</section>
                   <section className="panel energy-panel"><div className="section-heading"><h3><Zap size={17} /> Энергия</h3></div><dl>
                     <div><dt>Производство · средняя</dt><dd>{format(model.productionPower)} МВт</dd></div><div><dt>Добыча · средняя</dt><dd>{format(model.extractionPower)} МВт</dd></div><div><dt>Утилизация · средняя</dt><dd>{format(model.sinkPower)} МВт</dd></div>
@@ -70,6 +73,7 @@ export function Results({ catalog, plan, result, stale, running, error }: { cata
                   </dl>{margin !== null && <p className={margin < -1e-6 ? 'alert error' : 'hint'} role={margin < -1e-6 ? 'alert' : undefined}>{format(peakLimit!)} − {format(reserve)} − {format(model.peakPower)} = {format(margin)} МВт.{margin < -1e-6 ? ' Пиковая нагрузка с резервом превышает лимит.' : ' По оценке модели лимит соблюдён.'}</p>}
                     {model.externalSources.map(source => <p key={source.sourceId}>{source.power === null ? 'Вне энергетической границы' : 'Учтённый импорт'}: {source.name} — {format(source.rate, 6)} {unit(item(source.itemId))}{source.power !== null && ` · ${format(source.power)} МВт`}.</p>)}
                   </section>
+                  <AlternatesRanking catalog={catalog} plan={plan} result={result} onEnable={onEnableRecipe} />
                   <div className="toolbar-actions" role="group" aria-label="Представление результата"><button className={building ? 'secondary-button' : 'primary-button'} aria-pressed={!building} onClick={() => setBuilding(false)}>Обзор</button><button className={building ? 'primary-button' : 'secondary-button'} aria-pressed={building} onClick={() => setBuilding(true)}>Построить</button></div>
                   <Construction key={model.fingerprint} catalog={catalog} model={model} building={building} destinations={{ products: result.products, exports: result.exports?.map(e => ({ ...e, name: plan.exports?.find(x => x.itemId === e.itemId)?.name })) }} />
                 </>}

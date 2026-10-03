@@ -35,6 +35,7 @@ export const planSchema = z.strictObject({
   settings: z.strictObject({
     variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000) }).optional(),
     smoothPowerExtraMachines: z.number().int().min(0).max(1000).optional(),
+    resourcesFirst: z.boolean().optional(),
     enabledRecipeIds: uniqueIds, enabledBuildingIds: uniqueIds, beltId: id, pipeId: id,
     clock: z.number().finite().min(1).max(250),
     resourcePolicy: z.enum(['listed-only', 'unlimited-unlisted']), objective: z.enum(['power', 'smooth-power', 'resources', 'buildings']),

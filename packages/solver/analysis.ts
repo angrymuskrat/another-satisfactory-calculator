@@ -5,7 +5,7 @@ import { emptyResult, solve } from './solve';
 import { applyBatch } from '../domain/batch';
 import { buildConstruction } from '../domain/construction';
 
-export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] };
+export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] } | { kind: 'alternates' };
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
 type Change =
   | { kind: 'source-limit' | 'source-node'; id: string; value: number }
@@ -41,6 +41,17 @@ const delta = (before: number, after: number): Delta => ({ before, after, delta:
 const differs = (a: number, b: number) => Math.abs(a - b) > EPSILON + Math.max(Math.abs(a), Math.abs(b)) * 1e-7;
 const increasedLimit = (value: number, minimum: number) => Math.min(1e9, value + Math.max(minimum, value));
 export const objectiveLabels: Record<Plan['settings']['objective'], string> = { power: 'Экономия энергии', 'smooth-power': 'Ровная нагрузка с подбором частот', resources: 'Экономия выбранного сырья', buildings: 'Меньше зданий' };
+
+export const ALTERNATE_LIMIT = 24;
+/** Disabled alternates the world allows that produce an item of the solved chain; a recipe without such an output cannot change the plan alone. */
+export function alternateCandidates(catalog: Catalog, input: Plan, baseline: Result): { ids: string[]; omitted: number } {
+  const plan = effectivePlan(catalog, input);
+  const items = new Set([...plan.targets.map(t => t.itemId), ...baseline.steps.flatMap(s => [...s.inputs, ...s.outputs].map(f => f.itemId))]);
+  const ids = catalog.recipes.filter(r => r.alternate && !input.settings.enabledRecipeIds.includes(r.id)
+    && (!input.world || input.world.unlockedRecipeIds.includes(r.id)) && plan.settings.enabledBuildingIds.includes(r.buildingId)
+    && r.outputs.some(f => items.has(f.itemId))).map(r => r.id);
+  return { ids: ids.slice(0, ALTERNATE_LIMIT), omitted: Math.max(0, ids.length - ALTERNATE_LIMIT) };
+}
 
 /** Each proposal changes one named restriction. Node count and its optional cap are independent. */
 export function constraintCandidates(catalog: Catalog, plan: Plan): ConstraintCandidate[] {
@@ -149,12 +160,32 @@ function benefit(plan: Plan, baseline: Result, result: Result, comparison: Compa
       if (changed) return changed.delta > 0 ? 'output' : 'none';
     }
   }
-  const costs = plan.settings.objective === 'power' ? [comparison.power, comparison.resourceCost, comparison.physical.total]
-    : plan.settings.objective === 'smooth-power' ? [comparison.physical.total, comparison.power, comparison.resourceCost]
-    : plan.settings.objective === 'resources' ? [comparison.resourceCost, comparison.power, comparison.physical.total]
-      : [comparison.physical.total, comparison.power, comparison.resourceCost];
-  const changed = costs.find(r => differs(r.before, r.after));
+  const changed = costOrder(plan, comparison).find(r => differs(r.before, r.after));
   return changed && changed.delta < 0 ? 'cost' : 'none';
+}
+/** Cost deltas in the plan's own objective order, so a benefit always means the solver's next criterion improved. */
+function costOrder(plan: Plan, comparison: Comparison): Delta[] {
+  const { power, resourceCost } = comparison, machines = comparison.physical.total;
+  if (plan.settings.objective === 'smooth-power') {
+    if (plan.settings.resourcesFirst) return [resourceCost, machines, power];
+    if (plan.settings.smoothPowerExtraMachines !== undefined) return [power, resourceCost, machines];
+    return [machines, power, resourceCost];
+  }
+  return plan.settings.objective === 'power' ? [power, resourceCost, machines]
+    : plan.settings.objective === 'resources' ? [resourceCost, power, machines] : [machines, power, resourceCost];
+}
+const benefitRank: Record<Benefit, number> = { feasibility: 0, 'reachable-output': 1, output: 2, cost: 3, none: 4, unknown: 5 };
+/** Best first: benefit class, then output gain, then costs in objective order; unknown results stay last. */
+function rankVariants(plan: Plan, variants: AnalysisVariant[]) {
+  const gain = (v: AnalysisVariant) => v.comparison ? plan.targets.reduce((sum, t) => sum + (v.comparison!.outputs.find(o => o.id === t.itemId)?.delta ?? 0) * t.weight / t.scale, 0) : 0;
+  return [...variants].sort((a, b) => {
+    if (benefitRank[a.benefit] !== benefitRank[b.benefit]) return benefitRank[a.benefit] - benefitRank[b.benefit];
+    if (differs(gain(a), gain(b))) return gain(b) - gain(a);
+    if (!a.comparison || !b.comparison) return a.comparison ? -1 : b.comparison ? 1 : 0;
+    const left = costOrder(plan, a.comparison), right = costOrder(plan, b.comparison);
+    const index = left.findIndex((d, i) => differs(d.delta, right[i].delta));
+    return index < 0 ? 0 : left[index].delta - right[index].delta;
+  });
 }
 
 /** Full independent solves; one shared deadline and a per-solve allowance leave room for other probes. */
@@ -179,6 +210,18 @@ export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof 
   } else if (request.kind === 'objectives') {
     for (const objective of ['power', 'smooth-power', 'resources', 'buildings'] as const) add(objective, objectiveLabels[objective], { ...structuredClone(plan), settings: { ...structuredClone(plan.settings), objective } });
     report.notes.push('Заказ, разрешённая потеря выпуска, мир и ограничения одинаковы. «Ровная нагрузка» сначала минимизирует число машин, затем подбирает частоты не выше заданных для экономии энергии. Остальные варианты используют фиксированные частоты. Приближённый расчёт не доказывает глобальный энергетический оптимум. Расход сырья — условная стоимость с весами плана.');
+  } else if (request.kind === 'alternates') {
+    const { ids, omitted } = alternateCandidates(catalog, plan, baseline);
+    report.omittedCandidates = omitted;
+    for (const id of ids) {
+      const variant = structuredClone(plan);
+      variant.settings.enabledRecipeIds = [...variant.settings.enabledRecipeIds, id];
+      add(id, catalog.recipes.find(r => r.id === id)!.name, variant, [id]);
+    }
+    report.variants = rankVariants(plan, report.variants);
+    report.notes.push('Каждая альтернатива проверена отдельным полным решением с тем же заказом, миром и ограничениями. Совместная польза нескольких альтернатив не оценивается. Взвешенное сырьё использует веса плана; это условная стоимость, а не доказательство дефицита.');
+    if (!ids.length) report.notes.push('Нет выключенных альтернатив, доступных миру и разрешённым зданиям, которые производят предметы этой цепочки.');
+    if (omitted) report.notes.push(`Проверены первые ${ids.length} альтернатив, ещё ${omitted} пропущены. Их можно проверить в каталоге рецептов.`);
   } else if (request.kind === 'recipes') {
     const ids = [...new Set(request.recipeIds)];
     if (!ids.length || ids.some(id => !catalog.recipes.some(r => r.id === id))) throw new Error('Выберите существующие рецепты для сравнения.');
