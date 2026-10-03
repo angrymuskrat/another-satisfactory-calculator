@@ -1,19 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
-import type { Catalog, Plan, Unlock } from '../../../packages/domain/types';
+import type { Catalog, Plan } from '../../../packages/domain/types';
 import { applyRecipeSetup, prepareRecipeSetup, prepareDiskSetup, prepareWorkspaceRecipeSetup, unlockOrigin, type AlternativeMode, type RecipeSetup as Setup, type SetupOperation } from '../../../packages/domain/recipeProgress';
 import { phaseForTier } from '../../../packages/domain/research';
 import type { useWorldWorkspace } from './useWorldWorkspace';
+import { HubBoard, MamBoard, type HubPhase } from './ProgressBoard';
 
 export interface RecipeSetupProps {
   catalog: Catalog; plan: Plan; setPlan: Dispatch<SetStateAction<Plan>>;
   store: ReturnType<typeof useWorldWorkspace>; activeFactoryId: string | null;
-}
-function GroupCheck({ label, ids, selected, change }: { label: string; ids: string[]; selected: string[]; change: (ids: string[], on: boolean) => void }) {
-  const input = useRef<HTMLInputElement>(null);
-  const count = ids.filter(id => selected.includes(id)).length;
-  useEffect(() => { if (input.current) input.current.indeterminate = count > 0 && count < ids.length; }, [count, ids.length]);
-  return <label className="setup-check"><input ref={input} type="checkbox" checked={ids.length > 0 && count === ids.length} disabled={!ids.length}
-    onChange={e => change(ids, e.target.checked)} />{label}<small>{count}/{ids.length}</small></label>;
 }
 export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: RecipeSetupProps) {
   const selectable = useMemo(() => catalog.unlocks?.filter(u => ['hub', 'mam'].includes(unlockOrigin(u))) ?? [], [catalog]);
@@ -40,10 +34,12 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
   };
   const hubs = selectable.filter(u => unlockOrigin(u) === 'hub').sort((a, b) => (a.tier ?? 0) - (b.tier ?? 0) || a.name.localeCompare(b.name, 'ru'));
   const tiers = [...new Set(hubs.map(u => u.tier ?? 0))];
-  const phases = [...new Map(tiers.map(t => {
-    const phase = phaseForTier(catalog, t);
-    return [phase?.id ?? 'unknown', { id: phase?.id ?? 'unknown', name: phase?.name ?? 'Начало прохождения' }];
-  })).values()];
+  const phases = [...tiers.reduce((map, t) => {
+    const phase = phaseForTier(catalog, t), id = phase?.id ?? 'unknown';
+    const entry = map.get(id) ?? { id, name: phase?.name ?? 'Начало прохождения', tiers: [] };
+    entry.tiers.push(t);
+    return map.set(id, entry);
+  }, new Map<string, HubPhase>()).values()];
   const prepare = (operation: SetupOperation, button: HTMLButtonElement, disksOnly = false) => {
     setError(''); setMessage(''); trigger.current = button;
     try {
@@ -73,9 +69,6 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
   };
   const recipeName = (id: string) => catalog.recipes.find(r => r.id === id)?.name ?? id;
   const buildingName = (id: string) => [...catalog.buildings, ...catalog.miners].find(b => b.id === id)?.name ?? id;
-  const unlockCheck = (u: Unlock, kind: string) => <label className="setup-check" key={u.id}>
-    <input type="checkbox" aria-label={`${kind}: ${u.name}`} checked={ids.includes(u.id)} onChange={e => change([u.id], e.target.checked)} />{u.name}
-  </label>;
   const diff = (before: string[], after: string[], name: (id: string) => string, title: string) => {
     const added = after.filter(id => !before.includes(id)), removed = before.filter(id => !after.includes(id));
     return <details><summary>{title}: добавить {added.length} · выключить {removed.length}</summary>
@@ -94,23 +87,10 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
         <div className="setup-controls"><label>Всё до уровня HUB<select value={tier} onChange={e => { setTier(Number(e.target.value)); setPreview(null); }}>{tiers.map(t => <option key={t} value={t}>{t}</option>)}</select></label>
           <button type="button" className="secondary-button" onClick={() => { setIds(current => [...current.filter(id => !hubs.some(u => u.id === id)), ...hubs.filter(u => (u.tier ?? 0) <= tier).map(u => u.id)]); setPreview(null); }}>Выбрать всё до уровня {tier}</button></div>
         <p className="hint">Эта кнопка заменяет выбор HUB до указанного уровня. Выбор MAM сохраняется. Можно снять незавершённые этапы ниже.</p>
-        {phases.map(phase => {
-          const members = hubs.filter(u => (phaseForTier(catalog, u.tier ?? 0)?.id ?? 'unknown') === phase.id);
-          return <details key={phase.id}><summary>{phase.name}</summary>
-            <GroupCheck label={`Вся фаза: ${phase.name}`} ids={members.map(u => u.id)} selected={ids} change={change} />
-            {tiers.filter(t => members.some(u => (u.tier ?? 0) === t)).map(t => <details key={t}><summary>Уровень HUB {t}</summary>
-              <GroupCheck label={`Весь уровень HUB ${t}`} ids={members.filter(u => (u.tier ?? 0) === t).map(u => u.id)} selected={ids} change={change} />
-              {members.filter(u => (u.tier ?? 0) === t).map(u => unlockCheck(u, 'Этап'))}</details>)}
-          </details>;
-        })}
+        <HubBoard hubs={hubs} phases={phases} selected={ids} change={change} />
       </> : <>
         <p className="hint">MAM независим от HUB. Можно отметить позднее исследование после находок в обломках. Предки автоматически не отмечаются. Внешние события и неизвестные связи не считаются выполненными.</p>
-        {catalog.researchTrees?.filter(t => !t.seasonal).map(tree => {
-          const members = selectable.filter(u => tree.nodes.some(n => n.schematicId === u.id));
-          return <details key={tree.id}><summary>{tree.name}</summary>
-            <GroupCheck label={`Вся ветка: ${tree.name}`} ids={members.map(u => u.id)} selected={ids} change={change} />
-            {members.map(u => unlockCheck(u, 'Исследование'))}</details>;
-        })}
+        <MamBoard catalog={catalog} selectable={selectable} selected={ids} change={change} />
       </>}
       <label>Альтернативы в настройке<select value={alternatives} onChange={e => { setAlternatives(e.target.value as AlternativeMode); setPreview(null); }}>
         <option value="none">Без альтернатив (при добавлении старые сохраняются)</option><option value="keep">Сохранить выбранные альтернативы</option><option value="all">Все подходящие альтернативы из дисков</option>

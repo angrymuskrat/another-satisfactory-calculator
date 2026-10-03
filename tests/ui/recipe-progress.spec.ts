@@ -26,7 +26,7 @@ test('настройка: замена, добавление, независим
   await expect.poll(async () => (await draft(page)).settings.enabledRecipeIds.includes('plastic')).toBe(false);
   expect((await draft(page)).settings.enabledRecipeIds).toContain('iron-plate');
   await page.getByRole('button', { name: 'Исследования MAM', exact: true }).click();
-  await page.locator('.recipe-setup summary').filter({ hasText: /^Кварц$/ }).click();
+  await page.getByRole('button', { name: /^Ветка MAM: Кварц,/ }).click();
   const research = catalog.unlocks!.find(u => u.id === 'Research_Quartz_2_C')!;
   await page.getByLabel(`Исследование: ${research.name}`, { exact: true }).check();
   await page.getByRole('button', { name: 'Добавить к текущему', exact: true }).click();
@@ -36,7 +36,7 @@ test('настройка: замена, добавление, независим
   await page.reload(); await page.getByRole('button', { name: 'Рецепты', exact: true }).click();
   await page.getByText('Быстрая настройка по прогрессу', { exact: true }).click();
   await page.getByRole('button', { name: 'Исследования MAM', exact: true }).click();
-  await page.locator('.recipe-setup summary').filter({ hasText: /^Кварц$/ }).click();
+  await page.getByRole('button', { name: /^Ветка MAM: Кварц,/ }).click();
   await expect(page.getByLabel(`Исследование: ${research.name}`, { exact: true })).toBeChecked();
 });
 test('совместимые фильтры дисков и MAM, сортировка ранних рецептов, мобильная ширина', async ({ page }) => {
@@ -60,10 +60,7 @@ test('совместимые фильтры дисков и MAM, сортиро�
 test('клавиатурный выбор уровня, частичная группа, отмена и отдельное добавление дисков', async ({ page }) => {
   await open(page);
   const setup = page.locator('.recipe-setup');
-  const phase = catalog.gamePhases!.find(p => 0 <= p.lastTier)!;
-  await setup.locator('summary').filter({ hasText: phase.name }).click();
-  await setup.locator('summary').filter({ hasText: /^Уровень HUB 0$/ }).click();
-  const group = page.getByRole('checkbox', { name: /Весь уровень HUB 0/ });
+  const group = page.getByRole('checkbox', { name: 'Весь уровень HUB 0', exact: true });
   await group.focus(); await page.keyboard.press('Space');
   await expect(group).toBeChecked();
   const child = setup.getByRole('checkbox', { name: 'Этап: ' + catalog.unlocks!.find(u => u.id === 'Schematic_Tutorial2_C')!.name, exact: true });
@@ -78,6 +75,33 @@ test('клавиатурный выбор уровня, частичная гр�
   await expect.poll(async () => (await draft(page)).settings.enabledRecipeIds.includes('alt-screw')).toBe(true);
   expect((await draft(page)).settings.enabledBuildingIds).toEqual(before.settings.enabledBuildingIds);
   expect((await draft(page)).settings.enabledRecipeIds).toEqual(expect.arrayContaining(before.settings.enabledRecipeIds));
+});
+test('уровни HUB расположены горизонтально, MAM — деревом по клеткам assets', async ({ page }) => {
+  await open(page);
+  const setup = page.locator('.recipe-setup');
+  const tiers = setup.locator('.hub-tier');
+  await expect(tiers).toHaveCount(10);
+  const first = (await tiers.nth(0).boundingBox())!, second = (await tiers.nth(1).boundingBox())!;
+  expect(second.x).toBeGreaterThan(first.x + first.width - 1);
+  expect(Math.abs(second.y - first.y)).toBeLessThan(2);
+  await setup.locator('.hub-board').screenshot({ path: 'output/playwright/recipe-setup-hub-board.png' });
+  const phase = catalog.gamePhases![0];
+  await setup.getByRole('checkbox', { name: `Вся фаза: ${phase.name}`, exact: true }).check();
+  await expect(setup.getByRole('checkbox', { name: 'Весь уровень HUB 2', exact: true })).toBeChecked();
+  await expect(setup.getByRole('checkbox', { name: 'Весь уровень HUB 3', exact: true })).not.toBeChecked();
+  await page.getByRole('button', { name: 'Исследования MAM', exact: true }).click();
+  await page.getByRole('button', { name: /^Ветка MAM: Кварц,/ }).click();
+  const tree = catalog.researchTrees!.find(t => t.id === 'BPD_ResearchTree_Quartz_C')!;
+  const child = tree.nodes.find(n => n.parents.some(id => id && tree.nodes.some(p => p.schematicId === id)))!;
+  const parent = tree.nodes.find(n => n.schematicId === child.parents.find(Boolean))!;
+  const box = async (name: string) => (await setup.locator('.mam-node').filter({ has: page.getByLabel(`Исследование: ${name}`, { exact: true }) }).boundingBox())!;
+  expect((await box(child.name)).y).toBeGreaterThan((await box(parent.name)).y);
+  await expect(setup.locator('.mam-edges path')).not.toHaveCount(0);
+  await page.getByLabel(`Исследование: ${parent.name}`, { exact: true }).check();
+  await page.getByLabel(`Исследование: ${child.name}`, { exact: true }).check();
+  await expect(setup.locator('.mam-edges path.is-done')).not.toHaveCount(0);
+  await expect(page.getByRole('checkbox', { name: 'Вся ветка: Кварц', exact: true })).toHaveJSProperty('indeterminate', true);
+  await setup.screenshot({ path: 'output/playwright/recipe-setup-mam-tree.png' });
 });
 test('общий мир: просмотр фабрик, атомарное применение, сохранение чужих запретов', async ({ page }) => {
   const world = createWorld(catalog, 'Общий', 'shared-progress');

@@ -56,6 +56,8 @@ export interface Catalog {
 }
 export interface ResearchNode {
   schematicId: string; name: string;
+  /** Клетка [столбец, строка] узла в дереве MAM из assets той же сборки. */
+  coordinates?: number[];
   parents: (string | null)[]; unhiddenBy: (string | null)[];
   unresolvedCoordinates: number[][]; prerequisiteGroups: string[][];
   conditions?: string[];

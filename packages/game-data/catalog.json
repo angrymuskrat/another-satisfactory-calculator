@@ -16166,6 +16166,10 @@
         {
           "schematicId": "Research_AOrgans_3_C",
           "name": "Увеличенный объём инвентаря",
+          "coordinates": [
+            4,
+            4
+          ],
           "parents": [
             "Research_AO_DNACapsule_C"
           ],
@@ -16182,6 +16186,10 @@
         {
           "schematicId": "Research_AOrganisms_2_C",
           "name": "Обнаружение враждебных организмов",
+          "coordinates": [
+            5,
+            5
+          ],
           "parents": [
             "Research_AO_DNACapsule_C"
           ],
@@ -16198,6 +16206,10 @@
         {
           "schematicId": "Research_ACarapace_3_C",
           "name": "Улучшенный пояс для инструментов",
+          "coordinates": [
+            4,
+            5
+          ],
           "parents": [
             "Research_AOrgans_3_C"
           ],
@@ -16214,6 +16226,10 @@
         {
           "schematicId": "Research_AO_DNACapsule_C",
           "name": "Биоорганические свойства",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_AOrgans_0_C",
             "Research_ACarapace_0_C",
@@ -16233,6 +16249,10 @@
         {
           "schematicId": "Research_AO_Stinger_C",
           "name": "Исследование жалоносца",
+          "coordinates": [
+            4,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16242,6 +16262,10 @@
         {
           "schematicId": "Research_AO_Hatcher_C",
           "name": "Исследование гнезда",
+          "coordinates": [
+            2,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16251,6 +16275,10 @@
         {
           "schematicId": "Research_ACarapace_0_C",
           "name": "Исследование кабана",
+          "coordinates": [
+            1,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16260,6 +16288,10 @@
         {
           "schematicId": "Research_AOrgans_0_C",
           "name": "Исследование плевателя",
+          "coordinates": [
+            5,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16269,6 +16301,10 @@
         {
           "schematicId": "Research_AO_Pre_Rebar_C",
           "name": "Структурный анализ",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_AO_DNACapsule_C"
           ],
@@ -16285,6 +16321,10 @@
         {
           "schematicId": "Research_AOrgans_2_C",
           "name": "Протеиновый ингалятор",
+          "coordinates": [
+            1,
+            5
+          ],
           "parents": [
             "Research_AO_DNACapsule_C"
           ],
@@ -16301,6 +16341,10 @@
         {
           "schematicId": "Research_ACarapace_2_C",
           "name": "Арматурный пистолет",
+          "coordinates": [
+            2,
+            5
+          ],
           "parents": [
             "Research_AO_Pre_Rebar_C"
           ],
@@ -16327,6 +16371,10 @@
         {
           "schematicId": "Research_Alien_SAM_C",
           "name": "Анализ СИМ",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16336,6 +16384,10 @@
         {
           "schematicId": "Research_Alien_SAMFluctuator_C",
           "name": "Флуктуатор СИМ",
+          "coordinates": [
+            3,
+            2
+          ],
           "parents": [
             "Research_Alien_ActiveSAM_C"
           ],
@@ -16349,6 +16401,10 @@
         {
           "schematicId": "Research_Alien_CentralStorage_C",
           "name": "Пространственное хранилище",
+          "coordinates": [
+            1,
+            4
+          ],
           "parents": [
             "Research_Alien_SAMFluctuator_C",
             "Research_Alien_MercerSphere_C"
@@ -16364,6 +16420,10 @@
         {
           "schematicId": "Research_Alien_CentralUploadBoost_04_C",
           "name": "Улучшение выгрузки: 240/мин",
+          "coordinates": [
+            2,
+            8
+          ],
           "parents": [
             "Research_Alien_CentralUploadBoost_03_C"
           ],
@@ -16377,6 +16437,10 @@
         {
           "schematicId": "Research_Alien_CentralStackExpansion_01_C",
           "name": "Расширение хранилища (200%)",
+          "coordinates": [
+            0,
+            5
+          ],
           "parents": [
             "Research_Alien_CentralStorage_C"
           ],
@@ -16390,6 +16454,10 @@
         {
           "schematicId": "Research_Alien_CentralStackExpansion_02_C",
           "name": "Расширение хранилища (300%)",
+          "coordinates": [
+            0,
+            6
+          ],
           "parents": [
             "Research_Alien_CentralStackExpansion_01_C"
           ],
@@ -16403,6 +16471,10 @@
         {
           "schematicId": "Research_Alien_CentralStackExpansion_03_C",
           "name": "Расширение хранилища (400%)",
+          "coordinates": [
+            0,
+            7
+          ],
           "parents": [
             "Research_Alien_CentralStackExpansion_02_C"
           ],
@@ -16416,6 +16488,10 @@
         {
           "schematicId": "Research_Alien_CentralStackExpansion_04_C",
           "name": "Расширение хранилища (500%)",
+          "coordinates": [
+            0,
+            8
+          ],
           "parents": [
             "Research_Alien_CentralStackExpansion_03_C"
           ],
@@ -16429,6 +16505,10 @@
         {
           "schematicId": "Research_Alien_CentralUploadBoost_03_C",
           "name": "Улучшение выгрузки: 120/мин",
+          "coordinates": [
+            2,
+            7
+          ],
           "parents": [
             "Research_Alien_CentralUploadBoost_02_C"
           ],
@@ -16442,6 +16522,10 @@
         {
           "schematicId": "Research_Alien_CentralUploadBoost_02_C",
           "name": "Улучшение выгрузки: 60/мин",
+          "coordinates": [
+            2,
+            6
+          ],
           "parents": [
             "Research_Alien_CentralUploadBoost_01_C"
           ],
@@ -16455,6 +16539,10 @@
         {
           "schematicId": "Research_Alien_CentralUploadBoost_01_C",
           "name": "Улучшение выгрузки: 30/мин",
+          "coordinates": [
+            2,
+            5
+          ],
           "parents": [
             "Research_Alien_CentralStorage_C"
           ],
@@ -16468,6 +16556,10 @@
         {
           "schematicId": "Research_Alien_MercerSphere_C",
           "name": "Анализ сферы Мерсера",
+          "coordinates": [
+            1,
+            1
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16477,6 +16569,10 @@
         {
           "schematicId": "Research_Alien_Somersloop_C",
           "name": "Анализ петлевика",
+          "coordinates": [
+            5,
+            1
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16486,6 +16582,10 @@
         {
           "schematicId": "Research_Alien_ActiveSAM_C",
           "name": "Активизация СИМ",
+          "coordinates": [
+            3,
+            1
+          ],
           "parents": [
             "Research_Alien_SAM_C"
           ],
@@ -16499,6 +16599,10 @@
         {
           "schematicId": "Research_Alien_ProductionBooster_C",
           "name": "Ускоритель производства",
+          "coordinates": [
+            6,
+            5
+          ],
           "parents": [
             "Research_Alien_SAMFluctuator_C",
             "Research_Alien_BoosterBlocker_C"
@@ -16514,6 +16618,10 @@
         {
           "schematicId": "Research_Alien_PowerBooster_C",
           "name": "Экстрактор энергии",
+          "coordinates": [
+            4,
+            5
+          ],
           "parents": [
             "Research_Alien_Somersloop_C",
             "Research_Alien_BoosterBlocker_C"
@@ -16529,6 +16637,10 @@
         {
           "schematicId": "Research_Alien_BoosterFuel_C",
           "name": "Инопланетная энергоматрица",
+          "coordinates": [
+            4,
+            6
+          ],
           "parents": [
             "Research_Alien_PowerBooster_C"
           ],
@@ -16542,6 +16654,10 @@
         {
           "schematicId": "Research_Alien_BoosterBlocker_C",
           "name": "Освоение инопланетной энергии",
+          "coordinates": [
+            5,
+            4
+          ],
           "parents": [
             "Research_Alien_Somersloop_C",
             "Research_Alien_SAMFluctuator_C"
@@ -16557,6 +16673,10 @@
         {
           "schematicId": "Research_Alien_CentralInventory_C",
           "name": "Ручное средство выгрузки в хранилище",
+          "coordinates": [
+            1,
+            6
+          ],
           "parents": [
             "Research_Alien_CentralStorage_C"
           ],
@@ -16570,6 +16690,10 @@
         {
           "schematicId": "Research_Alien_PortalPotty_C",
           "name": "МСПО",
+          "coordinates": [
+            3,
+            4
+          ],
           "parents": [
             "Research_Alien_SAMFluctuator_C"
           ],
@@ -16593,6 +16717,10 @@
         {
           "schematicId": "Research_Caterium_3_C",
           "name": "Катерийная электроника",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_Caterium_2_C"
           ],
@@ -16606,6 +16734,10 @@
         {
           "schematicId": "Research_Caterium_5_C",
           "name": "Скоростной разъём",
+          "coordinates": [
+            4,
+            4
+          ],
           "parents": [
             "Research_Caterium_3_C"
           ],
@@ -16619,6 +16751,10 @@
         {
           "schematicId": "Research_Caterium_0_C",
           "name": "Катерий",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16628,6 +16764,10 @@
         {
           "schematicId": "Research_Caterium_1_C",
           "name": "Катерийные слитки",
+          "coordinates": [
+            3,
+            1
+          ],
           "parents": [
             "Research_Caterium_0_C"
           ],
@@ -16641,6 +16781,10 @@
         {
           "schematicId": "Research_Caterium_2_C",
           "name": "Сверхпроволока",
+          "coordinates": [
+            3,
+            2
+          ],
           "parents": [
             "Research_Caterium_1_C"
           ],
@@ -16654,6 +16798,10 @@
         {
           "schematicId": "Research_Caterium_7_1_C",
           "name": "Программируемый разветвитель",
+          "coordinates": [
+            2,
+            8
+          ],
           "parents": [
             "Research_Caterium_4_1_C"
           ],
@@ -16668,6 +16816,10 @@
         {
           "schematicId": "Research_Caterium_4_2_C",
           "name": "Электростолбы ур. 2",
+          "coordinates": [
+            3,
+            4
+          ],
           "parents": [
             "Research_Caterium_3_C"
           ],
@@ -16681,6 +16833,10 @@
         {
           "schematicId": "Research_Caterium_4_1_C",
           "name": "Ограничитель ИИ",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_Caterium_3_C"
           ],
@@ -16694,6 +16850,10 @@
         {
           "schematicId": "Research_Caterium_2_1_C",
           "name": "Зиплайн",
+          "coordinates": [
+            2,
+            3
+          ],
           "parents": [
             "Research_Caterium_2_C"
           ],
@@ -16707,6 +16867,10 @@
         {
           "schematicId": "Research_Caterium_5_2_C",
           "name": "Улучшенные разъемы электропитания",
+          "coordinates": [
+            3,
+            6
+          ],
           "parents": [
             "Research_Caterium_6_2_C"
           ],
@@ -16720,6 +16884,10 @@
         {
           "schematicId": "Research_Caterium_3_2_C",
           "name": "Парализующий болт",
+          "coordinates": [
+            4,
+            3
+          ],
           "parents": [
             "Research_Caterium_2_C"
           ],
@@ -16733,6 +16901,10 @@
         {
           "schematicId": "Research_Caterium_6_2_C",
           "name": "Электростолбы ур. 3",
+          "coordinates": [
+            3,
+            5
+          ],
           "parents": [
             "Research_Caterium_4_2_C"
           ],
@@ -16746,6 +16918,10 @@
         {
           "schematicId": "Research_Caterium_4_1_2_C",
           "name": "Рубильник",
+          "coordinates": [
+            2,
+            6
+          ],
           "parents": [
             "Research_Caterium_4_1_C"
           ],
@@ -16759,6 +16935,10 @@
         {
           "schematicId": "Research_Caterium_5_1_C",
           "name": "Приоритетный рубильник",
+          "coordinates": [
+            4,
+            6
+          ],
           "parents": [
             "Research_Caterium_5_C"
           ],
@@ -16772,6 +16952,10 @@
         {
           "schematicId": "Research_Caterium_7_2_C",
           "name": "Геотермальный генератор",
+          "coordinates": [
+            4,
+            8
+          ],
           "parents": [
             "Research_Caterium_5_C"
           ],
@@ -16786,6 +16970,10 @@
         {
           "schematicId": "Research_Caterium_4_1_1_C",
           "name": "Умный разветвитель",
+          "coordinates": [
+            1,
+            7
+          ],
           "parents": [
             "Research_Caterium_4_1_C"
           ],
@@ -16797,6 +16985,10 @@
         {
           "schematicId": "Research_Caterium_6_3_C",
           "name": "Система самонаведения",
+          "coordinates": [
+            5,
+            7
+          ],
           "parents": [
             "Research_Caterium_5_C"
           ],
@@ -16827,6 +17019,10 @@
         {
           "schematicId": "Research_Mycelia_6_C",
           "name": "Терапевтический ингалятор",
+          "coordinates": [
+            6,
+            3
+          ],
           "parents": [
             "Research_Mycelia_4_C"
           ],
@@ -16840,6 +17036,10 @@
         {
           "schematicId": "Research_Mycelia_7_C",
           "name": "Улучшенный пояс для инструментов",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_Mycelia_2_C"
           ],
@@ -16853,6 +17053,10 @@
         {
           "schematicId": "Research_Mycelia_1_C",
           "name": "Мицелий",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16862,6 +17066,10 @@
         {
           "schematicId": "Research_Mycelia_2_C",
           "name": "Ткань",
+          "coordinates": [
+            2,
+            1
+          ],
           "parents": [
             "Research_Mycelia_1_C"
           ],
@@ -16875,6 +17083,10 @@
         {
           "schematicId": "Research_Mycelia_4_C",
           "name": "Целебные свойства",
+          "coordinates": [
+            5,
+            2
+          ],
           "parents": [
             "Research_Mycelia_1_C"
           ],
@@ -16888,6 +17100,10 @@
         {
           "schematicId": "Research_Mycelia_8_C",
           "name": "Токсичная клеточная модификация",
+          "coordinates": [
+            4,
+            2
+          ],
           "parents": [
             "Research_Mycelia_1_C"
           ],
@@ -16901,6 +17117,10 @@
         {
           "schematicId": "Research_Mycelia_5_C",
           "name": "Витаминный ингалятор",
+          "coordinates": [
+            5,
+            4
+          ],
           "parents": [
             "Research_Mycelia_4_C"
           ],
@@ -16914,6 +17134,10 @@
         {
           "schematicId": "Research_Mycelia_3_C",
           "name": "Парашют",
+          "coordinates": [
+            0,
+            3
+          ],
           "parents": [
             "Research_Mycelia_2_C"
           ],
@@ -16927,6 +17151,10 @@
         {
           "schematicId": "Research_Mycelia_2_1_C",
           "name": "Синтетическая ткань",
+          "coordinates": [
+            3,
+            4
+          ],
           "parents": [
             "Research_Mycelia_2_C"
           ],
@@ -16940,6 +17168,10 @@
         {
           "schematicId": "Research_Mycelia_GasMask_C",
           "name": "Респиратор",
+          "coordinates": [
+            4,
+            5
+          ],
           "parents": [
             "Research_Mycelia_2_C"
           ],
@@ -16963,6 +17195,10 @@
         {
           "schematicId": "Research_Nutrients_2_C",
           "name": "Шпиковый мухомор",
+          "coordinates": [
+            4,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16972,6 +17208,10 @@
         {
           "schematicId": "Research_Nutrients_1_C",
           "name": "Берилловый орех",
+          "coordinates": [
+            2,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16981,6 +17221,10 @@
         {
           "schematicId": "Research_Nutrients_0_C",
           "name": "Палеоягода",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -16990,6 +17234,10 @@
         {
           "schematicId": "Research_Nutrients_3_C",
           "name": "Питательный процессор",
+          "coordinates": [
+            3,
+            2
+          ],
           "parents": [
             "Research_Nutrients_1_C",
             "Research_Nutrients_2_C",
@@ -17007,6 +17255,10 @@
         {
           "schematicId": "Research_Nutrients_4_C",
           "name": "Пищевой ингалятор",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_Nutrients_3_C"
           ],
@@ -17030,6 +17282,10 @@
         {
           "schematicId": "Research_PowerSlugs_6_C",
           "name": "Синтетические энергомодули",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_PowerSlugs_5_C"
           ],
@@ -17043,6 +17299,10 @@
         {
           "schematicId": "Research_PowerSlugs_3_C",
           "name": "Сканирование слизней",
+          "coordinates": [
+            2,
+            1
+          ],
           "parents": [
             "Research_PowerSlugs_1_C"
           ],
@@ -17056,6 +17316,10 @@
         {
           "schematicId": "Research_PowerSlugs_1_C",
           "name": "Синие энергослизни",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -17065,6 +17329,10 @@
         {
           "schematicId": "Research_PowerSlugs_4_C",
           "name": "Жёлтые энергослизни",
+          "coordinates": [
+            3,
+            1
+          ],
           "parents": [
             "Research_PowerSlugs_1_C"
           ],
@@ -17078,6 +17346,10 @@
         {
           "schematicId": "Research_PowerSlugs_5_C",
           "name": "Фиолетовые энергослизни",
+          "coordinates": [
+            3,
+            2
+          ],
           "parents": [
             "Research_PowerSlugs_4_C"
           ],
@@ -17091,6 +17363,10 @@
         {
           "schematicId": "Research_PowerSlugs_2_C",
           "name": "Разгон производства",
+          "coordinates": [
+            4,
+            1
+          ],
           "parents": [
             "Research_PowerSlugs_1_C"
           ],
@@ -17114,6 +17390,10 @@
         {
           "schematicId": "Research_Quartz_2_C",
           "name": "Кварцевый резонатор",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_Quartz_1_1_C",
             null
@@ -17133,6 +17413,10 @@
         {
           "schematicId": "Research_Quartz_1_1_C",
           "name": "Кварцевые кристаллы",
+          "coordinates": [
+            2,
+            1
+          ],
           "parents": [
             "Research_Quartz_0_C"
           ],
@@ -17146,6 +17430,10 @@
         {
           "schematicId": "Research_Quartz_0_C",
           "name": "Кварц",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -17155,6 +17443,10 @@
         {
           "schematicId": "Research_Quartz_2_1_C",
           "name": "Дробный болт",
+          "coordinates": [
+            1,
+            3
+          ],
           "parents": [
             "Research_Quartz_1_1_C"
           ],
@@ -17168,6 +17460,10 @@
         {
           "schematicId": "Research_Quartz_1_2_C",
           "name": "Кремнезём",
+          "coordinates": [
+            4,
+            1
+          ],
           "parents": [
             "Research_Quartz_0_C"
           ],
@@ -17181,6 +17477,10 @@
         {
           "schematicId": "Research_Quartz_3_1_C",
           "name": "Исследователь",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_Quartz_2_C"
           ],
@@ -17194,6 +17494,10 @@
         {
           "schematicId": "Research_Caterium_4_3_C",
           "name": "Экзоскелет",
+          "coordinates": [
+            4,
+            2
+          ],
           "parents": [
             "Research_Quartz_1_2_C"
           ],
@@ -17207,6 +17511,10 @@
         {
           "schematicId": "Research_Quartz_PriorityMerger_C",
           "name": "Отслеживание резонанса материи",
+          "coordinates": [
+            4,
+            5
+          ],
           "parents": [
             "Research_Quartz_2_C"
           ],
@@ -17220,6 +17528,10 @@
         {
           "schematicId": "Research_Quartz_4_1_C",
           "name": "Сканирование радиосигналов",
+          "coordinates": [
+            2,
+            6
+          ],
           "parents": [
             null,
             "Research_Quartz_2_C"
@@ -17239,6 +17551,10 @@
         {
           "schematicId": "Research_Caterium_3_1_C",
           "name": "Увеличенный объём инвентаря",
+          "coordinates": [
+            5,
+            4
+          ],
           "parents": [
             "Research_Quartz_1_2_C"
           ],
@@ -17252,6 +17568,10 @@
         {
           "schematicId": "Research_Quartz_4_C",
           "name": "Радиолокационная технология",
+          "coordinates": [
+            3,
+            7
+          ],
           "parents": [
             null,
             "Research_Quartz_2_C"
@@ -17271,6 +17591,10 @@
         {
           "schematicId": "Research_Quartz_3_4_C",
           "name": "Применение взрывного резонанса",
+          "coordinates": [
+            1,
+            6
+          ],
           "parents": [
             "Research_Quartz_2_C"
           ],
@@ -17294,6 +17618,10 @@
         {
           "schematicId": "Research_Sulfur_3_1_C",
           "name": "Детонатор нобелиска",
+          "coordinates": [
+            2,
+            2
+          ],
           "parents": [
             "Research_Sulfur_1_C"
           ],
@@ -17307,6 +17635,10 @@
         {
           "schematicId": "Research_Sulfur_3_C",
           "name": "Бездымный порох",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             null,
             "Research_Sulfur_1_C"
@@ -17330,6 +17662,10 @@
         {
           "schematicId": "Research_Sulfur_0_C",
           "name": "Сера",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -17339,6 +17675,10 @@
         {
           "schematicId": "Research_Sulfur_4_1_C",
           "name": "Винтовка",
+          "coordinates": [
+            4,
+            4
+          ],
           "parents": [
             "Research_Sulfur_3_C"
           ],
@@ -17352,6 +17692,10 @@
         {
           "schematicId": "Research_Sulfur_CompactedCoal_C",
           "name": "Угольный брикет",
+          "coordinates": [
+            4,
+            2
+          ],
           "parents": [
             "Research_Sulfur_ExperimentalPower_C"
           ],
@@ -17365,6 +17709,10 @@
         {
           "schematicId": "Research_Sulfur_1_C",
           "name": "Чёрный порох",
+          "coordinates": [
+            3,
+            1
+          ],
           "parents": [
             "Research_Sulfur_0_C"
           ],
@@ -17378,6 +17726,10 @@
         {
           "schematicId": "Research_Sulfur_4_2_C",
           "name": "Разрывной болт",
+          "coordinates": [
+            3,
+            4
+          ],
           "parents": [
             "Research_Sulfur_3_C"
           ],
@@ -17391,6 +17743,10 @@
         {
           "schematicId": "Research_Sulfur_4_C",
           "name": "Осколочный нобелиск",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_Sulfur_3_C"
           ],
@@ -17404,6 +17760,10 @@
         {
           "schematicId": "Research_Sulfur_RocketFuel_C",
           "name": "Ракетное топливо",
+          "coordinates": [
+            5,
+            4
+          ],
           "parents": [
             "Research_Sulfur_TurboFuel_C"
           ],
@@ -17417,6 +17777,10 @@
         {
           "schematicId": "Research_Sulfur_ExperimentalPower_C",
           "name": "Экспериментальные способы выработки электроэнергии",
+          "coordinates": [
+            4,
+            1
+          ],
           "parents": [
             "Research_Sulfur_0_C"
           ],
@@ -17430,6 +17794,10 @@
         {
           "schematicId": "Research_Sulfur_5_C",
           "name": "Улучшенный пояс для инструментов",
+          "coordinates": [
+            1,
+            3
+          ],
           "parents": [
             "Research_Sulfur_1_C"
           ],
@@ -17443,6 +17811,10 @@
         {
           "schematicId": "Research_Sulfur_IonizedFuel_C",
           "name": "Ионизированное топливо",
+          "coordinates": [
+            6,
+            4
+          ],
           "parents": [
             "Research_Sulfur_TurboFuel_C"
           ],
@@ -17456,6 +17828,10 @@
         {
           "schematicId": "Research_Sulfur_5_2_C",
           "name": "Турбопатроны для винтовки",
+          "coordinates": [
+            5,
+            6
+          ],
           "parents": [
             "Research_Sulfur_4_1_C"
           ],
@@ -17469,6 +17845,10 @@
         {
           "schematicId": "Research_Sulfur_TurboFuel_C",
           "name": "Турботопливо",
+          "coordinates": [
+            5,
+            3
+          ],
           "parents": [
             "Research_Sulfur_ExperimentalPower_C",
             null
@@ -17488,6 +17868,10 @@
         {
           "schematicId": "Research_Sulfur_5_1_C",
           "name": "Разработка средств ядерного сдерживания",
+          "coordinates": [
+            1,
+            6
+          ],
           "parents": [
             "Research_Sulfur_4_C"
           ],
@@ -17501,6 +17885,10 @@
         {
           "schematicId": "Research_Sulfur_6_C",
           "name": "Увеличенный объём инвентаря",
+          "coordinates": [
+            3,
+            8
+          ],
           "parents": [
             "Research_Sulfur_4_C",
             "Research_Sulfur_4_1_C",
@@ -17528,6 +17916,10 @@
         {
           "schematicId": "Research_XMas_2_C",
           "name": "Огромная рождественская ёлка FICSIT: улучшение 1",
+          "coordinates": [
+            3,
+            1
+          ],
           "parents": [
             "Research_XMas_1_C"
           ],
@@ -17541,6 +17933,10 @@
         {
           "schematicId": "Research_XMas_3_C",
           "name": "Огромная рождественская ёлка FICSIT: улучшение 2",
+          "coordinates": [
+            3,
+            2
+          ],
           "parents": [
             "Research_XMas_2_C"
           ],
@@ -17554,6 +17950,10 @@
         {
           "schematicId": "Research_XMas_1-2_C",
           "name": "Декоративная карамельная трость",
+          "coordinates": [
+            4,
+            1
+          ],
           "parents": [
             "Research_XMas_1_C"
           ],
@@ -17567,6 +17967,10 @@
         {
           "schematicId": "Research_XMas_4-2_C",
           "name": "Игра в снежки!",
+          "coordinates": [
+            4,
+            4
+          ],
           "parents": [
             "Research_XMas_4_C"
           ],
@@ -17580,6 +17984,10 @@
         {
           "schematicId": "Research_XMas_4-1_C",
           "name": "Рождественское украшение FICSIT",
+          "coordinates": [
+            2,
+            4
+          ],
           "parents": [
             "Research_XMas_4_C"
           ],
@@ -17593,6 +18001,10 @@
         {
           "schematicId": "Research_XMas_1_C",
           "name": "Рождественская ёлка FICSIT™",
+          "coordinates": [
+            3,
+            0
+          ],
           "parents": [],
           "unhiddenBy": [],
           "unresolvedCoordinates": [],
@@ -17602,6 +18014,10 @@
         {
           "schematicId": "Research_XMas_1-1_C",
           "name": "Карамельная трость-дубинка",
+          "coordinates": [
+            2,
+            1
+          ],
           "parents": [
             "Research_XMas_1_C"
           ],
@@ -17615,6 +18031,10 @@
         {
           "schematicId": "Research_XMas_4_C",
           "name": "Огромная рождественская ёлка FICSIT: улучшение 3",
+          "coordinates": [
+            3,
+            3
+          ],
           "parents": [
             "Research_XMas_3_C"
           ],
@@ -17628,6 +18048,10 @@
         {
           "schematicId": "Research_XMas_5_C",
           "name": "Огромная рождественская ёлка FICSIT: улучшение 4",
+          "coordinates": [
+            3,
+            6
+          ],
           "parents": [
             "Research_XMas_4_C"
           ],
@@ -17641,6 +18065,10 @@
         {
           "schematicId": "Research_XMas_2-2_C",
           "name": "Ёлка с подарками FICSIT™",
+          "coordinates": [
+            5,
+            3
+          ],
           "parents": [
             "Research_XMas_2_C"
           ],
@@ -17654,6 +18082,10 @@
         {
           "schematicId": "Research_XMas_3-2_C",
           "name": "Снежок идёт!",
+          "coordinates": [
+            6,
+            4
+          ],
           "parents": [
             "Research_XMas_3_C"
           ],
@@ -17667,6 +18099,10 @@
         {
           "schematicId": "Research_XMas_2-1_C",
           "name": "Друг",
+          "coordinates": [
+            1,
+            3
+          ],
           "parents": [
             "Research_XMas_2_C"
           ],
@@ -17680,6 +18116,10 @@
         {
           "schematicId": "Research_XMas_3-1_C",
           "name": "Рождественская гирлянда FICSIT™",
+          "coordinates": [
+            0,
+            4
+          ],
           "parents": [
             "Research_XMas_3_C"
           ],

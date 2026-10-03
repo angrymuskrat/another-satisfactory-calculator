@@ -69,6 +69,8 @@ describe('справочный граф исследований', () => {
     const nodes = catalog.researchTrees!.flatMap(t => t.nodes);
     expect(nodes).toHaveLength(110);
     expect(nodes.filter(n => n.unresolvedCoordinates.length)).toHaveLength(5);
+    expect(nodes.every(n => n.coordinates?.length === 2 && n.coordinates.every(Number.isInteger))).toBe(true);
+    expect(nodes.find(n => n.schematicId === 'Research_AO_DNACapsule_C')!.coordinates).toEqual([3, 3]);
     expect(catalog.researchTrees!.filter(t => t.seasonal).flatMap(t => t.nodes)).toHaveLength(13);
     expect(nodes.find(n => n.schematicId === 'Research_Quartz_2_C')!.parents).toContain(null);
     expect(catalog.unlocks!.some(u => u.prerequisitesKnown)).toBe(false);
