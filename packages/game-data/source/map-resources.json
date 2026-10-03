@@ -1,0 +1,29 @@
+{
+  "provenance": {
+    "source": "Official Satisfactory Wiki",
+    "nodes": { "url": "https://satisfactory.wiki.gg/wiki/Resource_node", "lastEdited": "2026-06-02" },
+    "wells": { "url": "https://satisfactory.wiki.gg/wiki/Resource_Well", "lastEdited": "2026-05-10" },
+    "accessed": "2026-10-03",
+    "verification": "Количества узлов и спутников скважин по чистоте из документации сообщества. Не сверено с картой сборки steam-24656030; используется только для условных весов редкости и справочной доли запаса карты.",
+    "checkTotals": { "iron-ore": 92100, "limestone": 69300, "crude-oil": 12600, "nitrogen-gas": 12000, "water-wells": 13125 }
+  },
+  "nodes": {
+    "iron-ore": { "impure": 39, "normal": 42, "pure": 46 },
+    "caterium-ore": { "impure": 0, "normal": 9, "pure": 8 },
+    "copper-ore": { "impure": 13, "normal": 29, "pure": 13 },
+    "limestone": { "impure": 15, "normal": 50, "pure": 29 },
+    "coal": { "impure": 15, "normal": 31, "pure": 16 },
+    "raw-quartz": { "impure": 3, "normal": 7, "pure": 7 },
+    "sulfur": { "impure": 6, "normal": 5, "pure": 5 },
+    "uranium": { "impure": 3, "normal": 2, "pure": 0 },
+    "bauxite": { "impure": 5, "normal": 6, "pure": 6 },
+    "sam": { "impure": 10, "normal": 6, "pure": 3 },
+    "crude-oil": { "impure": 10, "normal": 12, "pure": 8 }
+  },
+  "wellSatellites": {
+    "nitrogen-gas": { "impure": 2, "normal": 7, "pure": 36 },
+    "crude-oil": { "impure": 8, "normal": 6, "pure": 4 },
+    "water": { "impure": 7, "normal": 12, "pure": 36 }
+  },
+  "unlimited": ["water"]
+}

@@ -44,15 +44,14 @@ test('выбор экономичного варианта сохраняет е
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(0);
 });
 
-test('ошибки обоих вариантов остаются видимыми отдельно', async ({ page }) => {
+test('ошибки всех вариантов остаются видимыми отдельно', async ({ page }) => {
   const invalid = structuredClone(plan); invalid.mode = 'target'; invalid.targets[0].rate = 1000000;
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), invalid);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const cards = page.getByRole('article');
-  await expect(cards).toHaveCount(2, { timeout: 30000 });
-  await expect(cards.nth(0)).toContainText('Ошибка расчёта');
-  await expect(cards.nth(1)).toContainText('Ошибка расчёта');
+  await expect(cards).toHaveCount(3, { timeout: 30000 });
+  for (const index of [0, 1, 2]) await expect(cards.nth(index)).toContainText('Ошибка расчёта');
   await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
 });
 

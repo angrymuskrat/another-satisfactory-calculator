@@ -33,7 +33,7 @@ export function useAnalysis(catalog: Catalog, plan: Plan) {
       };
       instance.onerror = event => { if (worker.current === instance) fail(event.message || 'Не удалось загрузить анализ.'); };
       instance.onmessageerror = () => { if (worker.current === instance) fail('Не удалось прочитать результат анализа.'); };
-      timer.current = setTimeout(() => { if (worker.current === instance) fail('Анализ остановлен по времени. Выберите меньше изменений.'); }, 25000);
+      timer.current = setTimeout(() => { if (worker.current === instance) fail('Анализ остановлен по времени. Выберите меньше изменений.'); }, request.kind === 'alternates' ? 60000 : 25000);
       instance.postMessage({ catalog, plan, request });
     } catch (error) { fail(error instanceof Error ? error.message : 'Ошибка запуска анализа.'); }
   }, [catalog, plan, fingerprint, stop]);
