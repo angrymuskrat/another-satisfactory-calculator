@@ -1,0 +1,13 @@
+#!/bin/bash
+# Установка: /usr/local/bin/deploy-satisfactory-ssh, root:root 0755.
+# Принудительная команда ключа GitHub Actions в ~deploy/.ssh/authorized_keys:
+#   command="/usr/local/bin/deploy-satisfactory-ssh",restrict ssh-ed25519 AAAA... github-actions-deploy
+# Клиент может передать только SHA коммита; всё остальное отклоняется.
+set -euo pipefail
+
+SHA=${SSH_ORIGINAL_COMMAND:-}
+if [[ ! $SHA =~ ^[0-9a-f]{40}$ ]]; then
+  echo "Разрешена только команда: <полный SHA коммита>" >&2
+  exit 2
+fi
+exec sudo -n /usr/local/sbin/deploy-satisfactory "$SHA"

@@ -17,6 +17,9 @@ playwright-report
 .env.*
 !.env.example
 docs
+deploy
+docker-compose.override.yml
+.github
 packages/solver/vendor/*.cjs
 packages/solver/vendor/*.mjs
 packages/solver/vendor/*.wasm

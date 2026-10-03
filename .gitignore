@@ -11,7 +11,10 @@ playwright-report/
 output/
 *.log
 .env
+.env.*
 !.env.example
+!deploy/.env.ovh.example
+/docker-compose.override.yml
 packages/solver/vendor/*.cjs
 packages/solver/vendor/*.mjs
 packages/solver/vendor/*.wasm

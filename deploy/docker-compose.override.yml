@@ -1,0 +1,19 @@
+# Только для стенда: на сервере /opt/satisfactory-calc/docker-compose.override.yml —
+# симлинк на этот файл. HTTPS-прокси Caddy на 8445, см. docs/deploy.md.
+services:
+  caddy:
+    build: ./deploy/caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "0.0.0.0:8445:8445"
+    env_file: .env.ovh
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,66 @@
+#!/bin/bash
+# Установка: /usr/local/sbin/deploy-satisfactory, root:root 0755.
+# Запускается от root через sudo из deploy-satisfactory-ssh.
+# Разворачивает коммит, только если он входит в origin/master; при провале
+# проверки здоровья возвращает прежний коммит.
+set -euo pipefail
+
+APP_DIR=/opt/satisfactory-calc
+PROJECT=satisfactory-calc
+BRANCH=master
+PUBLIC_URL=https://satisfactory.hungrymuskrat.club:8445
+PUBLIC_HOST=satisfactory.hungrymuskrat.club:8445
+HEALTH_TIMEOUT=180
+
+log() { printf '[deploy %s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
+fail() { log "ОШИБКА: $*"; exit 1; }
+
+SHA=${1:-}
+[[ $SHA =~ ^[0-9a-f]{40}$ ]] || fail "ожидается полный SHA коммита"
+
+exec 9>/run/lock/deploy-satisfactory.lock
+flock -w 1800 9 || fail "другой деплой не завершился за 30 минут"
+
+cd "$APP_DIR"
+git fetch --quiet origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
+git cat-file -e "$SHA^{commit}" 2>/dev/null || fail "коммит $SHA не найден в origin"
+git merge-base --is-ancestor "$SHA" "origin/$BRANCH" || fail "коммит $SHA не входит в $BRANCH"
+
+PREV=$(git rev-parse HEAD)
+
+compose_up() {
+  docker compose -p "$PROJECT" up --build -d --quiet-pull
+}
+
+healthy() {
+  local deadline=$((SECONDS + HEALTH_TIMEOUT)) status
+  while ((SECONDS < deadline)); do
+    status=$(docker inspect -f '{{.State.Health.Status}}' "$PROJECT-app-1" 2>/dev/null || echo missing)
+    if [[ $status == healthy ]] &&
+       curl -fsS -m 10 --resolve "$PUBLIC_HOST:127.0.0.1" "$PUBLIC_URL/api/session" >/dev/null; then
+      return 0
+    fi
+    sleep 5
+  done
+  log "статус контейнера: $status"
+  return 1
+}
+
+log "текущий ${PREV:0:12}, разворачиваю ${SHA:0:12}"
+git checkout --quiet --detach "$SHA"
+
+if compose_up && healthy; then
+  docker image prune -f --filter "label=com.docker.compose.project=$PROJECT" >/dev/null || true
+  log "готово: ${SHA:0:12} работает, $PUBLIC_URL"
+  exit 0
+fi
+
+log "новая версия не прошла проверку, возвращаю ${PREV:0:12}"
+docker logs --tail 40 "$PROJECT-app-1" 2>&1 || true
+git checkout --quiet --detach "$PREV"
+if compose_up && healthy; then
+  log "откат выполнен, работает ${PREV:0:12}"
+else
+  log "откат тоже не прошёл проверку, нужен ручной разбор"
+fi
+exit 1
