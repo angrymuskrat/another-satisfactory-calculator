@@ -6,15 +6,12 @@ import { parseCatalogWorkspace, WORKSPACE_KEY } from './planStorage';
 import type { useWorldWorkspace } from './useWorldWorkspace';
 import { ResearchGuide, ResearchChainView } from './Research';
 import { researchDescription } from '../../../packages/domain/research';
+import { downloadJson as download } from './controls';
 
 type Store = ReturnType<typeof useWorldWorkspace>;
 interface Props {
   catalog: Catalog; plan: Plan; setPlan: Dispatch<SetStateAction<Plan>>; store: Store;
   activeFactoryId: string | null; setActiveFactoryId: (id: string | null) => void;
-}
-function download(raw: string, name: string) {
-  const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
-  const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
 }
 const toggle = (values: string[], id: string) => values.includes(id) ? values.filter(value => value !== id) : [...values, id];
 

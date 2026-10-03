@@ -124,7 +124,7 @@ export function prepareRecipeSetup(catalog: Catalog, plan: Plan, ids: string[], 
   return { before: structuredClone(plan), plan: next, operation, alternatives,
     eligibleAlternatives: unique(eligibleDisks.flatMap(diskRecipes)), unknownAlternatives };
 }
-export type RecipeSetup = ReturnType<typeof prepareRecipeSetup>;
+export type RecipeSetup = ReturnType<typeof prepareRecipeSetup> & { importedFrom?: { name: string; catalogVersion: string; exportedAt: string } };
 export function prepareDiskSetup(catalog: Catalog, plan: Plan, ids: string[]): RecipeSetup {
   const setup = prepareRecipeSetup(catalog, plan, ids, 'add', 'all');
   const next = structuredClone(plan);
