@@ -1,0 +1,19 @@
+{
+	# 80/443 заняты Hiddify: сертификат выпускается только через DNS-01 (OVH API).
+	auto_https disable_redirects
+}
+
+satisfactory.hungrymuskrat.club:8445 {
+	tls {
+		dns ovh {
+			endpoint {env.OVH_ENDPOINT}
+			application_key {env.OVH_APPLICATION_KEY}
+			application_secret {env.OVH_APPLICATION_SECRET}
+			consumer_key {env.OVH_CONSUMER_KEY}
+		}
+		propagation_timeout 10m
+	}
+	encode zstd gzip
+	# Caddy сохраняет исходный Host (с :8445) — API сверяет с ним Origin.
+	reverse_proxy app:3001
+}
