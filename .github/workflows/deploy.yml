@@ -6,6 +6,9 @@ name: Deploy
 on:
   push:
     branches: [master]
+  # Только проверки; деплой из PR не выполняется. pull_request_target не использовать.
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -32,6 +35,7 @@ jobs:
 
   deploy:
     needs: check
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment:
