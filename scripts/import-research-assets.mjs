@@ -26,7 +26,7 @@ export function importResearchAssets({ source, catalog, progression, report, en,
       const record = records.get(node.className);
       if (!record) throw new Error(`Схема узла не найдена в Docs: ${node.className}`);
       for (const id of [...node.parentClasses, ...node.unhiddenByClasses]) if (id !== null && !records.has(id)) throw new Error(`Схема связи не найдена: ${id}`);
-      return { schematicId: node.className, name: record.name || record.nameEn || node.className,
+      return { schematicId: node.className, name: record.name || record.nameEn || node.className, coordinates: node.coordinates,
         parents: node.parentClasses, unhiddenBy: node.unhiddenByClasses,
         unresolvedCoordinates: node.unresolvedCoordinates, prerequisiteGroups: record.prerequisiteGroups ?? [],
         conditions: record.prerequisiteGroups === undefined ? ['Другие условия схемы не спроецированы; отсутствие списка не означает отсутствие требований.'] : [] };
