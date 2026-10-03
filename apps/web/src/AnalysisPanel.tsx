@@ -64,7 +64,7 @@ function ResultFlows({ catalog, result }: { catalog: Catalog; result: Result }) 
       <ul>{result.feasibleAlternative.products.map(p => <li key={p.itemId}>{catalog.items.find(i => i.id === p.itemId)?.name ?? p.itemId}: {format(p.rate, 3)} {unit(catalog.items.find(i => i.id === p.itemId))}</li>)}</ul>
     </div>}
     {!hasSolution(result) && <p>{result.message}</p>}
-    {result.warnings.length > 0 && <details><summary>Границы расчёта и предупреждения</summary><ul>{result.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul></details>}
+    {result.warnings.length + (result.modelNotes?.length ?? 0) > 0 && <details><summary>Границы расчёта и предупреждения</summary><ul>{[...result.warnings, ...result.modelNotes ?? []].map((w, i) => <li key={i}>{w}</li>)}</ul></details>}
   </>;
 }
 function ChangeRow({ label, value }: { label: string; value: Delta }) {
