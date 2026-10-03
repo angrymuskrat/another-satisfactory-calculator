@@ -163,6 +163,7 @@ export interface Result {
   installedPower: number;
   objectiveValue: number;
   warnings: string[];
+  modelNotes?: string[];
   diagnostics: string[];
   maxBalanceError: number;
 }

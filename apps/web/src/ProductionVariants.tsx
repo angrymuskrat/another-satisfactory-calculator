@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
-import { Results } from './Results';
+import { ModelNotes, Results, usedResources } from './Results';
 import { format, unit } from './controls';
 import type { useSolver } from './useSolver';
 
@@ -22,7 +22,6 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
     {showCards ? <section aria-label="Выбор варианта производства" className="production-variants">
       <p role="status">{stale ? 'Требуется пересчёт' : hasVariants ? 'Выберите вариант, чтобы открыть подробный план строительства.' : 'Подбор завершён без доступного варианта. Статусы каждого расчёта показаны отдельно.'}</p>
       {error && <p role="alert" className="alert error">{error}</p>}
-      <p className="hint">Частоты подобраны для непрерывной работы, где это возможно. Энергия добычи и утилизации учитывается; неизвестная энергия внешних поставок исключена. Фактические колебания сети не моделируются.</p>
       {report?.equivalent && <p className="alert">Оба режима дали одинаковый план. Показан один вариант.</p>}
       <div className="variant-grid">{variants?.map(variant => {
         const { result } = variant;
@@ -40,12 +39,13 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
               <div><dt>Пиковая мощность</dt><dd>{metric(result.installedPower)} МВт</dd></div>
               <div><dt>Машины производства</dt><dd>{machines}</dd></div>
               {result.machineBudget && <div><dt>Общий бюджет машин</dt><dd>{result.machineBudget.used} / {result.machineBudget.limit}<small>Компактный вариант: {result.machineBudget.minimum}. Включены добытчики, скважины со спутниками и утилизаторы.</small></dd></div>}
-              {result.resources.map(source => <div key={source.sourceId}><dt>{plan.sources.find(s => s.id === source.sourceId)?.name || item(source.itemId)?.name || source.sourceId}</dt><dd>{metric(source.rate)} {unit(item(source.itemId))}</dd></div>)}
+              {usedResources(variant.plan, result.resources).map(source => <div key={source.sourceId}><dt>{plan.sources.find(s => s.id === source.sourceId)?.name || item(source.itemId)?.name || source.sourceId}</dt><dd>{metric(source.rate)} {unit(item(source.itemId))}</dd></div>)}
             </dl>
             <button className="primary-button" disabled={stale || running} onClick={() => { const next = solver.choose(variant.id); if (next) { setPlan(next); focusHeading(); } }}>Использовать вариант</button>
           </> : <div className="alert error" role="alert"><div><strong>{statuses[result.status]}</strong><p>{result.message}</p><p>Этот вариант выбрать нельзя.{hasVariants ? ' Успешный вариант остаётся доступен.' : ''}</p></div></div>}
         </article>;
       })}</div>
+      {hasVariants && <ModelNotes notes={['Частоты подобраны для непрерывной работы, где это возможно. Энергия добычи и утилизации учитывается; неизвестная энергия внешних поставок исключена. Фактические колебания сети не моделируются.', 'Природные ресурсы без заданного источника и без расхода не показаны.']} />}
       {!hasVariants && <Results catalog={catalog} plan={report!.variants[0]?.plan ?? plan} result={solver.result} stale={stale} running={running} error={null} />}
     </section> : <>
       {selected && <button className="text-button" onClick={() => { solver.showChoices(); focusHeading(); }}>Вернуться к вариантам</button>}
