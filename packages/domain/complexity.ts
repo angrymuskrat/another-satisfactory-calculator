@@ -2,10 +2,13 @@ import type { Plan, Result } from './types';
 
 export interface BuildComplexity { distinctRecipes: number; intermediateItems: number }
 
-/** KPI простоты строительства по работающим этапам результата; добыча и Sink не входят. */
-export function buildComplexity(plan: Pick<Plan, 'targets'>, result: Pick<Result, 'steps'>): BuildComplexity {
+/**
+ * KPI простоты строительства по работающим этапам результата; добыча и Sink не входят.
+ * Целевые предметы: в режиме партии — позиции партии (их получает решатель), иначе — цели плана.
+ */
+export function buildComplexity(plan: Pick<Plan, 'targets' | 'batch'>, result: Pick<Result, 'steps'>): BuildComplexity {
   const active = result.steps.filter(step => step.cycles > 0);
-  const targets = new Set(plan.targets.map(target => target.itemId));
+  const targets = new Set(plan.batch ? plan.batch.items.map(item => item.itemId) : plan.targets.map(target => target.itemId));
   const produced = new Set(active.flatMap(step => step.outputs.filter(flow => flow.rate > 0).map(flow => flow.itemId)));
   const consumed = new Set(active.flatMap(step => step.inputs.filter(flow => flow.rate > 0).map(flow => flow.itemId)));
   return {
