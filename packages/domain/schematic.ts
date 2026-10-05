@@ -1,6 +1,7 @@
 import type { Catalog, ProductResult } from './types';
 import type { ConstructionGroup, ConstructionModel } from './construction';
 import { orderDependencies } from './dependencies';
+import { parallelLines } from './transport';
 
 export type SchematicMode = 'types' | 'machines';
 export const SCHEMATIC_PAGE_SIZE = 48;
@@ -169,7 +170,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
       return;
     }
     edges.push({ id: key('edge', edges.length), from, to, kind: 'flow', itemId, rate, share,
-      parallel: Math.max(1, Math.ceil(rate / capacity - Math.min(1e-7, rate / capacity * 1e-8))) });
+      parallel: parallelLines(rate, capacity) });
   };
   for (const itemId of [...new Set([...supplies.keys(), ...demands.keys()])].sort()) {
     const providers = supplies.get(itemId) ?? [], consumers = demands.get(itemId) ?? [];

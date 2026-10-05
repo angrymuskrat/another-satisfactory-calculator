@@ -1,8 +1,12 @@
 import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { createDefaultPlan } from '../../packages/domain/defaults';
+import type { Catalog } from '../../packages/domain/types';
 
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
+const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 
 test('расчёт, русский поиск, политики и невыполнимый заказ', async ({ page }) => {
   await page.goto('/');
@@ -102,4 +106,42 @@ test('черновик, экспорт и безопасный импорт JSON
   await page.getByRole('textbox', { name: 'Название плана', exact: true }).fill('Другой план');
   await page.getByLabel('Файл плана JSON').setInputFiles({ name: 'valid.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(exported)) });
   await expect(page.getByRole('textbox', { name: 'Название плана', exact: true })).toHaveValue('Импорт и экспорт');
+});
+
+test('результат показывает KPI простоты и линии на входах', async ({ page }) => {
+  const seeded = createDefaultPlan(catalog);
+  seeded.mode = 'target';
+  seeded.targets = [{ itemId: 'iron-plate', rate: 40, weight: 1, scale: 1 }];
+  seeded.sources = [{ id: 'iron', itemId: 'iron-ore', kind: 'flow', limit: 600, count: 1, purity: 1, minerId: 'miner-mk1', clock: 100 }];
+  seeded.settings.enabledRecipeIds = ['iron-ingot', 'iron-plate'];
+  seeded.settings.beltId = 'belt1';
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), seeded);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
+  await expect(page.locator('.kpi').filter({ hasText: 'Разных рецептов' })).toContainText('2');
+  await expect(page.locator('.kpi').filter({ hasText: 'Промежуточных предметов' })).toContainText('1');
+  // 60 руды/мин при ленте Mk1 (60/мин) — ровно одна лента.
+  await expect(page.locator('.utilization').filter({ hasText: 'Железная руда' })).toContainText('1 лента');
+});
+
+test('отгрузка побочного продукта показана панелью с числом труб', async ({ page }) => {
+  // Пластик: 30 нефти → 20 пластика + 10 м³ остатка/мин (oil-refinery, 6 с); Sink выключен,
+  // остаток обязан уйти в отгрузку. 10 м³/мин при трубе ур. 1 (300) — одна труба.
+  const seeded = createDefaultPlan(catalog);
+  seeded.mode = 'target';
+  seeded.targets = [{ itemId: 'plastic', rate: 20, weight: 1, scale: 1 }];
+  seeded.sources = [{ id: 'oil', itemId: 'crude-oil', kind: 'flow', limit: 300, count: 1, purity: 1, minerId: 'oil-pump', clock: 100 }];
+  seeded.settings.enabledRecipeIds = ['plastic'];
+  seeded.settings.allowSink = false;
+  seeded.settings.pipeId = 'pipe1';
+  seeded.exports = [{ itemId: 'heavy-oil-residue', limit: 100, name: 'Соседняя фабрика' }];
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), seeded);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
+  const exportsPanel = page.getByRole('region', { name: 'Отгрузки' });
+  await expect(exportsPanel).toContainText('1 труба');
+  await expect(exportsPanel).toContainText('Соседняя фабрика');
+  await expect(page.getByText(/^Отгрузка:/)).toHaveCount(0);
 });
