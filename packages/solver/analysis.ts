@@ -4,6 +4,7 @@ import { effectivePlan } from '../domain/availability';
 import { emptyResult, solve } from './solve';
 import { applyBatch } from '../domain/batch';
 import { buildConstruction } from '../domain/construction';
+import { buildComplexity } from '../domain/complexity';
 
 export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] } | { kind: 'alternates' };
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
@@ -18,11 +19,11 @@ export interface ConstraintCandidate { id: string; label: string; change: Change
 export interface Delta { before: number; after: number; delta: number }
 export interface FlowDelta extends Delta { id: string; itemId: string }
 export interface Summary {
-  power: number; installedPower: number; productionIdlePower: number; resourceCost: number;
+  power: number; installedPower: number; productionIdlePower: number; resourceCost: number; distinctRecipes: number;
   physical: { production: number; extraction: number; sinks: number; total: number };
 }
 export interface Comparison {
-  power: Delta; installedPower: Delta; productionIdlePower: Delta; resourceCost: Delta;
+  power: Delta; installedPower: Delta; productionIdlePower: Delta; resourceCost: Delta; distinctRecipes: Delta;
   physical: Record<keyof Summary['physical'], Delta>;
   outputs: FlowDelta[]; sources: FlowDelta[];
   recipes: { id: string; cycles: Delta; machines: Delta }[];
@@ -126,6 +127,7 @@ export function summarizeResult(catalog: Catalog, input: Plan, result: Result): 
   return { power: result.power, installedPower: result.installedPower,
     productionIdlePower: buildConstruction(catalog, plan, result).productionIdlePower,
     resourceCost: result.resources.reduce((sum, r) => sum + r.rate * (plan.settings.resourceWeights[r.itemId] ?? 1), 0),
+    distinctRecipes: buildComplexity(plan, result).distinctRecipes,
     physical: { production, extraction, sinks: Math.max(0, sinks), total: production + extraction + Math.max(0, sinks) } };
 }
 function compare(before: Result, after: Result, a: Summary, b: Summary): Comparison {
@@ -136,6 +138,7 @@ function compare(before: Result, after: Result, a: Summary, b: Summary): Compari
     return { id, cycles: delta(total(before, 'cycles'), total(after, 'cycles')), machines: delta(total(before, 'installedMachines'), total(after, 'installedMachines')) };
   }).filter(r => differs(r.cycles.before, r.cycles.after) || r.machines.delta !== 0);
   return { power: delta(a.power, b.power), installedPower: delta(a.installedPower, b.installedPower), resourceCost: delta(a.resourceCost, b.resourceCost),
+    distinctRecipes: delta(a.distinctRecipes, b.distinctRecipes),
     productionIdlePower: delta(a.productionIdlePower, b.productionIdlePower),
     physical: { production: delta(a.physical.production, b.physical.production), extraction: delta(a.physical.extraction, b.physical.extraction), sinks: delta(a.physical.sinks, b.physical.sinks), total: delta(a.physical.total, b.physical.total) },
     outputs: flows(before.products.map(r => ({ ...r, id: r.itemId })), after.products.map(r => ({ ...r, id: r.itemId }))),
@@ -167,6 +170,7 @@ function benefit(plan: Plan, baseline: Result, result: Result, comparison: Compa
 function costOrder(plan: Plan, comparison: Comparison): Delta[] {
   const { power, resourceCost } = comparison, machines = comparison.physical.total;
   if (plan.settings.objective === 'smooth-power') {
+    if (plan.settings.recipesFirst) return [comparison.distinctRecipes, machines, power, resourceCost];
     if (plan.settings.resourcesFirst) return [resourceCost, machines, power];
     if (plan.settings.smoothPowerExtraMachines !== undefined) return [power, resourceCost, machines];
     return [machines, power, resourceCost];

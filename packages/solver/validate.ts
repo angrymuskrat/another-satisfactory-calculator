@@ -2,6 +2,7 @@ import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
 import { productionConfigurations, wellConfiguration } from '../domain/production';
 import { applyBatch } from '../domain/batch';
+import { simplerMachineAllowance } from '../domain/complexity';
 /** Recomputes conservation from catalog coefficients, independent of LP serialization. */
 export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const errors: string[] = [];
@@ -153,13 +154,15 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const peakLimit = plan.settings.peakPowerLimit;
   if (peakLimit != null && installedPower + sinks * sinkPower + (plan.settings.powerReserve ?? 0) > peakLimit + 1e-6 + peakLimit * 1e-8) errors.push('Превышен лимит максимальной нагрузки с резервом.');
   for (const [id, limit] of Object.entries(plan.settings.buildingLimits ?? {})) if ((counts.get(id) ?? 0) > limit) errors.push(`Превышен лимит зданий ${id}.`);
-  if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
+  const recipesFirst = plan.settings.objective === 'smooth-power' ? plan.settings.recipesFirst : undefined;
+  if (plan.settings.objective === 'smooth-power' && (plan.settings.smoothPowerExtraMachines !== undefined || recipesFirst)) {
     const budget = result.machineBudget;
     const used = [...counts.values()].reduce((sum, value) => sum + value, wellSatellites);
     // Минимум получен отдельной целью решателя; здесь независимо проверяются
     // физическое количество и соблюдение объявленного конечного бюджета.
+    const allowance = budget && recipesFirst ? simplerMachineAllowance(budget.minimum, recipesFirst.extraPercent) : plan.settings.smoothPowerExtraMachines;
     if (!budget || ![budget.minimum, budget.limit, budget.used].every(value => Number.isInteger(value) && value >= 0)
-      || budget.limit !== budget.minimum + plan.settings.smoothPowerExtraMachines
+      || budget.limit !== budget.minimum + allowance!
       || budget.used !== used || used > budget.limit || used < budget.minimum) errors.push('Нарушен бюджет физических машин.');
   }
   return { maxBalanceError, errors };
