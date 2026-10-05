@@ -50,8 +50,8 @@ test('ошибки всех вариантов остаются видимыми
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const cards = page.getByRole('article');
-  await expect(cards).toHaveCount(3, { timeout: 30000 });
-  for (const index of [0, 1, 2]) await expect(cards.nth(index)).toContainText('Ошибка расчёта');
+  await expect(cards).toHaveCount(4, { timeout: 30000 });
+  for (const index of [0, 1, 2, 3]) await expect(cards.nth(index)).toContainText('Ошибка расчёта');
   await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
 });
 
@@ -100,4 +100,24 @@ test('изменённые настройки запрещают выбор ст
   await expect(page.getByRole('textbox', { name: 'Дополнительные машины для экономии' })).toHaveValue('2');
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('карточка «Проще построить» показывает число рецептов и настраивается с клавиатуры', async ({ page }) => {
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
+  await page.goto('/');
+  // NumberField рендерит input type="text" с aria-label.
+  const field = page.getByRole('textbox', { name: 'Дополнительные машины для простоты' });
+  await field.focus();
+  await page.keyboard.press('Control+A');
+  await page.keyboard.type('20');
+  await page.keyboard.press('Tab');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
+  const merged = page.getByText('«Проще построить» совпадает');
+  await expect(simple.or(merged)).toBeVisible({ timeout: 30000 });
+  if (await simple.isVisible()) {
+    await expect(simple).toContainText('Разных рецептов');
+    await expect(simple).toContainText('+ 20%');
+  }
+  await expect(page.getByRole('article', { name: 'Максимальный выпуск', exact: true })).toContainText('Разных рецептов');
 });

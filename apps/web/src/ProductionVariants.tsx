@@ -1,5 +1,6 @@
 import { useRef } from 'react';
-import type { Catalog, Plan, Result } from '../../../packages/domain/types';
+import { buildComplexity } from '../../../packages/domain/complexity';
+import type { Catalog, Plan, ProductionVariant, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { ModelNotes, Results, usedResources } from './Results';
 import { format, unit } from './controls';
@@ -9,6 +10,13 @@ const statuses = { approximate: 'Допустимое приближение', o
 const metric = (value: number, digits = 2) => value !== 0 && Math.abs(value) < 10 ** -digits ? value.toExponential(3) : format(value, digits);
 const weightedResources = (plan: Plan, result: Result) => result.resources.reduce((sum, r) => sum + r.rate * (plan.settings.resourceWeights[r.itemId] ?? 1), 0);
 const difference = (value: number, baseline: number) => baseline > 0 ? `${value >= baseline ? '+' : '−'}${format(Math.abs(value / baseline - 1) * 100)}%` : '—';
+const hint = (variant: ProductionVariant, plan: Plan) => {
+  const loss = plan.mode === 'maximize' && !plan.batch ? `Допустимая потеря выпуска: ${format(variant.plan.settings.outputSlack)}%.` : 'Заказ сохраняется полностью.';
+  if (variant.id === 'maximum') return 'Компактная фабрика с полным доступным выпуском или заданным заказом.';
+  if (variant.id === 'economy') return `Экономия в пределах компактной фабрики + ${variant.plan.settings.smoothPowerExtraMachines ?? 0} машин. ${loss}`;
+  if (variant.id === 'simple') return `Сначала минимум разных рецептов в пределах компактной фабрики + ${variant.plan.settings.recipesFirst?.extraPercent ?? 10}%, затем машины и энергия. ${loss}`;
+  return `Сначала минимум взвешенного сырья, затем машины и энергия. ${loss}`;
+};
 
 export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog: Catalog; plan: Plan; setPlan: (plan: Plan) => void; solver: ReturnType<typeof useSolver> }) {
   const heading = useRef<HTMLHeadingElement>(null);
@@ -30,16 +38,19 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
         const valid = hasSolution(result);
         const item = (id: string) => catalog.items.find(i => i.id === id);
         const machines = result.steps.reduce((total, step) => total + step.installedMachines, 0);
+        const recipes = valid ? buildComplexity(variant.plan, result).distinctRecipes : 0;
+        const baseRecipes = baseline && hasSolution(baseline.result) ? buildComplexity(baseline.plan, baseline.result).distinctRecipes : null;
         return <article className="panel variant-card" key={variant.id} aria-labelledby={`variant-${variant.id}`}>
           <span className={`status-badge ${result.status}`}>{statuses[result.status]}</span>
           <h3 id={`variant-${variant.id}`}>{variant.label}</h3>
-          <p className="hint">{variant.id === 'maximum' ? 'Компактная фабрика с полным доступным выпуском или заданным заказом.' : `${variant.id === 'economy' ? `Экономия в пределах компактной фабрики + ${variant.plan.settings.smoothPowerExtraMachines ?? 0} машин.` : 'Сначала минимум взвешенного сырья, затем машины и энергия.'} ${plan.mode === 'maximize' && !plan.batch ? `Допустимая потеря выпуска: ${format(variant.plan.settings.outputSlack)}%.` : 'Заказ сохраняется полностью.'}`}</p>
+          <p className="hint">{hint(variant, plan)}</p>
           {valid ? <>
             <dl className="variant-metrics">
               {result.products.map(product => <div key={product.itemId}><dt>{item(product.itemId)?.name ?? product.itemId}</dt><dd>{metric(product.rate, 6)} {unit(item(product.itemId))}{variant.id !== 'maximum' && <small>{difference(product.rate, baseline?.result.products.find(p => p.itemId === product.itemId)?.rate ?? 0)} к максимальному варианту</small>}</dd></div>)}
               <div><dt>Средняя мощность</dt><dd><span data-metric="power">{metric(result.power)}</span> МВт{variant.id !== 'maximum' && <small>{difference(result.power, baseline?.result.power ?? 0)} к максимальному варианту</small>}</dd></div>
               <div><dt>Пиковая мощность</dt><dd>{metric(result.installedPower)} МВт</dd></div>
               <div><dt>Машины производства</dt><dd>{machines}</dd></div>
+              <div><dt>Разных рецептов</dt><dd>{recipes}{variant.id !== 'maximum' && baseRecipes !== null && <small>{recipes - baseRecipes >= 0 ? '+' : '−'}{Math.abs(recipes - baseRecipes)} к максимальному варианту</small>}</dd></div>
               <div><dt>Взвешенное сырьё</dt><dd>{metric(weightedResources(variant.plan, result))}{variant.id !== 'maximum' && baseline && hasSolution(baseline.result) && <small>{difference(weightedResources(variant.plan, result), weightedResources(baseline.plan, baseline.result))} к максимальному варианту</small>}</dd></div>
               {result.machineBudget && <div><dt>Общий бюджет машин</dt><dd>{result.machineBudget.used} / {result.machineBudget.limit}<small>Компактный вариант: {result.machineBudget.minimum}. Включены добытчики, скважины со спутниками и утилизаторы.</small></dd></div>}
               {usedResources(variant.plan, result.resources).map(source => <div key={source.sourceId}><dt>{plan.sources.find(s => s.id === source.sourceId)?.name || item(source.itemId)?.name || source.sourceId}</dt><dd>{metric(source.rate)} {unit(item(source.itemId))}</dd></div>)}
