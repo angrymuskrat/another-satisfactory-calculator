@@ -10,10 +10,12 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
   const resources = structuredClone(input);
+  const simple = structuredClone(input);
   const variants: ProductionVariant[] = [
     { id: 'maximum', label: input.mode === 'maximize' && !input.batch ? 'Максимальный выпуск' : 'Компактный план', plan: maximum, result: emptyResult('timeout', 'Время расчёта истекло.') },
     { id: 'economy', label: 'Экономия энергии', plan: economy, result: emptyResult('timeout', 'Время расчёта истекло.') },
     { id: 'resources', label: 'Экономия редкого сырья', plan: resources, result: emptyResult('timeout', 'Время расчёта истекло.') },
+    { id: 'simple', label: 'Проще построить', plan: simple, result: emptyResult('timeout', 'Время расчёта истекло.') },
   ];
   try { parsePlan(input); }
   catch (error) {
@@ -24,21 +26,29 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   maximum.settings.outputSlack = 0;
   delete maximum.settings.smoothPowerExtraMachines;
   delete maximum.settings.resourcesFirst;
+  delete maximum.settings.recipesFirst;
   economy.settings.objective = 'smooth-power';
   economy.settings.outputSlack = input.mode === 'maximize' && !input.batch ? input.settings.variantOptions?.outputLoss ?? 10 : 0;
   economy.settings.smoothPowerExtraMachines = input.settings.variantOptions?.extraMachines ?? 0;
   delete economy.settings.resourcesFirst;
+  delete economy.settings.recipesFirst;
   resources.settings.objective = 'smooth-power';
   resources.settings.outputSlack = economy.settings.outputSlack;
   resources.settings.resourcesFirst = true;
   delete resources.settings.smoothPowerExtraMachines;
-  // Экономия энергии получает больше времени: у неё дополнительная цель и
-  // больший выбор числа машин. Неиспользованное время предыдущих решений
+  delete resources.settings.recipesFirst;
+  simple.settings.objective = 'smooth-power';
+  simple.settings.outputSlack = economy.settings.outputSlack;
+  simple.settings.recipesFirst = { extraPercent: input.settings.variantOptions?.simplerExtraPercent ?? 10 };
+  delete simple.settings.smoothPowerExtraMachines;
+  delete simple.settings.resourcesFirst;
+  // Варианты решаются по очереди; неиспользованное время предыдущих
   // переходит следующим; ошибка одного варианта не стирает остальные.
   const start = performance.now(), span = Math.max(0, deadline - start);
-  variants[0].result = solve(catalog, maximum, highs, start + span * 0.3);
-  variants[1].result = solve(catalog, economy, highs, start + span * 0.7);
-  variants[2].result = solve(catalog, resources, highs, deadline);
+  variants[0].result = solve(catalog, maximum, highs, start + span * 0.25);
+  variants[1].result = solve(catalog, economy, highs, start + span * 0.5);
+  variants[2].result = solve(catalog, resources, highs, start + span * 0.75);
+  variants[3].result = solve(catalog, simple, highs, deadline);
   for (const [index, variant] of variants.entries()) {
     variant.sameAs = variants.slice(0, index).find(other => !other.sameAs && equivalentResults(other.result, variant.result))?.id;
   }

@@ -3,6 +3,7 @@ import { createHighs } from '../packages/solver/highs';
 import { solve } from '../packages/solver/solve';
 import { validateResult } from '../packages/solver/validate';
 import { analyze } from '../packages/solver/analysis';
+import { solveVariants } from '../packages/solver/variants';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import { buildComplexity } from '../packages/domain/complexity';
 import type { Catalog, Plan } from '../packages/domain/types';
@@ -100,5 +101,41 @@ describe('цель recipesFirst', () => {
     plan.settings.recipesFirst = { extraPercent: 10 };
     const report = analyze(fixture, plan, highs, { kind: 'alternates' });
     expect(report.baselineSummary?.distinctRecipes).toBe(1);
+  });
+});
+
+describe('вариант «Проще построить»', () => {
+  it('четвёртая карточка уменьшает число рецептов и сохраняет заказ', () => {
+    const { fixture, plan } = simpleFixture();
+    const report = solveVariants(fixture, plan, highs);
+    expect(report.variants.map(v => v.id)).toEqual(['maximum', 'economy', 'resources', 'simple']);
+    const simple = report.variants[3];
+    expect(simple.label).toBe('Проще построить');
+    expect(simple.plan.settings.recipesFirst).toEqual({ extraPercent: 10 });
+    expect(simple.plan.settings.outputSlack).toBe(0);
+    expect(simple.result.steps.map(s => s.recipeId)).toEqual(['direct']);
+    expect(simple.sameAs).toBeUndefined();
+    expect(report.equivalent).toBe(false);
+    expect(validateResult(fixture, simple.plan, simple.result).errors).toEqual([]);
+  });
+  it('берёт процент из настроек и потерю выпуска как у экономичных вариантов', () => {
+    const { fixture, plan } = simpleFixture();
+    plan.mode = 'maximize'; plan.sources[0].limit = 30;
+    plan.settings.variantOptions = { outputLoss: 20, extraMachines: 0, simplerExtraPercent: 0 };
+    const simple = solveVariants(fixture, plan, highs).variants[3];
+    expect(simple.plan.settings.recipesFirst).toEqual({ extraPercent: 0 });
+    expect(simple.plan.settings.outputSlack).toBe(20);
+  });
+  it('план с принятым recipesFirst снова даёт четыре допустимых варианта', () => {
+    const { fixture, plan } = simpleFixture();
+    const accepted = solveVariants(fixture, plan, highs).variants[3].plan;
+    const next = solveVariants(fixture, accepted, highs);
+    for (const variant of next.variants) {
+      expect(variant.result.status, variant.result.message).toBe('approximate');
+      expect(validateResult(fixture, variant.plan, variant.result).errors).toEqual([]);
+    }
+    expect(next.variants[0].plan.settings.recipesFirst).toBeUndefined();
+    expect(next.variants[1].plan.settings.recipesFirst).toBeUndefined();
+    expect(next.variants[2].plan.settings.recipesFirst).toBeUndefined();
   });
 });
