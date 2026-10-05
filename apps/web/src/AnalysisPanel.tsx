@@ -4,6 +4,7 @@ import { hasSolution } from '../../../packages/domain/types';
 import { constraintCandidates, type AnalysisReport, type AnalysisVariant, type Benefit, type Delta, type Summary } from '../../../packages/solver/analysis';
 import { format, unit } from './controls';
 import { useAnalysis } from './useAnalysis';
+import { sourceLabel } from '../../../packages/domain/sourceLabel';
 
 const statusLabels: Record<Result['status'], string> = { optimal: 'Оптимум подтверждён', approximate: 'Допустимое приближение', infeasible: 'Невыполнимо', unbounded: 'Выпуск не ограничен', timeout: 'Время истекло', error: 'Ошибка' };
 const benefitLabels: Record<Benefit, string> = { output: 'Подтверждён рост выпуска', feasibility: 'Заказ стал выполнимым', 'reachable-output': 'Подтверждён рост достижимой доли', cost: 'Подтверждена экономия по текущему порядку целей', none: 'Улучшения не обнаружено', unknown: 'Польза не установлена' };
@@ -32,15 +33,15 @@ export function AnalysisPanel({ catalog, plan }: { catalog: Catalog; plan: Plan 
       {!candidates.length && <p>Нет конечных источников, лимитов или выключенных технологий для таких проверок.</p>}
       <button className="secondary-button" disabled={analysis.running || !selected.length || !plan.targets.length} onClick={() => analysis.calculate({ kind: 'constraints', candidateIds: selected })}>Проверить выбранные изменения</button>
     </details>
-    <AnalysisFeedback analysis={analysis} catalog={catalog} />
+    <AnalysisFeedback analysis={analysis} catalog={catalog} plan={plan} />
   </details>;
 }
-export function AnalysisFeedback({ analysis, catalog }: { analysis: ReturnType<typeof useAnalysis>; catalog: Catalog }) {
+export function AnalysisFeedback({ analysis, catalog, plan }: { analysis: ReturnType<typeof useAnalysis>; catalog: Catalog; plan: Plan }) {
   return <div>
     <p className="sr-only" role="status">{analysis.running ? 'Пересчитываем варианты…' : analysis.report ? 'Сравнение вариантов завершено.' : ''}</p>
     {analysis.running && <p>Пересчитываем варианты… <button className="secondary-button" onClick={analysis.cancel}>Отменить анализ</button></p>}
     {analysis.error && <p role="alert">{analysis.error}</p>}
-    {analysis.report && <AnalysisReportView catalog={catalog} report={analysis.report} />}
+    {analysis.report && <AnalysisReportView catalog={catalog} plan={plan} report={analysis.report} />}
   </div>;
 }
 function SummaryTable({ summary }: { summary: Summary }) {
@@ -53,11 +54,11 @@ function SummaryTable({ summary }: { summary: Summary }) {
     <tr><th scope="row">Производство / добыча / Sink</th><td>{summary.physical.production} / {summary.physical.extraction} / {summary.physical.sinks}</td></tr>
   </tbody></table></div>;
 }
-function ResultFlows({ catalog, result }: { catalog: Catalog; result: Result }) {
+function ResultFlows({ catalog, plan, result }: { catalog: Catalog; plan: Plan; result: Result }) {
   return <>
     {hasSolution(result) && <div className="table-scroll"><table><caption>Выпуск и источники</caption><thead><tr><th>Поток</th><th>Количество</th></tr></thead><tbody>
       {result.products.map(p => <tr key={`product:${p.itemId}`}><th scope="row">Выпуск: {catalog.items.find(i => i.id === p.itemId)?.name ?? p.itemId}</th><td>{format(p.rate, 3)} {unit(catalog.items.find(i => i.id === p.itemId))}</td></tr>)}
-      {result.resources.map(r => <tr key={`source:${r.sourceId}`}><th scope="row">{catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId} · {r.sourceId}</th><td>{format(r.rate, 3)} {unit(catalog.items.find(i => i.id === r.itemId))}</td></tr>)}
+      {result.resources.map(r => <tr key={`source:${r.sourceId}`}><th scope="row">{sourceLabel(catalog, plan, r.sourceId, r.itemId)}</th><td>{format(r.rate, 3)} {unit(catalog.items.find(i => i.id === r.itemId))}</td></tr>)}
       {result.surplus.map(r => <tr key={`sink:${r.itemId}`}><th scope="row">В Sink: {catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId}</th><td>{format(r.rate, 3)} {unit(catalog.items.find(i => i.id === r.itemId))}</td></tr>)}
     </tbody></table></div>}
     {result.feasibleAlternative && <div className="feasible-alternative"><p>Достижимо {format(result.feasibleAlternative.fraction * 100)}% заказа. Исходный заказ остаётся невыполнимым.</p>
@@ -70,7 +71,7 @@ function ResultFlows({ catalog, result }: { catalog: Catalog; result: Result }) 
 function ChangeRow({ label, value }: { label: string; value: Delta }) {
   return <tr><th scope="row">{label}</th><td>{format(value.before, 3)}</td><td>{format(value.after, 3)}</td><td>{signed(value.delta)}</td></tr>;
 }
-function Variant({ catalog, variant, kind }: { catalog: Catalog; variant: AnalysisVariant; kind: AnalysisReport['kind'] }) {
+function Variant({ catalog, plan, variant, kind }: { catalog: Catalog; plan: Plan; variant: AnalysisVariant; kind: AnalysisReport['kind'] }) {
   const c = variant.comparison;
   return <details className="panel" open><summary>{variant.label} · {statusLabels[variant.result.status]}</summary>
     {kind !== 'objectives' && <p>{benefitLabels[variant.benefit]}</p>}
@@ -80,22 +81,22 @@ function Variant({ catalog, variant, kind }: { catalog: Catalog; variant: Analys
         <ChangeRow label="Средняя мощность, МВт" value={c.power} /><ChangeRow label="Максимальная нагрузка, МВт" value={c.installedPower} /><ChangeRow label="Незагруженная мощность производств, МВт" value={c.productionIdlePower} /><ChangeRow label="Условная стоимость сырья" value={c.resourceCost} />
         <ChangeRow label="Все физические здания" value={c.physical.total} /><ChangeRow label="Производственные здания" value={c.physical.production} /><ChangeRow label="Добытчики" value={c.physical.extraction} /><ChangeRow label="Утилизаторы" value={c.physical.sinks} />
         {c.outputs.map(r => <ChangeRow key={r.id} label={`Выпуск: ${catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId}, ${unit(catalog.items.find(i => i.id === r.itemId))}`} value={r} />)}
-        {c.sources.map(r => <ChangeRow key={r.id} label={`Источник: ${catalog.items.find(i => i.id === r.itemId)?.name ?? r.itemId} · ${r.id}, ${unit(catalog.items.find(i => i.id === r.itemId))}`} value={r} />)}
+        {c.sources.map(r => <ChangeRow key={r.id} label={`Источник: ${sourceLabel(catalog, plan, r.id, r.itemId)}, ${unit(catalog.items.find(i => i.id === r.itemId))}`} value={r} />)}
       </tbody></table></div>
       <div className="table-scroll"><table><caption>Изменённые рецепты</caption><thead><tr><th>Рецепт</th><th>Циклы/мин: до → после</th><th>Машины: до → после</th></tr></thead><tbody>
         {c.recipes.map(r => <tr key={r.id}><th scope="row">{catalog.recipes.find(recipe => recipe.id === r.id)?.name ?? r.id}</th><td>{format(r.cycles.before, 3)} → {format(r.cycles.after, 3)}</td><td>{r.machines.before} → {r.machines.after}</td></tr>)}
         {!c.recipes.length && <tr><td colSpan={3}>Производственная цепочка не изменилась.</td></tr>}
       </tbody></table></div>
-      <ResultFlows catalog={catalog} result={variant.result} />
-    </> : <>{variant.summary && <SummaryTable summary={variant.summary} />}<ResultFlows catalog={catalog} result={variant.result} /></>}
+      <ResultFlows catalog={catalog} plan={plan} result={variant.result} />
+    </> : <>{variant.summary && <SummaryTable summary={variant.summary} />}<ResultFlows catalog={catalog} plan={plan} result={variant.result} /></>}
   </details>;
 }
-export function AnalysisReportView({ catalog, report }: { catalog: Catalog; report: AnalysisReport }) {
+export function AnalysisReportView({ catalog, plan, report }: { catalog: Catalog; plan: Plan; report: AnalysisReport }) {
   return <section aria-label="Результаты анализа">
     <h3>{report.complete ? 'Результаты сравнения' : 'Частичные результаты сравнения'}</h3>
     {report.noProductionPath && <div className="empty-panel"><h3>Нет производственного пути при текущих ограничениях</h3><p>Расчёт подтвердил нулевой выпуск. Проверяйте источники, мощность, доступность рецептов и зданий, вывод побочных продуктов. Положительный выпуск после изменения ещё нужно подтвердить.</p></div>}
-    <details><summary>Исходный план · {statusLabels[report.baseline.status]}</summary>{report.baselineSummary && <SummaryTable summary={report.baselineSummary} />}<ResultFlows catalog={catalog} result={report.baseline} /></details>
-    {report.variants.map(v => <Variant key={v.id} catalog={catalog} variant={v} kind={report.kind} />)}
+    <details><summary>Исходный план · {statusLabels[report.baseline.status]}</summary>{report.baselineSummary && <SummaryTable summary={report.baselineSummary} />}<ResultFlows catalog={catalog} plan={plan} result={report.baseline} /></details>
+    {report.variants.map(v => <Variant key={v.id} catalog={catalog} plan={plan} variant={v} kind={report.kind} />)}
     <ul>{report.notes.map((note, i) => <li key={i}>{note}</li>)}</ul>
   </section>;
 }

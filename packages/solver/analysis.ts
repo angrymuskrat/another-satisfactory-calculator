@@ -4,6 +4,7 @@ import { effectivePlan } from '../domain/availability';
 import { emptyResult, solve } from './solve';
 import { applyBatch } from '../domain/batch';
 import { buildConstruction } from '../domain/construction';
+import { sourceLabel } from '../domain/sourceLabel';
 
 export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] } | { kind: 'alternates' };
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
@@ -57,7 +58,7 @@ export function alternateCandidates(catalog: Catalog, input: Plan, baseline: Res
 export function constraintCandidates(catalog: Catalog, plan: Plan): ConstraintCandidate[] {
   const candidates: ConstraintCandidate[] = [];
   for (const source of plan.sources) {
-    const label = `${catalog.items.find(i => i.id === source.itemId)?.name ?? source.itemId} · ${source.name || source.id}`;
+    const label = sourceLabel(catalog, plan, source.id, source.itemId);
     if (source.limit !== null && source.limit < 1e9) {
       const value = increasedLimit(source.limit, 60);
       candidates.push({ id: `source-limit:${source.id}`, label: `${label}: лимит ${source.limit} → ${value} ${catalog.items.find(i => i.id === source.itemId)?.fluid ? 'м³/мин' : 'шт/мин'}`, change: { kind: 'source-limit', id: source.id, value } });

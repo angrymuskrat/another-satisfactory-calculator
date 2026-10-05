@@ -7,7 +7,7 @@ test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' }
 test('расчёт, русский поиск, политики и невыполнимый заказ', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('complementary', { name: 'Активные ограничения' })).toContainText('здания → энергия с подбором частот');
-  await expect(page.getByRole('heading', { name: 'Спланируйте следующую фабрику' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Цели и ограничения', level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Допустимое приближение', { exact: true })).toBeVisible({ timeout: 30_000 });

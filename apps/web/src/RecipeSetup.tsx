@@ -16,7 +16,6 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
   const signature = JSON.stringify(plan.world?.unlockedMilestoneIds ?? plan.recipeProgress?.unlockIds ?? []);
   const [ids, setIds] = useState<string[]>([]);
   const [section, setSection] = useState<'hub' | 'mam'>('hub');
-  const [tier, setTier] = useState(0);
   const [alternatives, setAlternatives] = useState<AlternativeMode>('keep');
   const [preview, setPreview] = useState<Setup | null>(null);
   const [error, setError] = useState('');
@@ -109,9 +108,6 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
         <button type="button" className="secondary-button" aria-pressed={section === 'mam'} onClick={() => setSection('mam')}>Исследования MAM</button>
         <button type="button" className="text-button" onClick={() => { setIds([]); setPreview(null); }}>Снять весь выбор</button></div>
       {section === 'hub' ? <>
-        <div className="setup-controls"><label>Всё до уровня HUB<select value={tier} onChange={e => { setTier(Number(e.target.value)); setPreview(null); }}>{tiers.map(t => <option key={t} value={t}>{t}</option>)}</select></label>
-          <button type="button" className="secondary-button" onClick={() => { setIds(current => [...current.filter(id => !hubs.some(u => u.id === id)), ...hubs.filter(u => (u.tier ?? 0) <= tier).map(u => u.id)]); setPreview(null); }}>Выбрать всё до уровня {tier}</button></div>
-        <p className="hint">Эта кнопка заменяет выбор HUB до указанного уровня. Выбор MAM сохраняется. Можно снять незавершённые этапы ниже.</p>
         <HubBoard hubs={hubs} phases={phases} selected={ids} change={change} />
       </> : <>
         <p className="hint">MAM независим от HUB. Можно отметить позднее исследование после находок в обломках. Предки автоматически не отмечаются. Внешние события и неизвестные связи не считаются выполненными.</p>

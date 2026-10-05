@@ -1,5 +1,6 @@
 import type { Catalog, Ingredient, Plan, ProductResult, Result } from './types';
 import { effectivePlan } from './availability';
+import { sourceLabel } from './sourceLabel';
 import { balancedClock, canOptimizeClock, productionConfigurations, wellConfiguration } from './production';
 import mechanics from '../game-data/p2-mechanics.json';
 
@@ -69,21 +70,27 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   });
   const extraction: ConstructionGroup[] = [];
   const externalSources: { sourceId: string; name: string; itemId: string; rate: number; power: number | null }[] = [];
+  // Отметки строительства привязаны к прежним техническим именам; подпись для пользователя их не меняет.
+  const legacyNames = new Map<string, string>();
   for (const resource of result.resources) {
     if (!(resource.rate > 0)) continue;
     const source = plan.sources.find(s => s.id === resource.sourceId);
     const item = catalog.items.find(i => i.id === resource.itemId);
-    const name = source?.name?.trim() || `${item?.name ?? resource.itemId} · ${resource.sourceId}`;
+    const itemName = item?.name ?? resource.itemId;
+    const legacyName = source?.name?.trim() || `${itemName} · ${resource.sourceId}`;
+    const name = sourceLabel(catalog, plan, resource.sourceId, resource.itemId);
     if (!source || source.kind === 'flow') {
       externalSources.push({ sourceId: resource.sourceId, name, itemId: resource.itemId, rate: resource.rate, power: source?.importPower == null ? null : source.importPower * resource.rate }); continue;
     }
     if (source.kind === 'well') {
       const well = wellConfiguration(catalog, plan, source);
+      legacyNames.set(`source:${source.id}`, `${legacyName} · компенсатор`);
       extraction.push({ id: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-pressurizer', name: `${name} · компенсатор`, count: 1, clock: source.clock,
         activeDuty: 1, activeInputs: [], activeOutputs: [], averageInputs: [], averageOutputs: [], activePower: well.power, averagePower: well.power, peakPower: well.power, powerEstimated: false });
       for (const [i, satellite] of source.well!.satellites.entries()) {
         const nominal = 60 * satellite.purity * source.clock / 100;
         const rate = resource.rate * satellite.count * Math.min(pipe.rate, nominal) / well.capacity;
+        legacyNames.set(`satellites:${source.id}:${i}`, `${legacyName} · спутники ×${satellite.purity}`);
         extraction.push({ id: `satellites:${source.id}:${i}`, controllerId: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-extractor', name: `${name} · спутники ×${satellite.purity}`, count: satellite.count, clock: source.clock,
           activeDuty: rate / (satellite.count * nominal), activeInputs: [], activeOutputs: [{ itemId: source.itemId, rate: nominal }], averageInputs: [], averageOutputs: [{ itemId: source.itemId, rate }], activePower: 0, averagePower: 0, peakPower: 0, powerEstimated: false });
       }
@@ -96,6 +103,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     const count = resource.installedMachines ?? physicalCount(resource.rate / capacity);
     if (!Number.isInteger(count) || count <= 0 || !(nominal > 0)) throw new Error(`Некорректная конфигурация источника ${name}.`);
     const activePower = miner.power * clock ** exponent;
+    legacyNames.set(`source:${source.id}`, legacyName);
     extraction.push({ id: `source:${source.id}`, kind: 'extraction', buildingId: miner.id, name, count, clock: source.clock,
       activeDuty: resource.rate / (count * nominal), activeInputs: [], activeOutputs: [{ itemId: resource.itemId, rate: nominal }],
       averageInputs: [], averageOutputs: [{ itemId: resource.itemId, rate: resource.rate }], activePower,
@@ -122,7 +130,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
   const importPower = externalSources.reduce((s, e) => s + (e.power ?? 0), 0);
   // Exact canonical configuration, no hash collisions. Persist as a value, not a storage key.
   // Derived schematic links must not invalidate existing construction checkmarks.
-  const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups: groups.map(({ controllerId, ...group }) => group), materials }));
+  const fingerprint = JSON.stringify(canonical({ plan: input, catalogVersion: catalog.version, groups: groups.map(({ controllerId, ...group }) => ({ ...group, name: legacyNames.get(group.id) ?? group.name })), materials }));
   return { production, extraction, sinks, externalSources, materials, addedMaterials, fingerprint, transport: { belt, pipe },
     productionIdlePower: production.reduce((s, g) => s + Math.max(0, g.count * g.activePower - g.averagePower), 0),
     productionPower: production.reduce((s, g) => s + g.averagePower, 0), extractionPower: extraction.reduce((s, g) => s + g.averagePower, 0) + importPower,
