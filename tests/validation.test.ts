@@ -1,5 +1,10 @@
-import { expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { parsePlan } from '../packages/domain/validation';
+import { createDefaultPlan } from '../packages/domain/defaults';
+import gameCatalog from '../packages/game-data/catalog.json';
+import type { Catalog } from '../packages/domain/types';
+
+const catalog = gameCatalog as Catalog;
 const valid = () => ({ schemaVersion: 1, catalogVersion: 'fixture', name: 'План', mode: 'maximize', policy: 'proportional', targets: [{ itemId: 'iron-plate', rate: 1, weight: 1, scale: 1 }], sources: [], settings: { enabledRecipeIds: [], enabledBuildingIds: [], beltId: 'belt1', pipeId: 'pipe1', clock: 100, resourcePolicy: 'listed-only', objective: 'power', powerLimit: null, outputSlack: 0, allowSink: false, resourceWeights: {} } });
 it('accepts valid plans and rejects corrupted imported plans', () => {
   expect(parsePlan(valid()).name).toBe('План');
@@ -25,4 +30,23 @@ it('сохраняет старый план и валидирует грани�
   for (const fields of [{ peakPowerLimit: -1 }, { powerReserve: -1 }, { buildingLimits: { constructor: 1.5 } }]) {
     expect(() => parsePlan({ ...p1, settings: { ...p1.settings, ...fields } })).toThrow();
   }
+});
+
+describe('настройки варианта «Проще построить»', () => {
+  it('принимает процент и флаг решателя, отклоняет сочетание флагов', () => {
+    const plan = createDefaultPlan(catalog);
+    plan.settings.variantOptions = { outputLoss: 10, extraMachines: 0, simplerExtraPercent: 25 };
+    plan.settings.recipesFirst = { extraPercent: 25 };
+    expect(() => parsePlan(plan)).not.toThrow();
+    expect(() => parsePlan({ ...plan, settings: { ...plan.settings, resourcesFirst: true } })).toThrow();
+    expect(() => parsePlan({ ...plan, settings: { ...plan.settings, smoothPowerExtraMachines: 0 } })).toThrow();
+    expect(() => parsePlan({ ...plan, settings: { ...plan.settings, recipesFirst: { extraPercent: 1001 } } })).toThrow();
+    expect(() => parsePlan({ ...plan, settings: { ...plan.settings, recipesFirst: { extraPercent: 1.5 } } })).toThrow();
+    expect(() => parsePlan({ ...plan, settings: { ...plan.settings, variantOptions: { outputLoss: 10, extraMachines: 0, simplerExtraPercent: -1 } } })).toThrow();
+  });
+  it('старый план без новых полей остаётся валидным', () => {
+    const plan = createDefaultPlan(catalog);
+    plan.settings.variantOptions = { outputLoss: 10, extraMachines: 0 };
+    expect(parsePlan(plan).settings.recipesFirst).toBeUndefined();
+  });
 });
