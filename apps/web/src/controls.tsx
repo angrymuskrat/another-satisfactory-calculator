@@ -5,6 +5,10 @@ import type { Item } from '../../../packages/domain/types';
 export const normalize = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е');
 export const format = (value: number, digits = 2) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: digits }).format(value);
 export const unit = (item?: Item) => item?.fluid ? 'м³/мин' : 'шт/мин';
+export function downloadJson(raw: string, name: string) {
+  const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+  const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
+}
 export function ItemIcon({ item, size = 32 }: { item?: { icon?: string; name: string }; size?: number }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [item?.icon]);

@@ -5,13 +5,15 @@ import { emptyResult, solve } from './solve';
 
 export type { ProductionVariant, ProductionVariants } from '../domain/types';
 
-/** Оба решения используют исходные ограничения; бюджет машин не меняет максимум выпуска. */
+/** Все решения используют исходные ограничения; бюджет машин и порядок затрат не меняют максимум выпуска. */
 export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000): ProductionVariants {
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
+  const resources = structuredClone(input);
   const variants: ProductionVariant[] = [
     { id: 'maximum', label: input.mode === 'maximize' && !input.batch ? 'Максимальный выпуск' : 'Компактный план', plan: maximum, result: emptyResult('timeout', 'Время расчёта истекло.') },
     { id: 'economy', label: 'Экономия энергии', plan: economy, result: emptyResult('timeout', 'Время расчёта истекло.') },
+    { id: 'resources', label: 'Экономия редкого сырья', plan: resources, result: emptyResult('timeout', 'Время расчёта истекло.') },
   ];
   try { parsePlan(input); }
   catch (error) {
@@ -21,16 +23,26 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   maximum.settings.objective = 'smooth-power';
   maximum.settings.outputSlack = 0;
   delete maximum.settings.smoothPowerExtraMachines;
+  delete maximum.settings.resourcesFirst;
   economy.settings.objective = 'smooth-power';
   economy.settings.outputSlack = input.mode === 'maximize' && !input.batch ? input.settings.variantOptions?.outputLoss ?? 10 : 0;
   economy.settings.smoothPowerExtraMachines = input.settings.variantOptions?.extraMachines ?? 0;
-  // Оставляем экономичному варианту больше половины общего времени: у него
-  // дополнительная цель и больший выбор числа машин. Неиспользованное время
-  // первого решения доступно второму; его ошибка не стирает первый результат.
-  const start = performance.now();
-  variants[0].result = solve(catalog, maximum, highs, start + Math.max(0, deadline - start) * 0.45);
-  variants[1].result = solve(catalog, economy, highs, deadline);
-  return { variants, equivalent: equivalentResults(variants[0].result, variants[1].result) };
+  delete economy.settings.resourcesFirst;
+  resources.settings.objective = 'smooth-power';
+  resources.settings.outputSlack = economy.settings.outputSlack;
+  resources.settings.resourcesFirst = true;
+  delete resources.settings.smoothPowerExtraMachines;
+  // Экономия энергии получает больше времени: у неё дополнительная цель и
+  // больший выбор числа машин. Неиспользованное время предыдущих решений
+  // переходит следующим; ошибка одного варианта не стирает остальные.
+  const start = performance.now(), span = Math.max(0, deadline - start);
+  variants[0].result = solve(catalog, maximum, highs, start + span * 0.3);
+  variants[1].result = solve(catalog, economy, highs, start + span * 0.7);
+  variants[2].result = solve(catalog, resources, highs, deadline);
+  for (const [index, variant] of variants.entries()) {
+    variant.sameAs = variants.slice(0, index).find(other => !other.sameAs && equivalentResults(other.result, variant.result))?.id;
+  }
+  return { variants, equivalent: variants.slice(1).every(v => v.sameAs === 'maximum') };
 }
 
 function equivalentResults(a: Result, b: Result): boolean {

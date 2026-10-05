@@ -1,4 +1,5 @@
 import type { Catalog, Plan } from './types';
+import { scarcityWeights } from './mapResources';
 export function createDefaultPlan(catalog: Catalog): Plan {
   const target = catalog.items.find(i => i.id === 'reinforced-iron-plate') ?? catalog.items.find(i => !i.raw) ?? catalog.items[0];
   const ore = catalog.items.find(i => i.id === 'iron-ore') ?? catalog.items.find(i => i.raw) ?? catalog.items[0];
@@ -10,7 +11,7 @@ export function createDefaultPlan(catalog: Catalog): Plan {
       enabledRecipeIds: catalog.recipes.filter(r => !r.alternate).map(r => r.id), enabledBuildingIds: catalog.buildings.map(b => b.id),
       beltId: catalog.belts.find(b => b.id === 'belt3')?.id ?? catalog.belts[0].id,
       pipeId: catalog.pipes[0].id, clock: 100, resourcePolicy: 'listed-only', objective: 'smooth-power', powerLimit: null,
-      outputSlack: 0, allowSink: false, resourceWeights: {},
+      outputSlack: 0, allowSink: false, resourceWeights: scarcityWeights(catalog),
     },
   };
 }

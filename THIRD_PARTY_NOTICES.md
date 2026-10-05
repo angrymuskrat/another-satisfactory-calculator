@@ -38,6 +38,12 @@ SHA256, дата и происхождение хранятся в `packages/gam
 из Official Satisfactory Wiki, 2026-09-06. Сохранены только механические факты
 и ссылки в `packages/game-data/source/power-evidence.json`; тексты статей не копировались.
 
+Количества узлов ресурсов и спутников скважин по чистоте взяты из страниц
+[Resource node](https://satisfactory.wiki.gg/wiki/Resource_node) и
+[Resource Well](https://satisfactory.wiki.gg/wiki/Resource_Well) Official
+Satisfactory Wiki, прочитаны 2026-10-03. Сохранены только числовые факты и
+ссылки в `packages/game-data/source/map-resources.json`; тексты не копировались.
+
 ## Решатель
 
 Используется HiGHS через `highs-js` 1.15.2 (MIT),

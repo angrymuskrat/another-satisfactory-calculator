@@ -105,7 +105,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,.item-select-tri
 @media(max-width:600px){.recipe-setup fieldset,.setup-preview{padding:10px}.setup-actions{align-items:stretch}.setup-actions>button{flex:1 1 160px}.recipe-setup details{padding-left:8px}.recipe-setup select{font-size:var(--text-sm)}.catalog-toolbar{grid-template-columns:minmax(0,1fr)}.recipe-setup label{overflow-wrap:anywhere}}
 .variant-title { margin: 12px 0 20px; }
 .variant-title:focus { outline: none; }
-.variant-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:var(--space-5); align-items: start; }
+.variant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:var(--space-5); align-items: start; }
 .variant-card { min-width: 0; }
 .variant-card h3 { margin: 16px 0 8px; }
 .variant-card > .primary-button { width: 100%; margin-top: 20px; }
@@ -116,6 +116,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,.item-select-tri
 .variant-metrics small { display: block; margin-top: 4px; font-size:var(--text-sm); color: var(--text-muted, #a4aab4); }
 .variant-settings h2 { margin-top: 0; }
 @media (max-width: 850px) { .variant-grid { grid-template-columns: minmax(0, 1fr); } }
+.weights-grid .field-label small{display:block;font-weight:400;color:#8e9ca6;margin-top:2px}
 /* Быстрая настройка: уровни HUB слева направо и дерево MAM по клеткам assets. */
 .hub-board,.mam-canvas{display:flex;gap:var(--space-4);overflow-x:auto;min-width:0;max-width:100%;padding:4px 2px 14px;margin:14px 0;overscroll-behavior-x:contain;scrollbar-color:var(--border-strong) transparent}
 .hub-phase{flex:none;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface-sunken)}

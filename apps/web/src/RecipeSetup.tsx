@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateActio
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { applyRecipeSetup, prepareRecipeSetup, prepareDiskSetup, prepareWorkspaceRecipeSetup, unlockOrigin, type AlternativeMode, type RecipeSetup as Setup, type SetupOperation } from '../../../packages/domain/recipeProgress';
 import { phaseForTier } from '../../../packages/domain/research';
+import { exportRecipeSettings, parseRecipeSettings, prepareRecipeSettingsImport } from '../../../packages/domain/recipeSettingsFile';
+import { downloadJson } from './controls';
 import type { useWorldWorkspace } from './useWorldWorkspace';
 import { HubBoard, MamBoard, type HubPhase } from './ProgressBoard';
 
@@ -22,6 +24,8 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
   const previewRegion = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const inFlight = useRef(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const importButton = useRef<HTMLButtonElement>(null);
   const world = store.workspace.worlds.find(w => w.id === plan.world?.id);
   const workspaceSignature = JSON.stringify(store.workspace);
   const previewWorkspace = useRef('');
@@ -39,13 +43,30 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
     entry.tiers.push(t);
     return map.set(id, entry);
   }, new Map<string, HubPhase>()).values()];
-  const prepare = (operation: SetupOperation, button: HTMLButtonElement, disksOnly = false) => {
+  const preparePreview = (build: () => Setup, button: HTMLButtonElement | null) => {
     setError(''); setMessage(''); trigger.current = button;
     try {
-      const next = disksOnly ? prepareDiskSetup(catalog, plan, ids) : prepareRecipeSetup(catalog, plan, ids, operation, alternatives);
+      const next = build();
       if (world) prepareWorkspaceRecipeSetup(store.workspace, plan, next, activeFactoryId);
       previewWorkspace.current = workspaceSignature; setPreview(next);
     } catch (e) { setError(e instanceof Error ? e.message : 'Не удалось подготовить настройку.'); }
+  };
+  const prepare = (operation: SetupOperation, button: HTMLButtonElement, disksOnly = false) =>
+    preparePreview(() => disksOnly ? prepareDiskSetup(catalog, plan, ids) : prepareRecipeSetup(catalog, plan, ids, operation, alternatives), button);
+  const exportFile = () => {
+    const name = plan.name.replace(/[^\p{L}\p{N}_-]/gu, '-').slice(0, 60) || 'factory';
+    downloadJson(JSON.stringify(exportRecipeSettings(catalog, plan), null, 2), `${name}-recipes.json`);
+    setError(''); setMessage('Файл настройки рецептов сохранён.');
+  };
+  const importFile = async (file?: File) => {
+    if (fileInput.current) fileInput.current.value = '';
+    if (!file) return;
+    let value: unknown;
+    try {
+      if (file.size > 2_000_000) throw new Error('Файл слишком большой. Максимум 2 МБ.');
+      value = JSON.parse(await file.text());
+    } catch (e) { setMessage(''); setError(e instanceof SyntaxError ? 'Файл не является корректным JSON.' : e instanceof Error ? e.message : 'Не удалось прочитать файл.'); return; }
+    preparePreview(() => prepareRecipeSettingsImport(catalog, plan, parseRecipeSettings(value, catalog)), importButton.current);
   };
   const stale = !!preview && (JSON.stringify(plan) !== JSON.stringify(preview.before) || previewWorkspace.current !== workspaceSignature);
   const apply = async () => {
@@ -61,7 +82,7 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
       // Асинхронное сохранение мира не должно перезаписать новый план/заказ пользователя.
       setPlan(current => JSON.stringify(current) === JSON.stringify(preview.before) ? next
         : current.world?.id === next.world?.id && next.world ? { ...current, world: next.world } : current);
-      setPreview(null); setMessage(world ? 'Настройка сохранена в мире. Локальные запреты других фабрик сохранены.' : 'Настройка применена к текущему плану.');
+      setPreview(null); setMessage(preview.importedFrom ? (world ? 'Настройка из файла сохранена в мире. Локальные запреты других фабрик сохранены.' : 'Настройка из файла применена к текущему плану.') : world ? 'Настройка сохранена в мире. Локальные запреты других фабрик сохранены.' : 'Настройка применена к текущему плану.');
       trigger.current?.focus();
     } catch (e) { setError(e instanceof Error ? e.message : 'Не удалось применить настройку.'); }
     finally { inFlight.current = false; setSaving(false); }
@@ -79,6 +100,10 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
     <p className="hint">{world ? `Общий мир «${world.name}». Просмотр покажет изменения для связанных фабрик.` : plan.world ? 'Изменяется только снимок мира этого плана: общего мира в текущем рабочем пространстве нет.' : 'Изменяется текущий план. Выбор этапов сохранится вместе с ним.'}</p>
     <fieldset disabled={saving || store.busy || !store.ready}>
       <legend>Выбор прогресса · отмечено {ids.length}</legend>
+      <div className="setup-actions"><button type="button" className="secondary-button" onClick={exportFile}>Экспорт настройки в файл</button>
+        <button type="button" className="secondary-button" ref={importButton} onClick={() => fileInput.current?.click()}>Импорт настройки из файла</button>
+        <input hidden ref={fileInput} type="file" accept=".json,application/json" aria-label="Файл настройки рецептов JSON" onChange={e => void importFile(e.target.files?.[0])} /></div>
+      <p className="hint">Файл содержит применённую настройку: отмеченные этапы HUB и исследования MAM, включённые рецепты (в том числе альтернативные), доступные здания, транспорт, предел частоты и лимиты зданий. Неприменённый выбор этапов в файл не попадает. Импорт заменяет набор после просмотра; заказ, источники и энергетические лимиты сохраняются.</p>
       <div className="setup-actions"><button type="button" className="secondary-button" aria-pressed={section === 'hub'} onClick={() => setSection('hub')}>Фазы и этапы HUB</button>
         <button type="button" className="secondary-button" aria-pressed={section === 'mam'} onClick={() => setSection('mam')}>Исследования MAM</button>
         <button type="button" className="text-button" onClick={() => { setIds([]); setPreview(null); }}>Снять весь выбор</button></div>
@@ -99,7 +124,10 @@ export function RecipeSetup({ catalog, plan, setPlan, store, activeFactoryId }: 
       <p className="hint">Замена выключает остальные рецепты и заменяет доступное оборудование и транспорт по выбранным схемам. Добавление сохраняет текущий набор. Заказ, источники, частоты и энергетические лимиты сохраняются.</p>
     </fieldset>
     {preview && <section className="setup-preview" tabIndex={-1} ref={previewRegion} aria-label="Просмотр настройки рецептов">
-      <h2>{preview.operation === 'replace' ? 'Замена набора' : 'Добавление к текущему набору'}</h2>
+      <h2>{preview.importedFrom ? `Импорт настройки «${preview.importedFrom.name}»` : preview.operation === 'replace' ? 'Замена набора' : 'Добавление к текущему набору'}</h2>
+      {preview.importedFrom && <p>Отмечено этапов и исследований: {preview.plan.recipeProgress?.unlockIds.length ?? 0}. Предел частоты: {preview.plan.settings.clock}%. Лимитов зданий: {Object.keys(preview.plan.settings.buildingLimits ?? {}).length}.
+        {preview.importedFrom.catalogVersion !== catalog.version && ` Файл создан для каталога ${preview.importedFrom.catalogVersion}; все его идентификаторы найдены в текущем каталоге ${catalog.version}.`}</p>}
+      {preview.importedFrom && plan.world && <p className="hint">Включённые в файле рецепты и здания будут считаться открытыми в мире вместе с открытиями отмеченного прогресса.</p>}
       {diff(plan.settings.enabledRecipeIds, preview.plan.settings.enabledRecipeIds, recipeName, 'Рецепты текущей фабрики')}
       {diff(plan.settings.enabledBuildingIds, preview.plan.settings.enabledBuildingIds, buildingName, 'Здания текущей фабрики')}
       <p>Транспорт: {catalog.belts.find(t => t.id === preview.plan.settings.beltId)?.name}; {catalog.pipes.find(t => t.id === preview.plan.settings.pipeId)?.name}.</p>

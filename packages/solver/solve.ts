@@ -116,6 +116,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       machineBudget = { minimum, limit, used: 0 };
     }
     const costGoals = machineBudget ? [built.power, normalize(built.resources), built.machineCount]
+      : plan.settings.objective === 'smooth-power' && plan.settings.resourcesFirst ? [normalize(built.resources), built.machineCount, built.power]
       : plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
       : plan.settings.objective === 'power' ? [built.power, normalize(built.resources)] : [normalize(built.resources), built.power];
     const costLocks: { index: number; expression: Expression; optimum: number }[] = [];
@@ -233,7 +234,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.modelNotes = [];
     result.modelNotes.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
-    if (plan.settings.objective === 'smooth-power') result.modelNotes.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
+    if (plan.settings.objective === 'smooth-power') result.modelNotes.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : plan.settings.resourcesFirst ? 'После выпуска минимизируется взвешенное сырьё, затем число машин и энергия.' : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
     if (approximatePower) result.modelNotes.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
     if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
     if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');

@@ -6,7 +6,7 @@ import type { Catalog, Plan } from '../../../packages/domain/types';
 export type AnalysisResponse = { report: AnalysisReport } | { error: string };
 const highs = loadHighs({ locateFile: () => new URL('/solver/highs.wasm', self.location.origin).href });
 self.onmessage = async (event: MessageEvent<{ catalog: Catalog; plan: Plan; request: AnalysisRequest }>) => {
-  const deadline = performance.now() + 20000;
+  const deadline = performance.now() + (event.data.request.kind === 'alternates' ? 55000 : 20000);
   try {
     const { catalog, plan, request } = event.data;
     self.postMessage({ report: analyze(catalog, plan, await highs, request, deadline) } satisfies AnalysisResponse);
