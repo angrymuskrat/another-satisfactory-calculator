@@ -58,14 +58,26 @@ describe('цель recipesFirst', () => {
     expect(buildComplexity(plan, result).distinctRecipes).toBe(2);
     expect(validateResult(fixture, plan, result).errors).toEqual([]);
   });
-  it('засчитывает рецепт закреплённой линии и не становится невыполнимым', () => {
+  it('повторно использует рецепт закреплённой линии вместо новых стадий', () => {
     const { fixture, plan } = simpleFixture();
-    plan.lines = [{ id: 'old', name: 'Цех', recipeId: 'make-part', count: 1, clock: 100, somersloops: 0, duty: 0.5, locked: true }];
+    plan.lines = [{ id: 'old', name: 'Цех', recipeId: 'direct', count: 1, clock: 100, somersloops: 0, duty: 1, locked: true }];
     plan.expansion = 'add';
     plan.settings.recipesFirst = { extraPercent: 10 };
     const result = solve(fixture, plan, highs);
     expect(['approximate', 'optimal']).toContain(result.status);
-    expect(result.steps.some(s => s.recipeId === 'make-part')).toBe(true);
+    expect(result.steps.every(s => s.recipeId === 'direct')).toBe(true);
+    expect(buildComplexity(plan, result).distinctRecipes).toBe(1);
+    expect(result.machineBudget).toEqual({ minimum: 3, limit: 4, used: 3 });
+    expect(validateResult(fixture, plan, result).errors).toEqual([]);
+  });
+  it('при равном числе рецептов выбирает набор с меньшим числом машин', () => {
+    const { fixture, plan } = simpleFixture();
+    fixture.recipes.push({ id: 'direct-slow', name: 'Медленная', nameEn: 'Slow', category: 'Детали', buildingId: 'constructor', seconds: 12, alternate: false, inputs: [{ itemId: 'ore', amount: 1 }], outputs: [{ itemId: 'plate', amount: 1 }] });
+    plan.settings.recipesFirst = { extraPercent: 300 };
+    const result = solve(fixture, plan, highs);
+    expect(['approximate', 'optimal']).toContain(result.status);
+    expect(result.steps.map(s => s.recipeId)).toEqual(['direct']);
+    expect(result.machineBudget).toEqual({ minimum: 2, limit: 8, used: 3 });
     expect(validateResult(fixture, plan, result).errors).toEqual([]);
   });
   it('нулевой заказ даёт нулевой бюджет без ошибок', () => {

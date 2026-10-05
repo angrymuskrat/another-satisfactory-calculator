@@ -129,24 +129,17 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         recipes.set(r.recipe.id, entry);
       }
       const recipeCount: Expression = new Map();
-      const selections: { used: string; flows: string[] }[] = [];
       for (const { counts, flows } of recipes.values()) {
         const used = model.variable(1, true);
         model.constrain(new Map([...counts, [used, -machineBudget.limit]]), '<=', 0);
         recipeCount.set(used, 1);
-        selections.push({ used, flows });
         integerFlows.set(used, flows);
       }
-      if (selections.length) {
-        optimize(recipeCount);
-        for (const { used, flows } of selections) {
-          const selected = Math.round(values[used] ?? 0);
-          model.constrain(new Map([[used, 1]]), '=', selected);
-          if (selected === 0) {
-            model.variables.get(used)!.upper = 0;
-            for (const flow of flows) model.variables.get(flow)!.upper = 0;
-          }
-        }
+      if (recipeCount.size) {
+        // Lock only the minimal recipe count: machines, power and resources are then
+        // minimized across every recipe set tied at that count, not one arbitrary set.
+        const optimum = optimize(recipeCount);
+        model.constrain(recipeCount, '<=', Math.round(optimum));
       }
     }
     const costGoals = recipesFirst ? [built.machineCount, built.power, normalize(built.resources)]
@@ -164,10 +157,10 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       const optimum = optimize(built.machineCount);
       model.constrain(built.machineCount, '<=', Math.round(optimum));
     }
+    // Discrete tie-breaking needs room for propagated LP round-off. This changes
+    // only objective locks, never source/target/grid/building constraints.
+    for (const lock of costLocks) if (lock.expression !== built.machineCount) model.constraints[lock.index].rhs = lock.optimum + 10 * tolerance(lock.optimum);
     if (!recipesFirst) {
-      // Discrete tie-breaking needs room for propagated LP round-off. This changes
-      // only objective locks, never source/target/grid/building constraints.
-      for (const lock of costLocks) if (lock.expression !== built.machineCount) model.constraints[lock.index].rhs = lock.optimum + 10 * tolerance(lock.optimum);
       // Positive energy coefficients and the already locked energy budget provide
       // a proven upper bound; no arbitrary big-M restricts the solution space.
       const powerLock = costLocks.find(lock => lock.expression === built.power)!;
