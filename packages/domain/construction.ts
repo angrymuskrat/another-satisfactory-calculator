@@ -1,5 +1,6 @@
 import type { Catalog, Ingredient, Plan, ProductResult, Result } from './types';
 import { effectivePlan } from './availability';
+import { sourceLabel } from './sourceLabel';
 import { balancedClock, canOptimizeClock, productionConfigurations, wellConfiguration } from './production';
 import mechanics from '../game-data/p2-mechanics.json';
 
@@ -77,7 +78,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     const item = catalog.items.find(i => i.id === resource.itemId);
     const itemName = item?.name ?? resource.itemId;
     const legacyName = source?.name?.trim() || `${itemName} · ${resource.sourceId}`;
-    const name = source?.name?.trim() || (source && plan.sources.filter(s => s.itemId === source.itemId).length > 1 ? `${itemName} · источник ${plan.sources.indexOf(source) + 1}` : itemName);
+    const name = sourceLabel(catalog, plan, resource.sourceId, resource.itemId);
     if (!source || source.kind === 'flow') {
       externalSources.push({ sourceId: resource.sourceId, name, itemId: resource.itemId, rate: resource.rate, power: source?.importPower == null ? null : source.importPower * resource.rate }); continue;
     }

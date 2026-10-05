@@ -115,7 +115,7 @@ function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, runni
       <ItemIcon item={item(recipe.outputs[0].itemId)} size={36} />
       <div className="recipe-title"><h3>{recipe.name}</h3><small>{catalog.buildings.find(b => b.id === recipe.buildingId)?.name} · {format(recipe.seconds * 100 / clock)} с при {format(clock)}%</small>
         {(recipe.alternate || !a.opened || selected) && <span className="recipe-tags">{recipe.alternate && <span className="alt">Альтернативный</span>}{!a.opened && <span className="unavailable">Закрыт в мире</span>}{selected && <span>В сравнении</span>}</span>}</div>
-      <div className="recipe-flow"><span className="recipe-flow-side">{flow(metrics.inputs)}</span><span className="recipe-flow-arrow" aria-hidden="true">→</span><span className="recipe-flow-side">{flow(metrics.outputs)}</span></div>
+      <div className="recipe-flow"><span className="sr-only">Вход: </span><span className="recipe-flow-side">{flow(metrics.inputs)}</span><span className="recipe-flow-arrow" aria-hidden="true">→</span><span className="sr-only">Выход: </span><span className="recipe-flow-side">{flow(metrics.outputs)}</span></div>
       <span className="recipe-power">{format(metrics.power, 3)} МВт{metrics.estimated ? '*' : ''}</span>
       <label className="switch"><input type="checkbox" aria-label={'Включить рецепт ' + recipe.name} checked={a.enabled} disabled={!a.opened && !a.enabled} onChange={e => toggle(e.target.checked)} /><span /></label>
     </div>

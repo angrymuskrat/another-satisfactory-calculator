@@ -4,16 +4,12 @@ import { hasSolution } from '../../../packages/domain/types';
 import { constraintCandidates, type AnalysisReport, type AnalysisVariant, type Benefit, type Delta, type Summary } from '../../../packages/solver/analysis';
 import { format, unit } from './controls';
 import { useAnalysis } from './useAnalysis';
+import { sourceLabel } from '../../../packages/domain/sourceLabel';
 
 const statusLabels: Record<Result['status'], string> = { optimal: 'Оптимум подтверждён', approximate: 'Допустимое приближение', infeasible: 'Невыполнимо', unbounded: 'Выпуск не ограничен', timeout: 'Время истекло', error: 'Ошибка' };
 const benefitLabels: Record<Benefit, string> = { output: 'Подтверждён рост выпуска', feasibility: 'Заказ стал выполнимым', 'reachable-output': 'Подтверждён рост достижимой доли', cost: 'Подтверждена экономия по текущему порядку целей', none: 'Улучшения не обнаружено', unknown: 'Польза не установлена' };
 const signed = (value: number) => `${value > 1e-6 ? '+' : ''}${format(Math.abs(value) < 1e-6 ? 0 : value, 3)}`;
 
-const sourceLabel = (catalog: Catalog, plan: Plan, sourceId: string, itemId: string) => {
-  const index = plan.sources.findIndex(s => s.id === sourceId);
-  const item = catalog.items.find(i => i.id === itemId)?.name ?? itemId;
-  return index < 0 ? item : `${item} · ${plan.sources[index].name?.trim() || `источник ${index + 1}`}`;
-};
 export function AnalysisPanel({ catalog, plan }: { catalog: Catalog; plan: Plan }) {
   const analysis = useAnalysis(catalog, plan);
   const candidates = useMemo(() => constraintCandidates(catalog, plan), [catalog, plan]);
