@@ -12,8 +12,7 @@ async function open(page: Page) {
 }
 test('настройка: замена, добавление, независимый MAM и перезагрузка', async ({ page }) => {
   await open(page);
-  await page.getByLabel('Всё до уровня HUB').selectOption('0');
-  await page.getByRole('button', { name: 'Выбрать всё до уровня 0', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Весь уровень HUB 0', exact: true }).check();
   await page.getByLabel('Альтернативы в настройке').selectOption('none');
   const initial = await draft(page);
   await page.getByRole('button', { name: 'Заменить набор', exact: true }).click();
@@ -114,7 +113,7 @@ test('общий мир: просмотр фабрик, атомарное пр�
   await page.getByRole('button', { name: `Открыть ${a.name}`, exact: true }).first().click();
   await page.getByRole('button', { name: 'Рецепты', exact: true }).click();
   await page.getByText('Быстрая настройка по прогрессу', { exact: true }).click();
-  await page.getByRole('button', { name: 'Выбрать всё до уровня 0', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Весь уровень HUB 0', exact: true }).check();
   await page.getByRole('button', { name: 'Заменить набор', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Просмотр настройки рецептов' })).toContainText('Связанных фабрик: 2');
   await page.getByRole('button', { name: 'Применить настройку', exact: true }).click();

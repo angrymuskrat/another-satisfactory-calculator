@@ -10,7 +10,7 @@ export function ItemIcon({ item, size = 32 }: { item?: { icon?: string; name: st
   useEffect(() => setFailed(false), [item?.icon]);
   return <span className="item-icon" style={{ width: size, height: size }}>{item?.icon && !failed ? <img src={item.icon} alt="" onError={() => setFailed(true)} /> : <Box size={size * .6} />}</span>;
 }
-export function NumberField({ value, onChange, label, min = 0, max, step = 'any', disabled, suffix }: { value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number | 'any'; disabled?: boolean; suffix?: string }) {
+export function NumberField({ value, onChange, label, min = 0, max, step = 'any', disabled, unlimited, suffix }: { value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number | 'any'; disabled?: boolean; /** Поле без лимита: значение скрыто, чтобы не выглядеть действующим. */ unlimited?: boolean; suffix?: string }) {
   const [text, setText] = useState(String(value));
   const [notice, setNotice] = useState('');
   const id = useId();
@@ -19,9 +19,9 @@ export function NumberField({ value, onChange, label, min = 0, max, step = 'any'
     const n = Number(raw.replace(',', '.'));
     return !!raw.trim() && Number.isFinite(n) && n >= min && (max === undefined || n <= max) && (step === 'any' || n % step === 0);
   };
-  const invalid = !disabled && !valid(text);
+  const invalid = !disabled && !unlimited && !valid(text);
   const constraint = `Введите ${step === 1 ? 'целое ' : ''}число ${max === undefined ? `не меньше ${format(min, 6)}` : `от ${format(min, 6)} до ${format(max, 6)}`}${suffix ? ` ${suffix}` : ''}.`;
-  return <span className="number-control"><span className="number-field"><input type="text" inputMode="decimal" aria-label={label} aria-invalid={invalid} aria-describedby={`${id}-hint${invalid || notice ? ` ${id}-notice` : ''}`} disabled={disabled} value={text} onChange={e => { const raw = e.target.value; setText(raw); setNotice(''); if (valid(raw)) onChange(Number(raw.replace(',', '.'))); }} onBlur={() => { if (invalid) setNotice(`Значение не изменено. Восстановлено: ${format(value, 6)}${suffix ? ` ${suffix}` : ''}.`); setText(String(value)); }} />{suffix && <span>{suffix}</span>}</span><span className="sr-only" id={`${id}-hint`}>{constraint}</span><span className="number-notice" id={`${id}-notice`} role="status">{invalid ? constraint : notice}</span></span>;
+  return <span className="number-control"><span className="number-field"><input type="text" inputMode="decimal" aria-label={label} aria-invalid={invalid} aria-describedby={`${id}-hint${invalid || notice ? ` ${id}-notice` : ''}`} disabled={disabled || unlimited} value={unlimited ? '' : text} placeholder={unlimited ? 'без ограничения' : undefined} onChange={e => { const raw = e.target.value; setText(raw); setNotice(''); if (valid(raw)) onChange(Number(raw.replace(',', '.'))); }} onBlur={() => { if (invalid) setNotice(`Значение не изменено. Восстановлено: ${format(value, 6)}${suffix ? ` ${suffix}` : ''}.`); setText(String(value)); }} />{suffix && <span>{suffix}</span>}</span><span className="sr-only" id={`${id}-hint`}>{constraint}</span><span className="number-notice" id={`${id}-notice`} role="status">{invalid ? constraint : notice}</span></span>;
 }
 export function ItemSelect({ items, value, onChange, label }: { items: Item[]; value: string; onChange: (id: string) => void; label: string }) {
   const [open, setOpen] = useState(false);

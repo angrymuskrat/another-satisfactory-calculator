@@ -8,7 +8,7 @@ test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' }
 async function openPlan(page: Page, plan: Plan) {
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Спланируйте следующую фабрику' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Цели и ограничения', level: 1 })).toBeVisible();
 }
 async function selectChecks(page: Page, names: RegExp[]) {
   await page.getByText('Проверки расширения и перестройки', { exact: true }).click();
@@ -45,6 +45,7 @@ test('F04: области русского поиска, сворачивани�
   await expect(card).toContainText('На 1 шт');
   const before = await page.evaluate(() => localStorage.getItem('ficsit-plan-v1'));
   const altName = catalog.recipes.find(r => r.id === 'alt-screw')!.name;
+  await page.locator('.recipe-card').filter({ has: page.getByRole('heading', { name: altName, exact: true }) }).getByText('Подробнее и сравнение', { exact: true }).click();
   await page.getByRole('button', { name: `Сравнить для моей фабрики: ${altName}`, exact: true }).click();
   const report = page.getByRole('region', { name: 'Результаты анализа', exact: true });
   await expect(report.getByRole('heading', { name: 'Результаты сравнения', exact: true })).toBeVisible({ timeout: 25000 });

@@ -4,7 +4,7 @@ const MIN_ZOOM = .25, MAX_ZOOM = 1.5;
 
 /** Mouse navigation only; touch scrolling and keyboard navigation stay native. */
 export function useSchematicNavigation(viewport: RefObject<HTMLDivElement | null>) {
-  const [zoom, setZoom] = useState(.75), [dragging, setDragging] = useState(false);
+  const [zoom, setZoom] = useState(.9), [dragging, setDragging] = useState(false);
   const requestedZoom = useRef(zoom), renderedZoom = useRef(zoom);
   const anchor = useRef<{ x: number; y: number; contentX: number; contentY: number } | null>(null);
   const drag = useRef<{ pointerId: number; x: number; y: number; left: number; top: number; moved: boolean } | null>(null);

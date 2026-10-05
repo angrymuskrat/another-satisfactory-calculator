@@ -98,15 +98,15 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
     {error && <p role="alert" className="form-error">{error}</p>}
     {message && <p role="status" className="form-success">{message}</p>}
     <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}>
-      <button className="secondary-button" disabled={busy || !!draft} onClick={() => { void store.load(); }}>Загрузить рабочее пространство заново</button>
       <button className="secondary-button" onClick={() => download(JSON.stringify(workspace, null, 2), 'ficsit-workspace.json')} disabled={!ready}>Экспорт рабочего пространства в JSON</button>
       <button className="secondary-button" disabled={locked || !!draft} onClick={() => input.current?.click()}>Импорт рабочего пространства из JSON</button>
+      <button className="text-button" disabled={busy || !!draft} onClick={() => { void store.load(); }}>Загрузить рабочее пространство заново</button>
       {!ready && <button className="secondary-button" onClick={() => { const raw = localStorage.getItem(WORKSPACE_KEY); if (raw) download(raw, 'ficsit-workspace-recovery.json'); }}>Экспорт исходного гостевого файла</button>}
       <input ref={input} hidden type="file" accept=".json,application/json" aria-label="Файл рабочего пространства JSON" onChange={e => void importWorkspace(e.target.files?.[0])} />
     </div>
     <fieldset disabled={locked || !!draft}><legend>Новое прохождение</legend>
       <label>Название мира<input aria-label="Название мира" value={name} maxLength={120} onChange={e => setName(e.target.value)} /></label>
-      <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}><button className="secondary-button" disabled={!name.trim()} onClick={() => void run(() => addWorld(false))}>Создать пустой мир</button>
+      <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}><button className="primary-button" disabled={!name.trim()} onClick={() => void run(() => addWorld(false))}>Создать пустой мир</button>
         <button className="secondary-button" disabled={!name.trim()} onClick={() => void run(() => addWorld(true))}>Создать мир из настроек плана</button></div>
       <p className="hint">Пустой мир: рецепты и здания закрыты, транспорт — минимальный из каталога. Копия настроек плана — ручное начальное состояние, а не подтверждение прохождения HUB/MAM.</p>
     </fieldset>
@@ -116,7 +116,7 @@ export function Worlds({ catalog, plan, setPlan, store, activeFactoryId, setActi
     </fieldset>
     <fieldset disabled={locked || !!draft}><legend>Фабрики</legend>
       <label>Мир для новой фабрики<select aria-label="Мир для новой фабрики" value={selectedWorld} onChange={e => setSelectedWorld(e.target.value)}><option value="">Самостоятельный план</option>{workspace.worlds.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}</select></label>
-      <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}><button className="secondary-button" disabled={!!dirty} onClick={() => void run(() => addFactory(false))}>Новая фабрика</button><button className="secondary-button" onClick={() => void run(() => addFactory(true))}>Сохранить копию текущего плана</button>
+      <div className="toolbar-actions" style={{ flexWrap: 'wrap' }}><button className="primary-button" disabled={!!dirty} onClick={() => void run(() => addFactory(false))}>Новая фабрика</button><button className="secondary-button" onClick={() => void run(() => addFactory(true))}>Сохранить копию текущего плана</button>
         {active && <button className="primary-button" onClick={() => void run(saveFactory)}>Сохранить фабрику «{active.name}»</button>}</div>
       <p className="hint">Источники, заказ и локальные исключения принадлежат фабрике. Её полный план хранится отдельно. При открытии фабрики текущий рабочий черновик заменяется; сначала сохраните его копию, если он нужен.</p>
       {dirty && <p role="status">В открытой фабрике есть несохранённые изменения. Сохраните их или откройте её сохранённую версию.</p>}

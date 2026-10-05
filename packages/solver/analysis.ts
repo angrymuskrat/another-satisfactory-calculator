@@ -45,8 +45,8 @@ export const objectiveLabels: Record<Plan['settings']['objective'], string> = { 
 /** Each proposal changes one named restriction. Node count and its optional cap are independent. */
 export function constraintCandidates(catalog: Catalog, plan: Plan): ConstraintCandidate[] {
   const candidates: ConstraintCandidate[] = [];
-  for (const source of plan.sources) {
-    const label = `${catalog.items.find(i => i.id === source.itemId)?.name ?? source.itemId} · ${source.name || source.id}`;
+  for (const [index, source] of plan.sources.entries()) {
+    const label = `${catalog.items.find(i => i.id === source.itemId)?.name ?? source.itemId} · ${source.name?.trim() || `источник ${index + 1}`}`;
     if (source.limit !== null && source.limit < 1e9) {
       const value = increasedLimit(source.limit, 60);
       candidates.push({ id: `source-limit:${source.id}`, label: `${label}: лимит ${source.limit} → ${value} ${catalog.items.find(i => i.id === source.itemId)?.fluid ? 'м³/мин' : 'шт/мин'}`, change: { kind: 'source-limit', id: source.id, value } });

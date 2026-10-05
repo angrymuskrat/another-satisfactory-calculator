@@ -65,13 +65,12 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
       {source === 'mam' && <select aria-label="Направление MAM" value={tree} onChange={e => setTree(e.target.value)}><option value="">Все направления MAM</option>{catalog.researchTrees?.filter(t => !t.seasonal).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}
       <select aria-label="Фильтр рецептов" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Все состояния</option><option value="alternate">Все альтернативные</option><option value="enabled">Разрешены в плане</option><option value="disabled">Выключены в плане</option><option value="opened">Открыты в мире</option><option value="closed">Закрыты в мире</option><option value="available">Доступны для расчёта</option></select>
       <select aria-label="Сортировка рецептов" value={sort} onChange={e => setSort(e.target.value)}><option value="progress">По прогрессу: ранние сначала</option><option value="name">По названию</option><option value="category">По категориям</option></select>
+      <select aria-label="Единицы карточек рецептов" value={mode} onChange={e => setMode(e.target.value as QuantityMode)}><option value="cycle">Количество за цикл</option><option value="minute">Количество в минуту</option><option value="unit">На единицу выхода</option></select>
       <label className="setup-check"><input type="checkbox" checked={hideClosed} onChange={e => setHideClosed(e.target.checked)} />Скрыть закрытые</label>
     </div>
-    <div className="panel">
-      <p>{sort === 'progress' ? 'Сначала ранние уровни и этапы HUB. MAM сгруппирован независимо по веткам; диски упорядочены по известным требованиям. Равнозначные открытия — по русскому названию. Неизвестное место в прогрессе показано отдельно.' : sort === 'category' ? 'Названия и состав категорий взяты из игровых файлов. При равном или неизвестном приоритете используется русский алфавит. Альтернативы показаны рядом с основным продуктом.' : 'Рецепты упорядочены по русскому названию.'}</p>
-      <label>Количество <select aria-label="Единицы карточек рецептов" value={mode} onChange={e => setMode(e.target.value as QuantityMode)}><option value="cycle">За цикл</option><option value="minute">В минуту</option><option value="unit">На единицу выхода</option></select></label>{' '}
-      <p className="recipe-preview-frequency">Справочные показатели одной машины при {format(clock)}%</p>
-      <p className="muted">Частота задана в технологиях. Показатели относятся к одной непрерывно работающей машине; в рассчитанной фабрике частоты подбираются отдельно. Ограничения транспорта учитываются при сравнении всей фабрики.</p>
+    <div className="catalog-notes">
+      <p className="hint">{sort === 'progress' ? 'Сначала ранние уровни и этапы HUB. MAM сгруппирован независимо по веткам; диски упорядочены по известным требованиям. Равнозначные открытия — по русскому названию. Неизвестное место в прогрессе показано отдельно.' : sort === 'category' ? 'Названия и состав категорий взяты из игровых файлов. При равном или неизвестном приоритете используется русский алфавит. Альтернативы показаны рядом с основным продуктом.' : 'Рецепты упорядочены по русскому названию.'}</p>
+      <p className="hint"><span className="recipe-preview-frequency">Справочные показатели одной машины при {format(clock)}%</span> (частота — в «Технологиях»; в расчёте фабрики подбирается отдельно). Энергия машины отнесена на выбранный выход целиком, без вычета побочных продуктов; полную цепочку показывает сравнение.</p>
       {plan.world && !plan.world.overclockUnlocked && clock > 100 && <p>Разгон не открыт в мире; это только справочный предпросмотр.</p>}
     </div>
     <div className="catalog-summary"><span role="status">Найдено {filtered.length} · открыто {openedCount} · разрешено в плане {enabledCount} из {catalog.recipes.length}</span><div>
@@ -81,7 +80,7 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
     <div className="panel analysis-panel"><button className="primary-button" disabled={!comparisonIds.length || analysis.running} onClick={() => analysis.calculate({ kind: 'recipes', recipeIds: comparisonIds })}>Сравнить выбранные рецепты ({comparisonIds.length})</button>
       <p>До 12 рецептов: отдельное изменение каждого и совместный вариант. Разрешённый рецепт выключается в копии, выключенный — разрешается. Весь производственный план пересчитывается.</p>
       <p>Сравнение использует частоту производства из плана: {format(plan.settings.clock)}%.</p>
-      <AnalysisFeedback analysis={analysis} catalog={catalog} />
+      <AnalysisFeedback analysis={analysis} catalog={catalog} plan={plan} />
     </div>
     {groups.map(group => {
       const all = group.products.flatMap(p => p.recipes);
@@ -89,7 +88,7 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
         {group.products.map(product => <section key={product.itemId}>
           {sort === 'category' && <h2>{catalog.items.find(i => i.id === product.itemId)?.name ?? product.itemId}</h2>}
           <div className="recipe-grid">{product.recipes.map(recipe => <RecipeCard key={recipe.id} catalog={catalog} plan={plan} recipe={recipe} mode={mode} clock={clock}
-            progress={progress.get(recipe.id)!}
+            progress={progress.get(recipe.id)!} showProgress={sort !== 'progress'}
             toggle={on => toggle([recipe.id], on)} compare={() => analysis.calculate({ kind: 'recipes', recipeIds: [recipe.id] })} running={analysis.running}
             selected={comparisonIds.includes(recipe.id)} selectionFull={comparisonIds.length >= 12}
             select={on => setComparisonIds(on ? [...comparisonIds, recipe.id] : comparisonIds.filter(id => id !== recipe.id))} />)}</div>
@@ -99,8 +98,8 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
     {!filtered.length && <div className="panel empty-panel"><Search size={32} /><h3>Ничего не найдено</h3><p>Попробуйте другое название, область поиска или снимите фильтры.</p></div>}
   </div>;
 }
-function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, running, selected, selectionFull, select, progress }: {
-  progress: RecipeProgress;
+function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, running, selected, selectionFull, select, progress, showProgress }: {
+  progress: RecipeProgress; showProgress: boolean;
   catalog: Catalog; plan: Plan; recipe: Recipe; mode: QuantityMode; clock: number;
   toggle: (on: boolean) => void; compare: () => void; running: boolean; selected: boolean; selectionFull: boolean; select: (on: boolean) => void;
 }) {
@@ -109,22 +108,27 @@ function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, runni
   const metrics = recipeMetrics(catalog, recipe, clock, mode, outputId);
   const item = (id: string) => catalog.items.find(i => i.id === id);
   const quantityUnit = (id: string) => (item(id)?.fluid ? 'м³' : 'шт') + (mode === 'minute' ? '/мин' : '');
-  const suffix = mode === 'cycle' ? 'ЗА ЦИКЛ' : mode === 'minute' ? 'В МИНУТУ' : 'НА ЕДИНИЦУ ВЫХОДА';
   const comparable = a.opened && a.buildingOpened && a.buildingEnabled;
-  return <article className={'panel recipe-card ' + (a.enabled ? 'enabled' : '')}>
-    <div className="recipe-title"><ItemIcon item={item(recipe.outputs[0].itemId)} size={42} /><div><h3>{recipe.name}</h3><small>{catalog.buildings.find(b => b.id === recipe.buildingId)?.name} · {format(recipe.seconds * 100 / clock)} с при {format(clock)}%</small></div>
+  const flow = (list: typeof metrics.inputs) => list.map(i => <span key={i.itemId}><ItemIcon item={item(i.itemId)} size={20} />{format(i.amount, 3)} {quantityUnit(i.itemId)} {item(i.itemId)?.name}</span>);
+  return <article className={'recipe-card' + (a.enabled ? ' enabled' : '') + (a.opened ? '' : ' closed')}>
+    <div className="recipe-row">
+      <ItemIcon item={item(recipe.outputs[0].itemId)} size={36} />
+      <div className="recipe-title"><h3>{recipe.name}</h3><small>{catalog.buildings.find(b => b.id === recipe.buildingId)?.name} · {format(recipe.seconds * 100 / clock)} с при {format(clock)}%</small>
+        {(recipe.alternate || !a.opened || selected) && <span className="recipe-tags">{recipe.alternate && <span className="alt">Альтернативный</span>}{!a.opened && <span className="unavailable">Закрыт в мире</span>}{selected && <span>В сравнении</span>}</span>}</div>
+      <div className="recipe-flow"><span className="recipe-flow-side">{flow(metrics.inputs)}</span><span className="recipe-flow-arrow" aria-hidden="true">→</span><span className="recipe-flow-side">{flow(metrics.outputs)}</span></div>
+      <span className="recipe-power">{format(metrics.power, 3)} МВт{metrics.estimated ? '*' : ''}</span>
       <label className="switch"><input type="checkbox" aria-label={'Включить рецепт ' + recipe.name} checked={a.enabled} disabled={!a.opened && !a.enabled} onChange={e => toggle(e.target.checked)} /><span /></label>
     </div>
-    <div className="recipe-tags"><span>{recipe.category}</span>{recipe.alternate && <span className="alt">Альтернативный</span>}<span>{a.opened ? plan.world ? 'Открыт в мире' : 'Без ограничений мира' : 'Закрыт в мире'}</span><span>{a.enabled ? 'Разрешён в плане' : 'Выключен в плане'}</span></div>
-    <p className="hint">{progress.section} · {progress.step}</p>
-    {progress.unlockIds.length > 1 && <details><summary>Все пути открытия</summary><ul>{progress.unlockIds.map(id => <li key={id}>{catalog.unlocks?.find(u => u.id === id)?.name ?? id}</li>)}</ul></details>}
-    {a.reasons.length > 0 && <ul className="muted">{a.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
-    {recipe.outputs.length > 1 && <label>Нормировать по выходу <select aria-label={'Выход для нормирования: ' + recipe.name} value={outputId} onChange={e => setOutputId(e.target.value)}>{recipe.outputs.map(o => <option key={o.itemId} value={o.itemId}>{item(o.itemId)?.name ?? o.itemId}</option>)}</select></label>}
-    {mode === 'unit' && <p>На 1 {item(outputId)?.fluid ? 'м³' : 'шт'}: {item(outputId)?.name}. Остальные выходы сохраняются.</p>}
-    <div className="recipe-equation"><div><small>ВХОД {suffix}</small>{metrics.inputs.map(i => <span key={i.itemId}><ItemIcon item={item(i.itemId)} size={22} />{format(i.amount, 3)} {quantityUnit(i.itemId)} {item(i.itemId)?.name}</span>)}</div><div><small>ВЫХОД {suffix}</small>{metrics.outputs.map(i => <span key={i.itemId}><ItemIcon item={item(i.itemId)} size={22} />{format(i.amount, 3)} {quantityUnit(i.itemId)} {item(i.itemId)?.name}</span>)}</div></div>
-    <p>{format(metrics.power, 3)} МВт · {format(metrics.energyPerUnit, 4)} МВт·мин/{item(outputId)?.fluid ? 'м³' : 'шт'} {item(outputId)?.name}{metrics.estimated ? ' (оценочная мощность)' : ''}</p>
-    <small>Энергия этой машины; на выбранный выход отнесена целиком, без вычета побочных продуктов. Полная цепочка — в сравнении.</small>
-    <button className="secondary-button" disabled={running || !comparable} onClick={compare} aria-label={'Сравнить для моей фабрики: ' + recipe.name}>{a.enabled ? 'Сравнить без рецепта' : 'Сравнить для моей фабрики'}</button>
-    <label><input type="checkbox" aria-label={'Выбрать для совместного сравнения: ' + recipe.name} checked={selected} disabled={running || !comparable || (!selected && selectionFull)} onChange={e => select(e.target.checked)} /> Для совместного сравнения</label>
+    <details className="recipe-more"><summary>Подробнее и сравнение</summary>
+      <div className="recipe-tags"><span>{recipe.category}</span>{plan.world && <span>{a.opened ? 'Открыт в мире' : 'Закрыт в мире'}</span>}<span>{a.enabled ? 'Разрешён в плане' : 'Выключен в плане'}</span></div>
+      {showProgress && <p className="hint">{progress.section} · {progress.step}</p>}
+      {progress.unlockIds.length > 1 && <details><summary>Все пути открытия</summary><ul>{progress.unlockIds.map(id => <li key={id}>{catalog.unlocks?.find(u => u.id === id)?.name ?? id}</li>)}</ul></details>}
+      {a.reasons.length > 0 && <ul className="muted">{a.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+      {recipe.outputs.length > 1 && <label>Нормировать по выходу <select aria-label={'Выход для нормирования: ' + recipe.name} value={outputId} onChange={e => setOutputId(e.target.value)}>{recipe.outputs.map(o => <option key={o.itemId} value={o.itemId}>{item(o.itemId)?.name ?? o.itemId}</option>)}</select></label>}
+      {mode === 'unit' && <p>На 1 {item(outputId)?.fluid ? 'м³' : 'шт'}: {item(outputId)?.name}. Остальные выходы сохраняются.</p>}
+      <p>{format(metrics.power, 3)} МВт · {format(metrics.energyPerUnit, 4)} МВт·мин/{item(outputId)?.fluid ? 'м³' : 'шт'} {item(outputId)?.name}{metrics.estimated ? ' (оценочная мощность)' : ''}</p>
+      <div className="recipe-actions"><button className="secondary-button" disabled={running || !comparable} onClick={compare} aria-label={'Сравнить для моей фабрики: ' + recipe.name}>{a.enabled ? 'Сравнить без рецепта' : 'Сравнить для моей фабрики'}</button>
+      <label><input type="checkbox" aria-label={'Выбрать для совместного сравнения: ' + recipe.name} checked={selected} disabled={running || !comparable || (!selected && selectionFull)} onChange={e => select(e.target.checked)} /> Для совместного сравнения</label></div>
+    </details>
   </article>;
 }
