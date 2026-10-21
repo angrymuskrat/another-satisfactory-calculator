@@ -89,6 +89,16 @@ describe('цель recipesFirst', () => {
     expect(['approximate', 'optimal']).toContain(result.status);
     expect(result.machineBudget).toEqual({ minimum: 0, limit: 0, used: 0 });
   });
+  it('вне ровной нагрузки флаг не действует: нет бюджета, валидатор его не требует', () => {
+    const { fixture, plan } = simpleFixture();
+    plan.settings.objective = 'buildings';
+    plan.settings.recipesFirst = { extraPercent: 10 };
+    const result = solve(fixture, plan, highs);
+    expect(['approximate', 'optimal']).toContain(result.status);
+    expect(result.machineBudget).toBeUndefined();
+    expect(buildComplexity(plan, result).distinctRecipes).toBe(2);
+    expect(validateResult(fixture, plan, result).errors).toEqual([]);
+  });
   it('валидатор отклоняет подменённый бюджет', () => {
     const { fixture, plan } = simpleFixture();
     plan.settings.recipesFirst = { extraPercent: 10 };
@@ -137,5 +147,35 @@ describe('вариант «Проще построить»', () => {
     expect(next.variants[0].plan.settings.recipesFirst).toBeUndefined();
     expect(next.variants[1].plan.settings.recipesFirst).toBeUndefined();
     expect(next.variants[2].plan.settings.recipesFirst).toBeUndefined();
+  });
+});
+
+describe('анализ с recipesFirst', () => {
+  it('сравнение хранит число разных рецептов, а польза идёт по порядку «рецепты → машины»', () => {
+    const { fixture, plan } = simpleFixture();
+    plan.settings.recipesFirst = { extraPercent: 10 };
+    // Базовый план: одна «прямая» (1 рецепт, 3 машины); без неё — две стадии (2 рецепта, 2 машины).
+    const off = analyze(fixture, plan, highs, { kind: 'recipes', recipeIds: ['direct'] });
+    expect(off.baselineSummary?.distinctRecipes).toBe(1);
+    const disabled = off.variants[0];
+    expect(disabled.comparison?.distinctRecipes).toEqual({ before: 1, after: 2, delta: 1 });
+    expect(disabled.comparison?.physical.total).toEqual({ before: 3, after: 2, delta: -1 });
+    // Машин меньше, но рецептов больше: при порядке «машины первыми» это была бы польза, при recipesFirst — нет.
+    expect(disabled.benefit).toBe('none');
+
+    // Обратный случай: базово две стадии, разрешение «прямой» уменьшает число рецептов ценой машины.
+    plan.settings.enabledRecipeIds = plan.settings.enabledRecipeIds.filter(id => id !== 'direct');
+    const on = analyze(fixture, plan, highs, { kind: 'recipes', recipeIds: ['direct'] });
+    expect(on.baselineSummary?.distinctRecipes).toBe(2);
+    const enabled = on.variants[0];
+    expect(enabled.comparison?.distinctRecipes).toEqual({ before: 2, after: 1, delta: -1 });
+    expect(enabled.comparison?.physical.total).toEqual({ before: 2, after: 3, delta: 1 });
+    expect(enabled.benefit).toBe('cost');
+
+    // Без recipesFirst решатель ставит машины первыми и остаётся на двух стадиях: рецептов столько же, пользы нет.
+    delete plan.settings.recipesFirst;
+    const control = analyze(fixture, plan, highs, { kind: 'recipes', recipeIds: ['direct'] }).variants[0];
+    expect(control.comparison?.distinctRecipes).toEqual({ before: 2, after: 2, delta: 0 });
+    expect(control.benefit).toBe('none');
   });
 });
