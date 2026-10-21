@@ -8,6 +8,7 @@ import { validateResult } from './validate';
 import { applyBatch } from '../domain/batch';
 import { balancedClock } from '../domain/production';
 import { hasSolution } from '../domain/types';
+import { simplerMachineAllowance } from '../domain/complexity';
 type Highs = Awaited<ReturnType<typeof loadHighs>>;
 const tolerance = (value: number) => 1e-8 + Math.abs(value) * 1e-9;
 const clean = (value: number) => Math.max(0, value);
@@ -109,13 +110,40 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       }
     }
     let machineBudget: Result['machineBudget'];
-    if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
+    const recipesFirst = plan.settings.objective === 'smooth-power' ? plan.settings.recipesFirst : undefined;
+    if (plan.settings.objective === 'smooth-power' && (plan.settings.smoothPowerExtraMachines !== undefined || recipesFirst)) {
       const minimum = Math.round(optimize(built.machineCount));
-      const limit = minimum + plan.settings.smoothPowerExtraMachines;
+      const limit = minimum + (recipesFirst ? simplerMachineAllowance(minimum, recipesFirst.extraPercent) : plan.settings.smoothPowerExtraMachines!);
       model.constrain(built.machineCount, '<=', limit);
       machineBudget = { minimum, limit, used: 0 };
     }
-    const costGoals = machineBudget ? [built.power, normalize(built.resources), built.machineCount]
+    if (recipesFirst && machineBudget) {
+      // Each recipe uses at most the whole finite machine budget, which proves the
+      // activation bound; no arbitrary big-M restricts the solution space.
+      const recipes = new Map<string, { counts: Expression; flows: string[] }>();
+      for (const r of built.recipeVariables) {
+        if (!r.countVariable) continue;
+        const entry = recipes.get(r.recipe.id) ?? { counts: new Map<string, number>() as Expression, flows: [] as string[] };
+        entry.counts.set(r.countVariable, 1);
+        entry.flows.push(r.variable, r.countVariable);
+        recipes.set(r.recipe.id, entry);
+      }
+      const recipeCount: Expression = new Map();
+      for (const { counts, flows } of recipes.values()) {
+        const used = model.variable(1, true);
+        model.constrain(new Map([...counts, [used, -machineBudget.limit]]), '<=', 0);
+        recipeCount.set(used, 1);
+        integerFlows.set(used, flows);
+      }
+      if (recipeCount.size) {
+        // Lock only the minimal recipe count: machines, power and resources are then
+        // minimized across every recipe set tied at that count, not one arbitrary set.
+        const optimum = optimize(recipeCount);
+        model.constrain(recipeCount, '<=', Math.round(optimum));
+      }
+    }
+    const costGoals = recipesFirst ? [built.machineCount, built.power, normalize(built.resources)]
+      : machineBudget ? [built.power, normalize(built.resources), built.machineCount]
       : plan.settings.objective === 'smooth-power' && plan.settings.resourcesFirst ? [normalize(built.resources), built.machineCount, built.power]
       : plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
       : plan.settings.objective === 'power' ? [built.power, normalize(built.resources)] : [normalize(built.resources), built.power];
@@ -129,10 +157,10 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       const optimum = optimize(built.machineCount);
       model.constrain(built.machineCount, '<=', Math.round(optimum));
     }
-    {
-      // Discrete tie-breaking needs room for propagated LP round-off. This changes
-      // only objective locks, never source/target/grid/building constraints.
-      for (const lock of costLocks) if (lock.expression !== built.machineCount) model.constraints[lock.index].rhs = lock.optimum + 10 * tolerance(lock.optimum);
+    // Discrete tie-breaking needs room for propagated LP round-off. This changes
+    // only objective locks, never source/target/grid/building constraints.
+    for (const lock of costLocks) if (lock.expression !== built.machineCount) model.constraints[lock.index].rhs = lock.optimum + 10 * tolerance(lock.optimum);
+    if (!recipesFirst) {
       // Positive energy coefficients and the already locked energy budget provide
       // a proven upper bound; no arbitrary big-M restricts the solution space.
       const powerLock = costLocks.find(lock => lock.expression === built.power)!;
@@ -234,7 +262,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
     result.modelNotes = [];
     result.modelNotes.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
-    if (plan.settings.objective === 'smooth-power') result.modelNotes.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : plan.settings.resourcesFirst ? 'После выпуска минимизируется взвешенное сырьё, затем число машин и энергия.' : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
+    if (plan.settings.objective === 'smooth-power') result.modelNotes.push(`${recipesFirst && machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; в бюджете до ${machineBudget.limit} машин минимизируется число разных рецептов, затем машины и энергия. Вне бюджета более простой план не исключён.` : machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : plan.settings.resourcesFirst ? 'После выпуска минимизируется взвешенное сырьё, затем число машин и энергия.' : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
     if (approximatePower) result.modelNotes.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
     if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
     if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');

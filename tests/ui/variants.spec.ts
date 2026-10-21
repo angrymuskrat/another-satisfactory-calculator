@@ -50,8 +50,8 @@ test('ошибки всех вариантов остаются видимыми
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const cards = page.getByRole('article');
-  await expect(cards).toHaveCount(3, { timeout: 30000 });
-  for (const index of [0, 1, 2]) await expect(cards.nth(index)).toContainText('Ошибка расчёта');
+  await expect(cards).toHaveCount(4, { timeout: 30000 });
+  for (const index of [0, 1, 2, 3]) await expect(cards.nth(index)).toContainText('Ошибка расчёта');
   await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
 });
 
@@ -75,7 +75,7 @@ test('изменение плана во время расчёта отменя�
   try {
     await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
     await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
-    await page.getByRole('textbox', { name: 'Потеря выпуска для экономии' }).fill('7');
+    await page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов' }).fill('7');
     await expect(page.getByRole('button', { name: 'Отменить расчёт' })).toHaveCount(0);
     release();
     await page.getByRole('button', { name: 'Результаты', exact: true }).click();
@@ -90,14 +90,44 @@ test('изменённые настройки запрещают выбор ст
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await expect(page.getByRole('article').first().getByRole('button', { name: 'Использовать вариант' })).toBeEnabled({ timeout: 30000 });
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Потеря выпуска для экономии', exact: true }).fill('7');
+  await page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов', exact: true }).fill('7');
   await page.getByRole('textbox', { name: 'Дополнительные машины для экономии', exact: true }).fill('2');
   await page.getByRole('button', { name: 'Результаты', exact: true }).click();
   await expect(page.getByText('Требуется пересчёт', { exact: true })).toBeVisible();
   for (const button of await page.getByRole('button', { name: 'Использовать вариант' }).all()) await expect(button).toBeDisabled();
   await page.reload();
-  await expect(page.getByRole('textbox', { name: 'Потеря выпуска для экономии' })).toHaveValue('7');
+  await expect(page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов' })).toHaveValue('7');
   await expect(page.getByRole('textbox', { name: 'Дополнительные машины для экономии' })).toHaveValue('2');
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('карточка «Проще построить» показывает число рецептов и настраивается с клавиатуры', async ({ page }) => {
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
+  await page.goto('/');
+  const field = page.getByRole('textbox', { name: 'Дополнительные машины для простоты' });
+  await field.focus();
+  await page.keyboard.press('Control+A');
+  await page.keyboard.type('20');
+  await page.keyboard.press('Tab');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
+  const merged = page.getByText('«Проще построить» совпадает');
+  await expect(simple.or(merged)).toBeVisible({ timeout: 30000 });
+  if (await simple.isVisible()) {
+    await expect(simple).toContainText('Разных рецептов');
+    await expect(simple).toContainText('+ 20%');
+  }
+  await expect(page.getByRole('article', { name: 'Максимальный выпуск', exact: true })).toContainText('Разных рецептов');
+});
+
+test('сводка ограничений описывает порядок целей принятого варианта «Проще построить»', async ({ page }) => {
+  const simple = structuredClone(plan);
+  simple.settings.objective = 'smooth-power';
+  simple.settings.recipesFirst = { extraPercent: 15 };
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), simple);
+  await page.goto('/');
+  const summary = page.getByRole('complementary', { name: 'Активные ограничения' });
+  await expect(summary).toContainText('разные рецепты в бюджете «минимум машин + 15%»');
+  await expect(summary).toContainText('здания → энергия с подбором частот → условная стоимость сырья');
 });

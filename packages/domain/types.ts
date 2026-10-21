@@ -100,9 +100,11 @@ export interface WorldSnapshot {
 export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
 export interface Settings {
-  variantOptions?: { outputLoss: number; extraMachines: number };
+  variantOptions?: { outputLoss: number; extraMachines: number; simplerExtraPercent?: number };
   smoothPowerExtraMachines?: number;
   resourcesFirst?: boolean;
+  /** Флаг копии плана варианта «Проще построить»: минимум разных рецептов в бюджете минимум + extraPercent%. */
+  recipesFirst?: { extraPercent: number };
   enabledRecipeIds: string[];
   enabledBuildingIds: string[];
   beltId: string;
@@ -169,5 +171,5 @@ export interface Result {
   maxBalanceError: number;
 }
 export const hasSolution = (result: Result | null | undefined): result is Result & { status: 'optimal' | 'approximate' } => result?.status === 'optimal' || result?.status === 'approximate';
-export interface ProductionVariant { id: 'maximum' | 'economy' | 'resources'; label: string; plan: Plan; result: Result; sameAs?: ProductionVariant['id'] }
+export interface ProductionVariant { id: 'maximum' | 'economy' | 'resources' | 'simple'; label: string; plan: Plan; result: Result; sameAs?: ProductionVariant['id'] }
 export interface ProductionVariants { variants: ProductionVariant[]; equivalent: boolean }

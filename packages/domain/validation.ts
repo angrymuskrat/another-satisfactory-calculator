@@ -33,9 +33,10 @@ export const planSchema = z.strictObject({
     minerId: z.string().max(200), clock: z.number().finite().min(1).max(250),
   })).max(512).refine(sources => new Set(sources.map(s => s.id)).size === sources.length, 'Повторяющиеся источники'),
   settings: z.strictObject({
-    variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000) }).optional(),
+    variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000), simplerExtraPercent: z.number().int().min(0).max(1000).optional() }).optional(),
     smoothPowerExtraMachines: z.number().int().min(0).max(1000).optional(),
     resourcesFirst: z.boolean().optional(),
+    recipesFirst: z.strictObject({ extraPercent: z.number().int().min(0).max(1000) }).optional(),
     enabledRecipeIds: uniqueIds, enabledBuildingIds: uniqueIds, beltId: id, pipeId: id,
     clock: z.number().finite().min(1).max(250),
     resourcePolicy: z.enum(['listed-only', 'unlimited-unlisted']), objective: z.enum(['power', 'smooth-power', 'resources', 'buildings']),
@@ -53,6 +54,9 @@ export const planSchema = z.strictObject({
   if (!plan.batch) plan.targets.forEach((target, index) => {
     if (target.rate === 0) context.addIssue({ code: 'custom', path: ['targets', index, 'rate'], message: 'Нулевая скорость цели разрешена только для готовой позиции партии.' });
   });
+  if (plan.settings.recipesFirst && (plan.settings.resourcesFirst || plan.settings.smoothPowerExtraMachines !== undefined)) {
+    context.addIssue({ code: 'custom', path: ['settings', 'recipesFirst'], message: 'Минимум рецептов нельзя сочетать с другим порядком затрат варианта.' });
+  }
 });
 export function parsePlan(value: unknown): Plan {
   const parsed = planSchema.safeParse(value);

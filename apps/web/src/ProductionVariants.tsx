@@ -1,6 +1,7 @@
 import { useRef, type ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import type { Catalog, Plan, Result } from '../../../packages/domain/types';
+import { buildComplexity } from '../../../packages/domain/complexity';
+import type { Catalog, Plan, ProductionVariant, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { ModelNotes, Results, usedResources } from './Results';
 import { format, unit } from './controls';
@@ -15,6 +16,13 @@ type MetricRow = { key: string; label: string; value: (variant: Variant) => Reac
 /** Строки карточки вне таблицы метрик: статус, название, описание, кнопка выбора. */
 const CARD_ROWS = 4;
 const difference = (value: number, baseline: number) => baseline > 0 ? `${value >= baseline ? '+' : '−'}${format(Math.abs(value / baseline - 1) * 100)}%` : '—';
+const hint = (variant: ProductionVariant, plan: Plan) => {
+  const loss = plan.mode === 'maximize' && !plan.batch ? `Допустимая потеря выпуска: ${format(variant.plan.settings.outputSlack)}%.` : 'Заказ сохраняется полностью.';
+  if (variant.id === 'maximum') return 'Компактная фабрика с полным доступным выпуском или заданным заказом.';
+  if (variant.id === 'economy') return `Экономия в пределах компактной фабрики + ${variant.plan.settings.smoothPowerExtraMachines ?? 0} машин. ${loss}`;
+  if (variant.id === 'simple') return `Сначала минимум разных рецептов в пределах компактной фабрики + ${variant.plan.settings.recipesFirst?.extraPercent ?? 10}%, затем машины и энергия. ${loss}`;
+  return `Сначала минимум взвешенного сырья, затем машины и энергия. ${loss}`;
+};
 
 export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog: Catalog; plan: Plan; setPlan: (plan: Plan) => void; solver: ReturnType<typeof useSolver> }) {
   const heading = useRef<HTMLHeadingElement>(null);
@@ -40,6 +48,11 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
     { key: 'power', label: 'Средняя мощность', value: v => <><span data-metric="power">{metric(v.result.power)}</span> МВт{versus(v, v.result.power, baseline?.result.power ?? 0)}</> },
     { key: 'peak', label: 'Пиковая мощность', value: v => `${metric(v.result.installedPower)} МВт` },
     { key: 'machines', label: 'Машины производства', value: v => v.result.steps.reduce((total, step) => total + step.installedMachines, 0) },
+    { key: 'recipes', label: 'Разных рецептов', value: v => {
+      const recipes = buildComplexity(v.plan, v.result).distinctRecipes;
+      const base = baseResult && baseline ? buildComplexity(baseline.plan, baseResult).distinctRecipes : undefined;
+      return <>{recipes}{v.id !== 'maximum' && base !== undefined && <small>{recipes - base >= 0 ? '+' : '−'}{Math.abs(recipes - base)} к максимальному варианту</small>}</>;
+    } },
     { key: 'weighted', label: 'Взвешенное сырьё', value: v => <>{metric(weightedResources(v.plan, v.result))}{baseResult && baseline && versus(v, weightedResources(v.plan, v.result), weightedResources(baseline.plan, baseResult))}</> },
     ...(solved.some(v => v.result.machineBudget) ? [{ key: 'budget', label: 'Общий бюджет машин', value: (v: Variant) => v.result.machineBudget ? <>{v.result.machineBudget.used} / {v.result.machineBudget.limit}<small>Компактный вариант: {v.result.machineBudget.minimum}. Включены добытчики, скважины со спутниками и утилизаторы.</small></> : '—' }] : []),
     ...[...sources].map(([id, itemId]) => ({ key: `source:${id}`, label: sourceLabel(catalog, plan, id, itemId), value: (v: Variant) => {
@@ -60,7 +73,7 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
         return <article className={'panel variant-card' + (valid ? ' is-aligned' : '')} key={variant.id} aria-labelledby={`variant-${variant.id}`} style={{ gridRow: `span ${rows.length + CARD_ROWS}` }}>
           <span className={`status-badge ${result.status}`}>{statuses[result.status]}</span>
           <h3 id={`variant-${variant.id}`}>{variant.label}</h3>
-          <p className="hint">{variant.id === 'maximum' ? 'Компактная фабрика с полным доступным выпуском или заданным заказом.' : `${variant.id === 'economy' ? `Экономия в пределах компактной фабрики + ${variant.plan.settings.smoothPowerExtraMachines ?? 0} машин.` : 'Сначала минимум взвешенного сырья, затем машины и энергия.'} ${plan.mode === 'maximize' && !plan.batch ? `Допустимая потеря выпуска: ${format(variant.plan.settings.outputSlack)}%.` : 'Заказ сохраняется полностью.'}`}</p>
+          <p className="hint">{hint(variant, plan)}</p>
           {valid ? <>
             <dl className="variant-metrics" style={{ gridRow: `span ${rows.length}` }}>{rows.map(row => <div key={row.key}><dt>{row.label}</dt><dd>{row.value(variant)}</dd></div>)}</dl>
             <button className="secondary-button variant-choose" disabled={stale || running} onClick={() => { const next = solver.choose(variant.id); if (next) { setPlan(next); focusHeading(); } }}>Использовать вариант</button>
