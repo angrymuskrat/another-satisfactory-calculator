@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import type { Catalog } from '../../packages/domain/types';
@@ -10,6 +10,14 @@ plan.targets = [{ itemId: 'modular-frame', rate: 1, weight: 1, scale: 1 }];
 plan.sources = ['iron-ore', 'copper-ore'].map((itemId, index) => ({ id: itemId, itemId, kind: 'flow', limit: index ? 60 : 120, count: 1, purity: 1, minerId: 'miner-mk1', clock: 100 }));
 plan.settings.enabledRecipeIds = ['iron-ingot', 'copper-ingot', 'iron-plate', 'iron-rod', 'wire', 'screw', 'reinforced-iron-plate', 'modular-frame', 'alt-modular-frame2', 'alt-stitched-iron-plate', 'alt-screw', 'alt-iron-wire', 'alt-bolted-iron-plate'];
 plan.settings.beltId = 'belt2';
+/** Ответы worker после первого приходят с задержкой: расчёт остаётся незавершённым на время проверки. */
+async function holdLaterVariants(page: Page, ms = 4000) {
+  await page.route(/solver\.worker/, async route => {
+    const response = await route.fetch();
+    const hold = `const __post = self.postMessage.bind(self); let __sent = 0; self.postMessage = (...args) => __sent++ ? setTimeout(() => __post(...args), ${ms}) : __post(...args);\n`;
+    await route.fulfill({ response, body: hold + await response.text() });
+  });
+}
 
 test('выбор экономичного варианта сохраняет его настройки и открывает именно его схему', async ({ page }) => {
   await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
@@ -111,6 +119,7 @@ test('карточка «Проще построить» показывает ч
   await page.keyboard.type('20');
   await page.keyboard.press('Tab');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout: 30000 });
   const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
   const merged = page.getByText('«Проще построить» совпадает');
   await expect(simple.or(merged)).toBeVisible({ timeout: 30000 });
@@ -130,4 +139,51 @@ test('сводка ограничений описывает порядок це
   const summary = page.getByRole('complementary', { name: 'Активные ограничения' });
   await expect(summary).toContainText('разные рецепты в бюджете «минимум машин + 15%»');
   await expect(summary).toContainText('здания → энергия с подбором частот → условная стоимость сырья');
+});
+
+test('основной вариант выбирается до конца расчёта, остальные дорешиваются в фоне', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
+  await holdLaterVariants(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
+  await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click({ timeout: 30000 });
+  await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Максимальный выпуск', exact: true })).toBeVisible();
+  await expect(page.locator('.results-column .spinner')).toHaveCount(0);
+  await expect(page.locator('.kpi').first()).toContainText('8,888');
+  await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toHaveCount(0, { timeout: 30000 });
+  await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
+  await expect(page.getByText('Считается…')).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled();
+});
+
+test('нерешённые варианты после отмены помечены отдельно, решённый остаётся выбираемым', async ({ page }) => {
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
+  await holdLaterVariants(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
+  await expect(maximum.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
+  await expect(page.getByText('Считается…').first()).toBeVisible();
+  await expect(page.getByText('Подбор завершён без доступного варианта')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Отменить расчёт', exact: true }).click();
+  await expect(page.getByText('Не рассчитан', { exact: true }).first()).toBeVisible();
+  await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
+  await expect(page.locator('.kpi').first()).toContainText('8,888');
+  await expect(page.locator('.results-column [role="alert"]')).toHaveCount(0);
+});
+
+test('правка плана после раннего выбора останавливает фоновые варианты', async ({ page }) => {
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
+  await holdLaterVariants(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await page.getByRole('article', { name: 'Максимальный выпуск', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true }).click({ timeout: 30000 });
+  await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
+  await page.locator('summary').filter({ hasText: 'Энергия и ограничения' }).click();
+  await page.getByLabel('Резерв сети', { exact: true }).fill('5');
+  await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible();
 });

@@ -10,6 +10,7 @@ import { sourceLabel } from '../../../packages/domain/sourceLabel';
 import { CatalogStatus, Construction, CopyNumber } from './Construction';
 import { BatchResult } from './Batch';
 import { AlternatesRanking } from './AlternatesRanking';
+import { PowerCoverage } from './PowerCoverage';
 import { format, ItemIcon, unit } from './controls';
 
 const statusLabels = { optimal: 'Оптимум найден', approximate: 'Допустимое приближение', infeasible: 'Заказ невыполним', unbounded: 'Выпуск не ограничен', error: 'Ошибка расчёта', timeout: 'Время расчёта истекло' };
@@ -77,6 +78,7 @@ export function Results({ catalog, plan, result, stale, running, error, onEnable
                     {margin !== null && <div className="total"><dt>Запас сети после резерва и пика</dt><dd>{format(margin)} МВт</dd></div>}
                   </dl>{margin !== null && <p className={margin < -1e-6 ? 'alert error' : 'hint'} role={margin < -1e-6 ? 'alert' : undefined}>{format(peakLimit!)} − {format(reserve)} − {format(model.peakPower)} = {format(margin)} МВт.{margin < -1e-6 ? ' Пиковая нагрузка с резервом превышает лимит.' : ' По оценке модели лимит соблюдён.'}</p>}
                     {model.externalSources.map(source => <p key={source.sourceId}>{source.power === null ? 'Вне энергетической границы' : 'Учтённый импорт'}: {source.name} — {format(source.rate, 6)} {unit(item(source.itemId))}{source.power !== null && ` · ${format(source.power)} МВт`}.</p>)}
+                    <PowerCoverage catalog={catalog} average={model.averagePower} peak={model.peakPower} reserve={reserve} />
                   </section>
                   <AlternatesRanking catalog={catalog} plan={plan} result={result} onEnable={onEnableRecipe} />
                   <Construction key={model.fingerprint} catalog={catalog} model={model} building={building} destinations={{ products: result.products, exports: result.exports?.map(e => ({ ...e, name: plan.exports?.find(x => x.itemId === e.itemId)?.name })) }} />

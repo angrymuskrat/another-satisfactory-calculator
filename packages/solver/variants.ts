@@ -4,9 +4,11 @@ import { parsePlan } from '../domain/validation';
 import { emptyResult, solve } from './solve';
 
 export type { ProductionVariant, ProductionVariants } from '../domain/types';
+export type VariantProgress = (report: ProductionVariants, pending: ProductionVariant['id'][]) => void;
+export interface VariantsMessage { report: ProductionVariants; pending: ProductionVariant['id'][]; done: boolean }
 
 /** Все решения используют исходные ограничения; бюджет машин и порядок затрат не меняют максимум выпуска. */
-export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000): ProductionVariants {
+export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000, onProgress?: VariantProgress): ProductionVariants {
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
   const resources = structuredClone(input);
@@ -44,13 +46,13 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   delete simple.settings.resourcesFirst;
   // Варианты решаются по очереди; неиспользованное время предыдущих
   // переходит следующим; ошибка одного варианта не стирает остальные.
+  const plans = [maximum, economy, resources, simple], ids = variants.map(v => v.id);
   const start = performance.now(), span = Math.max(0, deadline - start);
-  variants[0].result = solve(catalog, maximum, highs, start + span * 0.25);
-  variants[1].result = solve(catalog, economy, highs, start + span * 0.5);
-  variants[2].result = solve(catalog, resources, highs, start + span * 0.75);
-  variants[3].result = solve(catalog, simple, highs, deadline);
   for (const [index, variant] of variants.entries()) {
+    variant.result = solve(catalog, plans[index]!, highs, index === variants.length - 1 ? deadline : start + span * (index + 1) / variants.length);
     variant.sameAs = variants.slice(0, index).find(other => !other.sameAs && equivalentResults(other.result, variant.result))?.id;
+    const pending = ids.slice(index + 1);
+    onProgress?.({ variants, equivalent: !pending.length && variants.slice(1).every(v => v.sameAs === 'maximum') }, pending);
   }
   return { variants, equivalent: variants.slice(1).every(v => v.sameAs === 'maximum') };
 }
