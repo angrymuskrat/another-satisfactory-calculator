@@ -170,3 +170,4 @@ output('packages/game-data/progression.json', progression);
 output('packages/game-data/source/icon-manifest.json', iconTasks);
 console.log(JSON.stringify(report.counts));
 await import('./import-p2-mechanics.mjs');
+await import('./import-power-generators.mjs');
