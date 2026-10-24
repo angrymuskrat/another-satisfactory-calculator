@@ -204,3 +204,32 @@ describe('два проверенных варианта', () => {
     expect(result.equivalent).toBe(false);
   });
 });
+
+describe('прогресс вариантов', () => {
+  it('сообщает решённые варианты по одному, начиная с максимального', () => {
+    const calls: { solved: string[]; pending: string[] }[] = [];
+    const report = solveVariants(catalog, ingots(), highs, undefined, (partial, pending) => {
+      calls.push({ solved: partial.variants.filter(v => !pending.includes(v.id)).map(v => v.id), pending: [...pending] });
+    });
+    expect(calls).toEqual([
+      { solved: ['maximum'], pending: ['economy', 'resources', 'simple'] },
+      { solved: ['maximum', 'economy'], pending: ['resources', 'simple'] },
+      { solved: ['maximum', 'economy', 'resources'], pending: ['simple'] },
+      { solved: ['maximum', 'economy', 'resources', 'simple'], pending: [] },
+    ]);
+    expect(report.variants[0].result.status).toBe('approximate');
+  });
+  it('не объявляет варианты одинаковыми, пока решены не все', () => {
+    const partial: boolean[] = [];
+    const report = solveVariants(catalog, ingots(), highs, undefined, (progress, pending) => { if (pending.length) partial.push(progress.equivalent); });
+    expect(partial).toEqual([false, false, false]);
+    expect(report.variants.slice(1).some(v => v.sameAs === 'maximum')).toBe(true);
+  });
+  it('не вызывает прогресс при некорректном плане', () => {
+    const plan = ingots(); plan.settings.clock = -1;
+    let calls = 0;
+    const report = solveVariants(catalog, plan, highs, undefined, () => { calls++; });
+    expect(report.variants[0].result.status).toBe('error');
+    expect(calls).toBe(0);
+  });
+});

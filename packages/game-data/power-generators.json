@@ -1,0 +1,68 @@
+{
+  "provenance": {
+    "catalogVersion": "steam-24656030-v1",
+    "source": "source/Docs-en-US.json.gz",
+    "sha256": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+    "ruSource": "source/Docs-ru.json.gz",
+    "ruSha256": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e",
+    "importedAt": "2026-10-22",
+    "verification": "Генераторы и энергоёмкость топлива из закреплённых Docs. Жидкости: mEnergyValue на 1/1000 м³. Сверено с игрой: угольный 15 угля и 45 м³ воды, топливный 20 м³ топлива в минуту."
+  },
+  "generators": [
+    {
+      "id": "coal-generator",
+      "className": "Build_GeneratorCoal_C",
+      "name": "Угольный генератор",
+      "nameEn": "Coal-Powered Generator",
+      "power": 75,
+      "fuels": [
+        {
+          "itemId": "coal",
+          "energy": 300
+        },
+        {
+          "itemId": "compacted-coal",
+          "energy": 630
+        },
+        {
+          "itemId": "petroleum-coke",
+          "energy": 180
+        }
+      ],
+      "supplemental": {
+        "itemId": "water",
+        "perMJ": 0.01
+      }
+    },
+    {
+      "id": "fuel-generator",
+      "className": "Build_GeneratorFuel_C",
+      "name": "Топливный генератор",
+      "nameEn": "Fuel-Powered Generator",
+      "power": 250,
+      "fuels": [
+        {
+          "itemId": "fuel",
+          "energy": 750
+        },
+        {
+          "itemId": "turbofuel",
+          "energy": 2000
+        },
+        {
+          "itemId": "liquid-biofuel",
+          "energy": 750
+        },
+        {
+          "itemId": "rocket-fuel",
+          "energy": 3600
+        },
+        {
+          "itemId": "ionized-fuel",
+          "energy": 5000
+        }
+      ],
+      "supplemental": null
+    }
+  ]
+}
