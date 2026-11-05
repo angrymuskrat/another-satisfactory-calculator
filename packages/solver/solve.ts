@@ -15,7 +15,8 @@ const physicalCount = (equivalent: number) => Math.max(1, Math.ceil(equivalent -
 export function emptyResult(status: Result['status'], message: string): Result {
   return { status, message, products: [], steps: [], resources: [], surplus: [], power: 0, productionPower: 0, extractionPower: 0, sinkPower: 0, installedPower: 0, objectiveValue: 0, warnings: [], diagnostics: [], maxBalanceError: 0 };
 }
-export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000): Result {
+export interface SolveOptions { primary?: string; inputCaps?: Record<string, number>; powerCap?: number }
+export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = performance.now() + 20000, options: SolveOptions = {}): Result {
   let requested = input;
   let approximatePower = false;
   try {
@@ -27,8 +28,11 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       return emptyResult('error', 'Положительные границы и заданный выпуск должны быть не меньше 0,000001 в минуту. Увеличьте масштаб расчёта; ноль остаётся отдельным запретом.');
     }
     const built = buildModel(catalog, plan);
+    if (plan.settings.pareto && plan.mode !== 'target') return emptyResult('error', 'Обзор Парето требует заданный выпуск или партию.');
     approximatePower = built.recipeVariables.some(r => r.autoClock);
     const { model } = built;
+    for (const [id, cap] of Object.entries(options.inputCaps ?? {})) model.constrain(built.inputResources.get(id) ?? new Map(), '<=', cap);
+    if (options.powerCap !== undefined) model.constrain(built.power, '<=', options.powerCap);
     let values: Record<string, number> = {};
     let confirmed = false;
     const integerFlows = new Map<string, string[]>();
@@ -109,13 +113,16 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       }
     }
     let machineBudget: Result['machineBudget'];
-    if (plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
+    if (!plan.settings.pareto && plan.settings.objective === 'smooth-power' && plan.settings.smoothPowerExtraMachines !== undefined) {
       const minimum = Math.round(optimize(built.machineCount));
       const limit = minimum + plan.settings.smoothPowerExtraMachines;
       model.constrain(built.machineCount, '<=', limit);
       machineBudget = { minimum, limit, used: 0 };
     }
-    const costGoals = machineBudget ? [built.power, normalize(built.resources), built.machineCount]
+    const perResource = [...built.inputResources.entries()].sort(([a], [b]) => a.localeCompare(b));
+    const primary = options.primary && options.primary !== 'power' ? built.inputResources.get(options.primary) ?? new Map() : built.power;
+    const paretoGoals = [primary, ...(primary !== built.power ? [built.power] : []), ...perResource.filter(([, expression]) => expression !== primary).map(([, expression]) => expression)];
+    const costGoals = plan.settings.pareto ? paretoGoals : machineBudget ? [built.power, normalize(built.resources), built.machineCount]
       : plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' ? [built.machineCount, built.power, normalize(built.resources)]
       : plan.settings.objective === 'power' ? [built.power, normalize(built.resources)] : [normalize(built.resources), built.power];
     const costLocks: { index: number; expression: Expression; optimum: number }[] = [];
@@ -124,11 +131,11 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       costLocks.push({ index: model.constraints.length, expression, optimum });
       model.constrain(expression, '<=', optimum + tolerance(optimum));
     }
-    if (built.needsCounts && plan.settings.objective !== 'buildings' && plan.settings.objective !== 'smooth-power') {
+    if (!plan.settings.pareto && built.needsCounts && plan.settings.objective !== 'buildings' && plan.settings.objective !== 'smooth-power') {
       const optimum = optimize(built.machineCount);
       model.constrain(built.machineCount, '<=', Math.round(optimum));
     }
-    {
+    if (!plan.settings.pareto) {
       // Discrete tie-breaking needs room for propagated LP round-off. This changes
       // only objective locks, never source/target/grid/building constraints.
       for (const lock of costLocks) if (lock.expression !== built.machineCount) model.constraints[lock.index].rhs = lock.optimum + 10 * tolerance(lock.optimum);
@@ -231,8 +238,17 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
     result.power = result.productionPower + result.extractionPower + result.sinkPower;
     result.installedPower = result.steps.reduce((s, r) => s + r.powerMax, 0) + result.sinkPower
       + built.sourceVariables.reduce((sum, s) => sum + (s.source.kind === 'well' ? Math.round(values[s.countVariable!] ?? 0) * s.installedPower : s.source.kind === 'flow' ? (values[s.variable] ?? 0) * s.powerPerUnit : (values[s.variable] ?? 0) > 1e-12 ? physicalCount(values[s.variable] / s.capacity) * s.installedPower : 0), 0);
+    if (plan.settings.selfSupply) {
+      result.fuelProvenance = {
+        sources: built.fuelProvenance.sources.map(s => ({ sourceId: s.sourceId, rate: clean(values[s.variable] ?? 0) })),
+        steps: built.fuelProvenance.steps.filter(s => (values[s.variable] ?? 0) > 0).map(s => ({ configurationId: s.configurationId, cycles: clean(values[s.variable] ?? 0) })),
+      };
+      const importPower = dot(built.importedPower, values);
+      result.generation = { power: dot(built.generation, values), importPower, localPower: result.power - importPower, localPeak: result.installedPower - importPower, reserve: plan.settings.powerReserve ?? 0 };
+    }
     result.warnings.push('Средняя мощность рассчитана по доле времени работы на заданной частоте. Простой и пусковые процессы не учитываются; установленная мощность показана отдельно.');
-    if (plan.settings.objective === 'smooth-power') result.warnings.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
+    if (plan.settings.pareto) result.warnings.push('Приближённый обзор Парето: энергия и каждый входной ресурс сравниваются отдельно. Минимизация количества машин и бюджет дополнительных машин не применяются.');
+    if (!plan.settings.pareto && plan.settings.objective === 'smooth-power') result.warnings.push(`${machineBudget ? `После выпуска найден минимум ${machineBudget.minimum} физических машин; энергия минимизируется в бюджете до ${machineBudget.limit} машин.` : 'После выпуска минимизируется число машин, затем энергия.'} Частоты подбираются от 1% до заданного предела. Одинаковые машины группы получают равномерную нагрузку. Закреплённые линии сохраняются; ниже минимальной частоты возможны простои. Фазы циклов и фактический график сети не моделируются.`);
     if (approximatePower) result.warnings.push('Решатель использует консервативную кусочно-линейную оценку мощности. Показанные МВт пересчитаны по нелинейной формуле и проверены с исходными лимитами. Глобальный оптимум точной нелинейной модели не доказан.');
     if (built.sourceVariables.some(s => s.source.kind === 'flow' && s.source.importPower == null && (values[s.variable] ?? 0) > 1e-7)) result.warnings.push('Энергия получения внешних потоков с неизвестной стоимостью не включена в расчёт. Для учёта добычи укажите месторождения или стоимость импорта.');
     if (result.somersloops) result.warnings.push('Усиление рассчитано по среднему выходу за несколько циклов. Конечный бюджет занят физическими машинами, включая простаивающие закреплённые линии.');

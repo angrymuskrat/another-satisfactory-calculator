@@ -7,6 +7,7 @@ export function parseCatalogPlan(value: unknown, catalog: Catalog): Plan {
   if (plan.catalogVersion !== catalog.version) throw new Error('Версия каталога плана отличается от текущей. Требуется миграция профиля.');
   if (plan.recipeProgress?.unlockIds.some(id => !catalog.unlocks?.some(u => u.id === id))) throw new Error('Прогресс рецептов содержит неизвестные схемы. Исходный план сохранён.');
   const items = new Set(catalog.items.map(item => item.id));
+  if (Object.keys(plan.settings.inputLimits ?? {}).some(id => !items.has(id))) throw new Error('Неизвестный предмет суммарного лимита.');
   const recipes = new Set(catalog.recipes.map(recipe => recipe.id));
   const buildings = new Set(catalog.buildings.map(building => building.id));
   if (plan.targets.some(target => !items.has(target.itemId)) || plan.sources.some(source => !items.has(source.itemId)) ||

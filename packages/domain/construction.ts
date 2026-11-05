@@ -4,6 +4,7 @@ import { balancedClock, canOptimizeClock, productionConfigurations, wellConfigur
 import mechanics from '../game-data/p2-mechanics.json';
 
 export interface ConstructionGroup {
+  generatedPower?: number;
   controllerId?: string;
   existing?: number;
   somersloops?: number;
@@ -64,6 +65,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     return { id: step.configurationId ?? `recipe:${recipe.id}`, kind: 'production', buildingId: building.id, name: configuration.name, recipeId: recipe.id,
       existing: configuration.existing, somersloops: configuration.somersloops, count, clock: expectedClock, activeDuty, activeInputs: flows(recipe.inputs, cyclesAtClock), activeOutputs: flows(outputs, cyclesAtClock),
       averageInputs: flows(recipe.inputs, step.cycles), averageOutputs: flows(outputs, step.cycles),
+      ...(recipe.generation ? { generatedPower: recipe.generation.power * count } : {}),
       activePower, averagePower: activePower * step.cycles / cyclesAtClock, peakPower: count * peak,
       powerEstimated: !!(recipe.powerEstimated || building.powerEstimated) };
   });

@@ -2,11 +2,13 @@ import type { Catalog, Plan, ProductionVariant, ProductionVariants, Result } fro
 import { hasSolution } from '../domain/types';
 import { parsePlan } from '../domain/validation';
 import { emptyResult, solve } from './solve';
+import { solvePareto } from './pareto';
 
 export type { ProductionVariant, ProductionVariants } from '../domain/types';
 
 /** Оба решения используют исходные ограничения; бюджет машин не меняет максимум выпуска. */
 export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000): ProductionVariants {
+  if (input.settings.pareto && (input.mode === 'target' || input.batch)) return solvePareto(catalog, input, highs, deadline);
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
   const variants: ProductionVariant[] = [

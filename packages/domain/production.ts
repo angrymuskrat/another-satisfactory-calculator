@@ -6,7 +6,7 @@ export interface ProductionConfiguration {
   id: string; recipe: Recipe; clock: number; somersloops: number; boost: number;
   existing: number; duty: number | null; name: string;
 }
-export const canOptimizeClock = (plan: Plan, configuration: ProductionConfiguration) => plan.settings.objective === 'smooth-power' && configuration.duty === null;
+export const canOptimizeClock = (plan: Plan, configuration: ProductionConfiguration) => !configuration.recipe.generation && plan.settings.objective === 'smooth-power' && configuration.duty === null;
 
 /** Balanced load per installed machine; below 1% the machine still needs idle time. */
 export function balancedClock(configuration: ProductionConfiguration, cycles: number, count: number): number {
@@ -15,7 +15,7 @@ export function balancedClock(configuration: ProductionConfiguration, cycles: nu
 /** Finite configurations; clock is an input, never a post-solve correction. */
 export function productionConfigurations(catalog: Catalog, plan: Plan): ProductionConfiguration[] {
   const configs: ProductionConfiguration[] = [];
-  const available = (r: Recipe) => plan.settings.enabledRecipeIds.includes(r.id) && plan.settings.enabledBuildingIds.includes(r.buildingId);
+  const available = (r: Recipe) => plan.settings.enabledRecipeIds.includes(r.id) && plan.settings.enabledBuildingIds.includes(r.buildingId) && (!r.generation || r.generation.family === plan.settings.selfSupply);
   if (plan.expansion !== 'rebuild') for (const line of plan.lines ?? []) {
     const recipe = catalog.recipes.find(r => r.id === line.recipeId);
     if (!recipe || !available(recipe)) throw new Error(`Линия «${line.name || line.id}»: рецепт или здание недоступны.`);
@@ -24,10 +24,10 @@ export function productionConfigurations(catalog: Catalog, plan: Plan): Producti
     configs.push({ id: `line:${line.id}`, recipe, clock: line.clock, somersloops: line.somersloops,
       boost: 1 + (slots ? line.somersloops / slots : 0), existing: line.count, duty: line.locked ? line.duty : null, name: line.name || recipe.name });
   }
-  if (plan.expansion !== 'keep') for (const recipe of catalog.recipes.filter(available)) {
+  for (const recipe of catalog.recipes.filter(r => available(r) && (plan.expansion !== 'keep' || r.generation))) {
     const slots = amplifierSlots(recipe.buildingId);
     for (let s = 0; s <= Math.min(slots, plan.somersloopBudget ?? 0); s++) configs.push({
-      id: s ? `boost:${recipe.id}:${s}` : recipe.id, recipe, clock: plan.settings.clock, somersloops: s,
+      id: s ? `boost:${recipe.id}:${s}` : recipe.id, recipe, clock: recipe.generation ? 100 : plan.settings.clock, somersloops: s,
       boost: 1 + (slots ? s / slots : 0), existing: 0, duty: null, name: recipe.name,
     });
   }

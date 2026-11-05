@@ -20,7 +20,10 @@
     "accelerator": 4,
     "converter": 2,
     "quantum-encoder": 4,
-    "awesome-sink": 0
+    "awesome-sink": 0,
+    "coal-generator": 0,
+    "fuel-generator": 0,
+    "nuclear-power-plant": 0
   },
   "well": {
     "resourceIds": [
@@ -202,6 +205,30 @@
     },
     "awesome-sink": {
       "className": "Build_ResourceSink_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 0,
+      "canBoost": "False",
+      "exponent": "2.000000"
+    },
+    "coal-generator": {
+      "className": "Build_GeneratorCoal_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 0,
+      "canBoost": "False",
+      "exponent": "2.000000"
+    },
+    "fuel-generator": {
+      "className": "Build_GeneratorFuel_C",
+      "slots": "0",
+      "override": "False",
+      "effectiveSlots": 0,
+      "canBoost": "False",
+      "exponent": "2.000000"
+    },
+    "nuclear-power-plant": {
+      "className": "Build_GeneratorNuclear_C",
       "slots": "0",
       "override": "False",
       "effectiveSlots": 0,

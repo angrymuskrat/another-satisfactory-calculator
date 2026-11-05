@@ -277,13 +277,13 @@
       "other": 122
     },
     "recipes": {
-      "total": 276,
-      "covered": 276,
+      "total": 286,
+      "covered": 286,
       "missingIds": []
     },
     "buildings": {
-      "total": 12,
-      "covered": 12,
+      "total": 15,
+      "covered": 15,
       "missingIds": []
     },
     "miners": {
@@ -3445,8 +3445,14 @@
       "sourceType": "EST_Milestone",
       "kind": "hub",
       "tier": 3,
-      "recipeIds": [],
-      "buildingIds": [],
+      "recipeIds": [
+        "generate-coal",
+        "generate-compacted-coal",
+        "generate-petroleum-coke"
+      ],
+      "buildingIds": [
+        "coal-generator"
+      ],
       "minerIds": [
         "water-extractor"
       ],
@@ -13168,9 +13174,14 @@
         "uranium-cell",
         "em-control-rod",
         "uranium-fuel-rod",
-        "magnetic-field-generator"
+        "magnetic-field-generator",
+        "generate-uranium-fuel-rod",
+        "generate-plutonium-fuel-rod",
+        "generate-ficsonium-fuel-rod"
       ],
-      "buildingIds": [],
+      "buildingIds": [
+        "nuclear-power-plant"
+      ],
       "minerIds": [],
       "beltIds": [],
       "pipeIds": [],
@@ -23023,8 +23034,15 @@
       "sourceType": "EST_Milestone",
       "kind": "hub",
       "tier": 5,
-      "recipeIds": [],
-      "buildingIds": [],
+      "recipeIds": [
+        "generate-fuel",
+        "generate-turbofuel",
+        "generate-rocket-fuel",
+        "generate-ionized-fuel"
+      ],
+      "buildingIds": [
+        "fuel-generator"
+      ],
       "minerIds": [],
       "beltIds": [],
       "pipeIds": [],

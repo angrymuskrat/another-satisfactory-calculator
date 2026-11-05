@@ -16,8 +16,8 @@
     "upstreamRecipes": 272,
     "gameRecipes": 872,
     "items": 152,
-    "buildings": 12,
-    "recipes": 276,
+    "buildings": 15,
+    "recipes": 286,
     "alternates": 110,
     "excluded": 596,
     "icons": 162
@@ -298,7 +298,17 @@
     "alt-diamonds-oil": "Recipe_Alternate_Diamond_OilBased_C",
     "alt-diamonds-cloudy": "Recipe_Alternate_Diamond_Cloudy_C",
     "alt-dark-matter-trap": "Recipe_Alternate_DarkMatter_Trap_C",
-    "alt-dark-matter-crystal": "Recipe_Alternate_DarkMatter_Crystallization_C"
+    "alt-dark-matter-crystal": "Recipe_Alternate_DarkMatter_Crystallization_C",
+    "generate-coal": "Recipe_GeneratorCoal_C",
+    "generate-compacted-coal": "Recipe_GeneratorCoal_C",
+    "generate-petroleum-coke": "Recipe_GeneratorCoal_C",
+    "generate-fuel": "Recipe_GeneratorFuel_C",
+    "generate-turbofuel": "Recipe_GeneratorFuel_C",
+    "generate-rocket-fuel": "Recipe_GeneratorFuel_C",
+    "generate-ionized-fuel": "Recipe_GeneratorFuel_C",
+    "generate-uranium-fuel-rod": "Recipe_GeneratorNuclear_C",
+    "generate-plutonium-fuel-rod": "Recipe_GeneratorNuclear_C",
+    "generate-ficsonium-fuel-rod": "Recipe_GeneratorNuclear_C"
   },
   "changes": [
     {
@@ -4022,7 +4032,10 @@
     "blender": "Build_Blender_C",
     "accelerator": "Build_HadronCollider_C",
     "converter": "Build_Converter_C",
-    "quantum-encoder": "Build_QuantumEncoder_C"
+    "quantum-encoder": "Build_QuantumEncoder_C",
+    "coal-generator": "Build_GeneratorCoal_C",
+    "fuel-generator": "Build_GeneratorFuel_C",
+    "nuclear-power-plant": "Build_GeneratorNuclear_C"
   },
   "verification": {
     "quantitiesAndDuration": "game-docs",
@@ -5378,6 +5391,143 @@
             "amount": 10
           }
         ]
+      },
+      {
+        "id": "coal-generator",
+        "buildClass": "Build_GeneratorCoal_C",
+        "descriptorClass": "Desc_GeneratorCoal_C",
+        "recipeClass": "Recipe_GeneratorCoal_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_GeneratorCoal.Recipe_GeneratorCoal_C",
+        "rawCost": [
+          {
+            "className": "Desc_IronPlateReinforced_C",
+            "amount": 20
+          },
+          {
+            "className": "Desc_Rotor_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 30
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "reinforced-iron-plate",
+            "amount": 20
+          },
+          {
+            "itemId": "rotor",
+            "amount": 10
+          },
+          {
+            "itemId": "cable",
+            "amount": 30
+          }
+        ]
+      },
+      {
+        "id": "fuel-generator",
+        "buildClass": "Build_GeneratorFuel_C",
+        "descriptorClass": "Desc_GeneratorFuel_C",
+        "recipeClass": "Recipe_GeneratorFuel_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_GeneratorFuel.Recipe_GeneratorFuel_C",
+        "rawCost": [
+          {
+            "className": "Desc_Motor_C",
+            "amount": 15
+          },
+          {
+            "className": "Desc_SteelPlateReinforced_C",
+            "amount": 15
+          },
+          {
+            "className": "Desc_CopperSheet_C",
+            "amount": 30
+          },
+          {
+            "className": "Desc_Rubber_C",
+            "amount": 50
+          },
+          {
+            "className": "Desc_HighSpeedWire_C",
+            "amount": 50
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "motor",
+            "amount": 15
+          },
+          {
+            "itemId": "encased-industrial-beam",
+            "amount": 15
+          },
+          {
+            "itemId": "copper-sheet",
+            "amount": 30
+          },
+          {
+            "itemId": "rubber",
+            "amount": 50
+          },
+          {
+            "itemId": "quickwire",
+            "amount": 50
+          }
+        ]
+      },
+      {
+        "id": "nuclear-power-plant",
+        "buildClass": "Build_GeneratorNuclear_C",
+        "descriptorClass": "Desc_GeneratorNuclear_C",
+        "recipeClass": "Recipe_GeneratorNuclear_C",
+        "recipePath": "BlueprintGeneratedClass /Game/FactoryGame/Recipes/Buildings/Recipe_GeneratorNuclear.Recipe_GeneratorNuclear_C",
+        "rawCost": [
+          {
+            "className": "Desc_ComputerSuper_C",
+            "amount": 10
+          },
+          {
+            "className": "Desc_ModularFrameHeavy_C",
+            "amount": 25
+          },
+          {
+            "className": "Desc_AluminumPlate_C",
+            "amount": 100
+          },
+          {
+            "className": "Desc_Cable_C",
+            "amount": 200
+          },
+          {
+            "className": "Desc_Cement_C",
+            "amount": 250
+          }
+        ],
+        "buildCost": [
+          {
+            "itemId": "supercomputer",
+            "amount": 10
+          },
+          {
+            "itemId": "heavy-modular-frame",
+            "amount": 25
+          },
+          {
+            "itemId": "alclad-aluminum-sheet",
+            "amount": 100
+          },
+          {
+            "itemId": "cable",
+            "amount": 200
+          },
+          {
+            "itemId": "concrete",
+            "amount": 250
+          }
+        ]
       }
     ],
     "coverage": {
@@ -5670,13 +5820,13 @@
         "other": 122
       },
       "recipes": {
-        "total": 276,
-        "covered": 276,
+        "total": 286,
+        "covered": 286,
         "missingIds": []
       },
       "buildings": {
-        "total": 12,
-        "covered": 12,
+        "total": 15,
+        "covered": 15,
         "missingIds": []
       },
       "miners": {

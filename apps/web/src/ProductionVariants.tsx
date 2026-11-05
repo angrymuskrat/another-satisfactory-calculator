@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { Results } from './Results';
+import { ParetoResults } from './ParetoResults';
 import { format, unit } from './controls';
 import type { useSolver } from './useSolver';
 
@@ -17,6 +18,7 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
   const baseline = report?.variants[0]?.result;
   const variants = report?.equivalent ? report.variants.slice(0, 1) : report?.variants;
   const focusHeading = () => requestAnimationFrame(() => heading.current?.focus());
+  if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} />;
   return <>
     <h2 className="variant-title" ref={heading} tabIndex={-1}>{showCards || running ? 'Варианты производства' : selected ? selected.label : 'Расчёт производства'}</h2>
     {showCards ? <section aria-label="Выбор варианта производства" className="production-variants">

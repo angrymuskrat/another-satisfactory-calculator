@@ -116,3 +116,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,.item-select-tri
 .variant-metrics small { display: block; margin-top: 4px; font-size: 12px; color: var(--text-muted, #a4aab4); }
 .variant-settings h2 { margin-top: 0; }
 @media (max-width: 850px) { .variant-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.pareto-table-scroll { overflow-x: auto; max-width: 100%; }
+.pareto-table-scroll table { width: 100%; border-collapse: collapse; }
+.pareto-table-scroll th, .pareto-table-scroll td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border, #444); }
+.pareto-table-scroll small { display: block; font-weight: normal; }

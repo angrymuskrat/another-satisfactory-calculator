@@ -20,7 +20,7 @@ describe('официальный каталог', () => {
     for (const r of c.recipes) {
       expect(buildings.has(r.buildingId)).toBe(true);
       expect(r.seconds).toBeGreaterThan(0);
-      expect(r.outputs.length).toBeGreaterThan(0);
+      expect(r.outputs.length > 0 || (r.generation?.power ?? 0) > 0).toBe(true);
       for (const i of [...r.inputs, ...r.outputs]) {
         expect(ids.has(i.itemId), `${r.id}: ${i.itemId}`).toBe(true);
         expect(i.amount).toBeGreaterThan(0);
@@ -50,11 +50,11 @@ describe('официальный каталог', () => {
     expect(c.belts.map(b => b.rate)).toEqual([60,120,270,480,780,1200]);
     expect(c.pipes.map(p => p.rate)).toEqual([300,600]);
   });
-  it('учитывает рецептную мощность и исключает генерацию', () => {
+  it('учитывает рецептную мощность и отдельную генерацию', () => {
     const c = read();
     expect(c.recipes.find(r => r.id === 'nuclear-pasta')?.powerMax).toBe(1500);
     expect(c.recipes.find(r => r.id === 'diamonds')?.powerMax).toBe(750);
-    expect(c.recipes.some(r => r.buildingId === 'nuclear-power-plant')).toBe(false);
+    expect(c.recipes.filter(r => r.buildingId === 'nuclear-power-plant').every(r => r.generation && r.power === 0)).toBe(true);
     expect(c.provenance.notes.some(n => n.includes('крив'))).toBe(true);
   });
   it('соблюдает игровые приоритеты рецептов внутри группы', () => {
@@ -80,6 +80,7 @@ describe('официальный каталог', () => {
       expect(item.category, item.id).toBe(categories.get(evidence.categoryClass));
     }
     for (const recipe of c.recipes) {
+      if (recipe.generation) { expect(recipe.category).toBe('Генерация (расчёт)'); continue; }
       const evidence = source.recipes.find((r: { id: string }) => r.id === recipe.id);
       const item = source.items.find((i: { className: string }) => i.className === evidence.firstProductClass);
       expect(recipe.category, recipe.id).toBe(categories.get(evidence.overriddenCategoryClass ?? item.categoryClass));
@@ -123,13 +124,13 @@ describe('P1: исходные стоимости и открытия', () => {
       { itemId: 'supercomputer', amount: 5 }, { itemId: 'fused-modular-frame', amount: 10 }, { itemId: 'turbo-motor', amount: 3 },
     ]);
   });
-  it('сверяет все 17 стоимостей с ингредиентами закреплённых build recipes', () => {
+  it('сверяет все 20 стоимостей с ингредиентами закреплённых build recipes', () => {
     const c = readP1();
     const audit = JSON.parse(readFileSync('packages/game-data/audit-report.json', 'utf8'));
     const docs = JSON.parse(gunzipSync(readFileSync('packages/game-data/source/Docs-en-US.json.gz')).toString('utf16le').replace(/^\uFEFF/, ''));
     const recipes = docs.flatMap((g: { Classes: Array<{ ClassName: string; mProducedIn?: string; mProduct?: string; mIngredients?: string }> }) => g.Classes);
     const machines = [...c.buildings, ...c.miners];
-    expect(machines).toHaveLength(17);
+    expect(machines).toHaveLength(20);
     for (const machine of machines) {
       expect(machine.buildCost?.length ?? 0, machine.id).toBeGreaterThan(0);
       const evidence = audit.buildCosts.entries.find((e: { id: string }) => e.id === machine.id);

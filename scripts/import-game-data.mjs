@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import { importP1Data } from './import-p1-game-data.mjs';
 import { importMenuAssets } from './import-menu-assets.mjs';
 import { importResearchAssets } from './import-research-assets.mjs';
+import { importGeneration } from './import-generation.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const path = p => resolve(root, p);
@@ -164,6 +165,8 @@ const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, pars
 });
 importMenuAssets({ source: json(sourcePath + 'menu-assets.json'), catalog, report, pinned });
 importResearchAssets({ source: json(sourcePath + 'research-assets.json'), catalog, progression, report, en, ru, pinned });
+const generation = importGeneration({ en, ru, catalog, report, progression, pinned, hashes, parseIngredients: ingredients });
+output('packages/game-data/generation.json', generation);
 output('packages/game-data/catalog.json', catalog);
 output('packages/game-data/audit-report.json', report);
 output('packages/game-data/progression.json', progression);

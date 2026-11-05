@@ -20,6 +20,7 @@ export interface Building {
 }
 export interface Ingredient { itemId: string; amount: number }
 export interface Recipe {
+  generation?: { power: number; family: 'coal' | 'crude-oil' | 'uranium' };
   id: string;
   name: string;
   nameEn: string;
@@ -39,6 +40,7 @@ export interface Miner {
 }
 export interface Transport { id: string; name: string; rate: number }
 export interface Catalog {
+  generationPaths?: Record<string, { itemIds: string[]; recipeIds: string[] }>;
   researchTrees?: ResearchTree[];
   researchNames?: Record<string, string>;
   gamePhases?: GamePhase[];
@@ -98,6 +100,9 @@ export interface WorldSnapshot {
 export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
 export interface Settings {
+  pareto?: boolean;
+  inputLimits?: Record<string, number | null>;
+  selfSupply?: 'coal' | 'crude-oil' | 'uranium';
   variantOptions?: { outputLoss: number; extraMachines: number };
   smoothPowerExtraMachines?: number;
   enabledRecipeIds: string[];
@@ -144,6 +149,8 @@ export interface ResourceResult {
   sourceId: string; itemId: string; rate: number; limit: number | null; power: number;
 }
 export interface Result {
+  fuelProvenance?: { sources: { sourceId: string; rate: number }[]; steps: { configurationId: string; cycles: number }[] };
+  generation?: { power: number; localPower: number; localPeak: number; importPower: number; reserve: number };
   machineBudget?: { minimum: number; limit: number; used: number };
   exports?: ProductResult[];
   somersloops?: number;
@@ -165,5 +172,7 @@ export interface Result {
   maxBalanceError: number;
 }
 export const hasSolution = (result: Result | null | undefined): result is Result & { status: 'optimal' | 'approximate' } => result?.status === 'optimal' || result?.status === 'approximate';
-export interface ProductionVariant { id: 'maximum' | 'economy'; label: string; plan: Plan; result: Result }
-export interface ProductionVariants { variants: ProductionVariant[]; equivalent: boolean }
+export interface ProductionVariant { id: string; label: string; plan: Plan; result: Result }
+export interface ProductionVariants { variants: ProductionVariant[]; equivalent: boolean;
+  pareto?: { attempted: number; covered: string[]; pending: string[]; complete: boolean; pass: number; searched?: string[]; failures: { label: string; status: Result['status']; message: string }[] };
+}
