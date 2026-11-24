@@ -1,6 +1,7 @@
 import { beforeAll, expect, it } from 'vitest';
 import { createHighs } from '../packages/solver/highs';
-import { solve } from '../packages/solver/solve';
+import { emptyResult, solve } from '../packages/solver/solve';
+import { solveWithBeltRouting } from '../packages/solver/beltRouting';
 import { solveVariants } from '../packages/solver/variants';
 import { validateResult } from '../packages/solver/validate';
 import { createDefaultPlan } from '../packages/domain/defaults';
@@ -38,12 +39,12 @@ function checked(catalog: Catalog, plan: Plan, result: Result) {
 it('строит стандартную фабрику пластин с реальными устройствами за один состав', () => {
   const catalog = gameCatalog as Catalog, plan = createDefaultPlan(catalog);
   plan.settings.beltRouting = { enabled: true, maxDepth: 4 };
-  const result = solve(catalog, plan, highs, performance.now() + 10000);
+  const result = solve(catalog, plan, highs, performance.now() + 20000);
   checked(catalog, plan, result);
   expect(result.products[0].rate).toBeCloseTo(10, 5);
   expect(result.beltRouting!.searchedConfigurations).toBe(1);
   expect(result.beltRouting!.networks.some(n => n.nodes.some(node => node.kind === 'merge'))).toBe(true);
-}, 15000);
+}, 30000);
 
 it('отправляет побочный продукт в физический Sink и сохраняет мощность и баланс', () => {
   const { catalog, plan } = fixture();
@@ -126,3 +127,11 @@ it('число физических добытчиков сохраняется 
   expect(ore.nodes.filter(n => n.kind === 'supply')).toHaveLength(2);
   expect(result.installedPower).toBeCloseTo(result.steps.reduce((sum, step) => sum + step.powerMax, 0) + 10, 5);
 }, 7000);
+
+it('медленный расчёт без учёта схем не обрывает поиск, пока остаётся время', () => {
+  const { catalog, plan } = fixture();
+  const span = 5000, deadline = performance.now() + span;
+  const result = solveWithBeltRouting(catalog, plan, deadline, (candidate, limit, attempt) =>
+    !attempt && limit - performance.now() < span * .3 ? emptyResult('timeout', 'Свободная модель не успела.') : solve(catalog, candidate, highs, limit, { routingAttempt: attempt }));
+  checked(catalog, plan, result);
+}, 10000);

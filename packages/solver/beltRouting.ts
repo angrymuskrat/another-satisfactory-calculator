@@ -34,7 +34,9 @@ export function solveWithBeltRouting(catalog: Catalog, input: Plan, deadline: nu
   const refining = plan.settings.outputSlack > 0 || plan.settings.smoothPowerExtraMachines !== undefined;
   const unrestrained = structuredClone(input); unrestrained.settings.beltRouting = { ...input.settings.beltRouting!, enabled: false };
   unrestrained.settings.outputSlack = 0; delete unrestrained.settings.smoothPowerExtraMachines;
-  const seed = baseSolve(unrestrained, performance.now() + Math.max(0, deadline - performance.now()) * .18);
+  // Every later attempt starts from this solve, so it may use up to half the
+  // time; whatever it leaves unused passes on to the topology search.
+  const seed = baseSolve(unrestrained, performance.now() + Math.max(0, deadline - performance.now()) * .5);
   if (!hasSolution(seed)) {
     delete seed.feasibleAlternative;
     if (seed.status === 'unbounded') { seed.status = 'timeout'; seed.message = 'Свободная модель не ограничена; допустимая конвейерная схема не найдена. Ограничьте источники или мощность.'; }
