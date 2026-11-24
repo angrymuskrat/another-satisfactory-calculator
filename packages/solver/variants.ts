@@ -52,11 +52,32 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   const start = performance.now(), span = Math.max(0, deadline - start);
   for (const [index, variant] of variants.entries()) {
     variant.result = solve(catalog, plans[index]!, highs, index === variants.length - 1 ? deadline : start + span * (index + 1) / variants.length);
+    if (index > 0) variant.result = enforceVariantOutputLoss(input, variants[0].result, variant.result);
     variant.sameAs = variants.slice(0, index).find(other => !other.sameAs && equivalentResults(other.result, variant.result))?.id;
     const pending = ids.slice(index + 1);
     onProgress?.({ variants, equivalent: !pending.length && variants.slice(1).every(v => v.sameAs === 'maximum') }, pending);
   }
   return { variants, equivalent: variants.slice(1).every(v => v.sameAs === 'maximum') };
+}
+
+export function enforceVariantOutputLoss(input: Plan, maximum: Result, economy: Result): Result {
+  if (!input.settings.beltRouting?.enabled || input.mode !== 'maximize' || input.batch || !hasSolution(maximum) || !hasSolution(economy)) return economy;
+  const weights = input.targets.map(target => target.weight / target.scale);
+  const weightScale = Math.max(...weights), proportionScale = Math.max(...input.targets.map(target => target.rate));
+  const scores = (result: Result) => {
+    const rates = input.targets.map(target => result.products.find(product => product.itemId === target.itemId)?.rate ?? 0);
+    if (input.policy === 'weighted') return [rates.reduce((sum, rate, i) => sum + rate * (weights[i] / weightScale), 0)];
+    if (input.policy === 'proportional') return [Math.min(...rates.map((rate, i) => rate * (proportionScale / input.targets[i].rate)))];
+    return rates;
+  };
+  const baseline = scores(maximum), actual = scores(economy), fraction = 1 - (input.settings.variantOptions?.outputLoss ?? 10) / 100;
+  // Recheck against the displayed maximum, independently of any weaker baseline
+  // found by a variant's bounded topology search. The tolerance follows the
+  // scale of solver goal locks and cannot swallow a positive 1e-6/min output.
+  if (baseline.some((value, i) => !Number.isFinite(value + actual[i]) || actual[i] < value * fraction - (1e-8 + Math.abs(value) * 1e-8))) {
+    return emptyResult('timeout', 'Не удалось подтвердить вариант в пределах допустимой потери выпуска относительно максимального варианта. Найденный выпуск ниже разрешённой границы; повторите расчёт или измените ограничения.');
+  }
+  return economy;
 }
 
 function equivalentResults(a: Result, b: Result): boolean {

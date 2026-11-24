@@ -101,10 +101,15 @@ export interface WorldSnapshot {
 }
 export interface SharedResourceNode { id: string; name: string; itemId: string; limit: number }
 export interface Target { itemId: string; rate: number; weight: number; scale: number; minRate?: number; maxRate?: number | null }
+export interface BeltRoutingSettings {
+  enabled: boolean;
+  maxDepth: 1 | 2 | 3 | 4;
+}
 export interface Settings {
   pareto?: boolean;
   inputLimits?: Record<string, number | null>;
   selfSupply?: 'coal' | 'crude-oil' | 'uranium';
+  beltRouting?: BeltRoutingSettings;
   variantOptions?: { outputLoss: number; extraMachines: number; simplerExtraPercent?: number };
   smoothPowerExtraMachines?: number;
   resourcesFirst?: boolean;
@@ -156,6 +161,7 @@ export interface ResourceResult {
 export interface Result {
   fuelProvenance?: { sources: { sourceId: string; rate: number }[]; steps: { configurationId: string; cycles: number }[] };
   generation?: { power: number; localPower: number; localPeak: number; importPower: number; reserve: number };
+  beltRouting?: import('./beltRoutingResult').BeltRoutingResult;
   machineBudget?: { minimum: number; limit: number; used: number };
   exports?: ProductResult[];
   somersloops?: number;

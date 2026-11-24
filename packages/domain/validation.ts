@@ -36,6 +36,7 @@ export const planSchema = z.strictObject({
     pareto: z.boolean().optional(),
     inputLimits: z.record(id, quantity.nullable()).refine(values => Object.keys(values).length <= 1000).optional(),
     selfSupply: z.enum(['coal', 'crude-oil', 'uranium']).optional(),
+    beltRouting: z.strictObject({ enabled: z.boolean(), maxDepth: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]) }).optional(),
     variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000), simplerExtraPercent: z.number().int().min(0).max(1000).optional() }).optional(),
     smoothPowerExtraMachines: z.number().int().min(0).max(1000).optional(),
     resourcesFirst: z.boolean().optional(),
