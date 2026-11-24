@@ -1,8 +1,9 @@
 import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
-import { productionConfigurations, wellConfiguration } from '../domain/production';
+import { canOptimizeClock, productionConfigurations, wellConfiguration } from '../domain/production';
 import { applyBatch } from '../domain/batch';
 import { simplerMachineAllowance } from '../domain/complexity';
+import { validateFuelProvenance } from './fuelProvenance';
 /** Recomputes conservation from catalog coefficients, independent of LP serialization. */
 export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const errors: string[] = [];
@@ -28,11 +29,12 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   for (const step of result.steps) {
     const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId) && c.recipe.id === step.recipeId);
     if (!configuration) { errors.push('Недопустимая конфигурация производства.'); continue; }
-    const autoClock = plan.settings.objective === 'smooth-power' && configuration.duty === null;
+    const autoClock = canOptimizeClock(plan, configuration);
     const expectedClock = autoClock ? Math.min(configuration.clock, Math.max(1, step.cycles * configuration.recipe.seconds / (60 * step.installedMachines) * 100)) : configuration.clock;
     if ((autoClock || step.clock !== undefined) && !close(step.clock!, expectedClock)) errors.push('Неверная рабочая частота этапа.');
     const clock = expectedClock / 100, boost = configuration.boost;
     const recipe = catalog.recipes.find(r => r.id === step.recipeId);
+    if (recipe?.generation && (!close(step.cycles, step.installedMachines) || configuration.clock !== 100 || configuration.somersloops !== 0 || recipe.generation.family !== plan.settings.selfSupply)) errors.push('Неверный режим генератора.');
     if (!recipe || !plan.settings.enabledRecipeIds.includes(step.recipeId) || !plan.settings.enabledBuildingIds.includes(recipe.buildingId)) { errors.push('Использован недоступный рецепт.'); continue; }
     if (seenRecipes.has(configuration.id)) errors.push('Конфигурация повторяется в результате.');
     seenRecipes.add(configuration.id);
@@ -103,6 +105,11 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     extractionPower += sourcePower;
   }
   const productIds = new Set<string>();
+  for (const [id, limit] of Object.entries(plan.settings.inputLimits ?? {})) {
+    if (!catalog.items.some(i => i.id === id)) errors.push('Неизвестный ресурс суммарного лимита.');
+    const rate = result.resources.filter(s => s.itemId === id).reduce((n, s) => n + s.rate, 0);
+    if (limit !== null && (limit === 0 ? rate > 0 : rate > limit + Math.min(1e-6, limit * 1e-7))) errors.push(`Превышен суммарный лимит ${id}.`);
+  }
   for (const p of result.products) {
     if (productIds.has(p.itemId) || !plan.targets.some(t => t.itemId === p.itemId) || !Number.isFinite(p.rate) || p.rate < -1e-7) errors.push('Некорректная отгрузка.');
     productIds.add(p.itemId); bump(p.itemId, -p.rate);
@@ -127,6 +134,16 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   if (sinkRate > 0 && sinks === 0) errors.push('Поток утилизации требует физического утилизатора.');
   if (sinks < 0 || !close(result.sinkPower, sinks * sinkPower) || sinkRate > sinks * beltRate + 1e-5) errors.push('Недостаточно утилизаторов.');
   const totalPower = productionPower + extractionPower + sinks * sinkPower;
+  if (plan.settings.selfSupply) {
+    if (plan.sources.some(s => !catalog.items.find(i => i.id === s.itemId)?.raw)) errors.push('Самообеспечение допускает только первичное сырьё.');
+    const generated = result.steps.reduce((n, step) => n + (catalog.recipes.find(r => r.id === step.recipeId)?.generation?.power ?? 0) * step.cycles, 0);
+    const imported = result.resources.reduce((n, s) => { const original = plan.sources.find(o => o.id === s.sourceId); return n + (original?.kind === 'flow' ? s.rate * (original.importPower ?? 0) : 0); }, 0);
+    const localPeak = installedPower + sinks * sinkPower - imported;
+    const reserve = plan.settings.powerReserve ?? 0;
+    const g = result.generation;
+    if (!g || !close(g.power, generated) || !close(g.importPower, imported) || !close(g.localPower, totalPower - imported) || !close(g.localPeak, localPeak) || !close(g.reserve, reserve)) errors.push('Неверная сводка генерации.');
+    if (generated + 1e-6 < localPeak + reserve) errors.push('Генерация не покрывает пик с резервом.');
+  } else if (result.generation || result.steps.some(s => catalog.recipes.find(r => r.id === s.recipeId)?.generation)) errors.push('Генерация не разрешена планом.');
   if (!close(result.productionPower, productionPower) || !close(result.extractionPower, extractionPower) || !close(result.power, totalPower)
     || !close(result.installedPower, installedPower + sinks * sinkPower)) errors.push('Неверная итоговая мощность.');
   let maxBalanceError = 0;
@@ -154,8 +171,8 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const peakLimit = plan.settings.peakPowerLimit;
   if (peakLimit != null && installedPower + sinks * sinkPower + (plan.settings.powerReserve ?? 0) > peakLimit + 1e-6 + peakLimit * 1e-8) errors.push('Превышен лимит максимальной нагрузки с резервом.');
   for (const [id, limit] of Object.entries(plan.settings.buildingLimits ?? {})) if ((counts.get(id) ?? 0) > limit) errors.push(`Превышен лимит зданий ${id}.`);
-  const recipesFirst = plan.settings.objective === 'smooth-power' ? plan.settings.recipesFirst : undefined;
-  if (plan.settings.objective === 'smooth-power' && (plan.settings.smoothPowerExtraMachines !== undefined || recipesFirst)) {
+  const recipesFirst = !plan.settings.pareto && plan.settings.objective === 'smooth-power' ? plan.settings.recipesFirst : undefined;
+  if (!plan.settings.pareto && plan.settings.objective === 'smooth-power' && (plan.settings.smoothPowerExtraMachines !== undefined || recipesFirst)) {
     const budget = result.machineBudget;
     const used = [...counts.values()].reduce((sum, value) => sum + value, wellSatellites);
     // Минимум получен отдельной целью решателя; здесь независимо проверяются
@@ -165,5 +182,6 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
       || budget.limit !== budget.minimum + allowance!
       || budget.used !== used || used > budget.limit || used < budget.minimum) errors.push('Нарушен бюджет физических машин.');
   }
+  errors.push(...validateFuelProvenance(catalog, plan, result));
   return { maxBalanceError, errors };
 }

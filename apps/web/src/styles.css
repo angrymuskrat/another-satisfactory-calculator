@@ -288,3 +288,8 @@ td .copy-value{font-weight:500}
 .catalog-view details.recipe-more details>summary{padding:2px 0;font-size:var(--text-sm)}
 @media(max-width:720px){.catalog-view details.recipe-more{margin-left:0}}
 .schematic-stage>.schematic-hint{margin:var(--space-4) 22px 0}
+
+.pareto-table-scroll { overflow-x: auto; max-width: 100%; }
+.pareto-table-scroll table { width: 100%; border-collapse: collapse; }
+.pareto-table-scroll th, .pareto-table-scroll td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border, #444); }
+.pareto-table-scroll small { display: block; font-weight: normal; }

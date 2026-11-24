@@ -123,6 +123,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
         const ratio = count / g.count;
         const part = { ...g, count, existing: Math.max(0, Math.min(count, (g.existing ?? 0) - first)),
           averagePower: g.averagePower * ratio, peakPower: g.peakPower * ratio,
+          ...(g.generatedPower !== undefined ? { generatedPower: g.generatedPower * ratio } : {}),
           averageInputs: g.averageInputs.map(f => ({ ...f, rate: f.rate * ratio })),
           averageOutputs: g.averageOutputs.map(f => ({ ...f, rate: f.rate * ratio })) };
         addBuilding(key(continuation ? 'continuation' : 'machine', g.id, first), continuation ? 'continuation' : 'building',

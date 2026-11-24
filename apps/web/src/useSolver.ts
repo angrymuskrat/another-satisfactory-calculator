@@ -6,6 +6,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
   const [report, setReport] = useState<ProductionVariants | null>(null);
   const [pending, setPending] = useState<ProductionVariant['id'][]>([]);
   const [selected, setSelected] = useState<ProductionVariant | null>(null);
+  const [baseline, setBaseline] = useState<ProductionVariant | null>(null);
   const [choosing, setChoosing] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +31,18 @@ export function useSolver(catalog: Catalog, plan: Plan) {
       stop(); setRunning(false); setError('Настройки изменились. Запустите подбор вариантов заново.');
     }
   }, [fingerprint, stop]);
-  const calculate = useCallback(() => {
-    stop(); setRunning(true); setError(null); setReport(null); setPending([]); setSelected(null); setChoosing(true);
+  const calculate = useCallback((continueSearch = false) => {
+    const previous = continueSearch && fingerprint === solvedInput ? report ?? undefined : undefined;
+    if (selected) setBaseline(structuredClone(selected));
+    stop(); setRunning(true); setError(null); if (!previous) setReport(null); setPending([]); setSelected(null); setChoosing(true);
+    const requestId = crypto.randomUUID();
     requestInput.current = fingerprint; acceptedInput.current = null;
     try {
       const instance = new Worker(new URL('./solver.worker.ts', import.meta.url), { type: 'module' });
       worker.current = instance;
       instance.onmessage = (event: MessageEvent<VariantsMessage>) => {
         if (worker.current !== instance) return;
+        if (event.data.requestId !== requestId) return;
         if (!live(currentInput.current)) { setError('Настройки изменились. Запустите подбор вариантов заново.'); setRunning(false); stop(); return; }
         setReport(event.data.report); setPending(event.data.pending);
         if (acceptedInput.current === null) setSolvedInput(fingerprint);
@@ -47,10 +52,10 @@ export function useSolver(catalog: Catalog, plan: Plan) {
         if (worker.current !== instance) return;
         setError(event.message || 'Не удалось загрузить решатель. Обновите страницу.'); setRunning(false); stop();
       };
-      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Уменьшите количество альтернатив или целей.'); setRunning(false); stop(); }, 30000);
-      instance.postMessage({ catalog, plan });
+      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, plan.settings.pareto ? 65000 : 30000);
+      instance.postMessage({ catalog, plan, previous, requestId });
     } catch (error) { setError(error instanceof Error ? error.message : 'Ошибка запуска расчёта.'); setRunning(false); stop(); }
-  }, [catalog, plan, fingerprint, stop]);
+  }, [catalog, plan, fingerprint, stop, report, selected, solvedInput]);
   const cancel = useCallback(() => { stop(); setRunning(false); setError('Расчёт отменён.'); }, [stop]);
   const stale = report !== null && fingerprint !== solvedInput;
   const choose = (id: ProductionVariant['id']): Plan | null => {
@@ -64,6 +69,6 @@ export function useSolver(catalog: Catalog, plan: Plan) {
     return next.plan;
   };
   const failure = !running && report?.variants.every(v => !hasSolution(v.result)) ? report.variants[0] : null;
-  return { report, pending, selected, choosing, result: selected?.result ?? failure?.result ?? null,
+  return { report, pending, selected, baseline, choosing, result: selected?.result ?? failure?.result ?? null,
     running, error, stale, calculate, cancel, choose, showChoices: () => setChoosing(true) };
 }

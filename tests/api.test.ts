@@ -22,6 +22,7 @@ const plan: Plan = {
     objective: 'smooth-power', powerLimit: null, outputSlack: 0, allowSink: false,
     resourceWeights: { 'iron-ore': 2 },
     variantOptions: { outputLoss: 7, extraMachines: 2 }, smoothPowerExtraMachines: 2,
+    pareto: true, inputLimits: { 'iron-ore': 40 }, selfSupply: 'coal',
   },
 };
 const apps: FastifyInstance[] = [];

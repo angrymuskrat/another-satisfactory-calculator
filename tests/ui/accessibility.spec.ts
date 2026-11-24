@@ -104,6 +104,7 @@ test('рецепты и расчёт объявляют краткий стат�
   await target.focus();
   await page.keyboard.press('Enter');
   await expect(target).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('checkbox', { name: 'Подобрать компромиссы для заданного выпуска' }).uncheck();
   await page.getByRole('button', { name: 'Рецепты', exact: true }).click();
   await page.getByRole('textbox', { name: 'Поиск рецептов' }).fill('Железный слиток');
   await expect(page.locator('.catalog-summary').getByRole('status')).toContainText('Найдено');

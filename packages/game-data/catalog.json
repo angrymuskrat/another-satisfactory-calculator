@@ -11,7 +11,8 @@
       "Скважины описываются общим компенсатором и группами спутников в дополнении p2-mechanics; в основном каталоге они не выдаются за независимые добывающие узлы. Азот доступен через скважину или внешний поток; неизвестная энергия внешней поставки не принимается за ноль.",
       "Генерация, строительство, ручное изготовление, автоматический верстак и сезонные FICSMAS-рецепты исключены из производственной модели. Стоимости 17 новых зданий/добытчиков импортированы отдельно из строительных рецептов. Производство и переработка ядерных материалов поддержаны; генерация отходов реактором не моделируется.",
       "Названия и принадлежность категорий подтверждены assets и русской игровой локализацией той же сборки; учитываются mCategory и mOverriddenCategory. Приоритеты рецептов из Docs; для категорий без сериализованного приоритета и равных приоритетов используется русский алфавит. Полное совпадение порядка меню не заявляется.",
-      "Прямые открытия схем сверены с Docs, граф MAM и фазы HUB — с assets той же сборки. Внешние события и завершение отмечаются пользователем; пять узлов сохраняют неизвестные координатные связи. prerequisitesKnown=false: справочные связи не являются полным автоматическим условием доступа."
+      "Прямые открытия схем сверены с Docs, граф MAM и фазы HUB — с assets той же сборки. Внешние события и завершение отмечаются пользователем; пять узлов сохраняют неизвестные координатные связи. prerequisitesKnown=false: справочные связи не являются полным автоматическим условием доступа.",
+      "Генерация: закреплённые Docs той же сборки; 100% частоты, полный расход топлива. «Генерация (расчёт)» — служебная группа, не меню игры."
     ]
   },
   "items": [
@@ -1811,6 +1812,82 @@
         {
           "itemId": "concrete",
           "amount": 45
+        }
+      ]
+    },
+    {
+      "id": "coal-generator",
+      "name": "Угольный генератор",
+      "nameEn": "Coal-Powered Generator",
+      "power": 0,
+      "buildCost": [
+        {
+          "itemId": "reinforced-iron-plate",
+          "amount": 20
+        },
+        {
+          "itemId": "rotor",
+          "amount": 10
+        },
+        {
+          "itemId": "cable",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "id": "fuel-generator",
+      "name": "Топливный генератор",
+      "nameEn": "Fuel-Powered Generator",
+      "power": 0,
+      "buildCost": [
+        {
+          "itemId": "motor",
+          "amount": 15
+        },
+        {
+          "itemId": "encased-industrial-beam",
+          "amount": 15
+        },
+        {
+          "itemId": "copper-sheet",
+          "amount": 30
+        },
+        {
+          "itemId": "rubber",
+          "amount": 50
+        },
+        {
+          "itemId": "quickwire",
+          "amount": 50
+        }
+      ]
+    },
+    {
+      "id": "nuclear-power-plant",
+      "name": "Атомная электростанция",
+      "nameEn": "Nuclear Power Plant",
+      "power": 0,
+      "buildCost": [
+        {
+          "itemId": "supercomputer",
+          "amount": 10
+        },
+        {
+          "itemId": "heavy-modular-frame",
+          "amount": 25
+        },
+        {
+          "itemId": "alclad-aluminum-sheet",
+          "amount": 100
+        },
+        {
+          "itemId": "cable",
+          "amount": 200
+        },
+        {
+          "itemId": "concrete",
+          "amount": 250
         }
       ]
     }
@@ -9012,6 +9089,250 @@
         }
       ],
       "alternate": false
+    },
+    {
+      "id": "generate-coal",
+      "name": "Угольный генератор: Уголь",
+      "nameEn": "Coal-Powered Generator: Coal",
+      "category": "Генерация (расчёт)",
+      "buildingId": "coal-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "coal",
+          "amount": 15
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 75,
+        "family": "coal"
+      }
+    },
+    {
+      "id": "generate-compacted-coal",
+      "name": "Угольный генератор: Угольный брикет",
+      "nameEn": "Coal-Powered Generator: Compacted Coal",
+      "category": "Генерация (расчёт)",
+      "buildingId": "coal-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "compacted-coal",
+          "amount": 7.142857142857143
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 75,
+        "family": "coal"
+      }
+    },
+    {
+      "id": "generate-petroleum-coke",
+      "name": "Угольный генератор: Нефтяной кокс",
+      "nameEn": "Coal-Powered Generator: Petroleum Coke",
+      "category": "Генерация (расчёт)",
+      "buildingId": "coal-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "petroleum-coke",
+          "amount": 25
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 75,
+        "family": "crude-oil"
+      }
+    },
+    {
+      "id": "generate-fuel",
+      "name": "Топливный генератор: Топливо",
+      "nameEn": "Fuel-Powered Generator: Fuel",
+      "category": "Генерация (расчёт)",
+      "buildingId": "fuel-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "fuel",
+          "amount": 20
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 250,
+        "family": "crude-oil"
+      }
+    },
+    {
+      "id": "generate-turbofuel",
+      "name": "Топливный генератор: Турботопливо",
+      "nameEn": "Fuel-Powered Generator: Turbofuel",
+      "category": "Генерация (расчёт)",
+      "buildingId": "fuel-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "turbofuel",
+          "amount": 7.5
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 250,
+        "family": "crude-oil"
+      }
+    },
+    {
+      "id": "generate-rocket-fuel",
+      "name": "Топливный генератор: Ракетное топливо",
+      "nameEn": "Fuel-Powered Generator: Rocket Fuel",
+      "category": "Генерация (расчёт)",
+      "buildingId": "fuel-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "rocket-fuel",
+          "amount": 4.166666666666667
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 250,
+        "family": "crude-oil"
+      }
+    },
+    {
+      "id": "generate-ionized-fuel",
+      "name": "Топливный генератор: Ионизированное топливо",
+      "nameEn": "Fuel-Powered Generator: Ionized Fuel",
+      "category": "Генерация (расчёт)",
+      "buildingId": "fuel-generator",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "ionized-fuel",
+          "amount": 3
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 250,
+        "family": "crude-oil"
+      }
+    },
+    {
+      "id": "generate-uranium-fuel-rod",
+      "name": "Атомная электростанция: Урановый стержень",
+      "nameEn": "Nuclear Power Plant: Uranium Fuel Rod",
+      "category": "Генерация (расчёт)",
+      "buildingId": "nuclear-power-plant",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "uranium-fuel-rod",
+          "amount": 0.2
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [
+        {
+          "itemId": "uranium-waste",
+          "amount": 10
+        }
+      ],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 2500,
+        "family": "uranium"
+      }
+    },
+    {
+      "id": "generate-plutonium-fuel-rod",
+      "name": "Атомная электростанция: Плутониевый стержень",
+      "nameEn": "Nuclear Power Plant: Plutonium Fuel Rod",
+      "category": "Генерация (расчёт)",
+      "buildingId": "nuclear-power-plant",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "plutonium-fuel-rod",
+          "amount": 0.1
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [
+        {
+          "itemId": "plutonium-waste",
+          "amount": 1
+        }
+      ],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 2500,
+        "family": "uranium"
+      }
+    },
+    {
+      "id": "generate-ficsonium-fuel-rod",
+      "name": "Атомная электростанция: Фиксониевый стержень",
+      "nameEn": "Nuclear Power Plant: Ficsonium Fuel Rod",
+      "category": "Генерация (расчёт)",
+      "buildingId": "nuclear-power-plant",
+      "seconds": 60,
+      "inputs": [
+        {
+          "itemId": "ficsonium-fuel-rod",
+          "amount": 1
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [],
+      "alternate": false,
+      "power": 0,
+      "generation": {
+        "power": 2500,
+        "family": "uranium"
+      }
     }
   ],
   "miners": [
@@ -9237,7 +9558,8 @@
     "Космический лифт",
     "Нефтепродукты",
     "Опустошение ёмкостей",
-    "Распределение по ёмкостям"
+    "Распределение по ёмкостям",
+    "Генерация (расчёт)"
   ],
   "unlocks": [
     {
@@ -9659,8 +9981,14 @@
       "name": "Угольная энергия",
       "kind": "hub",
       "tier": 3,
-      "recipeIds": [],
-      "buildingIds": [],
+      "recipeIds": [
+        "generate-coal",
+        "generate-compacted-coal",
+        "generate-petroleum-coke"
+      ],
+      "buildingIds": [
+        "coal-generator"
+      ],
       "minerIds": [
         "water-extractor"
       ],
@@ -10145,9 +10473,14 @@
         "uranium-cell",
         "em-control-rod",
         "uranium-fuel-rod",
-        "magnetic-field-generator"
+        "magnetic-field-generator",
+        "generate-uranium-fuel-rod",
+        "generate-plutonium-fuel-rod",
+        "generate-ficsonium-fuel-rod"
       ],
-      "buildingIds": [],
+      "buildingIds": [
+        "nuclear-power-plant"
+      ],
       "minerIds": [],
       "beltIds": [],
       "pipeIds": [],
@@ -12461,8 +12794,15 @@
       "name": "Энергия на основе нефти",
       "kind": "hub",
       "tier": 5,
-      "recipeIds": [],
-      "buildingIds": [],
+      "recipeIds": [
+        "generate-fuel",
+        "generate-turbofuel",
+        "generate-rocket-fuel",
+        "generate-ionized-fuel"
+      ],
+      "buildingIds": [
+        "fuel-generator"
+      ],
       "minerIds": [],
       "beltIds": [],
       "pipeIds": [],
@@ -18174,5 +18514,93 @@
       "name": "Завершено",
       "lastTier": 9
     }
-  ]
+  ],
+  "generationPaths": {
+    "coal": {
+      "itemIds": [
+        "coal",
+        "compacted-coal"
+      ],
+      "recipeIds": [
+        "alt-coal"
+      ]
+    },
+    "crude-oil": {
+      "itemIds": [
+        "crude-oil",
+        "heavy-oil-residue",
+        "petroleum-coke",
+        "fuel",
+        "turbofuel",
+        "rocket-fuel",
+        "ionized-fuel",
+        "packaged-oil",
+        "packaged-heavy-oil-residue",
+        "packaged-fuel",
+        "packaged-turbofuel",
+        "packaged-rocket-fuel",
+        "packaged-ionized-fuel"
+      ],
+      "recipeIds": [
+        "plastic",
+        "rubber",
+        "alt-polymer-resin",
+        "alt-heavy-oil-residue",
+        "petroleum-coke",
+        "fuel",
+        "residual-fuel",
+        "alt-diluted-fuel",
+        "alt-packaged-fuel",
+        "turbofuel",
+        "alt-turbofuel",
+        "alt-turbo-blend-fuel",
+        "rocket-fuel",
+        "alt-rocket-fuel",
+        "ionized-fuel",
+        "alt-dark-ion-fuel",
+        "packaged-oil",
+        "packaged-heavy-oil-residue",
+        "packaged-fuel",
+        "packaged-turbofuel",
+        "packaged-rocket-fuel",
+        "packaged-ionized-fuel",
+        "unpackage-oil",
+        "unpackage-heavy-oil-residue",
+        "unpackage-fuel",
+        "unpackage-turbofuel",
+        "unpackage-rocket-fuel",
+        "unpackage-ionized-fuel"
+      ]
+    },
+    "uranium": {
+      "itemIds": [
+        "uranium",
+        "uranium-cell",
+        "uranium-fuel-rod",
+        "uranium-waste",
+        "non-fissile-uranium",
+        "plutonium-pellet",
+        "encased-plutonium-cell",
+        "plutonium-fuel-rod",
+        "plutonium-waste",
+        "ficsonium",
+        "ficsonium-fuel-rod"
+      ],
+      "recipeIds": [
+        "uranium-cell",
+        "alt-uranium-cell",
+        "uranium-fuel-rod",
+        "alt-uranium-fuel-unit",
+        "non-fissile-uranium",
+        "alt-fertile-uranium",
+        "plutonium-pellet",
+        "encased-plutonium-cell",
+        "alt-plutonium-cell",
+        "plutonium-fuel-rod",
+        "alt-plutonium-fuel-rod",
+        "ficsonium",
+        "ficsonium-fuel-rod"
+      ]
+    }
+  }
 }

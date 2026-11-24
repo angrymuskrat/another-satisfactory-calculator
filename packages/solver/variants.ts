@@ -2,13 +2,15 @@ import type { Catalog, Plan, ProductionVariant, ProductionVariants, Result } fro
 import { hasSolution } from '../domain/types';
 import { parsePlan } from '../domain/validation';
 import { emptyResult, solve } from './solve';
+import { solvePareto } from './pareto';
 
 export type { ProductionVariant, ProductionVariants } from '../domain/types';
 export type VariantProgress = (report: ProductionVariants, pending: ProductionVariant['id'][]) => void;
-export interface VariantsMessage { report: ProductionVariants; pending: ProductionVariant['id'][]; done: boolean }
+export interface VariantsMessage { report: ProductionVariants; pending: ProductionVariant['id'][]; done: boolean; requestId: string }
 
 /** Все решения используют исходные ограничения; бюджет машин и порядок затрат не меняют максимум выпуска. */
 export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000, onProgress?: VariantProgress): ProductionVariants {
+  if (input.settings.pareto && (input.mode === 'target' || input.batch)) return solvePareto(catalog, input, highs, deadline, onProgress && (report => onProgress(report, [])));
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
   const resources = structuredClone(input);

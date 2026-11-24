@@ -36,6 +36,9 @@ test('расчёт, русский поиск, политики и невыпо�
   await toggle.setChecked(wasChecked);
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByRole('button', { name: 'Заданный выпуск Выполнить производственный заказ' }).click();
+  // Новый заказ предлагает Парето; этот сценарий проверяет прежний подбор.
+  await expect(page.getByRole('checkbox', { name: 'Подобрать компромиссы для заданного выпуска' })).toBeChecked();
+  await page.getByRole('checkbox', { name: 'Подобрать компромиссы для заданного выпуска' }).uncheck();
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1');
   await page.getByRole('textbox', { name: 'Количество продукта 2', exact: true }).fill('1');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();

@@ -58,7 +58,7 @@ export function Construction({ catalog, model, building, destinations }: { catal
     const name = (id: string) => item(id)?.name ?? id;
     return <details className="production-step" key={group.id} open={building || undefined}>
       <summary><span className="step-title"><span className="step-number">{index}</span><ItemIcon item={item(group.averageOutputs[0]?.itemId ?? group.averageInputs[0]?.itemId ?? '')} size={32} /><span><strong>{group.name}</strong><small>{machine?.name}</small></span></span><span>{group.count}</span><span>{format(group.averagePower)}</span></summary>
-      <div className="step-details">
+      <div className="step-details">{group.generatedPower !== undefined && <p>Выработка группы: {format(group.generatedPower)} МВт · генераторы на 100%, непрерывный расход топлива.</p>}
         <div className="full-width"><p>Физических машин: <CopyNumber value={group.count} label={`${group.name}: число машин`} /> · Частота каждой: <CopyNumber value={group.clock} label={`${group.name}: частота`} suffix="%" /></p>
           <p>Уже есть: {group.existing ?? 0} · Добавить: {group.count - (group.existing ?? 0)} · Somersloops на машину: {group.somersloops ?? 0}</p><p>Активная доля времени: <CopyNumber value={group.activeDuty * 100} label={`${group.name}: активная доля времени`} suffix="%" /> — средняя доля работы группы, а не настройка частоты.</p>
           {group.kind === 'sink' && <p className="hint">Утилизаторы в модели потребляют полную мощность; доля заполнения ленты не уменьшает MW. Поток на один утилизатор — равная доля входа группы при непрерывном питании.</p>}

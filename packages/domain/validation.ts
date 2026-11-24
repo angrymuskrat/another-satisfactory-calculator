@@ -33,6 +33,9 @@ export const planSchema = z.strictObject({
     minerId: z.string().max(200), clock: z.number().finite().min(1).max(250),
   })).max(512).refine(sources => new Set(sources.map(s => s.id)).size === sources.length, 'Повторяющиеся источники'),
   settings: z.strictObject({
+    pareto: z.boolean().optional(),
+    inputLimits: z.record(id, quantity.nullable()).refine(values => Object.keys(values).length <= 1000).optional(),
+    selfSupply: z.enum(['coal', 'crude-oil', 'uranium']).optional(),
     variantOptions: z.strictObject({ outputLoss: z.number().finite().min(0).max(99), extraMachines: z.number().int().min(0).max(1000), simplerExtraPercent: z.number().int().min(0).max(1000).optional() }).optional(),
     smoothPowerExtraMachines: z.number().int().min(0).max(1000).optional(),
     resourcesFirst: z.boolean().optional(),

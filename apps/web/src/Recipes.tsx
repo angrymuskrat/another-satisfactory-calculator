@@ -98,7 +98,7 @@ export function Recipes({ catalog, plan, setPlan, store, activeFactoryId }: Reci
     {!filtered.length && <div className="panel empty-panel"><Search size={32} /><h3>Ничего не найдено</h3><p>Попробуйте другое название, область поиска или снимите фильтры.</p></div>}
   </div>;
 }
-function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, running, selected, selectionFull, select, progress, showProgress }: {
+function ManufacturingRecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, running, selected, selectionFull, select, progress, showProgress }: {
   progress: RecipeProgress; showProgress: boolean;
   catalog: Catalog; plan: Plan; recipe: Recipe; mode: QuantityMode; clock: number;
   toggle: (on: boolean) => void; compare: () => void; running: boolean; selected: boolean; selectionFull: boolean; select: (on: boolean) => void;
@@ -130,5 +130,19 @@ function RecipeCard({ catalog, plan, recipe, mode, clock, toggle, compare, runni
       <div className="recipe-actions"><button className="secondary-button" disabled={running || !comparable} onClick={compare} aria-label={'Сравнить для моей фабрики: ' + recipe.name}>{a.enabled ? 'Сравнить без рецепта' : 'Сравнить для моей фабрики'}</button>
       <label><input type="checkbox" aria-label={'Выбрать для совместного сравнения: ' + recipe.name} checked={selected} disabled={running || !comparable || (!selected && selectionFull)} onChange={e => select(e.target.checked)} /> Для совместного сравнения</label></div>
     </details>
+  </article>;
+}
+
+function RecipeCard(props: Parameters<typeof ManufacturingRecipeCard>[0]) {
+  const { recipe, catalog, plan, toggle } = props;
+  if (!recipe.generation) return <ManufacturingRecipeCard {...props} />;
+  const availability = recipeAvailability(catalog, plan, recipe);
+  return <article className="panel recipe-card"><h3>{recipe.name}</h3>
+    <label className="inline-check"><input type="checkbox" aria-label={'Включить рецепт ' + recipe.name} checked={availability.enabled} disabled={!availability.opened && !availability.enabled} onChange={e => toggle(e.target.checked)} />Разрешить режим генерации</label>
+    <p>Выработка: {format(recipe.generation.power)} МВт · частота 100%</p>
+    <p>Расход в минуту: {recipe.inputs.map(i => `${catalog.items.find(x => x.id === i.itemId)?.name}: ${format(i.amount, 4)}`).join(', ')}</p>
+    {!!recipe.outputs.length && <p>Отходы в минуту: {recipe.outputs.map(i => `${catalog.items.find(x => x.id === i.itemId)?.name}: ${format(i.amount, 4)}`).join(', ')}</p>}
+    <p className="hint">Генерация (расчёт) — служебная группа. Режим используется при выбранном самообеспечении и доступном здании. Топливо расходуется полностью при работе генератора.</p>
+    {availability.reasons.map(reason => <p key={reason}>{reason}</p>)}
   </article>;
 }

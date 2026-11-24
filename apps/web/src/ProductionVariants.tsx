@@ -4,6 +4,7 @@ import { buildComplexity } from '../../../packages/domain/complexity';
 import type { Catalog, Plan, ProductionVariant, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { ModelNotes, Results, usedResources } from './Results';
+import { ParetoResults } from './ParetoResults';
 import { format, unit } from './controls';
 import type { useSolver } from './useSolver';
 import { sourceLabel } from '../../../packages/domain/sourceLabel';
@@ -33,6 +34,7 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
   const variants = report?.variants.filter(v => !v.sameAs);
   const merged = report?.variants.filter(v => v.sameAs).map(v => `«${v.label}» совпадает с «${report.variants.find(o => o.id === v.sameAs)?.label}».`) ?? [];
   const focusHeading = () => requestAnimationFrame(() => heading.current?.focus());
+  if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} />;
   const item = (id: string) => catalog.items.find(i => i.id === id);
   // Общий набор строк: одинаковые метрики стоят на одной высоте во всех вариантах.
   const solved = (variants ?? []).filter(v => hasSolution(v.result));

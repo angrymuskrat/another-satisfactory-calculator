@@ -1,0 +1,378 @@
+{
+  "catalogVersion": "steam-24656030-v1",
+  "steamBuildId": "24656030",
+  "importedAt": "2026-11-05",
+  "source": "Satisfactory CommunityResources Docs",
+  "hashes": {
+    "upstream.json": "0543ab8cde0d154246c1d26b1e630a5514e6ae79960620918b80b833924ecd82",
+    "LICENSE.upstream": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "upstream-tree.json": "1f82d8e6a11959dfc9da3687048dc53b4a9c0e49eba2fc4eb2a88595317ec3f4",
+    "Docs-en-US.json.gz": "2078bd29376d8cbc8e30451aa27a76146fb1c64760af4ef4e7cfe7d76065f30d",
+    "Docs-ru.json.gz": "a01af8a764f9116a8474c09def2cb9b58f3172c8cd039718d59568154e6d326e",
+    "menu-assets.json": "c3fdac0cfaa5c102c36985cf09d7385bb8d9fbb460f06e3893dc95d44d72d689",
+    "research-assets.json": "ad944cebf4620af9761e03f0f9fcd883762885def04ebc1356bd2ba5bd7a76c2",
+    "buildable-defaults.json": "8129a8e71e340b1d10c396c71a9700d8a75f673a9d2ef7ae02773168d9a691e3"
+  },
+  "verified": true,
+  "evidence": [
+    {
+      "id": "generate-coal",
+      "generatorClass": "Build_GeneratorCoal_C",
+      "fuelClass": "Desc_Coal_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_Coal_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 300,
+      "units": 1,
+      "power": 75,
+      "supplementalRatio": "10.000000",
+      "inputs": [
+        {
+          "itemId": "coal",
+          "amount": 15
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorCoal_C"
+    },
+    {
+      "id": "generate-compacted-coal",
+      "generatorClass": "Build_GeneratorCoal_C",
+      "fuelClass": "Desc_CompactedCoal_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_CompactedCoal_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 630,
+      "units": 1,
+      "power": 75,
+      "supplementalRatio": "10.000000",
+      "inputs": [
+        {
+          "itemId": "compacted-coal",
+          "amount": 7.142857142857143
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorCoal_C"
+    },
+    {
+      "id": "generate-petroleum-coke",
+      "generatorClass": "Build_GeneratorCoal_C",
+      "fuelClass": "Desc_PetroleumCoke_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_PetroleumCoke_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 180,
+      "units": 1,
+      "power": 75,
+      "supplementalRatio": "10.000000",
+      "inputs": [
+        {
+          "itemId": "petroleum-coke",
+          "amount": 25
+        },
+        {
+          "itemId": "water",
+          "amount": 45
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorCoal_C"
+    },
+    {
+      "id": "generate-fuel",
+      "generatorClass": "Build_GeneratorFuel_C",
+      "fuelClass": "Desc_LiquidFuel_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_LiquidFuel_C",
+        "mSupplementalResourceClass": "",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 0.75,
+      "units": 1000,
+      "power": 250,
+      "supplementalRatio": "0.000000",
+      "inputs": [
+        {
+          "itemId": "fuel",
+          "amount": 20
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorFuel_C"
+    },
+    {
+      "id": "generate-turbofuel",
+      "generatorClass": "Build_GeneratorFuel_C",
+      "fuelClass": "Desc_LiquidTurboFuel_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_LiquidTurboFuel_C",
+        "mSupplementalResourceClass": "",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 2,
+      "units": 1000,
+      "power": 250,
+      "supplementalRatio": "0.000000",
+      "inputs": [
+        {
+          "itemId": "turbofuel",
+          "amount": 7.5
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorFuel_C"
+    },
+    {
+      "id": "generate-rocket-fuel",
+      "generatorClass": "Build_GeneratorFuel_C",
+      "fuelClass": "Desc_RocketFuel_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_RocketFuel_C",
+        "mSupplementalResourceClass": "",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 3.6,
+      "units": 1000,
+      "power": 250,
+      "supplementalRatio": "0.000000",
+      "inputs": [
+        {
+          "itemId": "rocket-fuel",
+          "amount": 4.166666666666667
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorFuel_C"
+    },
+    {
+      "id": "generate-ionized-fuel",
+      "generatorClass": "Build_GeneratorFuel_C",
+      "fuelClass": "Desc_IonizedFuel_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_IonizedFuel_C",
+        "mSupplementalResourceClass": "",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 5,
+      "units": 1000,
+      "power": 250,
+      "supplementalRatio": "0.000000",
+      "inputs": [
+        {
+          "itemId": "ionized-fuel",
+          "amount": 3
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorFuel_C"
+    },
+    {
+      "id": "generate-uranium-fuel-rod",
+      "generatorClass": "Build_GeneratorNuclear_C",
+      "fuelClass": "Desc_NuclearFuelRod_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_NuclearFuelRod_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "Desc_NuclearWaste_C",
+        "mByproductAmount": "50"
+      },
+      "energy": 750000,
+      "units": 1,
+      "power": 2500,
+      "supplementalRatio": "1.600000",
+      "inputs": [
+        {
+          "itemId": "uranium-fuel-rod",
+          "amount": 0.2
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [
+        {
+          "itemId": "uranium-waste",
+          "amount": 10
+        }
+      ],
+      "buildRecipe": "Recipe_GeneratorNuclear_C"
+    },
+    {
+      "id": "generate-plutonium-fuel-rod",
+      "generatorClass": "Build_GeneratorNuclear_C",
+      "fuelClass": "Desc_PlutoniumFuelRod_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_PlutoniumFuelRod_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "Desc_PlutoniumWaste_C",
+        "mByproductAmount": "10"
+      },
+      "energy": 1500000,
+      "units": 1,
+      "power": 2500,
+      "supplementalRatio": "1.600000",
+      "inputs": [
+        {
+          "itemId": "plutonium-fuel-rod",
+          "amount": 0.1
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [
+        {
+          "itemId": "plutonium-waste",
+          "amount": 1
+        }
+      ],
+      "buildRecipe": "Recipe_GeneratorNuclear_C"
+    },
+    {
+      "id": "generate-ficsonium-fuel-rod",
+      "generatorClass": "Build_GeneratorNuclear_C",
+      "fuelClass": "Desc_FicsoniumFuelRod_C",
+      "rawFuel": {
+        "mFuelClass": "Desc_FicsoniumFuelRod_C",
+        "mSupplementalResourceClass": "Desc_Water_C",
+        "mByproduct": "",
+        "mByproductAmount": ""
+      },
+      "energy": 150000,
+      "units": 1,
+      "power": 2500,
+      "supplementalRatio": "1.600000",
+      "inputs": [
+        {
+          "itemId": "ficsonium-fuel-rod",
+          "amount": 1
+        },
+        {
+          "itemId": "water",
+          "amount": 240
+        }
+      ],
+      "outputs": [],
+      "buildRecipe": "Recipe_GeneratorNuclear_C"
+    }
+  ],
+  "excluded": [
+    {
+      "generator": "Build_GeneratorFuel_C",
+      "fuel": "Desc_LiquidBiofuel_C",
+      "reason": "Вне охвата: биотопливо/неподтверждённое семейство"
+    }
+  ],
+  "paths": {
+    "coal": {
+      "itemIds": [
+        "coal",
+        "compacted-coal"
+      ],
+      "recipeIds": [
+        "alt-coal"
+      ]
+    },
+    "crude-oil": {
+      "itemIds": [
+        "crude-oil",
+        "heavy-oil-residue",
+        "petroleum-coke",
+        "fuel",
+        "turbofuel",
+        "rocket-fuel",
+        "ionized-fuel",
+        "packaged-oil",
+        "packaged-heavy-oil-residue",
+        "packaged-fuel",
+        "packaged-turbofuel",
+        "packaged-rocket-fuel",
+        "packaged-ionized-fuel"
+      ],
+      "recipeIds": [
+        "plastic",
+        "rubber",
+        "alt-polymer-resin",
+        "alt-heavy-oil-residue",
+        "petroleum-coke",
+        "fuel",
+        "residual-fuel",
+        "alt-diluted-fuel",
+        "alt-packaged-fuel",
+        "turbofuel",
+        "alt-turbofuel",
+        "alt-turbo-blend-fuel",
+        "rocket-fuel",
+        "alt-rocket-fuel",
+        "ionized-fuel",
+        "alt-dark-ion-fuel",
+        "packaged-oil",
+        "packaged-heavy-oil-residue",
+        "packaged-fuel",
+        "packaged-turbofuel",
+        "packaged-rocket-fuel",
+        "packaged-ionized-fuel",
+        "unpackage-oil",
+        "unpackage-heavy-oil-residue",
+        "unpackage-fuel",
+        "unpackage-turbofuel",
+        "unpackage-rocket-fuel",
+        "unpackage-ionized-fuel"
+      ]
+    },
+    "uranium": {
+      "itemIds": [
+        "uranium",
+        "uranium-cell",
+        "uranium-fuel-rod",
+        "uranium-waste",
+        "non-fissile-uranium",
+        "plutonium-pellet",
+        "encased-plutonium-cell",
+        "plutonium-fuel-rod",
+        "plutonium-waste",
+        "ficsonium",
+        "ficsonium-fuel-rod"
+      ],
+      "recipeIds": [
+        "uranium-cell",
+        "alt-uranium-cell",
+        "uranium-fuel-rod",
+        "alt-uranium-fuel-unit",
+        "non-fissile-uranium",
+        "alt-fertile-uranium",
+        "plutonium-pellet",
+        "encased-plutonium-cell",
+        "alt-plutonium-cell",
+        "plutonium-fuel-rod",
+        "alt-plutonium-fuel-rod",
+        "ficsonium",
+        "ficsonium-fuel-rod"
+      ]
+    }
+  }
+}

@@ -14,6 +14,7 @@ test('отдельные экраны сохраняют результат и �
   const nav = page.getByRole('navigation', { name: 'Основная навигация' });
   await expect(nav.getByRole('button', { name: 'Цели и ограничения', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Заданный выпуск Выполнить производственный заказ' }).click();
+  await page.getByRole('checkbox', { name: 'Подобрать компромиссы для заданного выпуска' }).uncheck();
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('7.5');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);

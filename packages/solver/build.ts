@@ -2,6 +2,7 @@ import type { Catalog, Plan, Recipe, Source } from '../domain/types';
 import { add, Model, type Expression } from './model';
 import { canOptimizeClock, productionConfigurations, wellConfiguration, type ProductionConfiguration } from '../domain/production';
 import { clockPower, MIN_CLOCK } from './clockPower';
+import { buildFuelProvenance } from './fuelProvenance';
 const EXPONENT = Math.log2(2.5);
 export interface RecipeVariable { configuration: ProductionConfiguration; recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number; minimumPowerPerCycle: number; autoClock: boolean }
 export interface SourceVariable { source: Source; variable: string; countVariable: string | null; capacity: number; limit: number | null; powerPerUnit: number; installedPower: number }
@@ -10,9 +11,11 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   const model = new Model();
   const power: Expression = new Map(); const resources: Expression = new Map(); const activity: Expression = new Map();
   const peakPower: Expression = new Map(); const machineCount: Expression = new Map();
+  const importedPower: Expression = new Map(); const generation: Expression = new Map();
+  const inputResources = new Map<string, Expression>();
   const countsByBuilding = new Map<string, Expression>();
   const loops: Expression = new Map();
-  const needsCounts = !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
+  const needsCounts = !!plan.settings.selfSupply || !!plan.lines?.length || (plan.somersloopBudget ?? 0) > 0 || plan.sources.some(s => s.kind === 'well') || plan.settings.objective === 'buildings' || plan.settings.objective === 'smooth-power' || plan.settings.peakPowerLimit != null || Object.keys(plan.settings.buildingLimits ?? {}).length > 0;
   const countFor = (id: string, upper: number | null = null) => {
     const variable = model.variable(upper, true);
     add(machineCount, variable, 1);
@@ -38,7 +41,7 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     const clock = configuration.clock / 100;
     if (!enabledRecipes.has(recipe.id) || !enabledBuildings.has(recipe.buildingId)) continue;
     const building = buildings.get(recipe.buildingId);
-    if (!building || recipe.seconds <= 0 || recipe.outputs.length === 0) throw new Error(`Некорректный рецепт ${recipe.id}.`);
+    if (!building || recipe.seconds <= 0 || (!recipe.generation && recipe.outputs.length === 0)) throw new Error(`Некорректный рецепт ${recipe.id}.`);
     const cyclesAtClock = 60 / recipe.seconds * clock;
     const machinePower = (recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
     const machineMax = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
@@ -58,6 +61,9 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     const minimumPowerPerCycle = autoClock ? powerPerCycle * (MIN_CLOCK / clock) ** (EXPONENT - 1) : powerPerCycle;
     const countVariable = needsCounts ? countFor(recipe.buildingId, configuration.existing || null) : null;
     if (countVariable) {
+      if (recipe.generation) { model.constrain(new Map([[variable, 1], [countVariable, -1]]), '=', 0); add(generation, variable, recipe.generation.power); }
+      // Beyond full load at 1%, extra idle new machines cannot improve energy.
+      if (plan.settings.pareto && autoClock && !configuration.existing) model.constrain(new Map([[countVariable, 1], [variable, -1 / ((60 / recipe.seconds) * MIN_CLOCK)]]), '<=', 1);
       if (configuration.existing) model.constrain(new Map([[countVariable, 1]]), '=', configuration.existing);
       if (configuration.duty !== null) model.constrain(new Map([[variable, 1]]), '=', configuration.existing * cyclesAtClock * configuration.duty);
       model.constrain(new Map([[variable, 1 / capacity], [countVariable, -1]]), '<=', 0);
@@ -111,6 +117,8 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     if (source.kind === 'flow') add(peakPower, variable, powerPerUnit);
     add(balance.get(source.itemId)!, variable, 1);
     add(power, variable, powerPerUnit); add(resources, variable, plan.settings.resourceWeights[source.itemId] ?? 1);
+    if (source.kind === 'flow') add(importedPower, variable, powerPerUnit);
+    const perItem = inputResources.get(source.itemId) ?? new Map(); add(perItem, variable, 1); inputResources.set(source.itemId, perItem);
     return { source, variable, countVariable, capacity: perMachineCapacity, limit, powerPerUnit, installedPower };
   });
   const targets = plan.targets.map(t => {
@@ -145,6 +153,18 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     model.constrain(throughput, '<=', 0);
   }
   for (const expression of balance.values()) model.constrain(expression, '=', 0);
+  for (const [id, limit] of Object.entries(plan.settings.inputLimits ?? {})) {
+    check(id); if (limit !== null) model.constrain(inputResources.get(id) ?? new Map(), '<=', limit);
+  }
+  if (plan.settings.selfSupply) {
+    const nonRaw = plan.sources.filter(s => !items.get(s.itemId)?.raw);
+    if (nonRaw.length) throw new Error(`Самообеспечение допускает только первичное сырьё. Измените источники: ${nonRaw.map(s => s.name || s.itemId).join(', ')}.`);
+    if (!generation.size) throw new Error('Нет доступного генератора выбранного энергетического семейства. Проверьте технологии, рецепты и мир.');
+    const coverage = new Map(generation);
+    for (const [v, c] of peakPower) add(coverage, v, -c);
+    for (const [v, c] of importedPower) add(coverage, v, c);
+    model.constrain(coverage, '>=', plan.settings.powerReserve ?? 0);
+  }
   model.constrain(loops, '<=', plan.somersloopBudget ?? 0);
   if (plan.settings.powerLimit !== null) model.constrain(power, '<=', plan.settings.powerLimit);
   if (plan.settings.peakPowerLimit != null) model.constrain(peakPower, '<=', plan.settings.peakPowerLimit - (plan.settings.powerReserve ?? 0));
@@ -152,5 +172,6 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     if (!buildings.has(id) && !catalog.miners.some(m => m.id === id) && id !== 'resource-well-pressurizer') throw new Error('Тип здания для лимита отсутствует в каталоге.');
     model.constrain(countsByBuilding.get(id) ?? new Map(), '<=', limit);
   }
-  return { model, power, peakPower, machineCount, needsCounts, loops, exports, resources, activity, recipeVariables, sourceVariables, targets, ratio, disposal, sinkCount, sinkPower: sink?.power ?? 30 };
+  const fuelProvenance = buildFuelProvenance(catalog, plan, model, recipeVariables, sourceVariables);
+  return { model, power, peakPower, importedPower, generation, fuelProvenance, inputResources, machineCount, needsCounts, loops, exports, resources, activity, recipeVariables, sourceVariables, targets, ratio, disposal, sinkCount, sinkPower: sink?.power ?? 30 };
 }
