@@ -3,7 +3,7 @@ import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import type { ProductionVariants, ProductionVariant, VariantsMessage } from '../../../packages/solver/variants';
 import { variantDuration } from '../../../packages/domain/searchDuration';
-export function useSolver(catalog: Catalog, plan: Plan) {
+export function useSolver(catalog: Catalog, plan: Plan, kind: 'variants' | 'order' = 'variants') {
   const [report, setReport] = useState<ProductionVariants | null>(null);
   const [pending, setPending] = useState<ProductionVariant['id'][]>([]);
   const [selected, setSelected] = useState<ProductionVariant | null>(null);
@@ -57,9 +57,9 @@ export function useSolver(catalog: Catalog, plan: Plan) {
         setError(event.message || 'Не удалось загрузить решатель. Обновите страницу.'); setRunning(false); stop();
       };
       timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, plan.settings.pareto ? 65000 : variantDuration(previous) + 5000);
-      instance.postMessage({ catalog, plan, previous, requestId });
+      instance.postMessage({ kind, catalog, plan, previous, requestId });
     } catch (error) { setError(error instanceof Error ? error.message : 'Ошибка запуска расчёта.'); setRunning(false); stop(); }
-  }, [catalog, plan, fingerprint, stop, report, selected, solvedInput]);
+  }, [catalog, plan, kind, fingerprint, stop, report, selected, solvedInput]);
   const cancel = useCallback(() => { stop(); setRunning(false); setError('Расчёт отменён.'); }, [stop]);
   const stale = report !== null && fingerprint !== solvedInput;
   const choose = (id: ProductionVariant['id']): Plan | null => {
