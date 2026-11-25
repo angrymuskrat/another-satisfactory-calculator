@@ -1,0 +1,10 @@
+.shared-order-page { width: min(100%, 840px); margin: 0 auto; padding: clamp(16px, 4vw, 48px); display: grid; gap: 18px; }
+.shared-order-page > button { justify-self: start; }
+.shared-order-page header p, .shared-order-settings small { color: var(--text-3); }
+.shared-order-page header h1 { margin: 0; overflow-wrap: anywhere; }
+.shared-order-settings { display: grid; gap: 12px; }
+.shared-order-settings :is(h2, p, ul) { margin: 0; }
+.shared-order-settings ul { padding-inline-start: 20px; }
+.shared-order-title, .order-session { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.order-session { padding: 12px 16px; margin-bottom: 14px; background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: var(--radius-md); }
+.plan-toolbar .toolbar-actions { flex-wrap: wrap; }

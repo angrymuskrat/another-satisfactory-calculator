@@ -13,7 +13,7 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
   if (!response.ok) throw new Error(data.error || 'Не удалось сохранить рабочее пространство.');
   return data;
 }
-export function useWorldWorkspace(catalog: Catalog) {
+export function useWorldWorkspace(catalog: Catalog, enabled = true) {
   const [state, setState] = useState<WorkspaceState>(() => ({ workspace: emptyWorkspace(catalog.version), revision: 0, ownerId: null, raw: null }));
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -57,9 +57,9 @@ export function useWorldWorkspace(catalog: Catalog) {
       if (generation === epoch.current) { setState(next); setReady(true); }
     } catch (e) { if (generation === epoch.current) setError(e instanceof Error ? e.message : 'Ошибка загрузки рабочего пространства. Исходные данные сохранены.'); }
   }, [catalog]);
-  useEffect(() => { void load(); return () => { epoch.current++; }; }, [load]);
+  useEffect(() => { if (enabled) void load(); return () => { epoch.current++; }; }, [load, enabled]);
   const save = async (workspace: Workspace) => {
-    if (!ready || saving.current) throw new Error('Дождитесь загрузки или сохранения рабочего пространства.');
+    if (!enabled || !ready || saving.current) throw new Error('Дождитесь загрузки или сохранения рабочего пространства.');
     const generation = epoch.current;
     saving.current = true; setBusy(true); setError('');
     try {
@@ -77,5 +77,5 @@ export function useWorldWorkspace(catalog: Catalog) {
       setState(next);
     } finally { saving.current = false; setBusy(false); }
   };
-  return { ...state, ready, busy, error, notice, load, save };
+  return { ...state, workspace: enabled ? state.workspace : emptyWorkspace(catalog.version), ready: enabled && ready, busy, error, notice, load, save };
 }
