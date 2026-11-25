@@ -1,11 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { groupRecipes, matchesRecipe, recipeMetrics, recipeAvailability } from '../apps/web/src/recipeCatalog';
+import { parseCatalogPlan } from '../apps/web/src/planStorage';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import type { Catalog, Recipe } from '../packages/domain/types';
 import gameCatalog from '../packages/game-data/catalog.json';
 const catalog = gameCatalog as Catalog;
 const screw = catalog.recipes.find(r => r.id === 'screw')!;
 describe('каталог рецептов', () => {
+  it('начальный план учитывает игровые пометки, а сохранённый выбор рецептов восстанавливается буквально', () => {
+    const plan = createDefaultPlan(catalog);
+    expect(catalog.recipes.find(r => r.id === 'turbofuel')?.alternate).toBe(false);
+    expect(catalog.recipes.find(r => r.id === 'alt-aluminum-ingot')?.alternate).toBe(true);
+    expect(plan.settings.enabledRecipeIds).toContain('turbofuel');
+    expect(plan.settings.enabledRecipeIds).not.toContain('alt-aluminum-ingot');
+    plan.settings.enabledRecipeIds = ['alt-aluminum-ingot'];
+    expect(parseCatalogPlan(JSON.parse(JSON.stringify(plan)), catalog).settings.enabledRecipeIds).toEqual(['alt-aluminum-ingot']);
+  });
   it('поиск винтов отличает производителя от потребителя, учитывает ё и английский', () => {
     const consumer = catalog.recipes.find(r => r.inputs.some(i => i.itemId === 'screw') && !r.outputs.some(i => i.itemId === 'screw'))!;
     expect(matchesRecipe(catalog, screw, 'винт', 'produces')).toBe(true);

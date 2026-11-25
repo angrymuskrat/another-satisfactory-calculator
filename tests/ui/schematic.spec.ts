@@ -1,11 +1,9 @@
+import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog, Plan } from '../../packages/domain/types';
+import type { Plan } from '../../packages/domain/types';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 async function calculate(page: Page, mode: 'target' | 'maximize' = 'target', configured?: Plan) {
   const plan = configured ?? createDefaultPlan(catalog);
   if (!configured) { plan.mode = mode; plan.settings.objective = 'smooth-power'; plan.targets[0].rate = 7.5; }

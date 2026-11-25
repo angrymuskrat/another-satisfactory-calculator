@@ -1,10 +1,9 @@
+import { catalog } from './catalog';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import type { Catalog, Plan } from '../../packages/domain/types';
+import type { Plan } from '../../packages/domain/types';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { createWorld, createFactory, emptyWorkspace } from '../../packages/domain/worlds';
-const catalog = JSON.parse(readFileSync('packages/game-data/catalog.json', 'utf8')) as Catalog;
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 const draft = (page: Page): Promise<Plan> => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
 async function open(page: Page) {
   await page.goto('/'); await page.getByRole('button', { name: 'Рецепты', exact: true }).click();

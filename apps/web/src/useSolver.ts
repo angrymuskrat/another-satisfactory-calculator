@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import type { ProductionVariants, ProductionVariant, VariantsMessage } from '../../../packages/solver/variants';
-import { variantDuration } from '../../../packages/domain/searchDuration';
+import { searchDuration } from '../../../packages/domain/searchDuration';
 export function useSolver(catalog: Catalog, plan: Plan) {
   const [report, setReport] = useState<ProductionVariants | null>(null);
   const [pending, setPending] = useState<ProductionVariant['id'][]>([]);
@@ -56,7 +56,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
         if (worker.current !== instance) return;
         setError(event.message || 'Не удалось загрузить решатель. Обновите страницу.'); setRunning(false); stop();
       };
-      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, plan.settings.pareto ? 65000 : variantDuration(previous) + 5000);
+      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, searchDuration(plan, previous) + 5000);
       instance.postMessage({ catalog, plan, previous, requestId });
     } catch (error) { setError(error instanceof Error ? error.message : 'Ошибка запуска расчёта.'); setRunning(false); stop(); }
   }, [catalog, plan, fingerprint, stop, report, selected, solvedInput]);

@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-
 test('стандартная фабрика с глубиной 4 даёт два варианта и реальные ленты в обоих видах', async ({ page }, testInfo) => {
   test.setTimeout(60_000);
   const errors: string[] = [];

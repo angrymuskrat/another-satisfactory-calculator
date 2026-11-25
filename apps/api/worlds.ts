@@ -29,12 +29,13 @@ export function registerWorldRoutes(app: FastifyInstance, db: DatabaseSync) {
         return reply.code(400).send({ error: error instanceof Error ? error.message : 'Некорректное рабочее пространство.' });
       }
       // Одна атомарная запись охватывает мир и все его snapshots. Владение берётся только из сессии.
-      const row = db.prepare(`INSERT INTO workspaces (user_id, revision, data) SELECT ?, 1, ? WHERE ? = 0
-        ON CONFLICT(user_id) DO NOTHING RETURNING revision`).get(request.user!.id, JSON.stringify(workspace), body.revision);
-      const updated = row ?? db.prepare(`UPDATE workspaces SET revision = revision + 1, data = ?
-        WHERE user_id = ? AND revision = ? RETURNING revision`).get(JSON.stringify(workspace), request.user!.id, body.revision);
+      const data = JSON.stringify(workspace);
+      const ownerId = request.user!.id;
+      const updated = body.revision === 0
+        ? db.prepare('INSERT INTO workspaces (user_id, revision, data) VALUES (?, 1, ?) ON CONFLICT(user_id) DO NOTHING RETURNING revision').get(ownerId, data)
+        : db.prepare('UPDATE workspaces SET revision = revision + 1, data = ? WHERE user_id = ? AND revision = ? RETURNING revision').get(data, ownerId, body.revision);
       if (!updated) return reply.code(409).send({ error: 'Рабочее пространство изменено в другой вкладке. Экспортируйте текущие данные и загрузите актуальную версию.' });
-      return { ownerId: request.user!.id, revision: updated.revision, workspace };
+      return { ownerId, revision: updated.revision, workspace };
     });
   });
 }

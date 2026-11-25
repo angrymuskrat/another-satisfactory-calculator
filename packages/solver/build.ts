@@ -1,9 +1,9 @@
+import { BOOST_POWER_EXPONENT, CLOCK_POWER_EXPONENT, MIN_CLOCK_RATIO } from '../domain/gameMechanics';
 import type { Catalog, Plan, Recipe, Source } from '../domain/types';
 import { add, Model, type Expression } from './model';
 import { canOptimizeClock, productionConfigurations, wellConfiguration, type ProductionConfiguration } from '../domain/production';
-import { clockPower, MIN_CLOCK } from './clockPower';
+import { clockPower } from './clockPower';
 import { buildFuelProvenance } from './fuelProvenance';
-const EXPONENT = Math.log2(2.5);
 export interface RecipeVariable { configuration: ProductionConfiguration; recipe: Recipe; variable: string; countVariable: string | null; capacity: number; cyclesAtClock: number; power: number; powerMax: number; powerPerCycle: number; minimumPowerPerCycle: number; autoClock: boolean }
 export interface SourceVariable { source: Source; variable: string; countVariable: string | null; capacity: number; limit: number | null; powerPerUnit: number; installedPower: number }
 
@@ -43,8 +43,8 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     const building = buildings.get(recipe.buildingId);
     if (!building || recipe.seconds <= 0 || (!recipe.generation && recipe.outputs.length === 0)) throw new Error(`Некорректный рецепт ${recipe.id}.`);
     const cyclesAtClock = 60 / recipe.seconds * clock;
-    const machinePower = (recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
-    const machineMax = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** EXPONENT * configuration.boost ** 2;
+    const machinePower = (recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * configuration.boost ** BOOST_POWER_EXPONENT;
+    const machineMax = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * configuration.boost ** BOOST_POWER_EXPONENT;
     if (!Number.isFinite(machinePower) || machinePower < 0) throw new Error(`Неизвестная мощность рецепта ${recipe.id}.`);
     let capacity = cyclesAtClock;
     const variable = model.variable();
@@ -58,19 +58,19 @@ export function buildModel(catalog: Catalog, plan: Plan) {
     }
     const powerPerCycle = machinePower / cyclesAtClock;
     const autoClock = canOptimizeClock(plan, configuration);
-    const minimumPowerPerCycle = autoClock ? powerPerCycle * (MIN_CLOCK / clock) ** (EXPONENT - 1) : powerPerCycle;
+    const minimumPowerPerCycle = autoClock ? powerPerCycle * (MIN_CLOCK_RATIO / clock) ** (CLOCK_POWER_EXPONENT - 1) : powerPerCycle;
     const countVariable = needsCounts ? countFor(recipe.buildingId, configuration.existing || null) : null;
     if (countVariable) {
       if (recipe.generation) { model.constrain(new Map([[variable, 1], [countVariable, -1]]), '=', 0); add(generation, variable, recipe.generation.power); }
       // Beyond full load at 1%, extra idle new machines cannot improve energy.
-      if (plan.settings.pareto && autoClock && !configuration.existing) model.constrain(new Map([[countVariable, 1], [variable, -1 / ((60 / recipe.seconds) * MIN_CLOCK)]]), '<=', 1);
+      if (plan.settings.pareto && autoClock && !configuration.existing) model.constrain(new Map([[countVariable, 1], [variable, -1 / ((60 / recipe.seconds) * MIN_CLOCK_RATIO)]]), '<=', 1);
       if (configuration.existing) model.constrain(new Map([[countVariable, 1]]), '=', configuration.existing);
       if (configuration.duty !== null) model.constrain(new Map([[variable, 1]]), '=', configuration.existing * cyclesAtClock * configuration.duty);
       model.constrain(new Map([[variable, 1 / capacity], [countVariable, -1]]), '<=', 0);
       if (autoClock) {
         const envelope = clockPower(model, variable, countVariable, 60 / recipe.seconds, clock);
-        add(power, envelope.average, machinePower / clock ** EXPONENT);
-        add(peakPower, envelope.peak, machineMax / clock ** EXPONENT);
+        add(power, envelope.average, machinePower / clock ** CLOCK_POWER_EXPONENT);
+        add(peakPower, envelope.peak, machineMax / clock ** CLOCK_POWER_EXPONENT);
       } else add(peakPower, countVariable, machineMax);
       add(loops, countVariable, configuration.somersloops);
     }
@@ -93,7 +93,7 @@ export function buildModel(catalog: Catalog, plan: Plan) {
       if (miner.id === 'water-extractor' && source.purity !== 1) throw new Error('Для водозабора чистота всегда равна 1.');
       const c = source.clock / 100;
       const rate = miner.rate * source.purity * c;
-      const perNodePower = miner.power * c ** EXPONENT;
+      const perNodePower = miner.power * c ** CLOCK_POWER_EXPONENT;
       perMachineCapacity = Math.min(rate, items.get(source.itemId)!.fluid ? pipe.rate : belt.rate);
       const capacity = perMachineCapacity * source.count;
       limit = source.limit === null ? capacity : Math.min(capacity, source.limit);

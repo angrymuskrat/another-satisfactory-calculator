@@ -1,11 +1,7 @@
+import { catalog } from './catalog';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import type { Catalog } from '../../packages/domain/types';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { createWorld, snapshotWorld } from '../../packages/domain/worlds';
-const catalogJson = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
-
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
 test('ветки MAM, неизвестные координаты и фазы HUB остаются справочными', async ({ page }) => {
   await page.goto('/');
@@ -15,7 +11,7 @@ test('ветки MAM, неизвестные координаты и фазы HU
   const guide = page.locator('.research-guide');
   await guide.locator(':scope > summary').click();
   await guide.locator('summary').filter({ hasText: /^Кварц ·/ }).click();
-  const quartz = catalogJson.researchTrees!.find(t => t.id === 'BPD_ResearchTree_Quartz_C')!;
+  const quartz = catalog.researchTrees!.find(t => t.id === 'BPD_ResearchTree_Quartz_C')!;
   const name = quartz.nodes.find(n => n.schematicId === 'Research_Quartz_2_C')!.name;
   await guide.locator('summary').filter({ hasText: new RegExp(`^${name}$`) }).click();
   const node = guide.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: new RegExp(`^${name}( · завершено)?$`) }) });
@@ -32,7 +28,6 @@ test('ветки MAM, неизвестные координаты и фазы HU
 });
 
 test('закрытый рецепт показывает цепочку MAM и HUB без изменения мира', async ({ page }) => {
-  const catalog = catalogJson as Catalog;
   const plan = createDefaultPlan(catalog);
   plan.world = snapshotWorld(createWorld(catalog, 'Закрытый мир', 'research-world'));
   await page.addInitScript(plan => localStorage.setItem('ficsit-plan-v1', JSON.stringify(plan)), plan);

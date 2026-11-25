@@ -1,14 +1,10 @@
+import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
-const catalogJson = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
-
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
 test('границы продукта, сеть и именованные источники сохраняются в черновике', async ({ page }) => {
-  const plan = createDefaultPlan(catalogJson as Catalog); plan.settings.objective = 'smooth-power';
+  const plan = createDefaultPlan(catalog); plan.settings.objective = 'smooth-power';
   plan.mode = 'target'; plan.targets[0].rate = 7.5;
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), plan);
   await page.goto('/');
@@ -57,8 +53,8 @@ test('одна цель не показывает распределение; н
 test('лимит другого здания не включает неявный лимит конструктора', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Технологии', exact: true }).click();
-  const smelter = catalogJson.buildings.find(b => b.id === 'smelter')!.name;
-  const constructor = catalogJson.buildings.find(b => b.id === 'constructor')!.name;
+  const smelter = catalog.buildings.find(b => b.id === 'smelter')!.name;
+  const constructor = catalog.buildings.find(b => b.id === 'constructor')!.name;
   await page.getByRole('checkbox', { name: `Ограничить количество: ${smelter}`, exact: true }).check();
   await page.getByLabel(`Лимит зданий: ${smelter}`, { exact: true }).fill('2');
   await expect(page.getByRole('checkbox', { name: `Ограничить количество: ${constructor}`, exact: true })).not.toBeChecked();

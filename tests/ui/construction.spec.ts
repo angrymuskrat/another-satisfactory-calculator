@@ -1,11 +1,8 @@
+import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 const reinforced = catalog.recipes.find(r => r.id === 'reinforced-iron-plate')!.name;
 const copy = (page: Page, suffix: string) => page.getByRole('button', { name: `Скопировать: ${reinforced}: ${suffix}`, exact: true });
 async function seed(page: Page) {
@@ -16,10 +13,10 @@ async function seed(page: Page) {
   }, plan);
   await page.goto('/');
 }
-async function build(page: Page, approximate = false) {
+async function build(page: Page) {
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
-  await expect(page.locator(approximate ? '.status-badge.approximate' : '.status-badge.approximate').first()).toHaveText(approximate ? 'Допустимое приближение' : 'Допустимое приближение', { timeout: 30000 });
+  await expect(page.locator('.status-badge.approximate').first()).toHaveText('Допустимое приближение', { timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
 }
@@ -56,7 +53,7 @@ test('ровная нагрузка сохраняется, подбирает �
   await page.reload();
   await page.getByText('Энергия и ограничения', { exact: true }).click();
   await expect(page.locator('.objective-description')).toContainText('Подбор частот для непрерывной работы');
-  await build(page, true);
+  await build(page);
   await expect(copy(page, 'частота')).toHaveText('75 %');
   await expect(copy(page, 'активная доля времени')).toHaveText('100 %');
   await expect(page.locator('.energy-panel')).toContainText('Незагруженная мощность производств');

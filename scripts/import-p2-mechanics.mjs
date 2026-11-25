@@ -1,13 +1,13 @@
 // Производное закреплённых игровых Docs. См. THIRD_PARTY_NOTICES.md.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
+import { decodeDocs, parseIngredients } from './gameDocs.mjs';
 import { createHash } from 'node:crypto';
 const root = new URL('../', import.meta.url);
 const raw = readFileSync(new URL('packages/game-data/source/Docs-en-US.json.gz', root));
 const sha256 = createHash('sha256').update(raw).digest('hex');
 const pinned = JSON.parse(readFileSync(new URL('packages/game-data/source/provenance.json', root), 'utf8'));
 if (sha256 !== pinned.sha256['Docs-en-US.json.gz']) throw new Error('Изменились исходные Docs.');
-const classes = JSON.parse(gunzipSync(raw).toString('utf16le').replace(/^\uFEFF/, '')).flatMap(g => g.Classes.map(c => ({ ...c, nativeClass: g.NativeClass })));
+const classes = decodeDocs(raw);
 const catalog = JSON.parse(readFileSync(new URL('packages/game-data/catalog.json', root), 'utf8'));
 const defaultsRaw = readFileSync(new URL('packages/game-data/source/buildable-defaults.json', root));
 const defaultsHash = createHash('sha256').update(defaultsRaw).digest('hex');
@@ -17,16 +17,15 @@ if (defaults.provenance.steamBuildId !== pinned.game.steamBuildId || defaults.pr
   || !Number.isSafeInteger(defaults.mDefaultProductionShardSlotSize) || defaults.mDefaultProductionShardSlotSize <= 0) throw new Error('Не подтверждён общий размер слота усилителя.');
 const report = JSON.parse(readFileSync(new URL('packages/game-data/audit-report.json', root), 'utf8'));
 const itemIds = new Map(Object.entries(report.itemClasses).map(([id, cls]) => [cls, id]));
-const ingredients = value => [...value.matchAll(/ItemClass="[^\"]*\.([A-Za-z0-9_]+)'",Amount=([\d.]+)/g)].map(m => ({ className: m[1], amount: Number(m[2]) }));
 const buildCosts = {}, costEvidence = {};
 for (const [id, buildClass] of Object.entries({ 'resource-well-pressurizer': 'Build_FrackingSmasher_C', 'resource-well-extractor': 'Build_FrackingExtractor_C' })) {
   const build = classes.find(c => c.ClassName === buildClass), descriptorClass = buildClass.replace('Build_', 'Desc_');
   const candidates = classes.filter(c => c.nativeClass.endsWith(".FGRecipe'") && c.mDisplayName === build?.mDisplayName
-    && c.mProducedIn?.includes('.BP_BuildGun_C') && ingredients(c.mProduct || '').some(p => p.className === descriptorClass));
+    && c.mProducedIn?.includes('.BP_BuildGun_C') && parseIngredients(c.mProduct || '').some(p => p.className === descriptorClass));
   if (candidates.length !== 1) throw new Error(`Неоднозначный строительный рецепт: ${id}`);
-  const recipe = candidates[0], product = ingredients(recipe.mProduct);
+  const recipe = candidates[0], product = parseIngredients(recipe.mProduct);
   if (product.length !== 1 || product[0].amount !== 1 || !classes.some(c => c.ClassName === descriptorClass && c.nativeClass.endsWith(".FGBuildingDescriptor'"))) throw new Error(`Не подтверждён продукт: ${id}`);
-  const rawCost = ingredients(recipe.mIngredients || '');
+  const rawCost = parseIngredients(recipe.mIngredients || '');
   if (!rawCost.length || rawCost.length !== (recipe.mIngredients.match(/ItemClass=/g) || []).length) throw new Error(`Неполная стоимость: ${id}`);
   buildCosts[id] = rawCost.map(({ className, amount }) => {
     const itemId = itemIds.get(className);
@@ -48,6 +47,11 @@ for (const b of catalog.buildings) {
 }
 const pressurizer = classes.find(c => c.ClassName === 'Build_FrackingSmasher_C');
 const extractor = classes.find(c => c.ClassName === 'Build_FrackingExtractor_C');
+const references = JSON.parse('[' + extractor.mAllowedResources.slice(1, -1) + ']');
+const allowed = new Set(references.map(ref => itemIds.get(ref.match(/\.([A-Za-z0-9_]+)'$/)?.[1])));
+if (!allowed.size || allowed.has(undefined)) throw new Error('Не сопоставлены ресурсы скважины из Docs.');
+const resourceIds = catalog.items.filter(item => allowed.has(item.id)).map(item => item.id);
+if (resourceIds.length !== allowed.size) throw new Error('Неполный список ресурсов скважины в каталоге.');
 const data = { provenance: { catalogVersion: catalog.version, source: 'source/Docs-en-US.json.gz', sha256, defaultsSource: 'source/buildable-defaults.json', defaultsSha256: defaultsHash, importedAt: '2026-09-06', verification: 'Механики из закреплённых Docs и assets. Без индивидуального override используется mDefaultProductionShardSlotSize подсистемы зданий. Эффективное число слотов Smelter — 1; исходный ноль Docs не является размером действующего слота.' },
-  slots, well: { resourceIds: ['water', 'crude-oil', 'nitrogen-gas'], power: Number(pressurizer.mPowerConsumption), rate: Number(extractor.mItemsPerCycle) / 1000 * 60 / Number(extractor.mExtractCycleTime), buildCosts, costEvidence }, evidence };
+  slots, well: { resourceIds, power: Number(pressurizer.mPowerConsumption), rate: Number(extractor.mItemsPerCycle) / 1000 * 60 / Number(extractor.mExtractCycleTime), buildCosts, costEvidence }, evidence };
 writeFileSync(new URL('packages/game-data/p2-mechanics.json', root), JSON.stringify(data, null, 2) + '\n');

@@ -4,6 +4,7 @@
   "accelerator": {
     "source": "https://satisfactory.wiki.gg/wiki/Particle_Accelerator",
     "shape": "Линейное нарастание мощности в цикле",
+    "defaultRange": "500-1500",
     "averageMWByRange": { "250-750": 500, "500-1500": 1000 },
     "gameEvidence": "mDescription предметов Desc_PlutoniumPellet_C, Desc_PlutoniumCell_C, Desc_Diamond_C, Desc_DarkMatterCrystal_C, Desc_Ficsonium_C, Desc_SpaceElevatorPart_9_C содержит average напрямую; importer читает описание реального output."
   },

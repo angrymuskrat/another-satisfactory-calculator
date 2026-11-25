@@ -1,10 +1,6 @@
+import { catalog } from './catalog';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
-
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 
 test('учёт конвейеров сохраняет глубину при выключении и перезагрузке и доступен с клавиатуры', async ({ page }) => {
   await page.addInitScript(plan => {

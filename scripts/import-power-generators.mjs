@@ -1,6 +1,6 @@
 // Производное закреплённых игровых Docs. См. THIRD_PARTY_NOTICES.md.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
+import { decodeDocs } from './gameDocs.mjs';
 import { createHash } from 'node:crypto';
 const root = new URL('../', import.meta.url);
 const pinned = JSON.parse(readFileSync(new URL('packages/game-data/source/provenance.json', root), 'utf8'));
@@ -8,7 +8,7 @@ const docs = name => {
   const raw = readFileSync(new URL(`packages/game-data/source/${name}`, root));
   const sha256 = createHash('sha256').update(raw).digest('hex');
   if (sha256 !== pinned.sha256[name]) throw new Error(`Изменились исходные ${name}.`);
-  return { sha256, classes: JSON.parse(gunzipSync(raw).toString('utf16le').replace(/^﻿/, '')).flatMap(g => g.Classes.map(c => ({ ...c, nativeClass: g.NativeClass }))) };
+  return { sha256, classes: decodeDocs(raw) };
 };
 const en = docs('Docs-en-US.json.gz'), ru = docs('Docs-ru.json.gz');
 const catalog = JSON.parse(readFileSync(new URL('packages/game-data/catalog.json', root), 'utf8'));

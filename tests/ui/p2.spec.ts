@@ -1,11 +1,8 @@
+import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { createFactory, createWorld, emptyWorkspace } from '../../packages/domain/worlds';
-import type { Catalog } from '../../packages/domain/types';
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
 test('партия: запас, срок, готовые позиции и сохранение', async ({ page }) => {
   await page.goto('/');

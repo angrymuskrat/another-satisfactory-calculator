@@ -2,7 +2,7 @@
 // и CommunityResources © Coffee Stain Studios. См. THIRD_PARTY_NOTICES.md.
 // Офлайн: node scripts/import-game-data.mjs. Иконки: добавить --download-icons.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
+import { decodeDocs, parseIngredients } from './gameDocs.mjs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -19,12 +19,12 @@ const sourcePath = 'packages/game-data/source/';
 const up = json(sourcePath + 'upstream.json');
 const overrides = json('packages/game-data/overrides.json');
 const tree = json(sourcePath + 'upstream-tree.json').tree;
-const readDocs = lang => JSON.parse(gunzipSync(readFileSync(path(`${sourcePath}Docs-${lang}.json.gz`))).toString('utf16le').replace(/^\uFEFF/, '')).flatMap(g => g.Classes.map(c => ({ ...c, nativeClass: g.NativeClass })));
+const readDocs = lang => decodeDocs(readFileSync(path(sourcePath + 'Docs-' + lang + '.json.gz')));
 const en = readDocs('en-US'), ru = new Map(readDocs('ru').map(c => [c.ClassName, c]));
 const byClass = new Map(en.map(c => [c.ClassName, c]));
 const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const localized = c => ru.get(c.ClassName)?.mDisplayName || c.mDisplayName;
-const sourceFiles = ['upstream.json', 'LICENSE.upstream', 'upstream-tree.json', 'Docs-en-US.json.gz', 'Docs-ru.json.gz', 'menu-assets.json', 'research-assets.json', 'buildable-defaults.json'];
+const sourceFiles = ['upstream.json', 'LICENSE.upstream', 'upstream-tree.json', 'Docs-en-US.json.gz', 'Docs-ru.json.gz', 'menu-assets.json', 'research-assets.json', 'buildable-defaults.json', 'power-evidence.json'];
 const hashes = Object.fromEntries(sourceFiles.map(f => [f, createHash('sha256').update(readFileSync(path(sourcePath + f))).digest('hex')]));
 const pinned = json(sourcePath + 'provenance.json');
 for (const [file, hash] of Object.entries(pinned.sha256)) if (hashes[file] !== hash) throw new Error(`Исходный файл изменён: ${file}`);
@@ -45,7 +45,6 @@ for (const u of up.buildings.filter(b => b.key_name !== 'nuclear-power-plant')) 
   gameBuildings.set(game.ClassName, u.key_name);
   buildingData.set(u.key_name, game);
 }
-const ingredients = text => [...text.matchAll(/ItemClass="[^\"]*\.([A-Za-z0-9_]+)'",Amount=([\d.]+)/g)].map(m => ({ className: m[1], amount: Number(m[2]) }));
 const production = [];
 for (const game of en.filter(c => c.nativeClass.endsWith(".FGRecipe'"))) {
   const buildingClass = [...gameBuildings.keys()].find(c => (game.mProducedIn || '').includes(`.${c}`));
@@ -54,7 +53,7 @@ for (const game of en.filter(c => c.nativeClass.endsWith(".FGRecipe'"))) {
     report.excluded.push({ id: game.ClassName, name: localized(game), reason: seasonal ? 'seasonal' : (game.mProducedIn || '').includes('BuildGun') ? 'construction' : 'manual-or-unsupported-building' });
     continue;
   }
-  const input = ingredients(game.mIngredients || ''), out = ingredients(game.mProduct || '');
+  const input = parseIngredients(game.mIngredients || ''), out = parseIngredients(game.mProduct || '');
   if (!out.length) throw new Error(`Нет продуктов: ${game.ClassName}`);
   for (const i of [...input, ...out]) {
     if (!byClass.get(i.className)?.mForm) throw new Error(`Неизвестный предмет: ${i.className}`);
@@ -70,8 +69,17 @@ const items = [...mappedItems].map(([className, id]) => {
   const game = byClass.get(className), fluid = game.mForm !== 'RF_SOLID';
   return { id, name: localized(game), nameEn: game.mDisplayName, category: '', fluid, raw: up.resources.some(r => r.key_name === id), sinkable: !fluid && Number(game.mResourceSinkPoints) > 0 };
 });
-const documentedBuildingPower = { accelerator: 1000, converter: 250, 'quantum-encoder': 1000 };
-const buildings = [...buildingData].map(([id, game]) => ({ id, name: localized(game), nameEn: game.mDisplayName, power: Number(game.mPowerConsumption) || documentedBuildingPower[id], ...(game.mEstimatedMaximumPowerConsumption ? { powerMax: Number(game.mEstimatedMaximumPowerConsumption) } : {}) }));
+const powerEvidence = json(sourcePath + 'power-evidence.json');
+function documentedBuildingPower(buildingId) {
+  const evidence = powerEvidence[buildingId];
+  return evidence?.averageMW ?? evidence?.averageMWByRange?.[evidence.defaultRange];
+}
+const buildings = [...buildingData].map(([id, game]) => {
+  const power = Number(game.mPowerConsumption) || documentedBuildingPower(id);
+  if (!Number.isFinite(power) || power <= 0) throw new Error('Не подтверждена мощность здания: ' + id);
+  return { id, name: localized(game), nameEn: game.mDisplayName, power,
+    ...(game.mEstimatedMaximumPowerConsumption ? { powerMax: Number(game.mEstimatedMaximumPowerConsumption) } : {}) };
+});
 const sink = byClass.get('Build_ResourceSink_C');
 buildings.push({ id: 'awesome-sink', name: localized(sink), nameEn: sink.mDisplayName, power: Number(sink.mPowerConsumption) });
 const convert = a => a.map(i => ({ itemId: mappedItems.get(i.className), amount: i.amount / (byClass.get(i.className).mForm === 'RF_SOLID' ? 1 : 1000) }));
@@ -84,12 +92,12 @@ const recipes = production.map(({ game, buildingClass, input, out }) => {
   report.recipeClasses[id] = game.ClassName;
   const outputs = convert(out), inputs = convert(input), buildingId = gameBuildings.get(buildingClass);
   if (u) mappedRecipes.add(u.key_name);
-  const recipe = { id, name: localized(game), nameEn: game.mDisplayName, category: '', buildingId, seconds: Number(game.mManufactoringDuration), inputs, outputs, alternate: game.ClassName.startsWith('Recipe_Alternate_') };
+  const recipe = { id, name: localized(game), nameEn: game.mDisplayName, category: '', buildingId, seconds: Number(game.mManufactoringDuration), inputs, outputs, alternate: game.mDisplayName.startsWith('Alternate:') };
   if (buildingData.get(buildingId).nativeClass.includes('VariablePower')) {
     const constant = Number(game.mVariablePowerConsumptionConstant), factor = Number(game.mVariablePowerConsumptionFactor);
     const description = byClass.get(out[0].className).mDescription || '';
     const documentedAverage = buildingId === 'converter' ? undefined : description.match(/\(([\d.]+)\s*MW average\)/)?.[1];
-    recipe.power = documentedAverage ? Number(documentedAverage) : documentedBuildingPower[buildingId];
+    recipe.power = documentedAverage ? Number(documentedAverage) : documentedBuildingPower(buildingId);
     recipe.powerMax = constant + factor;
     if (!Number.isFinite(recipe.power) || recipe.power < constant || recipe.power > recipe.powerMax) throw new Error(`Не подтверждена средняя мощность: ${id}`);
     report.variablePower.push({ id, minimum: constant, documentedAverage: recipe.power, maximum: recipe.powerMax, source: documentedAverage ? `Docs-en-US:${out[0].className}.mDescription` : 'source/power-evidence.json', curveExtractedFromBuild: false });
@@ -143,7 +151,7 @@ if (process.argv.includes('--download-icons')) {
     }
   }));
 }
-const catalog = { version: `steam-${overrides.steamBuildId}-v1`, provenance: {source: 'Satisfactory CommunityResources Docs en-US/ru; https://github.com/KirkMcDonald/satisfactory-calculator', commit: 'c5664fc8fba4ff7dcb3f29f84f74278f497e9bb6', importedAt: overrides.importedAt, verified: false, notes: overrides.notes}, items, buildings, recipes, miners, belts, pipes, categories: [] };
+const catalog = { version: `steam-${overrides.steamBuildId}-v1`, provenance: {source: 'Satisfactory CommunityResources Docs en-US/ru; https://github.com/KirkMcDonald/satisfactory-calculator', commit: pinned.upstream.commit, importedAt: overrides.importedAt, verified: false, notes: overrides.notes}, items, buildings, recipes, miners, belts, pipes, categories: [] };
 report.counts = { upstreamRecipes:up.recipes.length, gameRecipes:en.filter(c=>c.nativeClass.endsWith(".FGRecipe'")).length, items:items.length, buildings:buildings.length, recipes:recipes.length, alternates:recipes.filter(r=>r.alternate).length, excluded:report.excluded.length, icons:iconTasks.length };
 report.itemClasses = Object.fromEntries([...mappedItems].map(([className,id])=>[id,className]));
 report.buildingClasses = Object.fromEntries([...gameBuildings].map(([className,id])=>[id,className]));
@@ -159,13 +167,13 @@ report.menuEvidence = {
   recipePriorityOrderApplied: true,
   equalPriorityOrder: 'alphabetical-ru; not-verified-in-game'
 };
-const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, parseIngredients: ingredients,
+const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, parseIngredients,
   machineClasses: { ...report.buildingClasses, 'awesome-sink': 'Build_ResourceSink_C', ...minerClasses },
   transportClasses: Object.fromEntries([...belts.map((b, i) => [b.id, `Build_ConveyorBeltMk${i+1}_C`]), ...pipes.map((p, i) => [p.id, i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'])]),
 });
 importMenuAssets({ source: json(sourcePath + 'menu-assets.json'), catalog, report, pinned });
 importResearchAssets({ source: json(sourcePath + 'research-assets.json'), catalog, progression, report, en, ru, pinned });
-const generation = importGeneration({ en, ru, catalog, report, progression, pinned, hashes, parseIngredients: ingredients });
+const generation = importGeneration({ en, ru, catalog, report, progression, pinned, hashes, parseIngredients, generationRules: overrides.generation });
 output('packages/game-data/generation.json', generation);
 output('packages/game-data/catalog.json', catalog);
 output('packages/game-data/audit-report.json', report);

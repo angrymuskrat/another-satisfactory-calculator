@@ -1,12 +1,9 @@
+import { catalog } from './catalog';
 import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { readFileSync } from 'node:fs';
-import type { Catalog } from '../../packages/domain/types';
 import type { Workspace } from '../../packages/domain/worlds';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 
-const catalog = JSON.parse(readFileSync('packages/game-data/catalog.json', 'utf8')) as Catalog;
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 const workspace = (page: Page): Promise<Workspace> => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-workspace-v1')!));
 async function openWorlds(page: Page) {
   await page.getByRole('button', { name: 'Миры и фабрики', exact: true }).click();

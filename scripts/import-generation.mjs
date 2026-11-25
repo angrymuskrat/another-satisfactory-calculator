@@ -1,9 +1,10 @@
 // Производное закреплённых CommunityResources © Coffee Stain Studios.
 // Вызывается основным офлайн-импортом после категорий производственных рецептов.
-export function importGeneration({ en, ru, catalog, report, progression, pinned, hashes, parseIngredients }) {
+import { unlockCoverage } from './import-p1-game-data.mjs';
+
+export function importGeneration({ en, ru, catalog, report, progression, pinned, hashes, parseIngredients, generationRules }) {
   const byClass = new Map(en.map(c => [c.ClassName, c]));
   const itemIds = new Map(Object.entries(report.itemClasses).map(([id, cls]) => [cls, id]));
-  const families = { coal: 'coal', 'compacted-coal': 'coal', 'petroleum-coke': 'crude-oil', fuel: 'crude-oil', turbofuel: 'crude-oil', 'rocket-fuel': 'crude-oil', 'ionized-fuel': 'crude-oil', 'uranium-fuel-rod': 'uranium', 'plutonium-fuel-rod': 'uranium', 'ficsonium-fuel-rod': 'uranium' };
   const evidence = [], excluded = [];
   for (const [buildingId, cls] of [['coal-generator', 'Build_GeneratorCoal_C'], ['fuel-generator', 'Build_GeneratorFuel_C'], ['nuclear-power-plant', 'Build_GeneratorNuclear_C']]) {
     const build = byClass.get(cls);
@@ -22,8 +23,9 @@ export function importGeneration({ en, ru, catalog, report, progression, pinned,
     report.buildingClasses[buildingId] = cls;
     const recipeIds = [];
     for (const mode of build.mFuel) {
-      const itemId = itemIds.get(mode.mFuelClass), family = families[itemId];
+      const itemId = itemIds.get(mode.mFuelClass), family = generationRules.fuelFamilies[itemId];
       if (!family) { excluded.push({ generator: cls, fuel: mode.mFuelClass, reason: 'Вне охвата: биотопливо/неподтверждённое семейство' }); continue; }
+      if (!Object.hasOwn(generationRules.paths, family)) throw new Error('Неизвестное семейство топлива: ' + family);
       const fuel = byClass.get(mode.mFuelClass), energy = Number(fuel.mEnergyValue);
       const units = fuel.mForm === 'RF_SOLID' ? 1 : 1000;
       if (!(energy > 0)) throw new Error(`Нет теплотворности ${itemId}`);
@@ -55,20 +57,12 @@ export function importGeneration({ en, ru, catalog, report, progression, pinned,
     if (!unlocked) throw new Error(`Не подтверждено открытие ${cls}`);
   }
   catalog.categories.push('Генерация (расчёт)');
-  // Explicit, reviewed energy-carrier paths. Other recipes may still make the
-  // same commodities for products, but do not certify generator fuel origin.
-  catalog.generationPaths = {
-    coal: { itemIds: ['coal', 'compacted-coal'], recipeIds: ['alt-coal'] },
-    'crude-oil': {
-      itemIds: ['crude-oil', 'heavy-oil-residue', 'petroleum-coke', 'fuel', 'turbofuel', 'rocket-fuel', 'ionized-fuel', 'packaged-oil', 'packaged-heavy-oil-residue', 'packaged-fuel', 'packaged-turbofuel', 'packaged-rocket-fuel', 'packaged-ionized-fuel'],
-      recipeIds: ['plastic', 'rubber', 'alt-polymer-resin', 'alt-heavy-oil-residue', 'petroleum-coke', 'fuel', 'residual-fuel', 'alt-diluted-fuel', 'alt-packaged-fuel', 'turbofuel', 'alt-turbofuel', 'alt-turbo-blend-fuel', 'rocket-fuel', 'alt-rocket-fuel', 'ionized-fuel', 'alt-dark-ion-fuel', 'packaged-oil', 'packaged-heavy-oil-residue', 'packaged-fuel', 'packaged-turbofuel', 'packaged-rocket-fuel', 'packaged-ionized-fuel', 'unpackage-oil', 'unpackage-heavy-oil-residue', 'unpackage-fuel', 'unpackage-turbofuel', 'unpackage-rocket-fuel', 'unpackage-ionized-fuel'] },
-    uranium: { itemIds: ['uranium', 'uranium-cell', 'uranium-fuel-rod', 'uranium-waste', 'non-fissile-uranium', 'plutonium-pellet', 'encased-plutonium-cell', 'plutonium-fuel-rod', 'plutonium-waste', 'ficsonium', 'ficsonium-fuel-rod'],
-      recipeIds: ['uranium-cell', 'alt-uranium-cell', 'uranium-fuel-rod', 'alt-uranium-fuel-unit', 'non-fissile-uranium', 'alt-fertile-uranium', 'plutonium-pellet', 'encased-plutonium-cell', 'alt-plutonium-cell', 'plutonium-fuel-rod', 'alt-plutonium-fuel-rod', 'ficsonium', 'ficsonium-fuel-rod'] },
-  };
+  catalog.generationPaths = generationRules.paths;
   for (const path of Object.values(catalog.generationPaths)) {
     if (path.itemIds.some(id => !catalog.items.some(i => i.id === id)) || path.recipeIds.some(id => !catalog.recipes.some(r => r.id === id))) throw new Error('Не подтверждён путь энергетического сырья.');
   }
-  for (const key of ['recipes', 'buildings']) progression.coverage[key] = { total: catalog[key].length, covered: catalog[key].length, missingIds: [] };
+  progression.coverage.recipes = unlockCoverage(catalog.unlocks, catalog.recipes, 'recipeIds');
+  progression.coverage.buildings = unlockCoverage(catalog.unlocks, catalog.buildings, 'buildingIds');
   report.counts.buildings = catalog.buildings.length; report.counts.recipes = catalog.recipes.length;
   catalog.provenance.notes.push('Генерация: закреплённые Docs той же сборки; 100% частоты, полный расход топлива. «Генерация (расчёт)» — служебная группа, не меню игры.');
   return { catalogVersion: catalog.version, steamBuildId: pinned.game.steamBuildId, importedAt: '2026-11-05', source: 'Satisfactory CommunityResources Docs', hashes, verified: true, evidence, excluded, paths: catalog.generationPaths };

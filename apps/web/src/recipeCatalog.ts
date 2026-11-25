@@ -1,3 +1,4 @@
+import { CLOCK_POWER_EXPONENT } from '../../../packages/domain/gameMechanics';
 import type { Catalog, Plan, Recipe } from '../../../packages/domain/types';
 import { recipeResearchReasons } from '../../../packages/domain/research';
 
@@ -47,7 +48,7 @@ export function recipeMetrics(catalog: Catalog, recipe: Recipe, clock: number, m
   const output = recipe.outputs.find(i => i.itemId === outputId) ?? recipe.outputs[0];
   const cycles = 60 / recipe.seconds * clock / 100;
   const building = catalog.buildings.find(b => b.id === recipe.buildingId);
-  const power = (recipe.power ?? building?.power ?? 0) * (clock / 100) ** Math.log2(2.5);
+  const power = (recipe.power ?? building?.power ?? 0) * (clock / 100) ** CLOCK_POWER_EXPONENT;
   const factor = mode === 'cycle' ? 1 : mode === 'minute' ? cycles : 1 / output.amount;
   return { inputs: recipe.inputs.map(i => ({ ...i, amount: i.amount * factor })), outputs: recipe.outputs.map(i => ({ ...i, amount: i.amount * factor })),
     power, energyPerUnit: power / (cycles * output.amount), outputId: output.itemId,

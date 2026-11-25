@@ -272,8 +272,12 @@ describe('совместная оптимизация производства',
   });
   it('независимый валидатор обнаруживает ложные лимиты и мощность в результате', () => {
     const { catalog, plan } = fixture(); const result = solve(catalog, plan, highs);
-    plan.sources[0].limit = 1; plan.settings.powerLimit = 1; result.power = 0;
-    expect(validateResult(catalog, plan, result).errors.length).toBeGreaterThan(0);
+    expect(validateResult(catalog, plan, result).errors).toEqual([]);
+    const sources = plan.sources.map((source, i) => i === 0 ? { ...source, limit: 1 } : source);
+    expect(validateResult(catalog, { ...plan, sources }, result).errors).toContain('Превышен ресурсный лимит.');
+    const settings = { ...plan.settings, powerLimit: 1 };
+    expect(validateResult(catalog, { ...plan, settings }, result).errors).toContain('Превышен лимит мощности.');
+    expect(validateResult(catalog, plan, { ...result, power: 0 }).errors).toContain('Неверная итоговая мощность.');
   });
   it('приоритет полностью обслуживает первый продукт', () => {
     const { catalog, plan } = fixture(); plan.policy = 'priority'; plan.targets.push({ itemId: 'rod', rate: 1, weight: 1, scale: 1 });

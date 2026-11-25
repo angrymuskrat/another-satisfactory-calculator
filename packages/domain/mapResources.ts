@@ -1,10 +1,8 @@
+import { MAX_CLOCK_PERCENT, purity, well } from './gameMechanics';
 import type { Catalog } from './types';
 import map from '../game-data/source/map-resources.json' with { type: 'json' };
-import mechanics from '../game-data/p2-mechanics.json' with { type: 'json' };
 
-type Purities = { impure: number; normal: number; pure: number };
-const purity = { impure: 0.5, normal: 1, pure: 2 } as const;
-const MAX_CLOCK = 2.5;
+type Purities = Record<keyof typeof purity, number>;
 /** The smallest weight accepted by the planner; used for resources the map does not limit. */
 export const UNLIMITED_WEIGHT = 0.000001;
 export const mapResourceProvenance = map.provenance;
@@ -19,9 +17,9 @@ export function mapResourceLimits(catalog: Catalog): Record<string, number | nul
     if (map.unlimited.includes(item.id)) { limits[item.id] = null; continue; }
     const transport = Math.max(...(item.fluid ? catalog.pipes : catalog.belts).map(t => t.rate));
     const miner = catalog.miners.filter(m => m.resourceIds.includes(item.id)).sort((a, b) => b.rate - a.rate)[0];
-    const nodes = miner ? total((map.nodes as Record<string, Purities>)[item.id], multiplier => Math.min(transport, miner.rate * multiplier * MAX_CLOCK)) : 0;
-    const wells = mechanics.well.resourceIds.includes(item.id)
-      ? total((map.wellSatellites as Record<string, Purities>)[item.id], multiplier => Math.min(transport, mechanics.well.rate * multiplier * MAX_CLOCK)) : 0;
+    const nodes = miner ? total((map.nodes as Record<string, Purities>)[item.id], multiplier => Math.min(transport, miner.rate * multiplier * (MAX_CLOCK_PERCENT / 100))) : 0;
+    const wells = well.resourceIds.includes(item.id)
+      ? total((map.wellSatellites as Record<string, Purities>)[item.id], multiplier => Math.min(transport, well.rate * multiplier * (MAX_CLOCK_PERCENT / 100))) : 0;
     if (nodes + wells > 0) limits[item.id] = nodes + wells;
   }
   return limits;

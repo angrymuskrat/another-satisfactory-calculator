@@ -1,9 +1,12 @@
+import { MAX_CLOCK_PERCENT, MIN_CLOCK_PERCENT, purity, well } from './gameMechanics';
 import { z } from 'zod';
 import type { Plan } from './types';
 import { validatePlanSharedResources } from './sharedResources';
 const id = z.string().min(1).max(200);
 const quantity = z.number().finite().min(0).max(1e9);
 const positive = quantity.gt(0);
+const clock = z.number().finite().min(MIN_CLOCK_PERCENT).max(MAX_CLOCK_PERCENT);
+const nodePurity = z.literal([purity.impure, purity.normal, purity.pure]);
 const uniqueIds = z.array(id).max(5000).refine(ids => new Set(ids).size === ids.length, 'Повторяющиеся идентификаторы');
 export const worldSnapshotSchema = z.strictObject({
   id, revision: z.number().int().min(1), unlockedRecipeIds: uniqueIds, unlockedBuildingIds: uniqueIds,
@@ -14,7 +17,7 @@ export const worldSnapshotSchema = z.strictObject({
 export const planSchema = z.strictObject({
   recipeProgress: z.strictObject({ unlockIds: uniqueIds }).optional(),
   batch: z.strictObject({ minutes: positive, items: z.array(z.strictObject({ itemId: id, required: quantity, stock: quantity })).min(1).max(256).refine(items => new Set(items.map(i => i.itemId)).size === items.length, 'Повтор позиции партии') }).optional(),
-  lines: z.array(z.strictObject({ id, name: z.string().max(120), recipeId: id, count: z.number().int().min(1).max(1000000), clock: z.number().finite().min(1).max(250), somersloops: z.number().int().min(0).max(4), duty: z.number().finite().min(0).max(1), locked: z.boolean() })).max(512).refine(lines => new Set(lines.map(l => l.id)).size === lines.length, 'Повтор линии').optional(),
+  lines: z.array(z.strictObject({ id, name: z.string().max(120), recipeId: id, count: z.number().int().min(1).max(1000000), clock, somersloops: z.number().int().min(0).max(4), duty: z.number().finite().min(0).max(1), locked: z.boolean() })).max(512).refine(lines => new Set(lines.map(l => l.id)).size === lines.length, 'Повтор линии').optional(),
   expansion: z.enum(['keep', 'add', 'rebuild']).optional(),
   somersloopBudget: z.number().int().min(0).max(1000000).optional(),
   exports: z.array(z.strictObject({ itemId: id, limit: quantity, name: z.string().max(120) })).max(256).refine(items => new Set(items.map(i => i.itemId)).size === items.length, 'Повтор экспорта').optional(),
@@ -27,10 +30,10 @@ export const planSchema = z.strictObject({
     .refine(targets => new Set(targets.map(t => t.itemId)).size === targets.length, 'Продукт указан дважды'),
   sources: z.array(z.strictObject({
     id, name: z.string().max(120).optional(), notes: z.string().max(2000).optional(), reserve: quantity.optional(), sharedNodeId: id.optional(), importPower: quantity.nullable().optional(),
-    well: z.strictObject({ satellites: z.array(z.strictObject({ purity: z.union([z.literal(0.5), z.literal(1), z.literal(2)]), count: z.number().int().min(1).max(100) })).min(1).max(32) }).optional(),
+    well: z.strictObject({ satellites: z.array(z.strictObject({ purity: nodePurity, count: z.number().int().min(1).max(100) })).min(1).max(32) }).optional(),
     itemId: id, kind: z.enum(['flow', 'node', 'well']), limit: quantity.nullable(),
-    count: z.number().int().min(1).max(10000), purity: z.union([z.literal(0.5), z.literal(1), z.literal(2)]),
-    minerId: z.string().max(200), clock: z.number().finite().min(1).max(250),
+    count: z.number().int().min(1).max(10000), purity: nodePurity,
+    minerId: z.string().max(200), clock,
   })).max(512).refine(sources => new Set(sources.map(s => s.id)).size === sources.length, 'Повторяющиеся источники'),
   settings: z.strictObject({
     processFluidsOnSite: z.boolean().optional(),
@@ -43,7 +46,7 @@ export const planSchema = z.strictObject({
     resourcesFirst: z.boolean().optional(),
     recipesFirst: z.strictObject({ extraPercent: z.number().int().min(0).max(1000) }).optional(),
     enabledRecipeIds: uniqueIds, enabledBuildingIds: uniqueIds, beltId: id, pipeId: id,
-    clock: z.number().finite().min(1).max(250),
+    clock,
     resourcePolicy: z.enum(['listed-only', 'unlimited-unlisted']), objective: z.enum(['power', 'smooth-power', 'resources', 'buildings']),
     peakPowerLimit: quantity.nullable().optional(), powerReserve: quantity.optional(),
     buildingLimits: z.record(id, z.number().int().min(0).max(1000000)).refine(values => Object.keys(values).length <= 1000).optional(),
@@ -54,7 +57,7 @@ export const planSchema = z.strictObject({
   plan.sources.forEach((source, index) => {
     if (source.kind === 'well' && !source.well) context.addIssue({ code: 'custom', path: ['sources', index, 'well'], message: 'Для скважины нужны спутники.' });
     if (source.kind !== 'well' && source.well) context.addIssue({ code: 'custom', path: ['sources', index, 'well'], message: 'Спутники разрешены только для скважины.' });
-    if (source.kind === 'well' && !['water', 'crude-oil', 'nitrogen-gas'].includes(source.itemId)) context.addIssue({ code: 'custom', path: ['sources', index, 'itemId'], message: 'Скважина не поддерживает этот ресурс.' });
+    if (source.kind === 'well' && !well.resourceIds.includes(source.itemId)) context.addIssue({ code: 'custom', path: ['sources', index, 'itemId'], message: 'Скважина не поддерживает этот ресурс.' });
   });
   if (!plan.batch) plan.targets.forEach((target, index) => {
     if (target.rate === 0) context.addIssue({ code: 'custom', path: ['targets', index, 'rate'], message: 'Нулевая скорость цели разрешена только для готовой позиции партии.' });

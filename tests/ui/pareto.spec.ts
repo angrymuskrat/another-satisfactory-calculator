@@ -1,10 +1,7 @@
+import { catalog } from './catalog';
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
 test.setTimeout(90000);
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 function fixture(supply = false) {
   const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.settings.pareto = true;
   plan.targets = [{ itemId: supply ? 'iron-ingot' : 'wire', rate: 30, weight: 1, scale: 1 }];

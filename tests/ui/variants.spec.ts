@@ -1,11 +1,8 @@
+import { catalog } from './catalog';
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
 import { largeOrder } from '../largeOrderFixture';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 const plan = createDefaultPlan(catalog);
 plan.targets = [{ itemId: 'modular-frame', rate: 1, weight: 1, scale: 1 }];
 plan.sources = ['iron-ore', 'copper-ore'].map((itemId, index) => ({ id: itemId, itemId, kind: 'flow', limit: index ? 60 : 120, count: 1, purity: 1, minerId: 'miner-mk1', clock: 100 }));
@@ -121,6 +118,7 @@ test('карточка «Проще построить» показывает ч
   await page.keyboard.press('Tab');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout: 30000 });
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.variantOptions.simplerExtraPercent)).toBe(20);
   const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
   const merged = page.getByText('«Проще построить» совпадает');
   await expect(simple.or(merged)).toBeVisible({ timeout: 30000 });

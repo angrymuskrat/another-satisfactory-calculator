@@ -65,8 +65,8 @@ describe('быстрая настройка рецептов', () => {
     expect(unknown.unknownAlternatives).toContain('alt-screw');
   });
   it('сохранение альтернатив при замене и отсутствие новых альтернатив при добавлении', () => {
-    const plan = createDefaultPlan(catalog); plan.settings.enabledRecipeIds = ['alt-screw', 'turbofuel'];
-    expect(prepareRecipeSetup(catalog, plan, [], 'replace', 'keep').plan.settings.enabledRecipeIds).toEqual(plan.settings.enabledRecipeIds);
+    const plan = createDefaultPlan(catalog); plan.settings.enabledRecipeIds = ['alt-screw', 'turbofuel', 'alt-aluminum-ingot'];
+    expect(prepareRecipeSetup(catalog, plan, [], 'replace', 'keep').plan.settings.enabledRecipeIds).toEqual(['alt-screw', 'alt-aluminum-ingot']);
     expect(prepareRecipeSetup(catalog, plan, [], 'replace', 'none').plan.settings.enabledRecipeIds).toEqual([]);
     expect(prepareRecipeSetup(catalog, plan, [], 'add', 'none').plan.settings.enabledRecipeIds).toEqual(plan.settings.enabledRecipeIds);
   });

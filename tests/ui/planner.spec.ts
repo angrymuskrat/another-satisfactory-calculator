@@ -1,12 +1,8 @@
+import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
-
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 
 test('расчёт, русский поиск, политики и невыполнимый заказ', async ({ page }) => {
   await page.goto('/');
