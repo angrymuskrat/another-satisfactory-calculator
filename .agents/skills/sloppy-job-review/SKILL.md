@@ -94,7 +94,8 @@ Run every change through these checks. One failed check makes it a Negative. Rec
 **Places this repo's AGENTS.md gives to documents** (the clearance below applies to them; cite the AGENTS.md line):
 - `docs/STATUS.md` — current progress, checks, limits and the next step. A file of the same content elsewhere is still a Negative, and so is a session log appended to STATUS.md or AGENTS.md.
 - A specification or ADR for architectural decisions and alternatives: `docs/*.md` and the stage specifications and plans in `docs/plans/`, which README links as the roadmap.
-- `docs/history/` — completed notes moved out of STATUS.md and AGENTS.md.
+- `docs/invariants.md` — invariants of implemented behaviour, grouped by subsystem. A session log appended there is still a Negative.
+- `docs/history/` — completed notes moved out of STATUS.md, AGENTS.md and `docs/invariants.md`.
 - `docs/audits/` is not named in AGENTS.md: rate a new file there by check 14 and say so.
 A file in one of these places still fails check 11 when its claims don't match the code.
 
