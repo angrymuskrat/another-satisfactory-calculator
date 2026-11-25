@@ -136,7 +136,10 @@ export function buildModel(catalog: Catalog, plan: Plan) {
   }
   const disposal: { itemId: string; variable: string }[] = [];
   const exports = (plan.exports ?? []).map(e => {
-    check(e.itemId); const variable = model.variable(e.limit); add(balance.get(e.itemId)!, variable, -1);
+    check(e.itemId);
+    const allowed = e.name.trim() && !(plan.settings.processFluidsOnSite && items.get(e.itemId)!.fluid);
+    const variable = model.variable(allowed ? e.limit : 0);
+    add(balance.get(e.itemId)!, variable, -1);
     return { itemId: e.itemId, variable };
   });
   let sinkCount: string | null = null;

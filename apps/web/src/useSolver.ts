@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import type { ProductionVariants, ProductionVariant, VariantsMessage } from '../../../packages/solver/variants';
+import { variantDuration } from '../../../packages/domain/searchDuration';
 export function useSolver(catalog: Catalog, plan: Plan) {
   const [report, setReport] = useState<ProductionVariants | null>(null);
   const [pending, setPending] = useState<ProductionVariant['id'][]>([]);
@@ -34,7 +35,9 @@ export function useSolver(catalog: Catalog, plan: Plan) {
   const calculate = useCallback((continueSearch = false) => {
     const previous = continueSearch && fingerprint === solvedInput ? report ?? undefined : undefined;
     if (selected) setBaseline(structuredClone(selected));
-    stop(); setRunning(true); setError(null); if (!previous) setReport(null); setPending([]); setSelected(null); setChoosing(true);
+    stop(); setRunning(true); setError(null);
+    if (!previous) { setReport(null); setPending([]); }
+    setSelected(null); setChoosing(true);
     const requestId = crypto.randomUUID();
     requestInput.current = fingerprint; acceptedInput.current = null;
     try {
@@ -45,6 +48,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
         if (event.data.requestId !== requestId) return;
         if (!live(currentInput.current)) { setError('Настройки изменились. Запустите подбор вариантов заново.'); setRunning(false); stop(); return; }
         setReport(event.data.report); setPending(event.data.pending);
+        if (event.data.error) setError(event.data.error);
         if (acceptedInput.current === null) setSolvedInput(fingerprint);
         if (event.data.done) { setRunning(false); stop(); }
       };
@@ -52,7 +56,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
         if (worker.current !== instance) return;
         setError(event.message || 'Не удалось загрузить решатель. Обновите страницу.'); setRunning(false); stop();
       };
-      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, plan.settings.pareto ? 65000 : 30000);
+      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, plan.settings.pareto ? 65000 : variantDuration(previous) + 5000);
       instance.postMessage({ catalog, plan, previous, requestId });
     } catch (error) { setError(error instanceof Error ? error.message : 'Ошибка запуска расчёта.'); setRunning(false); stop(); }
   }, [catalog, plan, fingerprint, stop, report, selected, solvedInput]);
@@ -60,7 +64,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
   const stale = report !== null && fingerprint !== solvedInput;
   const choose = (id: ProductionVariant['id']): Plan | null => {
     if (currentInput.current !== solvedInput) return null;
-    const variant = report?.variants.find(v => v.id === id);
+    const variant = report?.variants.find(v => v.id === id) ?? report?.workingPlans?.find(v => v.id === id);
     if (!variant || !hasSolution(variant.result)) return null;
     const next = structuredClone(variant);
     const input = JSON.stringify(next.plan);
@@ -68,7 +72,7 @@ export function useSolver(catalog: Catalog, plan: Plan) {
     setSelected(next); setChoosing(false); setSolvedInput(input);
     return next.plan;
   };
-  const failure = !running && report?.variants.every(v => !hasSolution(v.result)) ? report.variants[0] : null;
+  const failure = !running && !report?.workingPlans?.length && report?.variants.every(v => !hasSolution(v.result)) ? report.variants[0] : null;
   return { report, pending, selected, baseline, choosing, result: selected?.result ?? failure?.result ?? null,
     running, error, stale, calculate, cancel, choose, showChoices: () => setChoosing(true) };
 }

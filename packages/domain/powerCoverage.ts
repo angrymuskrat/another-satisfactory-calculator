@@ -7,12 +7,15 @@ export interface GeneratorCoverage { id: string; name: string; power: number; av
 const count = (power: number, generator: number) => power > 0 ? Math.ceil(power / generator - 1e-9) : 0;
 const perMinute = (power: number, energy: number) => Math.max(0, power) * 60 / energy;
 
-/** Справка вне оптимизации: генераторы на 100%, расход топлива пропорционален выдаваемой мощности. */
+/** При 100% топливо и вода требуются для полной мощности каждой установленной машины. */
 export function powerCoverage(catalog: Pick<Catalog, 'version'>, average: number, peak: number): GeneratorCoverage[] | null {
   if (catalog.version !== data.provenance.catalogVersion) return null;
-  return data.generators.map(g => ({
-    id: g.id, name: g.name, power: g.power, average: count(average, g.power), peak: count(peak, g.power),
-    fuels: g.fuels.map(f => ({ itemId: f.itemId, average: perMinute(average, f.energy), peak: perMinute(peak, f.energy) })),
-    supplemental: g.supplemental && { itemId: g.supplemental.itemId, average: perMinute(average, 1 / g.supplemental.perMJ), peak: perMinute(peak, 1 / g.supplemental.perMJ) },
-  }));
+  return data.generators.map(g => {
+    const averageCount = count(average, g.power), peakCount = count(peak, g.power);
+    const supply = (itemId: string, energy: number) => ({ itemId,
+      average: perMinute(averageCount * g.power, energy), peak: perMinute(peakCount * g.power, energy) });
+    return { id: g.id, name: g.name, power: g.power, average: averageCount, peak: peakCount,
+      fuels: g.fuels.map(f => supply(f.itemId, f.energy)),
+      supplemental: g.supplemental && supply(g.supplemental.itemId, 1 / g.supplemental.perMJ) };
+  });
 }

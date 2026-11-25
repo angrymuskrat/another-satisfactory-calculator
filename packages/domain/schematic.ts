@@ -7,6 +7,7 @@ import { validateBeltNetwork } from './beltNetwork';
 
 export type SchematicMode = 'types' | 'machines';
 export const SCHEMATIC_PAGE_SIZE = 48;
+export interface MachineSpan { id: string; first: number; count: number }
 export interface SchematicDestinations {
   products: ProductResult[];
   exports?: (ProductResult & { name?: string })[];
@@ -28,6 +29,7 @@ export interface SchematicNode {
   stage: number;
   page?: number;
   routingDepth?: number;
+  parts?: MachineSpan[];
 }
 export interface SchematicEdge {
   id: string;
@@ -39,6 +41,8 @@ export interface SchematicEdge {
   share?: number;
   parallel: number;
   physicalRouting?: boolean;
+  fromMachine?: number;
+  toMachine?: number;
 }
 export type SchematicModel = ReturnType<typeof buildSchematic>;
 export const SCHEMATIC_MIN_FLOW_SHARE = 0.0001; // 0.01% of this item's total supply.
@@ -70,7 +74,7 @@ const baseNode = (id: string, kind: SchematicNode['kind'], label: string, stage:
 });
 
 /** A view of the checked configuration, not a physical port/routing solver. */
-export function buildSchematic(catalog: Catalog, model: ConstructionModel, destinations: SchematicDestinations, mode: SchematicMode, requestedPage = 0) {
+export function buildSchematic(catalog: Catalog, model: ConstructionModel, destinations: SchematicDestinations, mode: SchematicMode | 'configurations', requestedPage = 0) {
   const dependencies = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })));
   const stageByGroup = new Map<string, number>();
   // SCCs are identified before aggregating building types (aggregation can introduce false loops).
@@ -98,9 +102,10 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
   const buildingName = (g: ConstructionGroup) => catalog.buildings.find(b => b.id === g.buildingId)?.name
     ?? catalog.miners.find(b => b.id === g.buildingId)?.name
     ?? ({ 'resource-well-pressurizer': 'Компенсатор скважины', 'resource-well-extractor': 'Добытчик скважины' } as Record<string, string>)[g.buildingId] ?? g.name;
-  const addBuilding = (id: string, kind: 'building' | 'continuation', label: string, parts: ConstructionGroup[], targetPage?: number) => {
+  const addBuilding = (id: string, kind: 'building' | 'continuation', label: string, parts: ConstructionGroup[], targetPage?: number, first = 0) => {
     const n = baseNode(id, kind, label, Math.min(...parts.map(stageOf)));
     n.configurations = parts; n.buildingId = parts[0].buildingId;
+    n.parts = parts.map(g => ({ id: g.id, first, count: g.count }));
     n.count = parts.reduce((s, g) => s + g.count, 0);
     n.existing = parts.reduce((s, g) => s + (g.existing ?? 0), 0);
     n.clock = parts.reduce((s, g) => s + g.clock * g.count, 0) / n.count;
@@ -111,7 +116,12 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
     n.page = targetPage;
     nodes.push(n);
   };
-  if (mode === 'types') {
+  if (mode === 'configurations') {
+    for (const g of groups) {
+      addBuilding(g.id, 'building', buildingName(g), [g]);
+      machineCards.set(g.id, [{ first: 0, count: g.count, id: g.id }]);
+    }
+  } else if (mode === 'types') {
     const types = new Map<string, ConstructionGroup[]>();
     for (const g of groups) {
       // Recipes remain distinct even when they produce the same item. Extraction
@@ -140,7 +150,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
         const card = key(continuation ? 'continuation' : 'machine', g.id, first);
         addBuilding(card, continuation ? 'continuation' : 'building',
           `${buildingName(g)} ${continuation ? `№${first + 1}–${first + count}` : `№${first + 1}`}`, [part],
-          continuation ? Math.floor((offset + first) / SCHEMATIC_PAGE_SIZE) : undefined);
+          continuation ? Math.floor((offset + first) / SCHEMATIC_PAGE_SIZE) : undefined, first);
         machineCards.set(g.id, [...(machineCards.get(g.id) ?? []), { first, count, id: card }]);
       };
       const before = Math.min(g.count, Math.max(0, start - offset));
@@ -159,6 +169,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
       const id = routing ? key('source', s.sourceId, lane) : key('source', s.sourceId);
       const n = baseNode(id, 'source', lanes > 1 ? `${s.name} · лента ${lane + 1}` : s.name, 0);
       n.outputs = [{ ...s, rate: s.rate / lanes }]; n.itemId = s.itemId;
+      n.parts = [{ id, first: 0, count: 1 }];
       n.averagePower = n.peakPower = s.power === null ? null : s.power / lanes;
       nodes.push(n); externalCards.set(key(s.sourceId, lane), id);
     }
@@ -210,7 +221,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
     }
     if (difference !== 0) warnings.push(`${name}: численный остаток подачи минус расход ${difference.toExponential(3)} ${item?.fluid ? 'м³/мин' : 'шт/мин'}.`);
     if (routing && !item?.fluid) continue;
-    if (mode === 'machines') {
+    if (mode !== 'types') {
       // Allocate already solved flows in stable endpoint order. This only chooses
       // displayed connections; it never selects recipes or changes production.
       let p = 0, c = 0, available = providers[0].rate, needed = consumers[0].rate;
@@ -277,6 +288,7 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
           const card = key('routing-device', network.itemId, node.id);
           const n = baseNode(card, node.kind, `${node.kind === 'split' ? 'Разделитель' : 'Соединитель'}: ${itemName}`, baseStage + depth);
           n.count = 1; n.itemId = network.itemId; n.routingDepth = depth;
+          n.parts = [{ id: card, first: 0, count: 1 }];
           n.inputs = [{ itemId: network.itemId, rate: incoming.get(node.id)!.reduce((sum, edge) => sum + edge.rate, 0) }];
           n.outputs = [{ itemId: network.itemId, rate: outgoing.get(node.id)!.reduce((sum, edge) => sum + edge.rate, 0) }];
           nodes.push(n); cards.set(node.id, card);
@@ -288,7 +300,9 @@ export function buildSchematic(catalog: Catalog, model: ConstructionModel, desti
         }
       }
       const supply = physical.filter(endpoint => endpoint.direction === 'supply').reduce((sum, endpoint) => sum + endpoint.rate, 0);
-      network.edges.forEach((edge, index) => edges.push({ id: key('routing-edge', network.itemId, index), from: cards.get(edge.from)!, to: cards.get(edge.to)!, kind: 'flow', itemId: network.itemId, rate: edge.rate, share: edge.rate / supply, parallel: 1, physicalRouting: true }));
+      const machineIndices = new Map(physical.map(endpoint => [endpoint.id, endpoint.machineIndex]));
+      network.edges.forEach((edge, index) => edges.push({ id: key('routing-edge', network.itemId, index), from: cards.get(edge.from)!, to: cards.get(edge.to)!, kind: 'flow', itemId: network.itemId, rate: edge.rate, share: edge.rate / supply, parallel: 1, physicalRouting: true,
+        ...(mode === 'configurations' ? { fromMachine: machineIndices.get(edge.from), toMachine: machineIndices.get(edge.to) } : {}) }));
     }
   }
   const controlPairs = new Set<string>();

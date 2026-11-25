@@ -13,11 +13,13 @@ const statuses = { approximate: 'Допустимое приближение', o
 const metric = (value: number, digits = 2) => value !== 0 && Math.abs(value) < 10 ** -digits ? value.toExponential(3) : format(value, digits);
 const weightedResources = (plan: Plan, result: Result) => result.resources.reduce((sum, r) => sum + r.rate * (plan.settings.resourceWeights[r.itemId] ?? 1), 0);
 type Variant = NonNullable<ReturnType<typeof useSolver>['report']>['variants'][number];
+const title = (v: Variant) => v.result.searchProgress ? `Уточнение · ${v.label}` : v.label;
 type MetricRow = { key: string; label: string; value: (variant: Variant) => ReactNode };
 /** Строки карточки вне таблицы метрик: статус, название, описание, кнопка выбора. */
 const CARD_ROWS = 4;
 const difference = (value: number, baseline: number) => baseline > 0 ? `${value >= baseline ? '+' : '−'}${format(Math.abs(value / baseline - 1) * 100)}%` : '—';
 const hint = (variant: ProductionVariant, plan: Plan) => {
+  if (variant.result.searchProgress) return variant.result.message;
   const loss = plan.mode === 'maximize' && !plan.batch ? `Допустимая потеря выпуска: ${format(variant.plan.settings.outputSlack)}%.` : 'Заказ сохраняется полностью.';
   if (variant.id === 'maximum') return 'Компактная фабрика с полным доступным выпуском или заданным заказом.';
   if (variant.id === 'economy') return `Экономия в пределах компактной фабрики + ${variant.plan.settings.smoothPowerExtraMachines ?? 0} машин. ${loss}`;
@@ -25,16 +27,16 @@ const hint = (variant: ProductionVariant, plan: Plan) => {
   return `Сначала минимум взвешенного сырья, затем машины и энергия. ${loss}`;
 };
 
-export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog: Catalog; plan: Plan; setPlan: (plan: Plan) => void; solver: ReturnType<typeof useSolver> }) {
+export function ProductionVariants({ catalog, plan, setPlan, solver, constructionScope }: { catalog: Catalog; plan: Plan; setPlan: (plan: Plan) => void; solver: ReturnType<typeof useSolver>; constructionScope?: string }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const { report, pending, selected, choosing, stale, running, error } = solver;
-  const hasVariants = report?.variants.some(v => hasSolution(v.result));
+  const hasVariants = !!report?.workingPlans?.length || report?.variants.some(v => hasSolution(v.result));
   const showCards = report !== null && choosing;
   const baseline = report?.variants[0];
   const variants = report?.variants.filter(v => !v.sameAs);
   const merged = report?.variants.filter(v => v.sameAs).map(v => `«${v.label}» совпадает с «${report.variants.find(o => o.id === v.sameAs)?.label}».`) ?? [];
   const focusHeading = () => requestAnimationFrame(() => heading.current?.focus());
-  if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} />;
+  if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} constructionScope={constructionScope} />;
   const item = (id: string) => catalog.items.find(i => i.id === id);
   // Общий набор строк: одинаковые метрики стоят на одной высоте во всех вариантах.
   const solved = (variants ?? []).filter(v => hasSolution(v.result));
@@ -50,6 +52,7 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
     { key: 'power', label: 'Средняя мощность', value: v => <><span data-metric="power">{metric(v.result.power)}</span> МВт{versus(v, v.result.power, baseline?.result.power ?? 0)}</> },
     { key: 'peak', label: 'Пиковая мощность', value: v => `${metric(v.result.installedPower)} МВт` },
     { key: 'machines', label: 'Машины производства', value: v => v.result.steps.reduce((total, step) => total + step.installedMachines, 0) },
+    ...(solved.some(v => v.result.searchProgress?.machineMinimum !== undefined) ? [{ key: 'minimum', label: 'Минимум всех машин в полной модели', value: (v: Variant) => v.result.searchProgress?.machineMinimum ?? '—' }] : []),
     { key: 'recipes', label: 'Разных рецептов', value: v => {
       const recipes = buildComplexity(v.plan, v.result).distinctRecipes;
       const base = baseResult && baseline ? buildComplexity(baseline.plan, baseResult).distinctRecipes : undefined;
@@ -64,18 +67,25 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
   ];
   return <>
     {!showCards && selected && <button className="text-button variant-back" onClick={() => { solver.showChoices(); focusHeading(); }}><ArrowLeft size={14} />Вернуться к вариантам</button>}
-    <h2 className="variant-title" ref={heading} tabIndex={-1}>{showCards || running && !selected ? 'Варианты производства' : selected ? selected.label : 'Расчёт производства'}</h2>
+    <h2 className="variant-title" ref={heading} tabIndex={-1}>{showCards || running && !selected ? 'Варианты производства' : selected ? title(selected) : 'Расчёт производства'}</h2>
     {showCards ? <section aria-label="Выбор варианта производства" className="production-variants">
       <p role="status">{stale ? 'Требуется пересчёт' : running ? 'Варианты появляются по мере готовности.' : hasVariants ? 'Выберите вариант, чтобы открыть подробный план строительства.' : 'Подбор завершён без доступного варианта. Статусы каждого расчёта показаны отдельно.'}</p>
       {error && <p role="alert" className="alert error">{error}</p>}
+      {!!report?.workingPlans?.length && <section className="panel" aria-label="Рабочие планы">
+        <h3>Проверенные рабочие планы</h3>
+        <p>Дробный расчёт предложил рецепты. Число машин, потоки и ограничения проверены для полного заказа. Минимум машин на этом этапе не доказан.</p>
+        {report.workingPlans.map(v => <p key={v.id}><strong>{v.label}</strong> · {v.result.steps.reduce((n, s) => n + s.installedMachines, 0)} машин производства · {metric(v.result.power)} МВт{' '}
+          <button className="secondary-button" disabled={stale} onClick={() => { const next = solver.choose(v.id); if (next) { setPlan(next); focusHeading(); } }}>Открыть рабочий план</button></p>)}
+      </section>}
+      {!running && (pending.length > 0 || report?.variants.some(v => v.result.searchProgress || v.result.status === 'timeout')) && <button className="secondary-button" disabled={stale} onClick={() => solver.calculate(true)}>Продолжить оптимизацию</button>}
       {!!merged.length && <p className="alert">{report?.equivalent ? 'Все режимы дали одинаковый план. Показан один вариант.' : merged.join(' ')}</p>}
       <div className="variant-grid">{variants?.map(variant => {
         const { result } = variant;
         const valid = hasSolution(result);
-        const unsolved = pending.includes(variant.id);
+        const unsolved = !valid && pending.includes(variant.id);
         return <article className={'panel variant-card' + (valid ? ' is-aligned' : '')} key={variant.id} aria-labelledby={`variant-${variant.id}`} style={{ gridRow: `span ${rows.length + CARD_ROWS}` }}>
           {unsolved ? <span className="status-badge pending">{running ? 'Считается…' : 'Не рассчитан'}</span> : <span className={`status-badge ${result.status}`}>{statuses[result.status]}</span>}
-          <h3 id={`variant-${variant.id}`}>{variant.label}</h3>
+          <h3 id={`variant-${variant.id}`}>{title(variant)}</h3>
           <p className="hint">{hint(variant, plan)}</p>
           {unsolved ? <p className="hint">{running ? 'Вариант ещё решается.' : error ?? 'Расчёт остановлен.'}</p> : valid ? <>
             <dl className="variant-metrics" style={{ gridRow: `span ${rows.length}` }}>{rows.map(row => <div key={row.key}><dt>{row.label}</dt><dd>{row.value(variant)}</dd></div>)}</dl>
@@ -84,9 +94,10 @@ export function ProductionVariants({ catalog, plan, setPlan, solver }: { catalog
         </article>;
       })}</div>
       {hasVariants && <ModelNotes notes={['Частоты подобраны для непрерывной работы, где это возможно. Энергия добычи и утилизации учитывается; неизвестная энергия внешних поставок исключена. Фактические колебания сети не моделируются.', 'Природные ресурсы без заданного источника и без расхода не показаны.']} />}
-      {!hasVariants && !running && <Results catalog={catalog} plan={report!.variants[0]?.plan ?? plan} result={solver.result} stale={stale} running={running} error={null} />}
+      {!hasVariants && !running && <Results constructionScope={constructionScope} catalog={catalog} plan={report!.variants[0]?.plan ?? plan} result={solver.result} stale={stale} running={running} error={null} />}
     </section> : <>
-      <Results key={selected?.id ?? 'pending'} catalog={catalog} plan={selected?.plan ?? plan} result={solver.result} stale={stale} running={running && !selected} error={selected ? null : error} onEnableRecipe={id => setPlan({ ...plan, settings: { ...plan.settings, enabledRecipeIds: [...plan.settings.enabledRecipeIds, id] } })} />
+      {selected?.result.searchProgress && <p role="status">{selected.result.message}</p>}
+      <Results constructionScope={constructionScope} key={selected?.id ?? 'pending'} catalog={catalog} plan={selected?.plan ?? plan} result={solver.result} stale={stale} running={running && !selected} error={selected ? null : error} onEnableRecipe={id => setPlan({ ...plan, settings: { ...plan.settings, enabledRecipeIds: [...plan.settings.enabledRecipeIds, id] } })} />
     </>}
   </>;
 }

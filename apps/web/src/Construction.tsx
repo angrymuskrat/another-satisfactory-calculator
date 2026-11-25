@@ -5,7 +5,8 @@ import { orderDependencies } from '../../../packages/domain/dependencies';
 import { format, ItemIcon, unit } from './controls';
 import mechanics from '../../../packages/game-data/p2-mechanics.json';
 import { Schematic } from './Schematic';
-import type { SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
+import type { MachineSpan, SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
+import { builtCount, markBuilt, type BuiltRanges } from '../../../packages/domain/constructionProgress';
 
 export function CopyNumber({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
@@ -19,41 +20,56 @@ export function CopyNumber({ value, label, suffix = '' }: { value: number; label
 }
 
 const storageKey = 'satisfactory:construction:v1';
-type SavedMarks = { fingerprint: string; ids: string[] };
+const defaultScope = JSON.stringify(['guest', null]);
+type SavedMarks = { fingerprint: string; scope?: string; ids: string[]; ranges?: BuiltRanges };
 function readHistory(): SavedMarks[] {
   const raw = localStorage.getItem(storageKey);
   if (!raw) return [];
   const stored: unknown = JSON.parse(raw);
   const valid = (entry: unknown): entry is SavedMarks => !!entry && typeof entry === 'object'
     && 'fingerprint' in entry && typeof entry.fingerprint === 'string'
-    && 'ids' in entry && Array.isArray(entry.ids) && entry.ids.every(id => typeof id === 'string');
+    && 'ids' in entry && Array.isArray(entry.ids) && entry.ids.every(id => typeof id === 'string')
+    && (!('ranges' in entry) || !!entry.ranges && typeof entry.ranges === 'object' && !Array.isArray(entry.ranges)
+      && Object.values(entry.ranges).every(ranges => Array.isArray(ranges) && ranges.every((r, i) =>
+        Array.isArray(r) && r.length === 2 && r.every(Number.isSafeInteger) && r[0] >= 0 && r[1] > r[0] && (!i || ranges[i - 1][1] <= r[0]))));
   // Migrate the initial one-configuration format on the next write.
   if (valid(stored)) return [stored];
   if (!stored || typeof stored !== 'object' || !('entries' in stored) || !Array.isArray(stored.entries) || !stored.entries.every(valid)) throw new Error('Invalid marks');
   return stored.entries.slice(-20);
 }
-function readBuilt(fingerprint: string): { ids: string[]; error: string } {
-  try {
-    return { ids: readHistory().find(entry => entry.fingerprint === fingerprint)?.ids ?? [], error: '' };
-  } catch { return { ids: [], error: 'Не удалось загрузить отметки строительства из этого браузера.' }; }
+function restoredRanges(model: ConstructionModel, scope: string, entries: SavedMarks[]) {
+  const matching = entries.filter(entry => entry.fingerprint === model.fingerprint);
+  // Old entries had no factory identity and applied to this exact configuration.
+  const saved = matching.find(entry => entry.scope === scope) ?? matching.find(entry => entry.scope === undefined);
+  const legacy = new Set(saved?.ids);
+  const groups = [...model.extraction, ...model.production, ...model.sinks].filter(g => legacy.has(g.id));
+  return markBuilt(saved?.ranges ?? {}, groups.map(g => ({ id: g.id, first: 0, count: g.count })), true);
 }
 
-export function Construction({ catalog, model, building, destinations }: { catalog: Catalog; model: ConstructionModel; building: boolean; destinations: SchematicDestinations }) {
-  const [saved, setSaved] = useState(() => readBuilt(model.fingerprint));
+export function Construction({ catalog, model, building, destinations, scope = defaultScope, residueItemIds }: { catalog: Catalog; model: ConstructionModel; building: boolean; destinations: SchematicDestinations; scope?: string; residueItemIds?: readonly string[] }) {
+  const [saved, setSaved] = useState(() => {
+    try { return { ranges: restoredRanges(model, scope, readHistory()), error: '' }; }
+    catch { return { ranges: {} as BuiltRanges, error: 'Не удалось загрузить отметки строительства из этого браузера.' }; }
+  });
   const [view, setView] = useState<'instruction' | SchematicMode>('instruction');
   const item = (id: string) => catalog.items.find(i => i.id === id);
-  const mark = (id: string, checked: boolean) => {
-    const ids = checked ? [...new Set([...saved.ids, id])] : saved.ids.filter(i => i !== id);
+  const mark = (parts: MachineSpan[], checked: boolean) => {
+    let ranges = markBuilt(saved.ranges, parts, checked);
     let error = '';
     try {
-      const entries = [...readHistory().filter(entry => entry.fingerprint !== model.fingerprint), { fingerprint: model.fingerprint, ids }].slice(-20);
+      const history = readHistory();
+      if (!saved.error) ranges = markBuilt(restoredRanges(model, scope, history), parts, checked);
+      const entries = [...history.filter(entry => entry.fingerprint !== model.fingerprint || (entry.scope ?? defaultScope) !== scope),
+        { fingerprint: model.fingerprint, scope, ids: [], ranges }].slice(-20);
       localStorage.setItem(storageKey, JSON.stringify({ entries }));
     }
     catch { error = 'Не удалось сохранить отметки. Они доступны только до закрытия этой инструкции.'; }
-    setSaved({ ids, error });
+    setSaved({ ranges, error });
   };
   const groups = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })));
   const renderGroup = (group: ConstructionGroup, index: string) => {
+    const parts = [{ id: group.id, first: 0, count: group.count }];
+    const done = builtCount(saved.ranges, parts);
     const machine = group.kind === 'extraction' ? catalog.miners.find(b => b.id === group.buildingId) : catalog.buildings.find(b => b.id === group.buildingId);
     const name = (id: string) => item(id)?.name ?? id;
     return <details className="production-step" key={group.id} open={building || undefined}>
@@ -62,7 +78,7 @@ export function Construction({ catalog, model, building, destinations }: { catal
         <div className="full-width"><p>Физических машин: <CopyNumber value={group.count} label={`${group.name}: число машин`} /> · Частота каждой: <CopyNumber value={group.clock} label={`${group.name}: частота`} suffix="%" /></p>
           <p>Уже есть: {group.existing ?? 0} · Добавить: {group.count - (group.existing ?? 0)} · Somersloops на машину: {group.somersloops ?? 0}</p><p>Активная доля времени: <CopyNumber value={group.activeDuty * 100} label={`${group.name}: активная доля времени`} suffix="%" /> — средняя доля работы группы, а не настройка частоты.</p>
           {group.kind === 'sink' && <p className="hint">Утилизаторы в модели потребляют полную мощность; доля заполнения ленты не уменьшает MW. Поток на один утилизатор — равная доля входа группы при непрерывном питании.</p>}
-          {building && <label><input type="checkbox" checked={saved.ids.includes(group.id)} onChange={e => mark(group.id, e.target.checked)} /> Построено: {group.name}</label>}
+          {building && <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked)} /> Построено: {group.name} · {done} из {group.count}</label>}
         </div>
         {([['Вход', group.activeInputs, group.averageInputs], ['Выход', group.activeOutputs, group.averageOutputs]] as const).map(([title, active, average]) => <div key={title}><h4>{title}</h4>{!active.length && <p className="hint">{group.kind === 'sink' && title === 'Выход' ? 'Предметы уничтожаются в AWESOME Sink.' : 'Нет предметных потоков.'}</p>}{active.map((flow, index) => <div key={flow.itemId}><strong>{name(flow.itemId)}</strong><p>Одна активная машина: <CopyNumber value={flow.rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, одна активная машина`} suffix={unit(item(flow.itemId))} /></p><p>Вся группа в среднем: <CopyNumber value={average[index].rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, группа в среднем`} suffix={unit(item(flow.itemId))} /></p></div>)}</div>)}
         <div className="full-width"><p>Мощность одной активной машины, средняя за рабочий цикл: <CopyNumber value={group.activePower} label={`${group.name}: мощность активной машины`} suffix="МВт" /></p><p>Средняя группы: <CopyNumber value={group.averagePower} label={`${group.name}: средняя мощность`} suffix="МВт" /> · Консервативный пик группы: <CopyNumber value={group.peakPower} label={`${group.name}: пиковая мощность`} suffix="МВт" /></p>{group.powerEstimated && <p className="hint">Мощность помечена в каталоге как оценочная.</p>}</div>
@@ -71,7 +87,8 @@ export function Construction({ catalog, model, building, destinations }: { catal
   };
   return <div className={building ? 'construction-panel' : undefined}>
     {building && <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'По типам зданий'], ['machines', 'По отдельным зданиям']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => setView(value)}>{label}</button>)}</div>}
-    {building && view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} /> : <>
+    {building && view !== 'instruction' && saved.error && <p role="alert">{saved.error}</p>}
+    {building && view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} scope={scope} built={saved.ranges} mark={mark} residueItemIds={residueItemIds} /> : <>
     {building && <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>}
     <section className="panel production-panel"><div className="section-heading"><h3>Этапы производства</h3><span className="count-badge">{model.production.length}</span></div>
       <p className="hint">Поставщики показаны раньше потребителей. Связи определяются общими предметами; конкретное распределение между машинами не рассчитано.</p>

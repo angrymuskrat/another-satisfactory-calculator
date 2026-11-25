@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { layoutSchematic, routeSchematicEdges } from '../apps/web/src/schematicLayout';
+import { layoutSchematic, placeFlowLabels, placeSchematicNodes, routeSchematicEdges } from '../apps/web/src/schematicLayout';
 import type { SchematicModel, SchematicNode } from '../packages/domain/schematic';
 
 function graph() {
@@ -7,6 +7,21 @@ function graph() {
     edges: [['source', 'a'], ['a', 'b'], ['source', 'c'], ['c', 'd'], ['b', 'end'], ['d', 'end']]
       .map(([from, to], i) => ({ id: `${i}`, from, to, kind: 'flow', rate: 10, parallel: 1 })) } as SchematicModel;
 }
+
+it('переносит конец стрелки за карточкой и размещает подписи вне занятых областей', () => {
+  const g = graph();
+  const initial = layoutSchematic(g, {});
+  const moved = placeSchematicNodes(initial, { b: { x: 1400, y: 700 } });
+  const edge = g.edges.find(e => e.to === 'b')!;
+  expect(routeSchematicEdges(g, moved)[edge.id].points.at(-1)?.x).toBe(1400);
+  expect(initial.rects.b).not.toEqual(moved.rects.b);
+  const label = { at: { x: 485, y: 320 }, width: 160, height: 36 };
+  const positions = placeFlowLabels(moved, [{ id: 'first', ...label }, { id: 'second', ...label }]);
+  expect(positions.size).toBe(2);
+  expect(Math.abs(positions.get('first')!.y - positions.get('second')!.y)).toBeGreaterThanOrEqual(label.height);
+  const blocked = placeFlowLabels(moved, [{ id: 'third', at: { x: 1540, y: 860 }, width: 50, height: 25 }]);
+  expect(blocked.size).toBe(0);
+});
 it('размещает ветви в глубину, центрирует общий источник и не перекрывает карточки', () => {
   const g = graph();
   const layout = layoutSchematic(g, { c: { width: 280, height: 470 } });

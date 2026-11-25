@@ -6,8 +6,9 @@ import { applyBatch } from '../domain/batch';
 import { buildConstruction } from '../domain/construction';
 import { buildComplexity } from '../domain/complexity';
 import { sourceLabel } from '../domain/sourceLabel';
+import { compareResidueRoutes, sinkAvailable, type ResidueRequest, type ResidueReport } from './residues';
 
-export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] } | { kind: 'alternates' };
+export type AnalysisRequest = { kind: 'objectives' } | { kind: 'expansion' } | { kind: 'recipes'; recipeIds: string[] } | { kind: 'constraints'; candidateIds?: string[] } | { kind: 'alternates' } | ResidueRequest;
 export type Benefit = 'output' | 'feasibility' | 'reachable-output' | 'cost' | 'none' | 'unknown';
 type Change =
   | { kind: 'source-limit' | 'source-node'; id: string; value: number }
@@ -34,6 +35,7 @@ export interface AnalysisVariant {
   summary: Summary | null; comparison: Comparison | null; benefit: Benefit;
 }
 export interface AnalysisReport {
+  residues?: ResidueReport;
   kind: AnalysisRequest['kind']; baseline: Result; baselineSummary: Summary | null;
   variants: AnalysisVariant[]; noProductionPath: boolean; complete: boolean;
   omittedCandidates: number; notes: string[];
@@ -89,7 +91,7 @@ export function constraintCandidates(catalog: Catalog, plan: Plan): ConstraintCa
     if (catalog.buildings.some(b => b.id === building.id) && !plan.settings.enabledBuildingIds.includes(building.id)) candidates.push({ id: `building:${building.id}`, label: `Разрешить здание в плане: ${building.name}`, change: { kind: 'building', id: building.id } });
     if (plan.world && !plan.world.unlockedBuildingIds.includes(building.id)) candidates.push({ id: `unlock-building:${building.id}`, label: `Открыть в мире здание: ${building.name} (локальный выбор сохраняется)`, change: { kind: 'unlock-building', id: building.id } });
   }
-  if (!plan.settings.allowSink && catalog.buildings.some(b => b.id === 'awesome-sink')) candidates.push({ id: 'sink', label: 'Разрешить утилизацию в Sink; доступность здания проверяется отдельно', change: { kind: 'sink' } });
+  if (!plan.settings.allowSink && sinkAvailable(catalog, plan)) candidates.push({ id: 'sink', label: 'Разрешить утилизацию принимаемых твёрдых предметов в AWESOME Sink', change: { kind: 'sink' } });
   for (const recipe of catalog.recipes) {
     if (!plan.settings.enabledRecipeIds.includes(recipe.id)) candidates.push({ id: `recipe:${recipe.id}`, label: `Разрешить рецепт в плане: ${recipe.name}`, change: { kind: 'recipe', id: recipe.id } });
     if (plan.world && !plan.world.unlockedRecipeIds.includes(recipe.id)) candidates.push({ id: `unlock-recipe:${recipe.id}`, label: `Открыть в мире рецепт: ${recipe.name} (локальный выбор сохраняется)`, change: { kind: 'unlock-recipe', id: recipe.id } });
@@ -209,7 +211,10 @@ export function analyze(catalog: Catalog, input: Plan, highs: Parameters<typeof 
     report.variants.push({ id, label, candidateIds, result, summary, comparison, benefit: benefit(plan, baseline, result, comparison) });
     if (['timeout', 'error'].includes(result.status)) report.complete = false;
   };
-  if (request.kind === 'expansion') {
+  if (request.kind === 'residues') {
+    report.residues = compareResidueRoutes(catalog, input, request, baseline, run, deadline);
+    report.complete &&= report.residues.complete;
+  } else if (request.kind === 'expansion') {
     for (const [expansion, label] of [['keep', 'Оставить существующее производство'], ['add', 'Сохранить и добавить'], ['rebuild', 'Перестроить производство']] as const) add(expansion, label, { ...structuredClone(plan), expansion });
     report.notes.push('Один заказ, источники и бюджет. «Оставить» использует только существующие производственные линии; «добавить» сохраняет их настройки; «перестроить» разрешает заменить все линии. Добыча и утилизация рассчитываются заново. Возврат материалов после демонтажа не моделируется.');
   } else if (request.kind === 'objectives') {

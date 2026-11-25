@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildSchematic, filterSchematicFlows, SCHEMATIC_PAGE_SIZE } from '../packages/domain/schematic';
+import { builtCount, constructionDependencies, markBuilt } from '../packages/domain/constructionProgress';
 import type { ConstructionGroup, ConstructionModel } from '../packages/domain/construction';
 import type { Catalog } from '../packages/domain/types';
 
@@ -27,6 +28,40 @@ function model(production: ConstructionGroup[], supply = 80.4): ConstructionMode
 const destinations = { products: [flow('ingot', 80.4)] };
 
 describe('схема строительства', () => {
+  it('прослеживает конкретные машины до фильтра и страниц; групповые и одиночные отметки общие', () => {
+    const smelters = group('smelters', 96, 960);
+    const plates = { ...group('plates', 96, 960), averageInputs: [flow('ingot', 960)], averageOutputs: [flow('plate', 960)] };
+    const graph = buildSchematic(catalog, model([plates, smelters], 960), { products: [flow('plate', 960)] }, 'configurations');
+    const progress = constructionDependencies(graph, SCHEMATIC_PAGE_SIZE);
+    const span = (id: string, first: number, count: number) => [{ id, first, count }];
+    const machine = span('plates', 70, 1);
+    expect(progress(machine, {}).missing).toMatchObject([{ id: 'smelters', itemId: 'ingot', index: 70, page: 1 }]);
+    const all = span('smelters', 0, 96), built = markBuilt({}, all, true);
+    const partial = markBuilt(built, span('smelters', 70, 2), false);
+    expect(builtCount(partial, all)).toBe(94);
+    expect(progress(span('plates', 0, 96), partial).ready).toBe(94);
+    expect(progress(machine, partial).ready).toBe(0);
+    expect(progress(span('plates', 69, 1), partial).ready).toBe(1);
+    expect(progress(machine, markBuilt(partial, span('smelters', 70, 1), true)).ready).toBe(1);
+    expect(progress(span('smelters', 0, 1), {}).missing[0].label).toBe('Руда извне');
+  });
+
+  it('ждёт малый внешний вход всего контура, затем рекомендует оба здания вместе', () => {
+    const a = { ...group('a', 1, 20), averageInputs: [flow('water', 20.0001)], averageOutputs: [flow('ingot', 20)] };
+    const b = { ...group('b', 1, 20), averageInputs: [flow('ingot', 20)], averageOutputs: [flow('water', 20), flow('plate', 1)] };
+    const m = model([a, b]);
+    m.externalSources = [{ sourceId: 'water', itemId: 'water', name: 'Подпитка водой', rate: .0001, power: null }];
+    const graph = buildSchematic(catalog, m, { products: [flow('plate', 1)] }, 'configurations');
+    const progress = constructionDependencies(graph, SCHEMATIC_PAGE_SIZE);
+    const source = graph.nodes.find(n => n.kind === 'source')!;
+    expect(filterSchematicFlows(graph).edges.some(e => e.from === source.id)).toBe(false);
+    const water = markBuilt({}, source.parts!, true);
+    for (const id of ['a', 'b']) {
+      const parts = [{ id, first: 0, count: 1 }];
+      expect(progress(parts, {})).toMatchObject({ together: true, ready: 0, missing: [{ id: source.id, itemId: 'water' }] });
+      expect(progress(parts, water)).toMatchObject({ together: true, ready: 1, missing: [] });
+    }
+  });
   it.each(['types', 'machines'] as const)('скрывает связи ниже 0,01%% общего потока предмета в виде %s', mode => {
     const m = model([group('large', 1, 99.985), group('boundary', 1, .01), group('tiny', 1, .005)], 100);
     m.transport.belt.rate = 120;

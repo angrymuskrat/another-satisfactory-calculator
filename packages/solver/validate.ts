@@ -123,6 +123,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const exportIds = new Set<string>();
   for (const flow of result.exports ?? []) {
     const allowed = plan.exports?.find(e => e.itemId === flow.itemId);
+    if (flow.rate > 0 && (!allowed?.name.trim() || (plan.settings.processFluidsOnSite && catalog.items.find(i => i.id === flow.itemId)?.fluid))) errors.push('Для этой побочной отгрузки нет разрешённого получателя.');
     if (exportIds.has(flow.itemId) || !allowed || !Number.isFinite(flow.rate) || flow.rate < 0 || flow.rate > allowed.limit + 1e-7) errors.push('Недопустимая отгрузка побочного продукта.');
     exportIds.add(flow.itemId); bump(flow.itemId, -flow.rate);
   }

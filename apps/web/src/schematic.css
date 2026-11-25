@@ -60,3 +60,21 @@
 .schematic-dialog.schematic-only .schematic-viewport{height:100dvh;min-height:0;border:0}
 .schematic-restore{position:absolute;top:14px;right:18px;z-index:5;box-shadow:0 3px 16px #0006}
 .schematic-restore[hidden]{display:none}
+.schematic-node-button{padding-right:44px}
+.schematic-move{position:absolute;z-index:3;right:6px;top:6px;display:grid;place-items:center;width:32px;height:32px;border:1px solid #44535c;border-radius:5px;background:#26323a;color:#ced7dd;cursor:grab;touch-action:none}
+.schematic-move:active{cursor:grabbing}
+.schematic-progress{position:relative;z-index:3;padding:7px 14px;background:#152027;border-block:1px solid #38464f;display:grid;gap:4px;font-size:12px}
+.schematic-progress label,.schematic-controls label{display:flex;gap:8px;align-items:center}
+.schematic-progress input,.schematic-controls input{width:16px;height:16px;accent-color:#99d9b3}
+.schematic-progress small{color:#c5cdd2}.schematic-node[data-progress=ready] .schematic-progress small{color:#a3e4c0}
+.schematic-node[data-progress=ready]{border-left:3px solid #8ecda9}.schematic-node[data-progress=built] .schematic-progress{color:#c1d8c7}
+.schematic-progress .text-button,.schematic-blockers .text-button,.schematic-ready-list .text-button{font-size:12px;line-height:1.4;text-align:left;white-space:normal}
+.schematic-ready-list,.schematic-blockers{display:flex;gap:8px;align-items:start;flex-wrap:wrap}
+.schematic-ready-list{padding:0 22px 12px;font-size:12px}.schematic-blockers h4{width:100%}
+.schematic-only .schematic-ready-list{display:none}
+.schematic-details select{max-width:100%;width:min(100%,48rem);margin-bottom:12px}
+.schematic-edges g>path{pointer-events:stroke;cursor:pointer}
+.schematic-edges marker path{fill:#d5e0e5;stroke:none}
+.schematic-edges .return-flow path{stroke-dasharray:9 3 2 3}
+.schematic-edges .picked path{stroke:#f7bd76;stroke-width:4}
+.schematic-label-leader{stroke:#778794;stroke-width:1;stroke-dasharray:2 3}

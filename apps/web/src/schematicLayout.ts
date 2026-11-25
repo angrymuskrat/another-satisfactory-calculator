@@ -2,9 +2,52 @@ import type { SchematicEdge, SchematicMode, SchematicModel } from '../../../pack
 
 export type Rect = { x: number; y: number; width: number; height: number };
 type Size = Pick<Rect, 'width' | 'height'>;
-type Point = { x: number; y: number };
+export type Point = { x: number; y: number };
 export type SchematicLayout = { width: number; height: number; rects: Record<string, Rect> };
 const padding = 90, gap = 240, rowGap = 90;
+
+export function placeSchematicNodes(initial: SchematicLayout, positions: Record<string, Point>): SchematicLayout {
+  if (!Object.keys(positions).length) return initial;
+  const rects = { ...initial.rects };
+  let { width, height } = initial;
+  for (const [id, point] of Object.entries(positions)) {
+    if (!rects[id]) continue;
+    rects[id] = { ...rects[id], x: Math.max(64, point.x), y: Math.max(64, point.y) };
+    width = Math.max(width, rects[id].x + rects[id].width + padding);
+    height = Math.max(height, rects[id].y + rects[id].height + padding);
+  }
+  return { rects, width, height };
+}
+
+/** Keep text off cards and other labels. Dense links keep their arrows and
+ * expose their full description in the connection list. Selected links go first. */
+export function placeFlowLabels(layout: SchematicLayout, labels: { id: string; at: Point; width: number; height: number; compact?: boolean }[]) {
+  const cells = new Map<string, Rect[]>();
+  const keys = (r: Rect) => {
+    const result: string[] = [];
+    for (let x = Math.floor(r.x / 120); x <= (r.x + r.width) / 120; x++)
+      for (let y = Math.floor(r.y / 60); y <= (r.y + r.height) / 60; y++) result.push(`${x}/${y}`);
+    return result;
+  };
+  const occupy = (rect: Rect) => {
+    for (const key of keys(rect)) {
+      const others = cells.get(key);
+      if (others) others.push(rect); else cells.set(key, [rect]);
+    }
+  };
+  for (const rect of Object.values(layout.rects)) occupy(rect);
+  const placed = new Map<string, Point & { compact?: boolean }>();
+  for (const { id, at, width, height, compact } of labels) {
+    if (placed.has(id)) continue;
+    for (const dy of [0, -24, 24, -48, 48, -72, 72]) {
+      const r = { x: at.x - width / 2, y: at.y + dy - 15, width, height };
+      if (r.x < 0 || r.y < 0 || r.x + width > layout.width || r.y + height > layout.height) continue;
+      if (keys(r).some(key => cells.get(key)?.some(b => r.x < b.x + b.width && b.x < r.x + width && r.y < b.y + b.height && b.y < r.y + height))) continue;
+      placed.set(id, { x: at.x, y: at.y + dy, compact }); occupy(r); break;
+    }
+  }
+  return placed;
+}
 
 /** A DFS spanning forest reserves a vertical band per branch. Shared nodes and
  * cycles are drawn once; all non-tree edges remain in the original graph. */
@@ -134,7 +177,12 @@ export function routeSchematicEdges(graph: SchematicModel, layout: SchematicLayo
       const list = index.get(id) ?? []; list.push(edge); index.set(id, list);
     }
   }
-  const columns = new Map([...new Set(Object.values(layout.rects).map(r => r.x))].sort((x, y) => x - y).map((x, i) => [x, i]));
+  const stages = [...new Set(graph.nodes.map(n => n.stage))].sort((a, b) => a - b);
+  const columns = new Map(graph.nodes.map(n => [n.id, stages.indexOf(n.stage)]));
+  const outer = (e: SchematicEdge) => columns.get(e.to)! - columns.get(e.from)! !== 1
+    || layout.rects[e.to].x - layout.rects[e.from].x - layout.rects[e.from].width < 56;
+  const outerCount = graph.edges.filter(outer).length;
+  const topGap = Math.min(18, (Math.min(...Object.values(layout.rects).map(r => r.y)) - 48) / Math.max(1, outerCount));
   const sourcePorts = new Map<string, number>(), targetPorts = new Map<string, number>();
   const portY = (rect: Rect, index: number, count: number) => rect.y + 45 + (rect.height - 60) * (index + 1) / (count + 1);
   for (const [index, ports, other] of [[outgoing, sourcePorts, 'to'], [incoming, targetPorts, 'from']] as const) {
@@ -149,8 +197,8 @@ export function routeSchematicEdges(graph: SchematicModel, layout: SchematicLayo
     const x1 = a.x + a.width, x2 = b.x;
     const y1 = sourcePorts.get(edge.id)!, y2 = targetPorts.get(edge.id)!;
     let points: Point[], label: Point;
-    if (columns.get(b.x)! - columns.get(a.x)! !== 1) {
-      const top = 48 + outerIndex++ * 18;
+    if (outer(edge)) {
+      const top = 48 + outerIndex++ * topGap;
       const turn = x2 > x1 ? 20 : -20;
       points = [[x1, y1], [x1 + 28, y1], [x1 + 48, y1 - 20], [x1 + 48, top + 20],
         [x1 + 48 + turn, top], [x2 - 48 - turn, top], [x2 - 48, top + 20], [x2 - 48, y2 - 20], [x2 - 28, y2], [x2, y2]]

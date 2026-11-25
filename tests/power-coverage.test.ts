@@ -25,8 +25,14 @@ describe('powerCoverage', () => {
     const coal = powerCoverage(version, 300, 400)!.find(g => g.id === 'coal-generator')!;
     expect(coal.average).toBe(4);
     expect(coal.peak).toBe(6);
-    expect(coal.fuels.find(f => f.itemId === 'coal')).toEqual({ itemId: 'coal', average: 60, peak: 80 });
+    expect(coal.fuels.find(f => f.itemId === 'coal')).toEqual({ itemId: 'coal', average: 60, peak: 90 });
     expect(coal.supplemental!.average).toBeCloseTo(180, 9);
+  });
+  it('для нагрузки 500 МВт снабжает все семь угольных генераторов на 100%', () => {
+    const coal = powerCoverage(version, 500, 500)!.find(g => g.id === 'coal-generator')!;
+    expect(coal.average * coal.power).toBe(525);
+    expect(coal.fuels[0].average).toBe(105);
+    expect(coal.supplemental?.average).toBe(315);
   });
   it('кратная мощность и численный шум не добавляют генератор', () => {
     const fuel = powerCoverage(version, 250, 250.0000001)!.find(g => g.id === 'fuel-generator')!;

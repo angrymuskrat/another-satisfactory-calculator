@@ -106,6 +106,7 @@ export interface BeltRoutingSettings {
   maxDepth: 1 | 2 | 3 | 4;
 }
 export interface Settings {
+  processFluidsOnSite?: boolean;
   pareto?: boolean;
   inputLimits?: Record<string, number | null>;
   selfSupply?: 'coal' | 'crude-oil' | 'uranium';
@@ -159,6 +160,7 @@ export interface ResourceResult {
   sourceId: string; itemId: string; rate: number; limit: number | null; power: number;
 }
 export interface Result {
+  searchProgress?: { completedTiers: number; currentCost?: number; machineMinimum?: number };
   fuelProvenance?: { sources: { sourceId: string; rate: number }[]; steps: { configurationId: string; cycles: number }[] };
   generation?: { power: number; localPower: number; localPeak: number; importPower: number; reserve: number };
   beltRouting?: import('./beltRoutingResult').BeltRoutingResult;
@@ -186,5 +188,8 @@ export interface Result {
 export const hasSolution = (result: Result | null | undefined): result is Result & { status: 'optimal' | 'approximate' } => result?.status === 'optimal' || result?.status === 'approximate';
 export interface ProductionVariant { id: string; label: string; plan: Plan; result: Result; sameAs?: ProductionVariant['id'] }
 export interface ProductionVariants { variants: ProductionVariant[]; equivalent: boolean;
+  supplyGaps?: import('./supplyGap').SupplyGap[];
+  workingPlans?: ProductionVariant[];
+  pass?: number;
   pareto?: { attempted: number; covered: string[]; pending: string[]; complete: boolean; pass: number; searched?: string[]; failures: { label: string; status: Result['status']; message: string }[] };
 }

@@ -15,7 +15,13 @@ export function orderDependencies(steps: Pick<StepResult, 'recipeId' | 'inputs' 
     const list = consumers.get(f.itemId) ?? []; list.push(i); consumers.set(f.itemId, list);
   }));
   const edges = nodes.map(node => new Set(node.outputs.filter(f => f.rate > 0).flatMap(f => consumers.get(f.itemId) ?? [])));
-  const indices = nodes.map(() => -1), low = [...indices], stack: number[] = [], onStack = new Set<number>();
+  const components = strongComponents(edges);
+  return orderedGroups(nodes, edges, components);
+}
+
+/** Components of an explicit directed graph, including isolated vertices. */
+export function strongComponents(edges: Set<number>[]) {
+  const indices = edges.map(() => -1), low = [...indices], stack: number[] = [], onStack = new Set<number>();
   const components: number[][] = []; let next = 0;
   const visit = (v: number) => {
     indices[v] = low[v] = next++; stack.push(v); onStack.add(v);
@@ -29,7 +35,11 @@ export function orderDependencies(steps: Pick<StepResult, 'recipeId' | 'inputs' 
       components.push(component.sort((a, b) => a - b));
     }
   };
-  nodes.forEach((_, i) => { if (indices[i] === -1) visit(i); });
+  edges.forEach((_, i) => { if (indices[i] === -1) visit(i); });
+  return components;
+}
+
+function orderedGroups(nodes: Pick<StepResult, 'recipeId' | 'inputs' | 'outputs'>[], edges: Set<number>[], components: number[][]) {
   const owner = new Map<number, number>(); components.forEach((c, i) => c.forEach(v => owner.set(v, i)));
   const outgoing = components.map(() => new Set<number>()), indegree = components.map(() => 0);
   edges.forEach((links, v) => links.forEach(w => {

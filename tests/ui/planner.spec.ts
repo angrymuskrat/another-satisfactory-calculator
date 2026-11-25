@@ -48,8 +48,8 @@ test('расчёт, русский поиск, политики и невыпо�
   await page.getByRole('textbox', { name: 'Количество продукта 1', exact: true }).fill('1000000');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
-  await expect(page.getByRole('heading', { name: 'Ошибка расчёта' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('.result-problem')).toContainText('Невыполнимость точной нелинейной модели не доказана');
+  await expect(page.getByRole('heading', { name: 'Заказ невыполним' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('region', { name: 'Недостающее снабжение' })).toContainText('Железная руда');
   await expect(page.locator('.feasible-alternative')).toHaveCount(0);
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await expect(page.getByRole('textbox', { name: 'Количество продукта 1', exact: true })).toHaveValue('1000000');

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { buildSchematic, filterSchematicFlows } from '../packages/domain/schematic';
+import { constructionDependencies, markBuilt } from '../packages/domain/constructionProgress';
 import { beltEndpointId } from '../packages/domain/beltRoutingResult';
 import type { BeltRoutingResult } from '../packages/domain/beltRoutingResult';
 import type { ConstructionGroup, ConstructionModel } from '../packages/domain/construction';
@@ -31,6 +32,19 @@ it.each(['machines', 'types'] as const)('показывает реальные �
   expect(graph.edges.every(edge => edge.parallel === 1)).toBe(true);
   expect(graph.nodes.filter(node => node.kind === 'product')).toHaveLength(2);
   expect(graph.nodes.filter(node => node.kind === 'building').reduce((sum, node) => sum + node.count, 0)).toBe(2);
+});
+
+it('оба потребителя ждут реальный разделитель, а разделитель — внешнюю ленту', () => {
+  const { model, destinations } = fixture();
+  const graph = buildSchematic(catalog, model, destinations, 'configurations');
+  const progress = constructionDependencies(graph, 48);
+  const source = graph.nodes.find(n => n.kind === 'source')!, split = graph.nodes.find(n => n.kind === 'split')!;
+  const supplyReady = markBuilt({}, source.parts!, true);
+  expect(progress(split.parts!, {}).missing).toMatchObject([{ id: source.id }]);
+  expect(progress(split.parts!, supplyReady).ready).toBe(1);
+  const machines = [{ id: 'iron', first: 0, count: 2 }];
+  expect(progress(machines, supplyReady)).toMatchObject({ ready: 0, missing: [{ id: split.id }] });
+  expect(progress(machines, markBuilt(supplyReady, split.parts!, true)).ready).toBe(2);
 });
 
 it('сохраняет обязательные малые физические ветви при фильтрации рисунка', () => {

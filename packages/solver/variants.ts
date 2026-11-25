@@ -3,13 +3,14 @@ import { hasSolution } from '../domain/types';
 import { parsePlan } from '../domain/validation';
 import { emptyResult, solve } from './solve';
 import { solvePareto } from './pareto';
+import { findWorkingPlans } from './workingPlans';
 
 export type { ProductionVariant, ProductionVariants } from '../domain/types';
 export type VariantProgress = (report: ProductionVariants, pending: ProductionVariant['id'][]) => void;
-export interface VariantsMessage { report: ProductionVariants; pending: ProductionVariant['id'][]; done: boolean; requestId: string }
+export interface VariantsMessage { report: ProductionVariants; pending: ProductionVariant['id'][]; done: boolean; requestId: string; error?: string }
 
 /** Все решения используют исходные ограничения; бюджет машин и порядок затрат не меняют максимум выпуска. */
-export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000, onProgress?: VariantProgress): ProductionVariants {
+export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000, onProgress?: VariantProgress, previous?: ProductionVariants): ProductionVariants {
   if (input.settings.pareto && (input.mode === 'target' || input.batch)) return solvePareto(catalog, input, highs, deadline, onProgress && (report => onProgress(report, [])));
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
@@ -48,16 +49,39 @@ export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<t
   delete simple.settings.resourcesFirst;
   // Варианты решаются по очереди; неиспользованное время предыдущих
   // переходит следующим; ошибка одного варианта не стирает остальные.
-  const plans = [maximum, economy, resources, simple], ids = variants.map(v => v.id);
-  const start = performance.now(), span = Math.max(0, deadline - start);
-  for (const [index, variant] of variants.entries()) {
-    variant.result = solve(catalog, plans[index]!, highs, index === variants.length - 1 ? deadline : start + span * (index + 1) / variants.length);
-    if (index > 0) variant.result = enforceVariantOutputLoss(input, variants[0].result, variant.result);
-    variant.sameAs = variants.slice(0, index).find(other => !other.sameAs && equivalentResults(other.result, variant.result))?.id;
-    const pending = ids.slice(index + 1);
-    onProgress?.({ variants, equivalent: !pending.length && variants.slice(1).every(v => v.sameAs === 'maximum') }, pending);
+  if (previous && (previous.variants.length !== variants.length || variants.some((v, i) => JSON.stringify(v.plan) !== JSON.stringify(previous!.variants[i].plan)))) previous = undefined;
+  if (previous) for (const [i, v] of variants.entries()) v.result = previous.variants[i].result;
+  const report: ProductionVariants = { variants, equivalent: false, pass: (previous?.pass ?? 0) + 1 };
+  if (previous?.workingPlans) report.workingPlans = structuredClone(previous.workingPlans);
+  const remaining = variants.filter(v => !previous || !hasSolution(v.result) || v.result.searchProgress);
+  const refresh = (pending: string[]) => {
+    for (const [i, variant] of variants.entries()) {
+      variant.sameAs = variants.slice(0, i).find(other => !other.sameAs && !other.result.searchProgress
+        && !variant.result.searchProgress && equivalentResults(other.result, variant.result))?.id;
+    }
+    report.equivalent = !pending.length && variants.slice(1).every(v => v.sameAs === 'maximum');
+    onProgress?.(structuredClone(report), pending);
+  };
+  if (!report.workingPlans?.length) {
+    const now = performance.now();
+    findWorkingPlans(catalog, maximum, highs, now + Math.min(4500, (deadline - now) * .18), working => {
+      (report.workingPlans ??= []).push(working);
+      refresh(remaining.map(v => v.id));
+    });
   }
-  return { variants, equivalent: variants.slice(1).every(v => v.sameAs === 'maximum') };
+  const start = performance.now(), span = Math.max(0, deadline - start);
+  for (const [index, variant] of remaining.entries()) {
+    const until = index === remaining.length - 1 ? deadline : start + span * (index + 1) / remaining.length;
+    const result = solve(catalog, variant.plan, highs, until, { retainOnTimeout: true });
+    const last = variant.result.searchProgress, next = result.searchProgress;
+    if (!hasSolution(variant.result) || hasSolution(result) && (!next || !last
+      || next.completedTiers > last.completedTiers
+      || next.completedTiers === last.completedTiers && (next.currentCost ?? Infinity) < (last.currentCost ?? Infinity))) variant.result = result;
+    if (variant.id !== 'maximum') variant.result = enforceVariantOutputLoss(input, variants[0].result, variant.result);
+    refresh(remaining.slice(index + 1).map(v => v.id));
+  }
+  if (!remaining.length) refresh([]);
+  return report;
 }
 
 export function enforceVariantOutputLoss(input: Plan, maximum: Result, economy: Result): Result {

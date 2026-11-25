@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import type { Catalog } from '../../packages/domain/types';
+import { largeOrder } from '../largeOrderFixture';
 
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
@@ -53,7 +54,7 @@ test('выбор экономичного варианта сохраняет е
 });
 
 test('ошибки всех вариантов остаются видимыми отдельно', async ({ page }) => {
-  const invalid = structuredClone(plan); invalid.mode = 'target'; invalid.targets[0].rate = 1000000;
+  const invalid = structuredClone(plan); invalid.mode = 'target'; invalid.targets[0].rate = 1e-8;
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), invalid);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
@@ -186,4 +187,20 @@ test('правка плана после раннего выбора остан�
   await page.getByLabel('Резерв сети', { exact: true }).fill('5');
   await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible();
+});
+
+test('рабочий план на 14 продуктов открывается до завершения, отмена и продолжение сохраняют его', async ({ page }) => {
+  await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), largeOrder(catalog));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const working = page.getByRole('region', { name: 'Рабочие планы', exact: true });
+  await working.getByRole('button', { name: 'Открыть рабочий план' }).first().click({ timeout: 20000 });
+  await expect(page.getByRole('button', { name: 'Построить', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.enabledRecipeIds.length)).toBe(141);
+  await page.getByRole('button', { name: 'Вернуться к вариантам' }).click();
+  await page.getByRole('button', { name: 'Отменить расчёт' }).click();
+  await page.getByRole('button', { name: 'Продолжить оптимизацию' }).click();
+  await expect(working.getByRole('button').first()).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Отменить расчёт' })).toBeVisible();
 });

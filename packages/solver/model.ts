@@ -12,10 +12,22 @@ export class Model {
   constrain(expression: Expression, operator: Constraint['operator'], rhs: number) {
     this.constraints.push({ expression: new Map(expression), operator, rhs });
   }
-  serialize(objective: Expression, maximize = false): string {
+  accepts(values: Record<string, number>): boolean {
+    for (const [name, { upper, integer }] of this.variables) {
+      const v = values[name];
+      if (!Number.isFinite(v) || v < -1e-8 || (upper !== null && v > upper + 1e-8)
+        || (integer && Math.abs(v - Math.round(v)) > 1e-8)) return false;
+    }
+    return this.constraints.every(({ expression, rhs, operator }) => {
+      const difference = dot(expression, values) - rhs;
+      const tolerance = 1e-8 + Math.abs(rhs) * 1e-9;
+      return (operator === '>=' || difference <= tolerance) && (operator === '<=' || difference >= -tolerance);
+    });
+  }
+  serialize(objective: Expression, maximize = false, relaxIntegers = false): string {
     const rows = this.constraints.map((c, i) => ` c${i}: ${format(c.expression)} ${c.operator} ${c.rhs}`);
     const bounds = [...this.variables].map(([name, { upper }]) => ` 0 <= ${name}${upper === null ? '' : ` <= ${upper}`}`);
-    const integers = [...this.variables].filter(([, v]) => v.integer).map(([name]) => name);
+    const integers = relaxIntegers ? [] : [...this.variables].filter(([, v]) => v.integer).map(([name]) => name);
     return `${maximize ? 'Maximize' : 'Minimize'}\n obj: ${format(objective)}\nSubject To\n${rows.join('\n')}\nBounds\n${bounds.join('\n')}\n${integers.length ? `Generals\n ${integers.join(' ')}\n` : ''}End`;
   }
 }

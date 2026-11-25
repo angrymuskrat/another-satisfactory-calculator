@@ -137,9 +137,103 @@ test('разная доля работы одного типа явно подп
   const node = page.locator('.schematic-node[data-building-id="smelter"]');
   await expect(node).toContainText('Средняя доля работы 50%');
   await expect(node).toContainText('Настройки различаются');
-  await node.locator('button').click();
+  await node.locator('.schematic-node-button').click();
   await expect(page.locator('.schematic-configurations')).toContainText('работа 20% времени');
   await expect(page.locator('.schematic-configurations')).toContainText('работа 80% времени');
+});
+
+test('стройка связывает поставку, отдельные плавильни, группу и инструкцию', async ({ page }) => {
+  await calculate(page, 'target', smelters([4], [120]));
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  const graph = page.getByRole('region', { name: 'Схема строительства' });
+  const machines = graph.locator('[data-building-id="smelter"]');
+  await expect(machines.first()).toHaveAttribute('data-progress', 'waiting');
+  await machines.first().getByRole('button', { name: /^Ждёт/ }).click();
+  const source = graph.locator('[data-kind="source"]');
+  await expect(source.locator('.schematic-node-button')).toBeFocused();
+  await source.getByRole('checkbox').check();
+  await graph.getByLabel('Можно строить дальше', { exact: true }).check();
+  await expect(graph.locator('[data-building-id="smelter"][data-progress="ready"]')).toHaveCount(4);
+  await machines.nth(2).getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'По типам зданий', exact: true }).click();
+  await expect(graph.locator('[data-building-id="smelter"]')).toContainText('Построено · 1 из 4');
+  await page.getByRole('button', { name: 'Инструкция', exact: true }).click();
+  const group = page.getByRole('checkbox', { name: /^Построено: Плавильная линия/ });
+  await expect(group).toBeChecked({ indeterminate: true });
+  await group.check();
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  await expect(graph.locator('[data-building-id="smelter"][data-progress="built"]')).toHaveCount(4);
+});
+
+test('ручка двигает карточку мышью и клавиатурой, сохраняет положение и обновляет стрелку', async ({ page }) => {
+  await calculate(page, 'target', smelters([1], [30]));
+  const types = page.getByRole('button', { name: 'По типам зданий', exact: true });
+  await types.click();
+  const graph = page.getByRole('region', { name: 'Схема строительства' });
+  const card = graph.locator('[data-building-id="smelter"]'), handle = card.getByRole('button', { name: /^Переместить/ });
+  const position = () => card.evaluate(n => Number.parseFloat(n.style.left));
+  await handle.scrollIntoViewIfNeeded();
+  const initial = await position();
+  const edge = graph.locator('g[data-item-id="ore"], g[data-item-id="iron-ore"]').first().locator('path').first();
+  const original = await edge.getAttribute('d');
+  await handle.focus(); await page.keyboard.press('ArrowRight');
+  await expect.poll(position).toBe(initial + 12);
+  await expect(edge).not.toHaveAttribute('d', original!);
+  const box = (await handle.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 45, box.y + box.height / 2, { steps: 4 }); await page.mouse.up();
+  await expect.poll(position).toBeCloseTo(initial + 62);
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  await expect(graph.getByRole('button', { name: 'Вернуть автораскладку' })).toBeDisabled();
+  await types.click();
+  await expect.poll(position).toBeCloseTo(initial + 62);
+  await page.reload();
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await chooseMaximum(page);
+  await page.getByRole('button', { name: 'Построить', exact: true }).click();
+  await types.click();
+  await expect.poll(position).toBeCloseTo(initial + 62);
+  await graph.getByRole('button', { name: 'Вернуть автораскладку' }).click();
+  await expect.poll(position).toBe(initial);
+  await expect(edge).toHaveAttribute('d', original!);
+});
+
+test('ссылка из ожидания находит конкретную плавильню на другой странице', async ({ page }) => {
+  const plan = smelters([50], [1500]);
+  plan.targets = [{ itemId: 'iron-plate', rate: 1000, weight: 1, scale: 1 }];
+  plan.lines!.push({ id: 'plates', name: 'Пластины', count: 50, clock: 100, recipeId: 'iron-plate', somersloops: 0, locked: true, duty: 1 });
+  await calculate(page, 'target', plan);
+  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  const graph = page.getByRole('region', { name: 'Схема строительства' });
+  await graph.getByRole('button', { name: 'Далее', exact: true }).click();
+  await graph.getByRole('button', { name: 'Далее', exact: true }).click();
+  await graph.locator('[data-kind="building"][data-building-id="constructor"]').last().getByRole('button', { name: /^Ждёт/ }).click();
+  const selected = graph.locator('[data-building-id="smelter"].selected');
+  await expect(selected).toContainText('№50');
+  await expect(selected.locator('.schematic-node-button')).toBeFocused();
+  await expect(graph.getByRole('navigation', { name: 'Страницы зданий' })).toContainText('Страница 2 из 3');
+});
+
+test('ссылка у НПЗ выводит из полноэкранной схемы к переработке его мазута', async ({ page }) => {
+  const plan = createDefaultPlan(catalog);
+  plan.mode = 'target';
+  plan.targets = [{ itemId: 'plastic', rate: 20, weight: 1, scale: 1 }];
+  plan.sources = [{ id: 'oil', itemId: 'crude-oil', kind: 'flow', limit: 30, count: 1, purity: 1, clock: 100, minerId: '' }];
+  plan.exports = [{ itemId: 'heavy-oil-residue', limit: 10, name: 'Топливный цех' }];
+  plan.settings.enabledRecipeIds = ['plastic'];
+  plan.settings.enabledBuildingIds = ['oil-refinery'];
+  await calculate(page, 'target', plan);
+  await page.getByRole('button', { name: 'По типам зданий' }).click();
+  await page.getByRole('button', { name: 'На весь экран' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Схема строительства' });
+  await dialog.locator('[data-building-id="oil-refinery"] .schematic-node-button').click();
+  const link = dialog.getByRole('link', { name: 'Подобрать переработку — Мазут' });
+  await expect(link).toHaveAttribute('href', '#residue-heavy-oil-residue');
+  await link.click();
+  await expect(dialog).not.toBeVisible();
+  const residue = page.getByRole('combobox', { name: 'Побочный продукт', exact: true });
+  await expect(residue).toBeFocused();
+  await expect(residue).toHaveValue('heavy-oil-residue');
 });
 
 test('полный экран, клавиатура, список соединений и устаревание', async ({ page }) => {

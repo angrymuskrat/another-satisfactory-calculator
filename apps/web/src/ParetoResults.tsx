@@ -9,7 +9,7 @@ import { format, unit } from './controls';
 import { compareFactories } from './paretoComparison';
 import type { useSolver } from './useSolver';
 const metric = (v: number) => v !== 0 && Math.abs(v) < .001 ? v.toExponential(3) : format(v, 3);
-export function ParetoResults({ catalog, plan, setPlan, solver }: { catalog: Catalog; plan: Plan; setPlan: (p: Plan) => void; solver: ReturnType<typeof useSolver> }) {
+export function ParetoResults({ catalog, plan, setPlan, solver, constructionScope }: { catalog: Catalog; plan: Plan; setPlan: (p: Plan) => void; solver: ReturnType<typeof useSolver>; constructionScope?: string }) {
   const [sort, setSort] = useState('power'); const [hidden, setHidden] = useState<string[]>([]);
   const { report, selected, baseline, running, stale, error, choosing } = solver;
   const meta = report?.pareto;
@@ -41,11 +41,11 @@ export function ParetoResults({ catalog, plan, setPlan, solver }: { catalog: Cat
           <th scope="row">{v.label}<small>{v.result.status === 'approximate' ? 'Допустимое приближение' : 'Оптимум модели'}</small></th>
           <td>{metric(v.result.power)}{old && <small>Δ {delta(v.result.power, old.power)}</small>}</td><td>{metric(v.result.installedPower)}</td><td>{machines(v.result, v.plan)}{changes && <><small>Δ машин {changes.machines > 0 ? '+' : ''}{changes.machines}</small><details><summary>Изменения рецептов</summary>{changes.added.map(id => <p key={id}>+ {catalog.recipes.find(r => r.id === id)?.name ?? id}</p>)}{changes.removed.map(id => <p key={id}>− {catalog.recipes.find(r => r.id === id)?.name ?? id}</p>)}{!changes.added.length && !changes.removed.length && <p>Набор рецептов прежний; загрузка может отличаться.</p>}</details></>}</td>
           {items.filter(i => !hidden.includes(i.id)).map(i => <td key={i.id}>{metric(c[i.id] ?? 0)}{old && <small>Δ {delta(c[i.id] ?? 0, old[i.id] ?? 0)}</small>}</td>)}
-          <td><button className="secondary-button" disabled={running || stale} aria-label={`Использовать: ${v.label}`} onClick={() => { const next = solver.choose(v.id); if (next) setPlan(next); }}>Использовать</button></td>
+          <td><button className="secondary-button" disabled={stale} aria-label={`Использовать: ${v.label}`} onClick={() => { const next = solver.choose(v.id); if (next) setPlan(next); }}>Использовать</button></td>
         </tr>; })}</tbody></table></div>
     </section>}
     {!!meta?.failures.length && <details><summary>Статусы отдельных расчётов ({meta.failures.length})</summary>{meta.failures.map((f, i) => <p key={i}>{f.label}: {f.message} ({f.status})</p>)}</details>}
     {!valid.length && report?.variants.filter(v => !hasSolution(v.result)).map(v => <p key={v.id} role="alert" className="alert error">{v.result.message}</p>)}
-    {selected && !choosing && <><button className="text-button" onClick={solver.showChoices}>Вернуться к вариантам</button><Results catalog={catalog} plan={selected.plan} result={selected.result} running={running} stale={stale} error={null} /></>}
+    {selected && !choosing && <><button className="text-button" onClick={solver.showChoices}>Вернуться к вариантам</button><Results constructionScope={constructionScope} catalog={catalog} plan={selected.plan} result={selected.result} running={false} stale={stale} error={null} /></>}
   </>;
 }

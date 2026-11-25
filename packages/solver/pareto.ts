@@ -2,6 +2,7 @@ import type { Catalog, Plan, ProductionVariants, Result } from '../domain/types'
 import { hasSolution } from '../domain/types';
 import { parsePlan } from '../domain/validation';
 import { solve, emptyResult, type SolveOptions } from './solve';
+import { findWorkingPlans } from './workingPlans';
 
 type Metrics = Pick<Result, 'power'> & { resources: { itemId: string; rate: number }[] };
 export function coordinates(result: Metrics): Record<string, number> {
@@ -55,18 +56,29 @@ export function solvePareto(catalog: Catalog, input: Plan, highs: Parameters<typ
   const meta = report.pareto!;
   const name = (id: string) => id === 'power' ? 'энергии' : catalog.items.find(i => i.id === id)?.name ?? id;
   const publish = () => { meta.pending = directions.filter(id => !meta.covered.includes(id)); progress?.(structuredClone(report)); };
+  const add = (variant: ProductionVariants['variants'][number]) => {
+    if (report.variants.some(v => dominates(v.result, variant.result))) return;
+    const equal = report.variants.find(v => same(v.result, variant.result));
+    if (equal && (!equal.id.startsWith('working-') && !equal.result.searchProgress || variant.id.startsWith('working-') || variant.result.searchProgress)) return;
+    report.variants = report.variants.filter(v => v !== equal && !dominates(variant.result, v.result));
+    report.variants.push(variant);
+    trim(report);
+  };
+  if (!report.variants.length) {
+    const now = performance.now();
+    findWorkingPlans(catalog, plan, highs, now + Math.min(4500, (deadline - now) * .18), working => {
+      add(working);
+      publish();
+    });
+  }
   let attempts = 0;
   const run = (label: string, options: SolveOptions) => {
     attempts++; meta.attempted++;
-    const result = solve(catalog, plan, highs, Math.min(deadline, performance.now() + Math.max(500, (deadline - performance.now()) / Math.max(1, 12 - attempts))), options);
+    const result = solve(catalog, plan, highs, Math.min(deadline, performance.now() + Math.max(500, (deadline - performance.now()) / Math.max(1, 12 - attempts))), { ...options, retainOnTimeout: true });
     if (hasSolution(result)) {
-      if (!report.variants.some(v => dominates(v.result, result) || same(v.result, result))) {
-        report.variants = report.variants.filter(v => !dominates(result, v.result));
-        report.variants.push({ id: `pareto-${meta.attempted}`, label, plan: structuredClone(plan), result });
-        trim(report);
-      }
+      add({ id: `pareto-${meta.attempted}`, label: result.searchProgress ? 'Рабочий план · уточнение по времени' : label, plan: structuredClone(plan), result });
     } else meta.failures.push({ label, status: result.status, message: result.message });
-    return hasSolution(result);
+    return hasSolution(result) && !result.searchProgress;
   };
   for (const id of directions.filter(id => !meta.covered.includes(id))) {
     if (performance.now() >= deadline - 100 || attempts >= 12) break;
@@ -88,7 +100,9 @@ export function solvePareto(catalog: Catalog, input: Plan, highs: Parameters<typ
     }
     gaps.sort((a, b) => b.width - a.width || a.key.localeCompare(b.key));
     const gap = gaps[0]; if (!gap) break;
-    tried.add(gap.key); meta.searched = [...tried]; run(`${name(gap.id)} ≤ ${gap.cap.toPrecision(4)}/мин`, { primary: 'power', inputCaps: { [gap.id]: gap.cap } }); publish();
+    tried.add(gap.key);
+    if (run(`${name(gap.id)} ≤ ${gap.cap.toPrecision(4)}/мин`, { primary: 'power', inputCaps: { [gap.id]: gap.cap } })) (meta.searched ??= []).push(gap.key);
+    publish();
   }
   // complete means only that all extreme directions were covered, never that
   // the continuous frontier has been enumerated.

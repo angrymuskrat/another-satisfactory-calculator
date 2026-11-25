@@ -48,8 +48,11 @@ export function WellControls({ source, index, update }: { source: Source; index:
 export function Exports({ catalog, plan, setPlan }: PlanProps) {
   const rows = plan.exports ?? [];
   return <section className="panel"><details><summary>Отгрузка побочных продуктов</summary><p className="hint">Укажите реального постоянного потребителя и максимальный поток. Отгрузка не создаёт автоматически источник в другом плане.</p>
+    <label className="inline-check"><input type="checkbox" checked={!!plan.settings.processFluidsOnSite} onChange={e => setPlan({ ...plan, settings: { ...plan.settings, processFluidsOnSite: e.target.checked } })} />Переработать побочные жидкости на месте</label>
+    {plan.settings.processFluidsOnSite && <p className="hint">Заказанные жидкости можно выпускать. Остальная жидкость должна использоваться внутри фабрики. Сохранённые получатели жидкостей доступны для сравнения.</p>}
     {rows.map((row, i) => <div className="source-card" key={i}><ItemSelect label={`Отгрузка ${i + 1}`} items={catalog.items.filter(x => x.id === row.itemId || !rows.some(r => r.itemId === x.id))} value={row.itemId} onChange={itemId => setPlan({ ...plan, exports: rows.map((r, j) => i === j ? { ...r, itemId } : r) })} />
       <label className="field-label">Получатель<input aria-label={`Получатель отгрузки ${i + 1}`} value={row.name} maxLength={120} onChange={e => setPlan({ ...plan, exports: rows.map((r, j) => i === j ? { ...r, name: e.target.value } : r) })} /></label>
+      {!row.name.trim() && <p className="hint">Укажите получателя, чтобы задействовать эту отгрузку в расчёте.</p>}
       <label className="field-label">Максимум в минуту<NumberField label={`Лимит отгрузки ${i + 1}`} value={row.limit} onChange={limit => setPlan({ ...plan, exports: rows.map((r, j) => i === j ? { ...r, limit } : r) })} /></label>
       <button className="text-button" onClick={() => setPlan({ ...plan, exports: rows.filter((_, j) => i !== j) })}>Удалить отгрузку {i + 1}</button></div>)}
     <button className="text-button" onClick={() => { const item = catalog.items.find(x => !rows.some(r => r.itemId === x.id)); if (item) setPlan({ ...plan, exports: [...rows, { itemId: item.id, limit: 60, name: '' }] }); }}>Добавить отгрузку</button>

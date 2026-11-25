@@ -18,7 +18,7 @@ test('обзор, выбор клавиатурой, лимиты, пересч�
   const region = page.getByRole('region', { name: 'Компромиссы по ресурсам и энергии' });
   const choose = region.getByRole('button', { name: /^Использовать:/ }).first();
   await expect(choose).toBeEnabled({ timeout: 65000 });
-  expect(await region.getByRole('row').count()).toBeGreaterThan(3);
+  await expect.poll(() => region.getByRole('row').count()).toBeGreaterThan(3);
   await page.screenshot({ path: 'output/playwright/pareto-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -51,13 +51,13 @@ test('самообеспечение входит в результат и ст�
 test('частичный ответ сохраняется после отмены, изменение входа запрещает его принятие', async ({ page }) => {
   const plan = fixture(true);
   await page.addInitScript(plan => localStorage.setItem('ficsit-plan-v1', JSON.stringify(plan)), plan);
-  await page.route(/solver\.worker.*\.js/, async route => {
+  await page.route(/solver\.worker/, async route => {
     const response = await route.fetch();
     await route.fulfill({ response, body: (await response.text()) + '\nconst originalPost = self.postMessage.bind(self); self.postMessage = message => { if (!message.done) originalPost(message); };' });
   });
   await page.goto('/'); await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const choose = page.getByRole('button', { name: /^Использовать:/ }).first();
-  await expect(choose).toBeVisible(); await expect(choose).toBeDisabled();
+  await expect(choose).toBeEnabled();
   await page.getByRole('button', { name: 'Отменить расчёт', exact: true }).click();
   await expect(choose).toBeEnabled();
   await page.locator('.results-page').getByRole('checkbox', { name: 'Без суммарного лимита: Уголь', exact: true }).uncheck();
