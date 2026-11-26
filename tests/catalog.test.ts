@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Catalog, Ingredient } from '../packages/domain/types';
+import type { Catalog } from '../packages/domain/types';
 
 const path = 'packages/game-data/catalog.json';
 const read = (): Catalog => JSON.parse(readFileSync(path, 'utf8'));
@@ -88,22 +88,13 @@ describe('официальный каталог', () => {
   });
 });
 
-// Локальный тип позволяет проверять импорт до параллельного изменения domain.
-type P1Catalog = Catalog & {
-  buildings: Array<Catalog['buildings'][number] & { buildCost?: Ingredient[] }>;
-  miners: Array<Catalog['miners'][number] & { buildCost?: Ingredient[] }>;
-  unlocks?: Array<{ id: string; name: string; kind: string; tier?: number; recipeIds: string[];
-    buildingIds: string[]; beltIds: string[]; pipeIds: string[]; overclock: boolean; prerequisiteIds: string[];
-    minerIds?: string[]; schematicIds?: string[]; prerequisiteGroups?: string[][]; prerequisitesKnown?: boolean }>;
-};
-const readP1 = (): P1Catalog => JSON.parse(readFileSync(path, 'utf8'));
 const readProgression = () => {
   expect(existsSync('packages/game-data/progression.json'), 'результат офлайн-импорта схем').toBe(true);
   return JSON.parse(readFileSync('packages/game-data/progression.json', 'utf8'));
 };
 describe('P1: исходные стоимости и открытия', () => {
   it('не путает Foundry со Smelter по имени Recipe_SmelterMk1 и сохраняет стоимость Sink', () => {
-    const c = readP1();
+    const c = read();
     expect(c.buildings.find(b => b.id === 'smelter')?.buildCost).toEqual([
       { itemId: 'iron-rod', amount: 5 }, { itemId: 'wire', amount: 8 },
     ]);
@@ -115,7 +106,7 @@ describe('P1: исходные стоимости и открытия', () => {
     ]);
   });
   it('считает стоимость нового бура, включая переносные буры, а не разницу апгрейда', () => {
-    const c = readP1();
+    const c = read();
     expect(c.miners.find(m => m.id === 'miner-mk1')?.buildCost).toEqual([
       { itemId: 'portable-miner', amount: 1 }, { itemId: 'iron-plate', amount: 10 }, { itemId: 'concrete', amount: 10 },
     ]);
@@ -125,7 +116,7 @@ describe('P1: исходные стоимости и открытия', () => {
     ]);
   });
   it('сверяет все 20 стоимостей с ингредиентами закреплённых build recipes', () => {
-    const c = readP1();
+    const c = read();
     const audit = JSON.parse(readFileSync('packages/game-data/audit-report.json', 'utf8'));
     const docs = JSON.parse(gunzipSync(readFileSync('packages/game-data/source/Docs-en-US.json.gz')).toString('utf16le').replace(/^\uFEFF/, ''));
     const recipes = docs.flatMap((g: { Classes: Array<{ ClassName: string; mProducedIn?: string; mProduct?: string; mIngredients?: string }> }) => g.Classes);
@@ -150,7 +141,7 @@ describe('P1: исходные стоимости и открытия', () => {
     }
   });
   it('импортирует реальные HUB/MAM эффекты и русское имя разгона', () => {
-    const c = readP1();
+    const c = read();
     expect(c.unlocks?.length ?? 0).toBeGreaterThan(100);
     expect(c.unlocks!.find(u => u.id === 'Research_PowerSlugs_2_C')).toMatchObject({
       name: 'Разгон производства', kind: 'mam', overclock: true, prerequisiteIds: [],
@@ -170,7 +161,7 @@ describe('P1: исходные стоимости и открытия', () => {
     expect(p.coverage.prerequisitesComplete).toBe(false);
     expect(p.schematics.find((s: { id: string }) => s.id === 'Schematic_4-1_C').minerIds).toEqual(['miner-mk2']);
     expect(p.schematics.find((s: { id: string }) => s.id === 'Schematic_5-1_C').schematicIds).toContain('Schematic_5-1-1_C');
-    expect(readP1().unlocks?.some(u => u.id === 'Research_Sulfur_3_2_C')).toBe(false);
+    expect(read().unlocks?.some(u => u.id === 'Research_Sulfur_3_2_C')).toBe(false);
   });
   it('не превращает OR-зависимость в обязательное открытие обеих схем', () => {
     const p = readProgression();
@@ -179,11 +170,11 @@ describe('P1: исходные стоимости и открытия', () => {
     expect(s.dependencies[0].mRequireAllSchematicsToBePurchased).toBe('False');
     expect(s.dependencies[0].mSchematics).toContain('Schematic_3-1_C');
     expect(s.dependencies[0].mSchematics).toContain('Schematic_2-5_C');
-    expect(readP1().unlocks!.find(u => u.id === 'Schematic_Tutorial1_5_C')?.prerequisiteIds).toEqual(['Schematic_Tutorial1_C']);
+    expect(read().unlocks!.find(u => u.id === 'Schematic_Tutorial1_5_C')?.prerequisiteIds).toEqual(['Schematic_Tutorial1_C']);
     expect(p.coverage.missingSchematicReferences).toEqual(['Research_Caterium_6_1_C', 'Schematic_6-4_C']);
   });
   it('передаёт miners и все транзитивные child schemes непосредственно в Catalog.unlocks', () => {
-    const c = readP1(), p = readProgression();
+    const c = read(), p = readProgression();
     const unlocks = c.unlocks!;
     expect(unlocks.find(u => u.id === 'Schematic_4-1_C')?.minerIds).toEqual(['miner-mk2']);
     expect(unlocks.find(u => u.id === 'Schematic_5-1_C')?.schematicIds).toEqual(['Schematic_5-1-1_C']);
@@ -207,7 +198,7 @@ describe('P1: исходные стоимости и открытия', () => {
     expect(new Set(unlocks.flatMap(u => u.minerIds!))).toEqual(new Set(c.miners.map(m => m.id)));
   });
   it('выражает purchased dependencies как AND групп с OR внутри и не объявляет полный доступ', () => {
-    const unlocks = readP1().unlocks!;
+    const unlocks = read().unlocks!;
     expect(unlocks.find(u => u.id === 'CustomizerUnlock_PipelineSwatch_C')?.prerequisiteGroups).toEqual([
       ['Schematic_3-1_C', 'Schematic_2-5_C'],
     ]);
@@ -224,6 +215,26 @@ describe('P1: исходные стоимости и открытия', () => {
       }
     }
     expect(unlocks.find(u => u.id === 'Research_PowerSlugs_2_C')?.prerequisiteGroups).toEqual([]);
+  });
+  it('после добавления генераторов отчёт сохраняет рецепты и здания без открытия', async () => {
+    const { importGeneration } = await import('../scripts/' + 'import-generation.mjs');
+    const { decodeDocs, parseIngredients } = await import('../scripts/' + 'gameDocs.mjs');
+    const en = decodeDocs(readFileSync('packages/game-data/source/Docs-en-US.json.gz'));
+    const catalog = read();
+    const generators = new Set(catalog.recipes.filter(r => r.generation).map(r => r.buildingId));
+    catalog.recipes = catalog.recipes.filter(r => !r.generation);
+    catalog.buildings = catalog.buildings.filter(b => !generators.has(b.id));
+    for (const unlock of catalog.unlocks!) {
+      unlock.recipeIds = unlock.recipeIds.filter(id => id !== 'iron-ingot' && !id.startsWith('generate-'));
+      unlock.buildingIds = unlock.buildingIds.filter(id => id !== 'smelter' && !generators.has(id));
+    }
+    const report = JSON.parse(readFileSync('packages/game-data/audit-report.json', 'utf8'));
+    const progression = readProgression();
+    const pinned = JSON.parse(readFileSync('packages/game-data/source/provenance.json', 'utf8'));
+    const { generation } = JSON.parse(readFileSync('packages/game-data/overrides.json', 'utf8'));
+    importGeneration({ catalog, en, ru: new Map(), report, progression, pinned, hashes: pinned.sha256, parseIngredients, generationRules: generation });
+    expect(progression.coverage.recipes).toEqual({ total: catalog.recipes.length, covered: catalog.recipes.length - 1, missingIds: ['iron-ingot'] });
+    expect(progression.coverage.buildings).toEqual({ total: catalog.buildings.length, covered: catalog.buildings.length - 1, missingIds: ['smelter'] });
   });
   it('замыкает несколько уровней child schemes с циклом и отклоняет отсутствующего ребёнка', async () => {
     const { importP1Data } = await import('../scripts/' + 'import-p1-game-data.mjs');
@@ -252,7 +263,7 @@ describe('P1: исходные стоимости и открытия', () => {
       .filter((g: { NativeClass: string }) => g.NativeClass.endsWith(".FGSchematic'"))
       .flatMap((g: { Classes: DocSchematic[] }) => g.Classes);
     const en = docs('en-US'), ru = new Map(docs('ru').map(s => [s.ClassName, s]));
-    const p = readProgression(), c = readP1();
+    const p = readProgression(), c = read();
     const audit = JSON.parse(readFileSync('packages/game-data/audit-report.json', 'utf8'));
     for (const s of en) {
       const evidence = p.schematics.find((r: { id: string }) => r.id === s.ClassName);

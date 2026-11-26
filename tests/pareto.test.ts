@@ -1,5 +1,6 @@
 import { beforeAll, expect, it } from 'vitest';
 import { createHighs } from '../packages/solver/highs';
+import { solveVariants } from '../packages/solver/variants';
 import { solve } from '../packages/solver/solve';
 import { solvePareto, dominates } from '../packages/solver/pareto';
 import { validateResult } from '../packages/solver/validate';
@@ -54,13 +55,15 @@ it('доминирование учитывает каждый ресурс и �
 });
 it('сравнение сохраняет удалённый источник с расходом ноль и изменения рецептов/машин', () => {
   const { catalog, plan } = fixture(); plan.sources = [plan.sources[1]];
+  plan.settings.pareto = false;
+  catalog.recipes[0].seconds = 120;
   const before = { id: 'before', label: 'before', plan: structuredClone(plan), result: solve(catalog, plan, highs) };
   plan.sources = [{ ...plan.sources[0], id: 'iron', itemId: 'iron' }];
   const after = { id: 'after', label: 'after', plan, result: solve(catalog, plan, highs) };
   const comparison = compareFactories(catalog, before, after);
   expect(comparison.resources.find(r => r.itemId === 'copper')).toMatchObject({ before: 10, after: 0, delta: -10 });
   expect(comparison.added).toEqual(['iron']); expect(comparison.removed).toEqual(['copper']);
-  expect(Number.isInteger(comparison.machines)).toBe(true);
+  expect(comparison.machines).toBe(10);
 });
 it('продолжает поиск, сохраняет проверенные точки при тайм-ауте и не переиспользует другой вход', () => {
   const { catalog, plan } = fixture();
@@ -68,7 +71,7 @@ it('продолжает поиск, сохраняет проверенные �
   const next = solvePareto(catalog, plan, highs, performance.now() + 10000, undefined, first);
   expect(next.pareto!.attempted).toBeGreaterThan(first.pareto!.attempted);
   expect(next.variants.length).toBeLessThanOrEqual(12);
-  const expired = solvePareto(catalog, plan, highs, performance.now() - 1, undefined, next);
+  const expired = solveVariants(catalog, plan, highs, performance.now() - 1, undefined, next);
   expect(expired.variants).toEqual(next.variants);
   const changed = structuredClone(plan); changed.targets[0].rate = 1000;
   const stale = solvePareto(catalog, changed, highs, performance.now() - 1, undefined, next);

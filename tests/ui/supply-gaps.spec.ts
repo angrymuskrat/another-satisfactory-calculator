@@ -1,10 +1,7 @@
+import { catalog } from './catalog';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import type { Catalog, Plan } from '../../packages/domain/types';
+import type { Plan } from '../../packages/domain/types';
 import { largeOrder } from '../largeOrderFixture';
-
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 
 test('заказ на 14 продуктов показывает отсутствующий катерий и открывает схему после подтверждения источника', async ({ page }) => {
   test.setTimeout(90_000);

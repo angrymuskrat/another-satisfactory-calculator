@@ -3,7 +3,10 @@ import { parsePlan } from './validation';
 import { validateWorldCatalog } from './worlds';
 
 export function parseCatalogPlan(value: unknown, catalog: Catalog): Plan {
-  const plan = parsePlan(value);
+  return validateCatalogPlan(parsePlan(value), catalog);
+}
+
+export function validateCatalogPlan(plan: Plan, catalog: Catalog): Plan {
   if (plan.catalogVersion !== catalog.version) throw new Error('Версия каталога плана отличается от текущей. Требуется миграция профиля.');
   if (plan.recipeProgress?.unlockIds.some(id => !catalog.unlocks?.some(u => u.id === id))) throw new Error('Прогресс рецептов содержит неизвестные схемы. Исходный план сохранён.');
   const items = new Set(catalog.items.map(item => item.id));

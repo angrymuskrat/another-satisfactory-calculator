@@ -1,3 +1,4 @@
+import { BOOST_POWER_EXPONENT, CLOCK_POWER_EXPONENT, MIN_CLOCK_PERCENT } from '../domain/gameMechanics';
 import type { Catalog, Plan, Result } from '../domain/types';
 import { effectivePlan } from '../domain/availability';
 import { canOptimizeClock, productionConfigurations, wellConfiguration } from '../domain/production';
@@ -16,7 +17,6 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
   const close = (actual: number, expected: number) => Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-6 + Math.abs(expected) * 1e-8;
   const beltRate = catalog.belts.find(b => b.id === plan.settings.beltId)?.rate ?? 0;
   const pipeRate = catalog.pipes.find(p => p.id === plan.settings.pipeId)?.rate ?? 0;
-  const exponent = Math.log2(2.5);
   let configurations: ReturnType<typeof productionConfigurations>;
   try { configurations = productionConfigurations(catalog, plan); } catch (error) { return { maxBalanceError: Infinity, errors: [String(error)] }; }
   let somersloops = 0;
@@ -33,7 +33,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     const configuration = configurations.find(c => c.id === (step.configurationId ?? step.recipeId) && c.recipe.id === step.recipeId);
     if (!configuration) { errors.push('Недопустимая конфигурация производства.'); continue; }
     const autoClock = canOptimizeClock(plan, configuration);
-    const expectedClock = autoClock ? Math.min(configuration.clock, Math.max(1, step.cycles * configuration.recipe.seconds / (60 * step.installedMachines) * 100)) : configuration.clock;
+    const expectedClock = autoClock ? Math.min(configuration.clock, Math.max(MIN_CLOCK_PERCENT, step.cycles * configuration.recipe.seconds / (60 * step.installedMachines) * 100)) : configuration.clock;
     if ((autoClock || step.clock !== undefined) && !close(step.clock!, expectedClock)) errors.push('Неверная рабочая частота этапа.');
     const clock = expectedClock / 100, boost = configuration.boost;
     const recipe = catalog.recipes.find(r => r.id === step.recipeId);
@@ -44,7 +44,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     if (!Number.isFinite(step.cycles) || step.cycles < -1e-7) errors.push('Некорректная загрузка рецепта.');
     const building = catalog.buildings.find(b => b.id === recipe.buildingId)!;
     const activeRate = 60 / recipe.seconds * clock;
-    const power = (recipe.power ?? building.power) * clock ** exponent * boost ** 2 * step.cycles / activeRate;
+    const power = (recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * boost ** BOOST_POWER_EXPONENT * step.cycles / activeRate;
     let capacity = activeRate;
     for (const ingredient of [...recipe.inputs, ...recipe.outputs.map(i => ({ ...i, amount: i.amount * boost }))]) capacity = Math.min(capacity, (catalog.items.find(i => i.id === ingredient.itemId)?.fluid ? pipeRate : beltRate) / ingredient.amount);
     const machines = step.cycles / capacity;
@@ -54,7 +54,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
     if (configuration.duty !== null && !close(step.cycles, configuration.existing * activeRate * configuration.duty)) errors.push('Изменена закреплённая линия.');
     somersloops += physical * configuration.somersloops;
     count(recipe.buildingId, physical);
-    const peak = physical * (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent * boost ** 2;
+    const peak = physical * (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * boost ** BOOST_POWER_EXPONENT;
     if (!close(step.power, power) || !close(step.powerMax, peak)) errors.push('Неверная мощность этапа.');
     if (!close(step.machines, machines) || step.installedMachines !== physical) errors.push('Недостаточно машин для потока.');
     productionPower += power; installedPower += peak;
@@ -92,7 +92,7 @@ export function validateResult(catalog: Catalog, plan: Plan, result: Result) {
         const nominalRate = miner.rate * original.purity * original.clock / 100;
         const maximum = Math.min(nominalRate, catalog.items.find(i => i.id === original.itemId)?.fluid ? pipeRate : beltRate) * original.count;
         limit = limit === null ? maximum : Math.min(maximum, limit);
-        const activePower = miner.power * (original.clock / 100) ** exponent;
+        const activePower = miner.power * (original.clock / 100) ** CLOCK_POWER_EXPONENT;
         sourcePower = source.rate / nominalRate * activePower;
         const minimum = source.rate > 1e-12 ? Math.max(1, Math.ceil(source.rate / (maximum / original.count) - 1e-7)) : 0;
         const physical = plan.settings.beltRouting?.enabled ? source.installedMachines ?? minimum : minimum;

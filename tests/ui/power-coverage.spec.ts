@@ -1,11 +1,8 @@
+import { catalog } from './catalog';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { createDefaultPlan } from '../../packages/domain/defaults';
-import type { Catalog } from '../../packages/domain/types';
 import { chooseMaximum } from './chooseVariant';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 const plan = createDefaultPlan(catalog);
 plan.mode = 'target';
 plan.targets = [{ itemId: 'iron-ingot', rate: 30, weight: 1, scale: 1 }];

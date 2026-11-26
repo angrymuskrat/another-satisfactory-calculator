@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-
 test('справочник независимо от плана показывает полный вектор, фильтры и реальные ветви', async ({ page }) => {
   const workers: string[] = [];
   page.on('worker', worker => workers.push(worker.url()));

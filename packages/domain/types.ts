@@ -1,3 +1,4 @@
+import type { ResourcePurity } from './gameMechanics';
 export interface Item {
   id: string;
   name: string;
@@ -73,14 +74,14 @@ export interface Source {
   reserve?: number;
   sharedNodeId?: string;
   importPower?: number | null;
-  well?: { satellites: { purity: 0.5 | 1 | 2; count: number }[] };
+  well?: { satellites: { purity: ResourcePurity; count: number }[] };
   name?: string;
   id: string;
   itemId: string;
   kind: 'flow' | 'node' | 'well';
   limit: number | null;
   count: number;
-  purity: 0.5 | 1 | 2;
+  purity: ResourcePurity;
   minerId: string;
   clock: number;
 }

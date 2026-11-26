@@ -1,3 +1,4 @@
+import { usesPareto } from '../domain/searchDuration';
 import type { Catalog, Plan, ProductionVariant, ProductionVariants, Result } from '../domain/types';
 import { hasSolution } from '../domain/types';
 import { parsePlan } from '../domain/validation';
@@ -11,7 +12,7 @@ export interface VariantsMessage { report: ProductionVariants; pending: Producti
 
 /** Все решения используют исходные ограничения; бюджет машин и порядок затрат не меняют максимум выпуска. */
 export function solveVariants(catalog: Catalog, input: Plan, highs: Parameters<typeof solve>[2], deadline = performance.now() + 25000, onProgress?: VariantProgress, previous?: ProductionVariants): ProductionVariants {
-  if (input.settings.pareto && (input.mode === 'target' || input.batch)) return solvePareto(catalog, input, highs, deadline, onProgress && (report => onProgress(report, [])));
+  if (usesPareto(input)) return solvePareto(catalog, input, highs, deadline, onProgress && (report => onProgress(report, [])), previous);
   const maximum = structuredClone(input);
   const economy = structuredClone(input);
   const resources = structuredClone(input);

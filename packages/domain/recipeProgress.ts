@@ -1,5 +1,5 @@
 import type { Catalog, Plan, Unlock } from './types';
-import { applyWorldUpdate, createWorld, grantWorldUnlocks, previewWorldUpdate, snapshotWorld, type Workspace } from './worlds';
+import { applyWorldUpdate, createWorld, grantWorldUnlocks, previewWorldUpdate, selectedUnlocks, snapshotWorld, type Workspace } from './worlds';
 import { phaseForTier } from './research';
 
 export type RecipeOrigin = 'hub' | 'mam' | 'hard-drive' | 'other';
@@ -12,20 +12,6 @@ export interface RecipeProgress {
 const unique = <T,>(values: T[]) => [...new Set(values)];
 export const unlockOrigin = (u: Unlock): RecipeOrigin => u.sourceType === 'EST_Alternate' ? 'hard-drive' : u.id === 'Schematic_StartingRecipes_C' ? 'hub' : u.kind;
 const origin = unlockOrigin;
-
-/** Только прямые эффекты и дочерние схемы. Предпосылки не покупаются. */
-export function selectedUnlocks(catalog: Catalog, ids: string[]): Unlock[] {
-  const byId = new Map(catalog.unlocks?.map(u => [u.id, u]));
-  const seen = new Set<string>();
-  const visit = (id: string) => {
-    if (seen.has(id)) return;
-    const u = byId.get(id);
-    if (!u) throw new Error(`Схема открытия отсутствует в каталоге: ${id}`);
-    seen.add(id); u.schematicIds?.forEach(visit);
-  };
-  ids.forEach(visit);
-  return [...seen].map(id => byId.get(id)!);
-}
 
 export function buildRecipeProgress(catalog: Catalog): Map<string, RecipeProgress> {
   const unlocks = catalog.unlocks ?? [];
@@ -91,18 +77,17 @@ export function prepareRecipeSetup(catalog: Catalog, plan: Plan, ids: string[], 
   const selectable = new Set(catalog.unlocks?.filter(u => origin(u) === 'hub' || u.kind === 'mam').map(u => u.id));
   if (ids.some(id => !selectable.has(id))) throw new Error('Выберите этапы HUB или исследования MAM из текущего каталога.');
   const unlockIds = unique([...(operation === 'add' ? previousIds.filter(id => selectable.has(id)) : []), ...ids]);
-  const effects = selectedUnlocks(catalog, unlockIds);
-  const completed = new Set(effects.map(u => u.id));
+  const base = createWorld(catalog, 'Прогресс', plan.world?.id ?? 'recipe-progress');
+  const granted = grantWorldUnlocks(catalog, base, unlockIds);
+  const completed = new Set(granted.unlockedMilestoneIds);
   const diskSchemes = catalog.unlocks?.filter(u => origin(u) === 'hard-drive') ?? [];
   const diskRecipes = (u: Unlock) => selectedUnlocks(catalog, [u.id]).flatMap(s => s.recipeIds);
   const unknownAlternatives = unique(diskSchemes.filter(u => !u.selectionDependenciesKnown || !u.prerequisiteGroups).flatMap(diskRecipes));
   const eligibleDisks = diskSchemes.filter(u => u.selectionDependenciesKnown && u.prerequisiteGroups?.every(group => group.some(id => completed.has(id))));
-  const base = createWorld(catalog, 'Прогресс', plan.world?.id ?? 'recipe-progress');
-  const granted = grantWorldUnlocks(catalog, base, unlockIds);
   const retainedAlternatives = alternatives === 'keep'
     ? plan.settings.enabledRecipeIds.filter(id => catalog.recipes.some(r => r.id === id && r.alternate) && (!plan.world || plan.world.unlockedRecipeIds.includes(id))) : [];
   const recipes = unique([...granted.unlockedRecipeIds.filter(id => alternatives !== 'none' || !catalog.recipes.find(r => r.id === id)?.alternate),
-    ...retainedAlternatives, ...(alternatives === 'all' ? eligibleDisks.flatMap(u => selectedUnlocks(catalog, [u.id]).flatMap(s => s.recipeIds)) : [])]);
+    ...retainedAlternatives, ...(alternatives === 'all' ? eligibleDisks.flatMap(diskRecipes) : [])]);
   const combine = (old: string[], added: string[]) => unique([...(operation === 'add' ? old : []), ...added]);
   const best = (kind: 'belts' | 'pipes', old: string, added: string) => operation === 'add'
     ? catalog[kind].filter(t => t.id === old || t.id === added).sort((a, b) => b.rate - a.rate)[0].id : added;

@@ -1,3 +1,4 @@
+import { purity } from '../../../packages/domain/gameMechanics';
 import { useMemo, useState } from 'react';
 import { ArrowRight, Drill } from 'lucide-react';
 import { hasSolution, type Catalog, type Plan, type Source } from '../../../packages/domain/types';
@@ -47,7 +48,7 @@ export function SupplyGaps({ catalog, plan, gaps, setPlan }: { catalog: Catalog;
           <label className="field-label">Дополнительный поток<NumberField label={'Дополнительный поток — ' + item.name} value={c.rate} min={1e-6} max={1e9} suffix={unit(item)} onChange={rate => change(item.id, { rate })}/></label>
           <label className="field-label">Источник<select aria-label={'Источник — ' + item.name} value={c.minerId ?? ''} onChange={e => change(item.id, { minerId: e.target.value || null })}>
             <option value="">Внешняя поставка</option>{miners(item.id).map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-          {c.minerId && c.minerId !== 'water-extractor' && <label className="field-label">Чистота узла<select value={c.purity} onChange={e => change(item.id, { purity: Number(e.target.value) as Source['purity'] })}><option value={0.5}>Низкая</option><option value={1}>Обычная</option><option value={2}>Высокая</option></select></label>}
+          {c.minerId && c.minerId !== 'water-extractor' && <label className="field-label">Чистота узла<select value={c.purity} onChange={e => change(item.id, { purity: Number(e.target.value) as Source['purity'] })}><option value={purity.impure}>Низкая</option><option value={purity.normal}>Обычная</option><option value={purity.pure}>Высокая</option></select></label>}
         </div>}
         {editing && added?.kind === 'node' && <p className="hint">{added.count} × {miner?.name} на 100%. На каждом выходе {line?.name} до {format(line?.rate ?? 0)} {unit(item)}. Проверьте доступность узлов в своём мире.</p>}
         {editing && added?.kind === 'flow' && <p className="hint">Внешний поток {format(added.limit ?? 0, 6)} {unit(item)}. Энергия поставщика неизвестна.</p>}

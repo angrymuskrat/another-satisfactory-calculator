@@ -14,6 +14,8 @@ it('accepts valid plans and rejects corrupted imported plans', () => {
 });
 it('rejects duplicate targets and invalid clocks, caps and priority scales', () => {
   const plan = valid(); plan.targets.push(plan.targets[0]); expect(() => parsePlan(plan)).toThrow();
+  const invalidScale = valid(); invalidScale.targets[0].scale = 0;
+  expect(() => parsePlan(invalidScale)).toThrow();
   for (const field of [{ clock: 0 }, { powerLimit: -1 }, { outputSlack: 101 }]) {
     expect(() => parsePlan({ ...valid(), settings: { ...valid().settings, ...field } })).toThrow();
   }

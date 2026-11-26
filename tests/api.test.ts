@@ -5,8 +5,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { FastifyInstance } from 'fastify';
 import { createApp } from '../apps/api/app';
-import type { Plan } from '../packages/domain/types';
-import type { Catalog } from '../packages/domain/types';
+import type { Catalog, Plan } from '../packages/domain/types';
 import catalogJson from '../packages/game-data/catalog.json';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import { applyWorldUpdate, createFactory, createWorld, emptyWorkspace, previewWorldUpdate } from '../packages/domain/worlds';
@@ -102,14 +101,6 @@ describe('API миров и фабрик', () => {
     data.recipeProgress.unlockIds.push('Research_Quartz_2_C');
     const invalid = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Ошибка', data } });
     expect(invalid.statusCode).toBe(400);
-  });
-  it('сохраняет и восстанавливает профиль с целью ровной нагрузки', async () => {
-    const instance = app(); const { cookie } = await register(instance);
-    const data = structuredClone(plan); data.settings.objective = 'smooth-power';
-    const created = await instance.inject({ method: 'POST', url: '/api/profiles', headers: { cookie }, payload: { name: 'Ровная нагрузка', data } });
-    expect(created.statusCode).toBe(201);
-    const restored = await instance.inject({ url: `/api/profiles/${created.json().profile.id}`, headers: { cookie } });
-    expect(restored.statusCode).toBe(200); expect(restored.json().profile.data).toEqual(data);
   });
   it('изолирует workspace аккаунтов, не принимает чужого владельца и сохраняет полные фабрики', async () => {
     const instance = app();
@@ -208,7 +199,10 @@ describe('API пользователей и сохранённых конфиг�
     expect(created.statusCode).toBe(201);
     const profile = created.json().profile;
     expect(profile).toMatchObject({ name: 'Мой профиль', revision: 1, data: plan });
-    expect((await instance.inject({ url: `/api/profiles/${profile.id}`, headers: { cookie } })).json()).toEqual({ profile });
+    const restored = await instance.inject({ url: `/api/profiles/${profile.id}`, headers: { cookie } });
+    expect(restored.statusCode).toBe(200);
+    expect(restored.json()).toEqual({ profile });
+    expect(restored.json().profile.data).toEqual(plan);
     expect((await instance.inject({ url: '/api/profiles', headers: { cookie } })).json()).toEqual({ profiles: [profile] });
   });
 

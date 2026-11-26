@@ -1,8 +1,9 @@
+import { BOOST_POWER_EXPONENT, CLOCK_POWER_EXPONENT } from './gameMechanics';
 import type { Catalog, Ingredient, Plan, ProductResult, Result } from './types';
 import { effectivePlan } from './availability';
 import { sourceLabel } from './sourceLabel';
 import { balancedClock, canOptimizeClock, productionConfigurations, wellConfiguration } from './production';
-import mechanics from '../game-data/p2-mechanics.json';
+import mechanics from '../game-data/p2-mechanics.json' with { type: 'json' };
 
 export interface ConstructionGroup {
   generatedPower?: number;
@@ -34,7 +35,6 @@ export interface MaterialBill {
   complete: boolean;
 }
 
-const exponent = Math.log2(2.5);
 // Keep tiny positive flows. Only absorb a relative rounding error at an integer boundary.
 const physicalCount = (n: number) => n > 0 ? Math.max(1, Math.ceil(n - Math.min(1e-7, n * 1e-8))) : 0;
 const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical)
@@ -59,8 +59,8 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     const clock = expectedClock / 100, cyclesAtClock = 60 / recipe.seconds * clock;
     if (!Number.isInteger(count) || count <= 0 || !(cyclesAtClock > 0)) throw new Error(`Некорректная конфигурация ${recipe.name}.`);
     const activeDuty = step.cycles / (count * cyclesAtClock);
-    const activePower = (recipe.power ?? building.power) * clock ** exponent * configuration.boost ** 2;
-    const peak = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** exponent * configuration.boost ** 2;
+    const activePower = (recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * configuration.boost ** BOOST_POWER_EXPONENT;
+    const peak = (recipe.powerMax ?? building.powerMax ?? recipe.power ?? building.power) * clock ** CLOCK_POWER_EXPONENT * configuration.boost ** BOOST_POWER_EXPONENT;
     const outputs = recipe.outputs.map(i => ({ ...i, amount: i.amount * configuration.boost }));
     const flows = (ingredients: Ingredient[], cycles: number) => ingredients.map(i => ({ itemId: i.itemId, rate: i.amount * cycles }));
     return { id: step.configurationId ?? `recipe:${recipe.id}`, kind: 'production', buildingId: building.id, name: configuration.name, recipeId: recipe.id,
@@ -90,7 +90,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
       extraction.push({ id: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-pressurizer', name: `${name} · компенсатор`, count: 1, clock: source.clock,
         activeDuty: 1, activeInputs: [], activeOutputs: [], averageInputs: [], averageOutputs: [], activePower: well.power, averagePower: well.power, peakPower: well.power, powerEstimated: false });
       for (const [i, satellite] of source.well!.satellites.entries()) {
-        const nominal = 60 * satellite.purity * source.clock / 100;
+        const nominal = mechanics.well.rate * satellite.purity * source.clock / 100;
         const rate = resource.rate * satellite.count * Math.min(pipe.rate, nominal) / well.capacity;
         legacyNames.set(`satellites:${source.id}:${i}`, `${legacyName} · спутники ×${satellite.purity}`);
         extraction.push({ id: `satellites:${source.id}:${i}`, controllerId: `source:${source.id}`, kind: 'extraction', buildingId: 'resource-well-extractor', name: `${name} · спутники ×${satellite.purity}`, count: satellite.count, clock: source.clock,
@@ -104,7 +104,7 @@ export function buildConstruction(catalog: Catalog, input: Plan, result: Result)
     const capacity = Math.min(nominal, item?.fluid ? pipe.rate : belt.rate);
     const count = resource.installedMachines ?? physicalCount(resource.rate / capacity);
     if (!Number.isInteger(count) || count <= 0 || !(nominal > 0)) throw new Error(`Некорректная конфигурация источника ${name}.`);
-    const activePower = miner.power * clock ** exponent;
+    const activePower = miner.power * clock ** CLOCK_POWER_EXPONENT;
     legacyNames.set(`source:${source.id}`, legacyName);
     extraction.push({ id: `source:${source.id}`, kind: 'extraction', buildingId: miner.id, name, count, clock: source.clock,
       activeDuty: resource.rate / (count * nominal), activeInputs: [], activeOutputs: [{ itemId: resource.itemId, rate: nominal }],

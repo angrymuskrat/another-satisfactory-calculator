@@ -1,8 +1,6 @@
 import { chooseMaximum } from './chooseVariant';
 import { expect, test } from '@playwright/test';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-
 test('выбор предмета закрывается с возвратом фокуса и позволяет уйти Tab', async ({ page }) => {
   await page.goto('/');
   const trigger = page.getByRole('button', { name: 'Продукт 1', exact: true });

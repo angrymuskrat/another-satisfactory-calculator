@@ -1,5 +1,11 @@
 // Производное от локальных CommunityResources © Coffee Stain Studios.
 // Вызывается основным офлайн-импортом; никаких сетевых источников или иконок.
+export function unlockCoverage(unlocks, entries, field) {
+  const ids = new Set(unlocks.flatMap(unlock => unlock[field]));
+  const missingIds = entries.filter(entry => !ids.has(entry.id)).map(entry => entry.id);
+  return { total: entries.length, covered: entries.length - missingIds.length, missingIds };
+}
+
 export function importP1Data({ en, ru, catalog, report, machineClasses, transportClasses, parseIngredients, hashes, pinned }) {
   const byClass = new Map(en.map(c => [c.ClassName, c]));
   const recipeIds = new Map(Object.entries(report.recipeClasses).map(([id, cls]) => [cls, id]));
@@ -94,10 +100,6 @@ export function importP1Data({ en, ru, catalog, report, machineClasses, transpor
     overclock: s.overclock, prerequisiteIds: s.prerequisiteIds,
     schematicIds: s.schematicIds, prerequisiteGroups: s.prerequisiteGroups, prerequisitesKnown: s.prerequisitesKnown,
   }));
-  const coverageOf = (list, field) => {
-    const covered = new Set(records.filter(s => selected.has(s.id)).flatMap(s => s[field]));
-    return { total: list.length, covered: list.filter(x => covered.has(x.id)).length, missingIds: list.filter(x => !covered.has(x.id)).map(x => x.id) };
-  };
   const excluded = records.filter(s => !selected.has(s.id)).map(s => ({ id: s.id, reason: !s.name ? 'missing-ru-display-name' : s.relevantEvents ? 'event-restricted' : s.includeInBuilds !== 'IIB_PublicBuilds' ? 'not-public-build' : 'no-catalog-effects-or-dependencies' }));
   const unprojectedDependencies = records.filter(s => selected.has(s.id) && s.prerequisiteGroups === undefined)
     .flatMap(s => s.dependencies.map(dependency => ({ id: s.id, dependency })));
@@ -108,8 +110,8 @@ export function importP1Data({ en, ru, catalog, report, machineClasses, transpor
     prerequisitesKnown: catalog.unlocks.filter(s => s.prerequisitesKnown).length,
     explicitDependencyGroups: catalog.unlocks.reduce((n, s) => n + (s.prerequisiteGroups?.length || 0), 0),
     kinds: Object.fromEntries(['hub', 'mam', 'other'].map(kind => [kind, catalog.unlocks.filter(s => s.kind === kind).length])),
-    recipes: coverageOf(catalog.recipes, 'recipeIds'), buildings: coverageOf(catalog.buildings, 'buildingIds'),
-    miners: coverageOf(catalog.miners, 'minerIds'), belts: coverageOf(catalog.belts, 'beltIds'), pipes: coverageOf(catalog.pipes, 'pipeIds'),
+    recipes: unlockCoverage(catalog.unlocks, catalog.recipes, 'recipeIds'), buildings: unlockCoverage(catalog.unlocks, catalog.buildings, 'buildingIds'),
+    miners: unlockCoverage(catalog.unlocks, catalog.miners, 'minerIds'), belts: unlockCoverage(catalog.unlocks, catalog.belts, 'beltIds'), pipes: unlockCoverage(catalog.unlocks, catalog.pipes, 'pipeIds'),
     overclockIds: records.filter(s => s.overclock).map(s => s.id),
     researchTreeExported: en.some(c => /\.FGResearchTree'/.test(c.nativeClass)), prerequisitesComplete: false,
     unprojectedDependencies, excluded,

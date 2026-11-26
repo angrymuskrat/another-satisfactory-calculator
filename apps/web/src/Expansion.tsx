@@ -1,3 +1,4 @@
+import { MAX_CLOCK_PERCENT, MIN_CLOCK_PERCENT, purity } from '../../../packages/domain/gameMechanics';
 import type { Plan, Source } from '../../../packages/domain/types';
 import type { PlanProps } from './Planner';
 import { amplifierSlots } from '../../../packages/domain/production';
@@ -15,7 +16,7 @@ export function Expansion({ catalog, plan, setPlan }: PlanProps) {
       <label className="field-label">Название<input aria-label={`Название линии ${i + 1}`} value={l.name} maxLength={120} onChange={e => update(l.id, { name: e.target.value })} /></label>
       <label className="field-label">Рецепт<select aria-label={`Рецепт линии ${i + 1}`} value={l.recipeId} onChange={e => update(l.id, { recipeId: e.target.value, somersloops: 0 })}>{catalog.recipes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
       <div className="target-bounds"><label className="field-label">Построено<NumberField label={`Машин линии ${i + 1}`} value={l.count} min={1} max={1000000} step={1} onChange={count => update(l.id, { count })} /></label>
-        <label className="field-label">Частота, %<NumberField label={`Частота линии ${i + 1}`} value={l.clock} min={1} max={250} onChange={clock => update(l.id, { clock })} /></label>
+        <label className="field-label">Частота, %<NumberField label={`Частота линии ${i + 1}`} value={l.clock} min={MIN_CLOCK_PERCENT} max={MAX_CLOCK_PERCENT} onChange={clock => update(l.id, { clock })} /></label>
         <label className="field-label">Доля работы, %<NumberField label={`Доля работы линии ${i + 1}`} value={l.duty * 100} max={100} disabled={!l.locked} onChange={duty => update(l.id, { duty: duty / 100 })} /></label>
         <label className="field-label">Somersloops на машину<NumberField label={`Усилители линии ${i + 1}`} value={l.somersloops} max={amplifierSlots(catalog.recipes.find(r => r.id === l.recipeId)?.buildingId ?? '')} step={1} onChange={somersloops => update(l.id, { somersloops })} /></label></div>
       <label className="inline-check"><input type="checkbox" checked={l.locked} onChange={e => update(l.id, { locked: e.target.checked })} />Закрепить выпуск линии {i + 1}</label>
@@ -37,8 +38,8 @@ export function SourceDetails({ source, index, update }: { source: Source; index
 
 export function WellControls({ source, index, update }: { source: Source; index: number; update: (patch: Partial<Source>) => void }) {
   const satellites = source.well?.satellites ?? [];
-  return <div className="full-width"><label className="field-label">Частота общего компенсатора<NumberField label={`Частота скважины ${index}`} value={source.clock} min={1} max={250} onChange={clock => update({ clock })} /></label>
-    {satellites.map((n, i) => <div className="target-bounds" key={i}><label className="field-label">Чистота спутников<select aria-label={`Чистота спутника ${index}.${i + 1}`} value={n.purity} onChange={e => update({ well: { satellites: satellites.map((s, j) => i === j ? { ...s, purity: Number(e.target.value) as Source['purity'] } : s) } })}><option value={0.5}>Низкая</option><option value={1}>Обычная</option><option value={2}>Высокая</option></select></label>
+  return <div className="full-width"><label className="field-label">Частота общего компенсатора<NumberField label={`Частота скважины ${index}`} value={source.clock} min={MIN_CLOCK_PERCENT} max={MAX_CLOCK_PERCENT} onChange={clock => update({ clock })} /></label>
+    {satellites.map((n, i) => <div className="target-bounds" key={i}><label className="field-label">Чистота спутников<select aria-label={`Чистота спутника ${index}.${i + 1}`} value={n.purity} onChange={e => update({ well: { satellites: satellites.map((s, j) => i === j ? { ...s, purity: Number(e.target.value) as Source['purity'] } : s) } })}><option value={purity.impure}>Низкая</option><option value={purity.normal}>Обычная</option><option value={purity.pure}>Высокая</option></select></label>
       <label className="field-label">Количество спутников<NumberField label={`Спутников скважины ${index}.${i + 1}`} value={n.count} min={1} max={100} step={1} onChange={count => update({ well: { satellites: satellites.map((s, j) => i === j ? { ...s, count } : s) } })} /></label><button className="text-button" disabled={satellites.length <= 1} onClick={() => update({ well: { satellites: satellites.filter((_, j) => i !== j) } })}>Удалить группу {i + 1}</button></div>)}
     <button className="text-button" disabled={satellites.length >= 32} onClick={() => update({ well: { satellites: [...satellites, { purity: 1, count: 1 }] } })}>Добавить группу спутников</button>
     <p className="hint">Один компенсатор обслуживает все спутники. Пока скважина используется, учтена полная мощность на выбранной частоте. Выход каждой трубы ограничивается отдельно.</p>

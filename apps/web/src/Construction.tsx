@@ -3,7 +3,7 @@ import type { Catalog } from '../../../packages/domain/types';
 import type { ConstructionGroup, ConstructionModel } from '../../../packages/domain/construction';
 import { orderDependencies } from '../../../packages/domain/dependencies';
 import { format, ItemIcon, unit } from './controls';
-import mechanics from '../../../packages/game-data/p2-mechanics.json';
+import mechanics from '../../../packages/game-data/p2-mechanics.json' with { type: 'json' };
 import { Schematic } from './Schematic';
 import type { MachineSpan, SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
 import { builtCount, markBuilt, markFirst, type BuiltRanges } from '../../../packages/domain/constructionProgress';

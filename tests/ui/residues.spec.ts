@@ -1,10 +1,7 @@
+import { catalog } from './catalog';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import type { Catalog } from '../../packages/domain/types';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 
-test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
-const catalog = JSON.parse(readFileSync(new URL('../../packages/game-data/catalog.json', import.meta.url), 'utf8')) as Catalog;
 test('нулевой выпуск пластика объясняется проверенным отводом, а выбранный получатель применяется после просмотра', async ({ page }) => {
   const plan = createDefaultPlan(catalog);
   plan.targets = [{ itemId: 'plastic', rate: 20, weight: 1, scale: 1 }];

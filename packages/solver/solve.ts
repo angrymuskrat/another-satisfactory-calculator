@@ -1,3 +1,4 @@
+import { CLOCK_POWER_EXPONENT } from '../domain/gameMechanics';
 import type loadHighs from 'highs';
 import type { Catalog, Plan, Result } from '../domain/types';
 import { parsePlan } from '../domain/validation';
@@ -76,6 +77,14 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
       } else values = Object.fromEntries(Object.entries(solution.Columns).map(([name, c]) => [name, c.Primal]));
       return dot(objective, values);
     }
+    function fixCount(variable: string, flows: string[]) {
+      const count = Math.round(values[variable] ?? 0);
+      model.constrain(new Map([[variable, 1]]), '=', count);
+      if (count === 0) {
+        model.variables.get(variable)!.upper = 0;
+        for (const flow of flows) model.variables.get(flow)!.upper = 0;
+      }
+    }
     function optimize(objective: Expression, maximize = false): number {
       let optimum: number;
       try { optimum = optimizeRaw(objective, maximize); }
@@ -87,14 +96,7 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         const constraints = model.constraints.length;
         const bounds = new Map([...model.variables].map(([id, v]) => [id, v.upper]));
         try {
-          for (const [variable, flows] of integerFlows) {
-            const count = Math.round(values[variable] ?? 0);
-            model.constrain(new Map([[variable, 1]]), '=', count);
-            if (count === 0) {
-              model.variables.get(variable)!.upper = 0;
-              for (const flow of flows) model.variables.get(flow)!.upper = 0;
-            }
-          }
+          for (const [variable, flows] of integerFlows) fixCount(variable, flows);
           const physicalOptimum = optimizeRaw(objective, maximize);
           if ((maximize ? optimum - physicalOptimum : physicalOptimum - optimum) > 10 * tolerance(optimum)) {
             throw new SolveFailure('error', 'Не удалось подтвердить цель с физически целыми машинами. Увеличьте масштаб потоков и повторите расчёт.');
@@ -230,26 +232,11 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         integerFlows.set(used, [...(integerFlows.get(used) ?? []), r.variable]);
       }
       optimize(recipeCount);
-      for (const { used, flow } of selections) {
-        const selected = Math.round(values[used] ?? 0);
-        model.constrain(new Map([[used, 1]]), '=', selected);
-        if (selected === 0) {
-          model.variables.get(used)!.upper = 0;
-          model.variables.get(flow)!.upper = 0;
-        }
-      }
+      for (const { used, flow } of selections) fixCount(used, [flow]);
     }
     optimize(built.activity);
     // A MIP feasibility tolerance may admit tiny positive integer counts. Pin the
     // selected physical configuration and solve again; never erase its flows.
-    const fixCount = (variable: string, flows: string[]) => {
-      const count = Math.round(values[variable] ?? 0);
-      model.constrain(new Map([[variable, 1]]), '=', count);
-      if (count === 0) {
-        model.variables.get(variable)!.upper = 0;
-        for (const flow of flows) model.variables.get(flow)!.upper = 0;
-      }
-    };
     if (built.sinkCount || built.needsCounts) {
       if (built.sinkCount) fixCount(built.sinkCount, built.disposal.map(d => d.variable));
       for (const r of built.recipeVariables) if (r.countVariable) fixCount(r.countVariable, [r.variable]);
@@ -293,8 +280,8 @@ export function solve(catalog: Catalog, input: Plan, highs: Highs, deadline = pe
         const clockRatio = clock / r.configuration.clock;
         const capacity = Math.min(r.capacity, r.cyclesAtClock * clockRatio);
         const machines = cycles / capacity;
-        const machinePower = r.power * clockRatio ** Math.log2(2.5);
-        const machineMax = r.powerMax * clockRatio ** Math.log2(2.5);
+        const machinePower = r.power * clockRatio ** CLOCK_POWER_EXPONENT;
+        const machineMax = r.powerMax * clockRatio ** CLOCK_POWER_EXPONENT;
         return { recipeId: r.recipe.id, ...(r.configuration.id !== r.recipe.id ? { configurationId: r.configuration.id } : {}), cycles, machines, installedMachines,
           ...(r.autoClock ? { clock } : {}),
           power: cycles / (r.cyclesAtClock * clockRatio) * machinePower, powerMax: installedMachines * machineMax,

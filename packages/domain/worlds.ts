@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Catalog, Plan, WorldSnapshot } from './types';
+import type { Catalog, Plan, Unlock, WorldSnapshot } from './types';
 import { parsePlan, worldSnapshotSchema } from './validation';
 import { validateWorkspaceSharedResources } from './sharedResources';
 
@@ -43,17 +43,22 @@ export function validateWorldCatalog(world: WorldSnapshot, catalog: Catalog) {
   }
 }
 
+export function selectedUnlocks(catalog: Catalog, ids: string[]): Unlock[] {
+  const byId = new Map(catalog.unlocks?.map(u => [u.id, u]));
+  const seen = new Set<string>();
+  const visit = (id: string) => {
+    if (seen.has(id)) return;
+    const u = byId.get(id);
+    if (!u) throw new Error(`Схема открытия отсутствует в каталоге: ${id}`);
+    seen.add(id); u.schematicIds?.forEach(visit);
+  };
+  ids.forEach(visit);
+  return [...seen].map(id => byId.get(id)!);
+}
+
 /** Применяет прямые эффекты выбранных схем, включая BP_UnlockSchematic. Prerequisites не покупаются автоматически. */
 export function grantWorldUnlocks(catalog: Catalog, world: World, selectedIds: string[]): World {
-  const selected = new Set<string>();
-  const visit = (id: string) => {
-    if (selected.has(id)) return;
-    const unlock = catalog.unlocks?.find(u => u.id === id);
-    if (!unlock) throw new Error(`Схема открытия отсутствует в каталоге: ${id}`);
-    selected.add(id);
-    for (const child of unlock.schematicIds ?? []) visit(child);
-  };
-  selectedIds.forEach(visit);
+  const selected = new Set(selectedUnlocks(catalog, selectedIds).map(unlock => unlock.id));
   const unlocks = catalog.unlocks?.filter(u => selected.has(u.id)) ?? [];
   const best = (kind: 'belts' | 'pipes', current: string, added: string[]) => catalog[kind].filter(t => t.id === current || added.includes(t.id)).sort((a, b) => b.rate - a.rate)[0].id;
   return { ...structuredClone(world),

@@ -7,6 +7,7 @@ import { solve } from '../packages/solver/solve';
 import { validateResult } from '../packages/solver/validate';
 import { buildConstruction } from '../packages/domain/construction';
 const catalog = catalogJson as Catalog;
+const conservativeFailure = { status: 'error', message: expect.stringContaining('В консервативной модели автоподбора частот допустимый план не найден') };
 let highs: Awaited<ReturnType<typeof createHighs>>;
 beforeAll(async () => { highs = await createHighs(); });
 it('импортирует базовые семейства с точными расходами на 100%', () => {
@@ -39,7 +40,7 @@ it('покрывает локальный пик, учитывает топли�
   expect(validateResult(catalog, plan, forged).errors).toContain('Топливо не обеспечено выбранным первичным сырьём.');
   expect(buildConstruction(catalog, plan, result).production.some(g => g.recipeId === 'generate-coal')).toBe(true);
   result.generation!.power = 1000; expect(validateResult(catalog, plan, result).errors).toContain('Неверная сводка генерации.');
-  plan.settings.inputLimits = { water: 0 }; expect(solve(catalog, plan, highs).status).not.toBe('approximate');
+  plan.settings.inputLimits = { water: 0 }; expect(solve(catalog, plan, highs)).toMatchObject(conservativeFailure);
 });
 it.each(['crude-oil', 'uranium'] as const)('совместно считает топливную цепочку %s, отходы и ограничения', family => {
   // Small hand-computable factory using the imported generator coefficients;
@@ -61,9 +62,9 @@ it.each(['crude-oil', 'uranium'] as const)('совместно считает т
   expect(validateResult(local, plan, result).errors).toEqual([]);
   if (family === 'uranium') {
     expect(result.exports).toEqual([{ itemId: 'uranium-waste', rate: 10 }]);
-    delete plan.exports; expect(solve(local, plan, highs).status).not.toBe('approximate');
+    delete plan.exports; expect(solve(local, plan, highs)).toMatchObject(conservativeFailure);
   }
-  plan.settings.buildingLimits = { [gen.buildingId]: 0 }; expect(solve(local, plan, highs).status).not.toBe('approximate');
+  plan.settings.buildingLimits = { [gen.buildingId]: 0 }; expect(solve(local, plan, highs)).toMatchObject(conservativeFailure);
 });
 it('не открывает генератор в мире скрыто и отклоняет импорт готового топлива', () => {
   const plan = createDefaultPlan(catalog); plan.mode = 'target'; plan.settings.pareto = true; plan.settings.selfSupply = 'coal';
@@ -78,5 +79,5 @@ it('выбор угля требует угольное сырьё, не зам�
   plan.settings.enabledRecipeIds = ['iron-ingot', 'coal-iron', 'reanimated-sam', 'generate-coal'];
   plan.settings.inputLimits = { coal: 0 };
   plan.sources = ['iron-ore', 'sam', 'water'].map(itemId => ({ id: itemId, itemId, kind: 'flow', limit: 100, count: 1, purity: 1, minerId: '', clock: 100 }));
-  expect(solve(catalog, plan, highs).status).not.toBe('approximate');
+  expect(solve(catalog, plan, highs)).toMatchObject(conservativeFailure);
 });
