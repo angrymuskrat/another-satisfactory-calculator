@@ -87,3 +87,15 @@ test('отказ буфера обмена даёт ошибку и точное
   const manual = page.getByLabel(`Число для ручного копирования: ${reinforced}: частота`, { exact: true });
   await expect(manual).toHaveValue('75');
 });
+
+test('переключатель вида содержит ровно «Инструкция» и «Схема»', async ({ page }) => {
+  await seed(page); await build(page);
+  const views = page.getByRole('group', { name: 'Вид строительства', exact: true });
+  await expect(views.getByRole('button')).toHaveText(['Инструкция', 'Схема']);
+  await expect(views.getByRole('button', { name: 'Инструкция', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await views.getByRole('button', { name: 'Схема', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Схема строительства', exact: true })).toBeVisible();
+  await expect(views.getByRole('button', { name: 'Схема', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await views.getByRole('button', { name: 'Инструкция', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
+});

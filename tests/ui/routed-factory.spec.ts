@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test.use({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173' });
 
-test('стандартная фабрика с глубиной 4 даёт два варианта и реальные ленты в обоих видах', async ({ page }, testInfo) => {
+test('стандартная фабрика с глубиной 4 даёт два варианта и реальные ленты в групповом виде', async ({ page }, testInfo) => {
   test.setTimeout(60_000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -22,26 +22,25 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
-  await page.getByRole('button', { name: 'По типам зданий', exact: true }).click();
+  await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
   await expect(graph).not.toContainText('УСЛОВНЫЙ БЛОК');
   const groupedRates = await graph.locator('.schematic-edges g.flow').evaluateAll(nodes => nodes.map(node => [node.getAttribute('data-item-id'), Number(node.getAttribute('data-rate'))]));
   const devices = await graph.locator('.schematic-node.junction').count();
   expect(devices).toBeGreaterThan(0);
+  await graph.locator('.schematic-node.junction .schematic-node-button').first().click();
+  await expect(graph.locator('.schematic-details')).toContainText(/Конвейерный (разделитель|соединитель) · Проверенные порты · глубина \d/);
+  await graph.getByRole('button', { name: 'Снять выделение', exact: true }).click();
   await graph.getByRole('button', { name: 'Уместить', exact: true }).click();
   await graph.screenshot({ path: 'output/playwright/default-routing-types.png' });
-  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
-  await expect(graph.locator('.schematic-node.junction')).toHaveCount(devices);
-  expect(await graph.locator('.schematic-edges g.flow').evaluateAll(nodes => nodes.map(node => [node.getAttribute('data-item-id'), Number(node.getAttribute('data-rate'))]))).toEqual(groupedRates);
   await expect(graph).toContainText('Все физические конвейерные связи показаны');
-  await graph.getByRole('button', { name: 'Уместить', exact: true }).click();
-  await graph.screenshot({ path: 'output/playwright/default-routing-machines.png' });
+  await expect(graph.locator('.schematic-notes').first()).not.toContainText('других страниц');
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   await economy.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Скопировать: Выпуск: Усиленная железная пластина', exact: true })).toHaveText('9 шт/мин');
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
-  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  await page.getByRole('button', { name: 'Схема', exact: true }).click();
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
   await expect(graph).not.toContainText('УСЛОВНЫЙ БЛОК');
   expect(errors).toEqual([]);
@@ -67,9 +66,10 @@ test('выключение учёта на стандартной фабрике
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
-  await page.getByRole('button', { name: 'По отдельным зданиям', exact: true }).click();
+  await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
-  await expect(graph.locator('.schematic-node[data-kind="building"]')).toHaveCount(15);
+  await expect(graph.locator('.schematic-node').first()).toBeVisible();
+  expect(await graph.locator('.schematic-node[data-kind="building"]').evaluateAll(nodes => nodes.reduce((sum, n) => sum + Number(n.getAttribute('data-count')), 0))).toBe(15);
   await expect(graph.locator('.schematic-node.junction')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.beltRouting)).toEqual({ enabled: false, maxDepth: 4 });
 });

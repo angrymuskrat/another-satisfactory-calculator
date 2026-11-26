@@ -6,7 +6,7 @@ import { format, ItemIcon, unit } from './controls';
 import mechanics from '../../../packages/game-data/p2-mechanics.json';
 import { Schematic } from './Schematic';
 import type { MachineSpan, SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
-import { builtCount, markBuilt, type BuiltRanges } from '../../../packages/domain/constructionProgress';
+import { builtCount, markBuilt, markFirst, type BuiltRanges } from '../../../packages/domain/constructionProgress';
 
 export function CopyNumber({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
@@ -53,12 +53,12 @@ export function Construction({ catalog, model, building, destinations, scope = d
   });
   const [view, setView] = useState<'instruction' | SchematicMode>('instruction');
   const item = (id: string) => catalog.items.find(i => i.id === id);
-  const mark = (parts: MachineSpan[], checked: boolean) => {
-    let ranges = markBuilt(saved.ranges, parts, checked);
+  const mark = (parts: MachineSpan[], count: number) => {
+    let ranges = markFirst(saved.ranges, parts, count);
     let error = '';
     try {
       const history = readHistory();
-      if (!saved.error) ranges = markBuilt(restoredRanges(model, scope, history), parts, checked);
+      if (!saved.error) ranges = markFirst(restoredRanges(model, scope, history), parts, count);
       const entries = [...history.filter(entry => entry.fingerprint !== model.fingerprint || (entry.scope ?? defaultScope) !== scope),
         { fingerprint: model.fingerprint, scope, ids: [], ranges }].slice(-20);
       localStorage.setItem(storageKey, JSON.stringify({ entries }));
@@ -78,7 +78,7 @@ export function Construction({ catalog, model, building, destinations, scope = d
         <div className="full-width"><p>Физических машин: <CopyNumber value={group.count} label={`${group.name}: число машин`} /> · Частота каждой: <CopyNumber value={group.clock} label={`${group.name}: частота`} suffix="%" /></p>
           <p>Уже есть: {group.existing ?? 0} · Добавить: {group.count - (group.existing ?? 0)} · Somersloops на машину: {group.somersloops ?? 0}</p><p>Активная доля времени: <CopyNumber value={group.activeDuty * 100} label={`${group.name}: активная доля времени`} suffix="%" /> — средняя доля работы группы, а не настройка частоты.</p>
           {group.kind === 'sink' && <p className="hint">Утилизаторы в модели потребляют полную мощность; доля заполнения ленты не уменьшает MW. Поток на один утилизатор — равная доля входа группы при непрерывном питании.</p>}
-          {building && <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked)} /> Построено: {group.name} · {done} из {group.count}</label>}
+          {building && <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked ? group.count : 0)} /> Построено: {group.name} · {done} из {group.count}</label>}
         </div>
         {([['Вход', group.activeInputs, group.averageInputs], ['Выход', group.activeOutputs, group.averageOutputs]] as const).map(([title, active, average]) => <div key={title}><h4>{title}</h4>{!active.length && <p className="hint">{group.kind === 'sink' && title === 'Выход' ? 'Предметы уничтожаются в AWESOME Sink.' : 'Нет предметных потоков.'}</p>}{active.map((flow, index) => <div key={flow.itemId}><strong>{name(flow.itemId)}</strong><p>Одна активная машина: <CopyNumber value={flow.rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, одна активная машина`} suffix={unit(item(flow.itemId))} /></p><p>Вся группа в среднем: <CopyNumber value={average[index].rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, группа в среднем`} suffix={unit(item(flow.itemId))} /></p></div>)}</div>)}
         <div className="full-width"><p>Мощность одной активной машины, средняя за рабочий цикл: <CopyNumber value={group.activePower} label={`${group.name}: мощность активной машины`} suffix="МВт" /></p><p>Средняя группы: <CopyNumber value={group.averagePower} label={`${group.name}: средняя мощность`} suffix="МВт" /> · Консервативный пик группы: <CopyNumber value={group.peakPower} label={`${group.name}: пиковая мощность`} suffix="МВт" /></p>{group.powerEstimated && <p className="hint">Мощность помечена в каталоге как оценочная.</p>}</div>
@@ -86,7 +86,7 @@ export function Construction({ catalog, model, building, destinations, scope = d
     </details>;
   };
   return <div className={building ? 'construction-panel' : undefined}>
-    {building && <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'По типам зданий'], ['machines', 'По отдельным зданиям']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => setView(value)}>{label}</button>)}</div>}
+    {building && <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'Схема']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => setView(value)}>{label}</button>)}</div>}
     {building && view !== 'instruction' && saved.error && <p role="alert">{saved.error}</p>}
     {building && view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} scope={scope} built={saved.ranges} mark={mark} residueItemIds={residueItemIds} /> : <>
     {building && <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>}

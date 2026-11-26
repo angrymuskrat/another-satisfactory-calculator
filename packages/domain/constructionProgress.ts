@@ -42,12 +42,30 @@ export function markBuilt(current: BuiltRanges, parts: MachineSpan[], checked: b
   return next;
 }
 
+/** The first `count` machines of `parts`, taken in `parts` order. */
+export function firstMachines(parts: MachineSpan[], count: number): MachineSpan[] {
+  const result: MachineSpan[] = [];
+  let left = Math.max(0, Math.floor(count));
+  for (const part of parts) {
+    if (left <= 0) break;
+    const taken = Math.min(part.count, left);
+    if (taken > 0) result.push({ ...part, count: taken });
+    left -= taken;
+  }
+  return result;
+}
+
+/** Exactly the first `count` machines of `parts` are built; the rest of `parts` is not. */
+export function markFirst(current: BuiltRanges, parts: MachineSpan[], count: number) {
+  return markBuilt(markBuilt(current, parts, false), firstMachines(parts, count), true);
+}
+
 export function builtCount(built: BuiltRanges, parts: MachineSpan[]) {
   return parts.reduce((sum, part) => sum + part.count - size(subtract(spanRange(part), built[part.id] ?? [])), 0);
 }
 
 type Link = { from: string; itemId?: string; source: Range; target: Range };
-export type MissingSupply = { id: string; index: number; itemId?: string; label: string; page: number };
+export type MissingSupply = { id: string; index: number; itemId?: string; label: string };
 // Snap numerical noise at integer boundaries without dropping a whole positive edge.
 const snapped = (n: number) => Math.abs(n - Math.round(n)) < 8 * Number.EPSILON * Math.max(1, n) ? Math.round(n) : n;
 function covering([a, b]: Range, count: number): Range {
@@ -55,16 +73,13 @@ function covering([a, b]: Range, count: number): Range {
   return [first, Math.max(first + 1, Math.min(count, Math.ceil(snapped(b))))];
 }
 
-/** Uses the unpaged configuration graph. Ordinary edges match the same ordered
- * flow allocation as the machine view, with intervals in machine coordinates.
+/** Uses the unpaged configuration graph. Ordinary edges use the ordered
+ * flow allocation, with intervals in machine coordinates.
  * A verified belt instead addresses exact physical endpoint indices. */
-export function constructionDependencies(graph: SchematicModel, pageSize: number) {
+export function constructionDependencies(graph: SchematicModel) {
   const nodes = graph.nodes.filter(n => n.parts?.length);
   const byId = new Map(nodes.map((n, i) => [n.id, i]));
   const outgoing = nodes.map(() => new Set<number>()), links = nodes.map(() => [] as Link[]);
-  const offsets = new Map<string, number>();
-  let machineOffset = 0;
-  for (const n of nodes) if (n.kind === 'building') { offsets.set(n.id, machineOffset); machineOffset += n.count; }
   const all = new Map(graph.nodes.map(n => [n.id, n]));
   const cursors = new Map<string, number>();
   const interval = (node: SchematicNode, direction: 'inputs' | 'outputs', itemId: string, rate: number): Range => {
@@ -99,7 +114,7 @@ export function constructionDependencies(graph: SchematicModel, pageSize: number
   const external = components.map((indices, i) => indices.flatMap(index => links[index].filter(l => componentOf.get(l.from) !== i)));
   return (parts: MachineSpan[], built: BuiltRanges) => {
     const missing = new Map<string, MissingSupply>();
-    let ready = 0, together = false, firstReady: { id: string; index: number; page: number } | undefined;
+    let ready = 0, together = false, firstReady: { id: string; index: number } | undefined;
     for (const part of parts) {
       const component = componentOf.get(part.id);
       if (component === undefined) continue;
@@ -120,8 +135,7 @@ export function constructionDependencies(graph: SchematicModel, pageSize: number
             blocked.push(overlap);
             const index = cyclic[component] ? absent[0] : Math.min(absent[1] - 1, Math.max(absent[0], Math.floor(snapped(project(overlap[0], link.target, link.source)))));
             const entry = { id: link.from, index, itemId: link.itemId,
-              label: provider.kind === 'building' ? `${provider.label} · ${provider.configurations[0].name} №${index + 1}` : provider.label,
-              page: Math.floor(((offsets.get(link.from) ?? 0) + index) / pageSize) };
+              label: provider.kind === 'building' ? `${provider.label} · ${provider.configurations[0].name} №${index + 1}` : provider.label };
             missing.set(JSON.stringify([entry.id, entry.index, entry.itemId]), entry);
           }
         }
@@ -132,7 +146,7 @@ export function constructionDependencies(graph: SchematicModel, pageSize: number
         ready += size(available);
         if (!firstReady && available.length) {
           const index = available[0][0];
-          firstReady = { id: part.id, index, page: Math.floor(((offsets.get(part.id) ?? 0) + index) / pageSize) };
+          firstReady = { id: part.id, index };
         }
       }
     }

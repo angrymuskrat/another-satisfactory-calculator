@@ -1,22 +1,31 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent, type RefObject } from 'react';
 
-const MIN_ZOOM = .25, MAX_ZOOM = 1.5;
+const MIN_ZOOM = .1, MAX_ZOOM = 1.5;
+type Scroll = { scrollLeft: number; scrollTop: number };
+/** Overrides the scroll after a zoom, e.g. when the zoom switches the layout. */
+export type ZoomScroll = (change: { from: number; to: number; pointer: { x: number; y: number }; scroll: Scroll }) => Scroll | null;
 
-/** Mouse navigation only; touch scrolling and keyboard navigation stay native. */
-export function useSchematicNavigation(viewport: RefObject<HTMLDivElement | null>) {
+/** Mouse navigation only; touch scrolling and keyboard navigation stay native.
+ * `minZoom` is raised to 0.1 at least. */
+export function useSchematicNavigation(viewport: RefObject<HTMLDivElement | null>, rescroll?: ZoomScroll, minZoom = MIN_ZOOM) {
   const [zoom, setZoom] = useState(.9), [dragging, setDragging] = useState(false);
   const requestedZoom = useRef(zoom), renderedZoom = useRef(zoom);
-  const anchor = useRef<{ x: number; y: number; contentX: number; contentY: number } | null>(null);
+  const anchor = useRef<{ x: number; y: number; contentX: number; contentY: number; from: number; scroll: Scroll } | null>(null);
+  const override = useRef(rescroll);
+  override.current = rescroll;
+  const minimum = useRef(minZoom);
+  minimum.current = Math.max(MIN_ZOOM, minZoom);
   const drag = useRef<{ pointerId: number; x: number; y: number; left: number; top: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
   const zoomTo = useCallback((value: number, clientX?: number, clientY?: number) => {
     const element = viewport.current;
-    const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, value));
+    const next = Math.max(minimum.current, Math.min(MAX_ZOOM, value));
     if (!element || next === requestedZoom.current) return;
     const rect = element.getBoundingClientRect();
     const x = clientX === undefined ? element.clientWidth / 2 : clientX - rect.left - element.clientLeft;
     const y = clientY === undefined ? element.clientHeight / 2 : clientY - rect.top - element.clientTop;
-    anchor.current = { x, y, contentX: (element.scrollLeft + x) / renderedZoom.current, contentY: (element.scrollTop + y) / renderedZoom.current };
+    anchor.current = { x, y, contentX: (element.scrollLeft + x) / renderedZoom.current, contentY: (element.scrollTop + y) / renderedZoom.current,
+      from: renderedZoom.current, scroll: { scrollLeft: element.scrollLeft, scrollTop: element.scrollTop } };
     requestedZoom.current = next;
     setZoom(next);
   }, [viewport]);
@@ -24,8 +33,9 @@ export function useSchematicNavigation(viewport: RefObject<HTMLDivElement | null
     renderedZoom.current = zoom;
     const element = viewport.current, point = anchor.current;
     if (element && point) {
-      element.scrollLeft = point.contentX * zoom - point.x;
-      element.scrollTop = point.contentY * zoom - point.y;
+      const scroll = override.current?.({ from: point.from, to: zoom, pointer: { x: point.x, y: point.y }, scroll: point.scroll });
+      element.scrollLeft = scroll ? scroll.scrollLeft : point.contentX * zoom - point.x;
+      element.scrollTop = scroll ? scroll.scrollTop : point.contentY * zoom - point.y;
       anchor.current = null;
       // Finish an in-flight drag before switching to a wheel gesture.
       const gesture = drag.current;

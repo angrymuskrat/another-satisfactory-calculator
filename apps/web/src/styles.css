@@ -214,7 +214,6 @@ td .copy-value{font-weight:500}
 .recipe-card .recipe-actions .secondary-button{margin-top:0}
 .recipe-actions label{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);color:var(--text-3)}
 
-.schematic-details:empty{display:none}
 .worlds-view fieldset{background:var(--surface-sunken);border-color:var(--border)}
 .worlds-view legend{font-weight:600;color:var(--text);padding:0 var(--space-2)}
 .segmented{align-self:flex-start}
@@ -255,15 +254,6 @@ td .copy-value{font-weight:500}
 .catalog-view details.recipe-group{padding:var(--space-3) var(--space-5);margin-bottom:var(--space-3)}
 .catalog-view details.recipe-group>summary{padding:var(--space-2) 0}
 
-.schematic-stage{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"canvas" "hint" "details"}
-.schematic-stage>.schematic-viewport{grid-area:canvas}
-.schematic-stage>.schematic-hint{grid-area:hint}
-.schematic-stage>.schematic-details{grid-area:details}
-@media(min-width:1100px){
-.schematic-stage:has(>.schematic-details:not(:empty)){grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"canvas details" "hint details"}
-.schematic-stage>.schematic-details:not(:empty){height:0;min-height:100%;overflow:auto;margin:0;padding:var(--space-4) var(--space-5);border-top:0;border-left:1px solid var(--border)}
-}
-
 .nav-label-short{display:none}
 @media(max-width:720px){
 .nav-label{display:none}
@@ -287,7 +277,6 @@ td .copy-value{font-weight:500}
 .catalog-view details.recipe-more details{margin:var(--space-2) 0}
 .catalog-view details.recipe-more details>summary{padding:2px 0;font-size:var(--text-sm)}
 @media(max-width:720px){.catalog-view details.recipe-more{margin-left:0}}
-.schematic-stage>.schematic-hint{margin:var(--space-4) 22px 0}
 
 .pareto-table-scroll { overflow-x: auto; max-width: 100%; }
 .pareto-table-scroll table { width: 100%; border-collapse: collapse; }

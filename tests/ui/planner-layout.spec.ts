@@ -22,7 +22,7 @@ test('отдельные экраны сохраняют результат и �
   await expect(page.getByRole('textbox', { name: 'Количество продукта 1', exact: true })).not.toBeVisible();
   await expect(page.locator('.results-heading')).toContainText('Допустимое приближение', { timeout: 30000 });
   await page.getByRole('button', { name: 'Построить', exact: true }).click();
-  await page.getByRole('button', { name: 'По типам зданий', exact: true }).click();
+  await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await graph.locator('.schematic-node-button').first().click();
   const selected = await graph.locator('.schematic-node.selected').getAttribute('data-node-id');

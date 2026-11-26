@@ -21,7 +21,7 @@ function fixture(count = 2, rate = 120) {
   return { model, routing, destinations: { products: [flow('ingot', rate)] } };
 }
 
-it.each(['machines', 'types'] as const)('показывает реальные устройства и точные рёбра решателя в виде %s', mode => {
+it.each(['types'] as const)('показывает реальные устройства и точные рёбра решателя в виде %s', mode => {
   const { model, destinations } = fixture();
   const graph = buildSchematic(catalog, model, destinations, mode);
   expect(graph.physicalRouting).toBe(true);
@@ -37,7 +37,7 @@ it.each(['machines', 'types'] as const)('показывает реальные �
 it('оба потребителя ждут реальный разделитель, а разделитель — внешнюю ленту', () => {
   const { model, destinations } = fixture();
   const graph = buildSchematic(catalog, model, destinations, 'configurations');
-  const progress = constructionDependencies(graph, 48);
+  const progress = constructionDependencies(graph);
   const source = graph.nodes.find(n => n.kind === 'source')!, split = graph.nodes.find(n => n.kind === 'split')!;
   const supplyReady = markBuilt({}, source.parts!, true);
   expect(progress(split.parts!, {}).missing).toMatchObject([{ id: source.id }]);
@@ -54,33 +54,26 @@ it('сохраняет обязательные малые физические 
   routing.externalLanes.tiny = 1; routing.deliveryLanes['product:1'] = 1;
   const network = routing.networks[0], from = endpoint('supply', 'external:tiny', 0, 'ore'), to = endpoint('demand', 'product:1', 0, 'ore');
   network.nodes.push({ id: from, kind: 'supply' }, { id: to, kind: 'demand' }); network.edges.push({ from, to, rate: .0001 });
-  const graph = buildSchematic(catalog, model, destinations, 'machines');
+  const graph = buildSchematic(catalog, model, destinations, 'types');
   expect(filterSchematicFlows(graph).edges).toEqual(graph.edges);
   expect(graph.edges.some(edge => edge.rate === .0001)).toBe(true);
 });
 
-it.each([0, 1])('сохраняет все физические концы и переходы на странице %i', page => {
-  const { model, routing, destinations } = fixture(50, 100);
-  routing.externalLanes.ore = 50;
-  routing.networks[0] = { itemId: 'ore', nodes: Array.from({ length: 50 }, (_, i) => [{ id: endpoint('supply', 'external:ore', i, 'ore'), kind: 'supply' as const }, { id: endpoint('demand', 'iron', i, 'ore'), kind: 'demand' as const }]).flat(), edges: Array.from({ length: 50 }, (_, i) => ({ from: endpoint('supply', 'external:ore', i, 'ore'), to: endpoint('demand', 'iron', i, 'ore'), rate: 2 })) };
-  const graph = buildSchematic(catalog, model, destinations, 'machines', page);
-  expect(graph.edges).toHaveLength(100);
-  expect(graph.edges.every(edge => edge.rate === 2 && graph.nodes.some(node => node.id === edge.from) && graph.nodes.some(node => node.id === edge.to))).toBe(true);
-  expect(graph.nodes.filter(node => node.kind === 'building' || node.kind === 'continuation').reduce((sum, node) => sum + node.count, 0)).toBe(50);
-  expect(graph.nodes.filter(node => node.kind === 'source')).toHaveLength(50);
-  expect(graph.nodes.filter(node => node.kind === 'product')).toHaveLength(50);
-  for (const continuation of graph.nodes.filter(node => node.kind === 'continuation')) {
-    expect(graph.edges.filter(edge => edge.to === continuation.id).reduce((sum, edge) => sum + edge.rate, 0)).toBe(continuation.inputs[0].rate);
-    expect(graph.edges.filter(edge => edge.from === continuation.id).reduce((sum, edge) => sum + edge.rate, 0)).toBe(continuation.outputs[0].rate);
-  }
+it('при учёте конвейеров рисует каждую физическую ленту один раз в групповом виде', () => {
+  const { model, destinations } = fixture();
+  const graph = buildSchematic(catalog, model, destinations, 'types');
+  const physical = graph.edges.filter(e => e.physicalRouting);
+  expect(physical).toHaveLength(model.beltRouting!.networks.reduce((s, n) => s + n.edges.length, 0));
+  expect(graph.nodes.filter(n => n.routingDepth !== undefined).length).toBeGreaterThan(0);
+  expect(graph.nodes.filter(n => (n.kind === 'merge' || n.kind === 'split') && n.routingDepth === undefined)).toEqual([]);
 });
 
 it('отклоняет отсутствующий либо повреждённый физический граф, не заменяя его произвольными долями', () => {
   const { model, routing, destinations } = fixture();
   routing.networks[0].edges[1].rate = 59;
-  expect(() => buildSchematic(catalog, model, destinations, 'machines')).toThrow();
+  expect(() => buildSchematic(catalog, model, destinations, 'types')).toThrow();
   routing.networks.shift();
-  expect(() => buildSchematic(catalog, model, destinations, 'machines')).toThrow();
+  expect(() => buildSchematic(catalog, model, destinations, 'types')).toThrow();
 });
 
 it('показывает физический соединитель, сохраняя обычное распределение жидкости', () => {
@@ -93,15 +86,15 @@ it('показывает физический соединитель, сохра
   network.nodes.push({ id: 'merge', kind: 'merge' }, { id: endpoint('demand', 'product:0', 0, 'ingot'), kind: 'demand' });
   network.edges = network.nodes.filter(node => node.kind === 'supply').map(node => ({ from: node.id, to: 'merge', rate: 60 }));
   network.edges.push({ from: 'merge', to: endpoint('demand', 'product:0', 0, 'ingot'), rate: 120 });
-  const graph = buildSchematic(catalog, model, destinations, 'machines');
+  const graph = buildSchematic(catalog, model, destinations, 'types');
   const merge = graph.nodes.find(node => node.kind === 'merge')!;
   expect(merge).toMatchObject({ count: 1, routingDepth: 1, inputs: [flow('ingot', 120)], outputs: [flow('ingot', 120)] });
-  expect(graph.edges.filter(edge => edge.itemId === 'water').map(edge => edge.rate)).toEqual([5, 5]);
+  expect(graph.edges.filter(edge => edge.itemId === 'water').map(edge => edge.rate)).toEqual([10]);
   expect(graph.edges.filter(edge => edge.itemId === 'water').every(edge => !edge.physicalRouting)).toBe(true);
   expect(graph.edges.filter(edge => edge.itemId === 'ingot').map(edge => edge.rate)).toEqual([60, 60, 120]);
 });
 
-it.each(['machines', 'types'] as const)('сопоставляет положительную отгрузку по предмету с каждой физической лентой в виде %s', mode => {
+it.each(['types'] as const)('сопоставляет положительную отгрузку по предмету с каждой физической лентой в виде %s', mode => {
   const { model, routing } = fixture();
   delete routing.deliveryLanes['product:0'];
   routing.deliveryLanes['export:ingot'] = 2;
