@@ -89,8 +89,8 @@ kbd{font:500 11px var(--f-num);border:1px solid currentColor;border-radius:2px;p
 
 /* табло */
 .board{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:760px){.board{grid-template-columns:1fr 1fr}}
-@media(min-width:1180px){.board{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,.9fr)}}
+@media(min-width:720px){.board{grid-template-columns:1fr 1fr}}
+@media(min-width:1600px){.board{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,.9fr)}}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0;
   animation:rise .35s var(--ease) both}
 .board>*:nth-child(2){animation-delay:.05s}.board>*:nth-child(3){animation-delay:.1s}
@@ -250,12 +250,15 @@ const STEPS = [
   { name: 'Армированная железная пластина', bld: 'Сборщик', n: 3, clock: 100, mw: 45, inp: [['Железная пластина', 90], ['Винт', 180]], out: [['Армированная пластина', 15]] },
   { name: 'Модульный каркас', bld: 'Сборщик', n: 5, clock: 100, mw: 75, inp: [['Армированная пластина', 15], ['Железный стержень', 60]], out: [['Модульный каркас', 10]] },
 ];
-const TOTAL = STEPS.reduce((s, x) => s + x.n, 0);
 const VARIANTS = [
-  { label: 'Максимальный выпуск', rate: 10, mw: 236, peak: 251, ore: 240, machines: 33 },
-  { label: 'Экономия энергии', rate: 9.2, mw: 204, peak: 214, ore: 221, machines: 31, note: '−8 % выпуска' },
-  { label: 'Проще построить', rate: 10, mw: 241, peak: 256, ore: 240, machines: 30, note: '4 рецепта вместо 6' },
+  { label: 'Максимальный выпуск', rate: 10, mw: 236, peak: 251, ore: 240, counts: [2, 8, 5, 7, 5, 3, 5] },
+  { label: 'Экономия энергии', rate: 9.2, mw: 204, peak: 214, ore: 221, counts: [2, 7, 4, 6, 4, 3, 5], note: '−8 % выпуска' },
+  { label: 'Проще построить', rate: 10, mw: 241, peak: 256, ore: 240, counts: [2, 7, 4, 6, 4, 3, 4], note: 'частоты до 125 %' },
 ];
+// Табло, инструкция и схема считают машины по снимку показанного варианта, как его карточка.
+const cur = () => { const v = VARIANTS[s.sc === 'differ' ? s.variant : 0]; return STEPS.map((x, i) => ({ ...x, n: v.counts[i] })); };
+const total = () => cur().reduce((sum, x) => sum + x.n, 0);
+const clampBuilt = () => { s.built = s.built.map((b, i) => Math.min(b, cur()[i].n)); };
 const SCENARIOS = [
   ['none', 'Не рассчитано'], ['calc', 'Идёт расчёт'], ['approx', 'План проверен'], ['optimal', 'Оптимум доказан'],
   ['differ', 'Варианты различаются'], ['stale', 'План изменён'], ['restored', 'После перезагрузки'],
@@ -271,7 +274,7 @@ const STATUS = {
   restored: ['steel', 'План проверен', 'Результат восстановлен после перезагрузки: план с тех пор не менялся.'],
   infeasible: ['bad', 'Заказ невыполним', 'Не хватает железной руды: доступно 480 шт/мин, для заказа нужно 600.'],
   timeout: ['warn', 'Время вышло', 'За 30 с решатель не нашёл допустимый план.'],
-  built: ['ok', 'Оптимум доказан', 'Решатель подтвердил: при ваших ограничениях лучше этот план не сделать.'],
+  built: ['steel', 'План проверен', 'Все потоки сходятся, частоты подобраны. Что этот план лучший из возможных, не доказано.'],
 };
 const INIT = [2, 8, 4, 0, 0, 0, 0];
 const GLYPH = { 'Бур Mk.2': 'Б', 'Плавильня': 'П', 'Конструктор': 'К', 'Сборщик': 'С' };
@@ -294,8 +297,8 @@ addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.meta
 function go(sc) {
   clearInterval(s.timer);
   s.sc = sc; s.variant = 0;
-  if (sc === 'built') s.built = STEPS.map(x => x.n);
-  else if (s.built.every((b, i) => b === STEPS[i].n)) s.built = [...INIT];
+  if (sc === 'built') s.built = cur().map(x => x.n);
+  else if (s.built.every((b, i) => b === cur()[i].n)) s.built = [...INIT];
   if (sc === 'calc') { s.k = 0; s.t0 = performance.now(); s.timer = setInterval(tick, 100); }
   render();
 }
@@ -308,18 +311,17 @@ function tick() {
 
 const builtTotal = () => s.built.reduce((a, b) => a + b, 0);
 function nextStep() {
-  for (let i = 0; i < STEPS.length; i++) {
-    const left = STEPS[i].n - s.built[i];
+  for (let i = 0; i < cur().length; i++) {
+    const left = cur()[i].n - s.built[i];
     if (!left) continue;
-    const prevDone = i === 0 || s.built[i - 1] === STEPS[i - 1].n;
-    return { i, ready: prevDone ? left : 0, waiting: prevDone ? '' : STEPS[i - 1].name + ' — ещё ' + (STEPS[i - 1].n - s.built[i - 1]) + ' маш.' };
+    const prevDone = i === 0 || s.built[i - 1] === cur()[i - 1].n;
+    return { i, ready: prevDone ? left : 0, waiting: prevDone ? '' : cur()[i - 1].name + ' — ещё ' + (cur()[i - 1].n - s.built[i - 1]) + ' маш.' };
   }
   return null;
 }
 function markReady() {
   const n = nextStep(); if (!n || !n.ready) return;
   s.built[n.i] += n.ready;
-  if (s.sc === 'approx' && builtTotal() === TOTAL) s.sc = 'built';
   render(true);
   const c = document.getElementById('built-count'); if (c) { c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse'); }
 }
@@ -332,10 +334,10 @@ function statusLine() {
 }
 function cells() {
   const n = nextStep(); let html = '';
-  STEPS.forEach((x, i) => { for (let m = 0; m < x.n; m++) {
+  cur().forEach((x, i) => { for (let m = 0; m < x.n; m++) {
     const on = m < s.built[i], ready = !on && n && n.i === i && m < s.built[i] + n.ready;
     html += `<i class="${on ? 'on' : ready ? 'ready' : ''}"></i>`; } });
-  return `<div class="cells" role="img" aria-label="Построено ${builtTotal()} из ${TOTAL} машин">${html}</div>`;
+  return `<div class="cells" role="img" aria-label="Построено ${builtTotal()} из ${total()} машин">${html}</div>`;
 }
 function goalPanel(v) {
   const short = s.sc === 'infeasible';
@@ -345,18 +347,18 @@ function goalPanel(v) {
       <span class="big">${fmt(rate)}<small>шт/мин</small></span>
       <span class="vs">${short ? '<span class="bad">достижимо, −2</span>' : rate < 10 ? '<span class="bad">−' + fmt(10 - rate) + ' к заказу</span>' : '<span class="ok">заказ выполнен</span>'}</span></div>
     <div class="vs">Избытков нет · отходов нет</div>
-    <div class="built-line"><span class="label">Построено</span><span class="num" id="built-count">${builtTotal()}<small> / ${TOTAL}</small></span></div>
+    <div class="built-line"><span class="label">Построено</span><span class="num" id="built-count">${builtTotal()}<small> / ${total()}</small></span></div>
     ${cells()}</section>`;
 }
 function nextPanel() {
   const n = nextStep();
   if (!n) return `<section class="panel next swap"><span class="label">Дальше строим</span><h3>Фабрика собрана</h3>
-    <p class="sub">Все ${TOTAL} машин отмечены. Отдел контроля качества одобряет. Наверное.</p>
+    <p class="sub">Все ${total()} машин отмечены. Отдел контроля качества одобряет. Наверное.</p>
     <div class="flows"><div><span class="label">Выпуск</span><ul><li>Модульный каркас <span class="num">10/мин</span></li></ul></div><div><span class="label">Энергия</span><ul><li>Средняя <span class="num">236 МВт</span></li></ul></div></div></section>`;
-  const x = STEPS[n.i];
+  const x = cur()[n.i];
   const list = rows => rows.length ? rows.map(([a, r]) => `<li>${a}<span class="num">${fmt(r)}/мин</span></li>`).join('') : '<li>— месторождение</li>';
   return `<section class="panel next swap" aria-labelledby="n-h"><div class="panel-head"><span class="label" id="n-h">Дальше строим</span><button class="link" type="button" id="to-schem">Показать на схеме</button></div>
-    <h3>${x.name}</h3><span class="sub">${x.bld} · ${x.recipe ?? 'рецепт «' + x.name + '»'} · этап ${n.i + 1} из ${STEPS.length}</span>
+    <h3>${x.name}</h3><span class="sub">${x.bld} · ${x.recipe ?? 'рецепт «' + x.name + '»'} · этап ${n.i + 1} из ${cur().length}</span>
     <div class="specs"><div><span class="label">Готово к постройке</span><div class="num">${n.ready}<span class="vs"> из ${x.n - s.built[n.i]}</span></div></div>
       <div><span class="label">Частота</span><div class="num">${x.clock} %</div></div><div><span class="label">Энергия</span><div class="num">${x.mw} МВт</div></div></div>
     <div class="flows"><div><span class="label">Вход</span><ul>${list(x.inp)}</ul></div><div><span class="label">Выход</span><ul>${list(x.out)}</ul></div></div>
@@ -373,7 +375,7 @@ function sidePanels(v) {
 }
 function variantsBar() {
   if (s.sc !== 'differ') return '';
-  const btn = (v, i) => `<button type="button" data-v="${i}" aria-pressed="${s.variant === i}">${v.label}<small>${fmt(v.rate)}/мин · ${v.mw} МВт · ${v.machines} маш.${v.note ? ' · ' + v.note : ''}</small></button>`;
+  const btn = (v, i) => `<button type="button" data-v="${i}" aria-pressed="${s.variant === i}">${v.label}<small>${fmt(v.rate)}/мин · ${v.mw} МВт · ${v.counts.reduce((a, b) => a + b, 0)} маш.${v.note ? ' · ' + v.note : ''}</small></button>`;
   const changed = s.variant !== s.accepted;
   return `<div class="variants" role="group" aria-label="Варианты плана">${VARIANTS.map(btn).join('')}
     <button type="button" class="btn primary" id="accept" ${changed ? '' : 'disabled'}>${changed ? 'Принять вариант' : 'Вариант принят'}</button>
@@ -381,7 +383,7 @@ function variantsBar() {
 }
 function sections() {
   const n = nextStep();
-  const steps = STEPS.map((x, i) => `<li class="${n && n.i === i ? 'current' : ''}"><span class="idx">${i + 1}</span><span>${x.name}</span><span class="bld">${x.bld} ×${x.n}</span>
+  const steps = cur().map((x, i) => `<li class="${n && n.i === i ? 'current' : ''}"><span class="idx">${i + 1}</span><span>${x.name}</span><span class="bld">${x.bld} ×${x.n}</span>
     <span class="cnt ${s.built[i] === x.n ? 'done' : ''}">${s.built[i]} из ${x.n}</span></li>`).join('');
   const row = (t, c) => `<details><summary><span>${t}</span><span class="vs">${c}</span></summary></details>`;
   const bar = `<div class="build-bar"><div class="seg" role="group" aria-label="Вид строительства">
@@ -396,12 +398,12 @@ function sections() {
 
 function nodeState(i) {
   const n = nextStep();
-  if (s.built[i] === STEPS[i].n) return 'built';
+  if (s.built[i] === cur()[i].n) return 'built';
   if (n && n.i === i) return n.ready ? 'next' : 'waiting';
-  return i === 0 || s.built[i - 1] === STEPS[i - 1].n ? 'ready' : 'waiting';
+  return i === 0 || s.built[i - 1] === cur()[i - 1].n ? 'ready' : 'waiting';
 }
 function selNote(i) {
-  const x = STEPS[i];
+  const x = cur()[i];
   return `<b>${x.bld} ×${x.n}</b> · ${x.name} · частота ${x.clock} % · ${x.mw} МВт · построено ${s.built[i]} из ${x.n}. В приложении здесь открывается боковая панель с составом узла и отметками.`;
 }
 function schematic() {
@@ -425,7 +427,7 @@ function schematic() {
     return `<g class="${cls}" data-node="${i}" tabindex="0" role="button" aria-label="${x.bld} ×${x.n}, ${x.name}, ${stateText}"><title>${x.bld} ×${x.n} · ${x.name} · ${stateText}</title>
       ${tag}<rect class="card" x="${px}" y="${py}" width="${CARD.w}" height="${CARD.h}" rx="3"/>${inner}</g>`;
   };
-  return `<svg width="${(W + 40) * z}" height="${(H + 40) * z}" viewBox="-20 -30 ${W + 40} ${H + 40}" role="group" aria-label="Схема цепочки">${EDGES.map(edge).join('')}${STEPS.map(node).join('')}</svg>`;
+  return `<svg width="${(W + 40) * z}" height="${(H + 40) * z}" viewBox="-20 -30 ${W + 40} ${H + 40}" role="group" aria-label="Схема цепочки">${EDGES.map(edge).join('')}${cur().map(node).join('')}</svg>`;
 }
 function showOnSchematic() {
   const n = nextStep(); s.view = 'schem'; s.sel = n ? n.i : -1; s.flash = s.sel; render(true);
@@ -468,7 +470,7 @@ function render(keepScroll) {
   view.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">${html}</div>`;
   if (keepScroll) scrollTo(0, y);
   const m = document.getElementById('mark'); if (m) m.onclick = markReady;
-  for (const b of view.querySelectorAll('[data-v]')) b.onclick = () => { s.variant = +b.dataset.v; render(true); };
+  for (const b of view.querySelectorAll('[data-v]')) b.onclick = () => { s.variant = +b.dataset.v; clampBuilt(); render(true); };
   const a = document.getElementById('accept'); if (a) a.onclick = () => { s.accepted = s.variant; render(true); };
   const ts = document.getElementById('to-schem'); if (ts) ts.onclick = showOnSchematic;
   for (const b of view.querySelectorAll('[data-view]')) b.onclick = () => { s.view = b.dataset.view; render(true); };

@@ -124,7 +124,7 @@
 .schematic-viewport {
   position: relative;
   overflow: auto;
-  height: calc(100dvh - var(--sticky-top, 0px) - 140px);
+  height: calc(100dvh - var(--sticky-top,0px) - 140px);
   min-height: 360px;
   max-width: 100%;
   background-color: #12191e;
@@ -331,8 +331,8 @@
 }
 .schematic-edges path {
   fill: none;
-  stroke: var(--edge-color, #b0a084);
-  stroke-width: var(--edge-width, 2px);
+  stroke: var(--edge-color,#b0a084);
+  stroke-width: var(--edge-width,2px);
   vector-effect: non-scaling-stroke;
 }
 .schematic-edges text {

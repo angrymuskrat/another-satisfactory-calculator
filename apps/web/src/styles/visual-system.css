@@ -20,12 +20,12 @@ small,
 }
 .plan-toolbar {
   position: sticky;
-  top: var(--sticky-top, 0px);
+  top: var(--sticky-top,0px);
   z-index: 20;
   background: var(--bg);
 }
 html {
-  scroll-padding-top: calc(var(--sticky-top, 0px) + 76px);
+  scroll-padding-top: calc(var(--sticky-top,0px) + 76px);
 }
 .page-heading {
   margin-bottom: var(--space-5);
