@@ -4,7 +4,6 @@ textarea::placeholder {
   color: var(--placeholder);
 }
 small,
-.eyebrow,
 .count-badge,
 .status-badge,
 .recipe-tags > span,
@@ -73,14 +72,14 @@ details.panel > summary {
 }
 .catalog-view details.recipe-group > summary {
   font-size: var(--text-md);
-  font-weight: 550;
+  font-weight: 600;
   padding: var(--space-1) 0;
 }
 .advanced summary::after {
   content: none;
 }
 .advanced summary > svg {
-  color: var(--accent);
+  color: var(--muted);
 }
 .advanced summary > small {
   font-weight: 400;
@@ -115,12 +114,12 @@ details.panel > summary {
   border-radius: var(--radius-sm);
   color: var(--text-3);
   font-size: var(--text-sm);
-  font-weight: 550;
+  font-weight: 600;
   white-space: nowrap;
 }
 .segmented > button:hover {
   color: var(--text);
-  background: #ffffff08;
+  background: var(--tint-2);
 }
 .segmented > button[aria-pressed="true"] {
   background: var(--surface-raised);
@@ -137,14 +136,6 @@ details.panel > summary {
   padding: 0 var(--space-4);
 }
 
-.status-badge.approximate {
-  color: var(--text-2);
-  background: var(--surface-raised);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-.status-badge.approximate > span {
-  background: var(--muted);
-}
 .status-badge.pending {
   color: var(--muted);
   background: var(--surface-raised);
@@ -179,7 +170,7 @@ details.panel > summary {
 }
 .output-row .copy-value {
   font-size: var(--text-lg);
-  color: var(--accent-text);
+  color: var(--text);
   border-bottom-color: transparent;
 }
 td .copy-value {
@@ -196,8 +187,8 @@ td .copy-value {
   background: var(--surface-sunken);
 }
 .building-tile.enabled {
-  border-color: #66513c;
-  background: #22221e;
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
 }
 .building-tile .building-card {
   border: 0;

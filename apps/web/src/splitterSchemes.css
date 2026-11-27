@@ -44,7 +44,7 @@
 }
 .splitter-distribution[aria-pressed="true"] {
   border-color: var(--accent);
-  background: #f5a14c0c;
+  background: var(--accent-soft);
 }
 .splitter-distribution strong {
   font-weight: 500;
@@ -79,26 +79,26 @@
   margin: 16px 0;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #15191c;
+  background: var(--surface-sunken);
 }
 .splitter-graph-scroll svg {
   display: block;
 }
 .splitter-graph-scroll path {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--edge-default);
   stroke-width: 2;
 }
 .splitter-node rect {
   fill: var(--surface-raised);
-  stroke: #6c7a83;
+  stroke: var(--border-hover);
 }
 .splitter-node.split rect,
 .splitter-node.merge rect {
-  stroke: var(--accent);
+  stroke: var(--steel);
 }
 .splitter-node text {
-  fill: #e6e8ea;
+  fill: var(--text);
   font-size: 12px;
 }
 .splitter-details details {

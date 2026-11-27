@@ -1,49 +1,68 @@
 :root {
-  font-family:
-    "Golos Text",
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-text);
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
   font-size: 14px;
   color-scheme: dark;
-  --bg:#111416;
-  --surface:#1a1e21;
-  --surface-raised:#212629;
-  --surface-sunken:#15191c;
-  --surface-nav:#191d20;
-  --border-subtle:#292f33;
-  --border:#303639;
-  --border-strong:#3b444a;
-  --border-hover:#515b61;
-  --text:#e6e8ea;
-  --text-2:#c4ccd2;
-  --text-3:#aebac3;
-  --muted:#939da4;
-  --placeholder:#7d8890;
-  --accent:#f5a14c;
-  --accent-hover:#ffb56a;
-  --accent-soft:#f5a14c14;
-  --accent-line:#f5a14c66;
-  --accent-text:#f2b577;
-  --on-accent:#252421;
-  --green:#91b7a1;
-  --success-bg:#24312b;
-  --success-border:#42504b;
-  --success-text:#b0c5b8;
-  --warning-bg:#312b22;
-  --warning-border:#504331;
-  --warning-text:#c8b495;
-  --danger:#df9b92;
-  --danger-bg:#362423;
-  --danger-border:#60403d;
-  --radius-sm:4px;
-  --radius-md:6px;
-  --radius-lg:8px;
+  --font-text:"Golos Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-label:"Fira Sans Condensed", "Arial Narrow", sans-serif;
+  --font-number:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  --bg:#121110;
+  --dot:#201e1c;
+  --surface:#191816;
+  --surface-raised:#201f1c;
+  --surface-hover:#292724;
+  --surface-sunken:#141312;
+  --surface-nav:#141312;
+  --surface-nav-veil:#141312f2;
+  --canvas:#100f0e;
+  --canvas-veil:#100f0ed9;
+  --canvas-dot:#2e2b28;
+  --border-subtle:#252320;
+  --border:#302e2a;
+  --border-strong:#3f3c37;
+  --border-hover:#55514b;
+  --text:#ebe8e2;
+  --text-2:#ccc9c2;
+  --text-3:#b2afa9;
+  --muted:#97938c;
+  --placeholder:#8b8781;
+  --accent:#f0912f;
+  --accent-hover:#ffa64d;
+  --accent-soft:#f0912f1a;
+  --accent-line:#f0912f66;
+  --accent-text:#f6b36d;
+  --on-accent:#1b1208;
+  --steel:#93b6cb;
+  --steel-soft:#93b6cb1a;
+  --steel-line:#93b6cb4d;
+  --steel-text:#b8d0de;
+  --green:#82c39d;
+  --success-bg:#17231c;
+  --success-border:#2f4a3a;
+  --success-text:#a9d3b8;
+  --warning-bg:#2a2314;
+  --warning-border:#57462a;
+  --warning-text:#e3c27a;
+  --danger:#e98a7c;
+  --danger-bg:#2c1a17;
+  --danger-border:#6b3a33;
+  --edge-default:#a89a80;
+  --edge-label:#e3dccd;
+  --edge-marker:#b2afa9;
+  --hazard-warning:repeating-linear-gradient(-45deg, var(--warning-text) 0 7px, var(--warning-bg) 7px 14px);
+  --select-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2397938c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --tint-1:#ffffff04;
+  --tint-2:#ffffff08;
+  --tint-3:#ffffff0e;
+  --overlay:#000000b3;
+  --shadow-1:0 6px 18px #0005;
+  --shadow-2:0 14px 44px #0009;
+  --shadow-sheet:0 -10px 30px #000a;
+  --radius-sm:2px;
+  --radius-md:3px;
+  --radius-lg:3px;
   --radius-pill:999px;
   --space-1:4px;
   --space-2:8px;
@@ -58,4 +77,15 @@
   --text-lg:17px;
   --text-xl:22px;
   --text-2xl:28px;
+}
+@media (min-width: 1600px) {
+  :root {
+    font-size: 15px;
+    --text-xs:13px;
+    --text-sm:14px;
+    --text-md:15px;
+    --text-lg:19px;
+    --text-xl:24px;
+    --text-2xl:30px;
+  }
 }

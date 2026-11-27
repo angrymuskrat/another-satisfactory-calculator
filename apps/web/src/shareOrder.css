@@ -3,7 +3,7 @@
   width: min(440px, calc(100% - 32px));
 }
 .share-order-dialog::backdrop {
-  background: #000a;
+  background: var(--overlay);
 }
 .share-order-dialog p {
   margin: 12px 0;

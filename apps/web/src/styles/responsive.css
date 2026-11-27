@@ -216,9 +216,9 @@
     height: auto;
     padding: 12px 17px 0;
     border-right: 0;
-    border-bottom: 1px solid #3a4247;
+    border-bottom: 1px solid var(--border-strong);
     z-index: 30;
-    background: #191d20f5;
+    background: var(--surface-nav-veil);
     backdrop-filter: blur(14px);
   }
   .app-shell {
@@ -283,10 +283,6 @@
     font-size: 25px;
     max-width: 360px;
     line-height: 1.2;
-  }
-  .page-heading .eyebrow {
-    font-size: var(--text-sm);
-    margin-bottom: 12px;
   }
   .page-heading p {
     font-size: var(--text-sm);
@@ -529,7 +525,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   margin: 0 0 9px;
-  color: #c4b49f;
+  color: var(--text-3);
 }
 .alternative-bottlenecks ul {
   margin: 0;

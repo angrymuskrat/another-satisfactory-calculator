@@ -35,7 +35,7 @@ export function BatchEditor({ catalog, plan, setPlan }: BatchEditorProps) {
   const addable = catalog.items.find(item => !batch?.items.some(row => row.itemId === item.id));
   return <section className="panel batch-panel">
     <div className="section-heading">
-      <div><span className="eyebrow">ПАРТИЯ</span><h2>Заказ по количеству</h2></div>
+      <div><h2>Заказ по количеству</h2></div>
       <label className="switch"><input aria-label="Режим партии" type="checkbox" checked={!!batch} onChange={event => setEnabled(event.target.checked)} /><span /></label>
     </div>
     {!batch ? <p className="hint">Задайте количество, запас и срок для деталей лифта, исследований или склада.</p> : <>
@@ -63,7 +63,7 @@ export function BatchResult({ catalog, plan, result }: BatchResultProps) {
   const amountUnit = (itemId: string) => item(itemId)?.fluid ? 'м³' : 'шт';
   return <section className="panel output-panel batch-result">
     {estimate.items.every(i => i.remaining === 0) && <p role="status">Партия готова: всё необходимое уже на складе.</p>}
-    <div className="section-heading"><div><span className="eyebrow">ПАРТИЯ</span><h3>Оценка партии</h3></div><strong>{estimate.minutes == null ? 'Срок недостижим' : `${format(estimate.minutes, 2)} мин`}</strong></div>
+    <div className="section-heading"><div><h3>Оценка партии</h3></div><strong>{estimate.minutes == null ? 'Срок недостижим' : `${format(estimate.minutes, 2)} мин`}</strong></div>
     {estimate.items.map(row => {
       const current = item(row.itemId);
       return <div className="output-row" key={row.itemId}><div><strong>{current?.name ?? row.itemId}</strong><small>Осталось {format(row.remaining, 6)} {amountUnit(row.itemId)} из {format(row.required, 6)} {amountUnit(row.itemId)}</small></div><div className="output-rate">{row.remaining === 0 ? <>0<small>производство не требуется</small></> : Number.isFinite(row.minutes) ? <>{format(row.minutes, 2)}<small>мин · {format(row.rate, 6)} {unit(current)}</small></> : <>∞<small>поток отсутствует</small></>}</div></div>;

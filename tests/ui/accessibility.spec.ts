@@ -133,7 +133,7 @@ test('основная навигация доступна клавиатуро�
   await expect(page.getByRole('main')).toBeFocused();
   await skip.focus();
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('link', { name: 'FICSIT — планировщик' })).toBeFocused();
+  await expect(page.getByRole('link', { name: 'Плановый отдел — к целям' })).toBeFocused();
   for (const name of names) {
     await page.keyboard.press('Tab');
     await expect(page.getByRole('button', { name, exact: true })).toBeFocused();

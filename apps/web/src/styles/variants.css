@@ -153,17 +153,17 @@
     display: none;
   }
   .sidebar nav[data-overflow-end="true"] {
-    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, black calc(100% - 40px), transparent);
   }
   .sidebar nav[data-overflow-start="true"] {
-    mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to left, black calc(100% - 40px), transparent);
   }
   .sidebar nav[data-overflow-start="true"][data-overflow-end="true"] {
     mask-image: linear-gradient(
       to right,
       transparent,
-      #000 40px,
-      #000 calc(100% - 40px),
+      black 40px,
+      black calc(100% - 40px),
       transparent
     );
   }
@@ -227,7 +227,7 @@
 .pareto-table-scroll td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid var(--border, #444);
+  border-bottom: 1px solid var(--border);
 }
 .pareto-table-scroll small {
   display: block;

@@ -60,3 +60,17 @@ Satisfactory Wiki, прочитаны 2026-10-03. Сохранены тольк�
 и участники проекта. Текст лицензии:
 [Eclipse Public License 2.0](https://www.eclipse.org/legal/epl-2.0/). Библиотека
 подключается как есть, без изменений.
+
+## Шрифты интерфейса
+
+Шрифты раздаются со своего сервера из пакетов Fontsource 5.3.0 и подключаются
+как есть. Все три шрифта распространяются по лицензии
+[SIL Open Font License 1.1](https://openfontlicense.org); её текст лежит
+в файле `LICENSE` каждого пакета.
+
+- [Golos Text](https://github.com/googlefonts/golos-text), пакет
+  `@fontsource/golos-text`. Copyright 2019 The Golos Text Project Authors.
+- [Fira Sans Condensed](https://github.com/mozilla/Fira), пакет
+  `@fontsource/fira-sans-condensed`. Копирайт в файле лицензии пакета — Google Inc.
+- [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), пакет
+  `@fontsource/jetbrains-mono`. Copyright 2020 The JetBrains Mono Project Authors.
