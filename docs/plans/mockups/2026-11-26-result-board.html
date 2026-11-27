@@ -1,0 +1,491 @@
+<title>Табло Планового отдела</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: пульт инженера — узкая направляющая слева, над сгибом табло из трёх колонок, ниже раскрываемые разделы. Один тёмный мир по выбору. */
+:root{
+  color-scheme:dark;
+  --bg:#0f1113; --panel:#16191c; --panel-2:#1c2024; --sunken:#121416;
+  --line:#262b30; --line-strong:#363d44; --dot:#22272c;
+  --text:#ebe8e2; --text-2:#bdbfbf; --muted:#8b9196;
+  --signal:#f0912f; --signal-ink:#1b1208; --signal-soft:#f0912f1f;
+  --steel:#93b6cb; --ok:#82c39d; --warn:#e3b54e; --bad:#e67c6d;
+  --f-label:'IBM Plex Sans Condensed','Arial Narrow',Arial,sans-serif;
+  --f-body:'Golos Text','Segoe UI',system-ui,sans-serif;
+  --f-num:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --s-xs:12px; --s-sm:14px; --s-md:16px; --s-lg:20px; --s-xl:30px; --s-xxl:46px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:var(--s-md)/1.5 var(--f-body);
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:24px 24px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.label{font:600 var(--s-xs)/1 var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* служебная полоса макета — не часть интерфейса */
+.mock{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#0b0c0d;border-bottom:1px dashed #4a4f55;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:#0b0c0d}
+.mock-inner{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mock-inner>span{font:500 var(--s-xs) var(--f-num);color:#9aa0a6;margin-right:6px}
+.mock button{border:1px dashed #4a4f55;background:transparent;border-radius:2px;padding:5px 10px;font-size:13px;color:#c9ccce}
+.mock button[aria-pressed="true"]{border-style:solid;border-color:#c9ccce;color:#fff;background:#1d2024}
+
+.app{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:100%}
+.rail{border-right:1px solid var(--line);background:#121417e6;padding:24px 14px;display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;gap:10px;align-items:center}
+.brand-mark{width:38px;height:38px;background:var(--signal);color:var(--signal-ink);display:grid;place-items:center;
+  font:600 15px var(--f-label);letter-spacing:.04em;clip-path:polygon(0 0,72% 0,100% 28%,100% 100%,0 100%)}
+.brand b{display:block;font:600 17px/1.1 var(--f-label);letter-spacing:.02em}
+.brand small{font:500 11px var(--f-label);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:block;padding:9px 10px;border-radius:2px;color:var(--text-2);text-decoration:none;font-size:var(--s-sm)}
+.nav a[aria-current]{color:var(--text);background:var(--signal-soft);box-shadow:inset 0 -2px var(--signal)}
+
+main{min-width:0;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:16px;max-width:1500px}
+@media(min-width:900px){main{padding-inline:32px}}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px}
+.toolbar h1{margin:0;font:600 var(--s-lg)/1.2 var(--f-label);letter-spacing:.02em}
+.toolbar h1 small{display:block;font:500 var(--s-xs) var(--f-body);color:var(--muted);letter-spacing:0}
+.actions{display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--line-strong);background:var(--panel-2);border-radius:2px;padding:9px 14px;font-size:var(--s-sm);font-weight:500}
+.btn:hover{border-color:#4a535c}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+kbd{font:500 11px var(--f-num);border:1px solid currentColor;border-radius:2px;padding:1px 4px;opacity:.7;margin-left:6px}
+
+/* строка статуса */
+.status{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid currentColor;border-radius:2px;
+  font:600 13px/1 var(--f-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;background:currentColor}
+.chip.ok{color:var(--ok)} .chip.steel{color:var(--steel)} .chip.signal{color:var(--signal)} .chip.warn{color:var(--warn)} .chip.bad{color:var(--bad)} .chip.idle{color:var(--muted)}
+.chip.signal::before{animation:blink 1s steps(2) infinite}
+.status p{margin:0;color:var(--text-2);font-size:var(--s-sm);max-width:70ch}
+.status .meta{font:400 var(--s-xs) var(--f-num);color:var(--muted)}
+
+/* плашки над табло */
+.banner{border:1px solid var(--line-strong);background:var(--panel);border-radius:2px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.banner.hazard{border-color:#6b5524;background:linear-gradient(var(--panel),var(--panel)) padding-box,repeating-linear-gradient(-45deg,var(--warn) 0 8px,#0000 8px 16px) border-box;border:3px solid #0000}
+.banner.bad{border-color:#6e3a33}
+.banner h2{margin:0 0 4px;font:600 var(--s-md) var(--f-label);letter-spacing:.03em}
+.banner p{margin:0;color:var(--text-2);font-size:var(--s-sm);max-width:72ch}
+.gap{display:grid;grid-template-columns:repeat(3,auto);gap:4px 22px;font-size:var(--s-sm)}
+.gap .num{font-size:var(--s-lg)}
+.gap .bad{color:var(--bad)}
+
+/* варианты */
+.variants{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.variants button{border:1px solid var(--line-strong);background:var(--panel);border-radius:2px;padding:8px 12px;text-align:left;font-size:var(--s-sm)}
+.variants button small{display:block;color:var(--muted);font:400 var(--s-xs) var(--f-num)}
+.variants button[aria-pressed="true"]{border-color:var(--signal);box-shadow:inset 0 -2px var(--signal)}
+.variants .note{font-size:var(--s-xs);color:var(--muted);flex-basis:100%}
+
+/* табло */
+.board{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:720px){.board{grid-template-columns:1fr 1fr}}
+@media(min-width:1600px){.board{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,.9fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0;
+  animation:rise .35s var(--ease) both}
+.board>*:nth-child(2){animation-delay:.05s}.board>*:nth-child(3){animation-delay:.1s}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.stack{display:flex;flex-direction:column;gap:12px;min-width:0}
+.board.dim .panel{opacity:.45;filter:saturate(.6)}
+
+.goal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:end}
+.goal-row .name{font-size:var(--s-sm);color:var(--text-2)}
+.big{font:500 var(--s-xxl)/1 var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.big small{font-size:var(--s-sm);color:var(--muted);margin-left:6px;letter-spacing:0}
+.vs{font:400 var(--s-xs) var(--f-num);color:var(--muted)}
+.vs .ok{color:var(--ok)} .vs .bad{color:var(--bad)}
+
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:3px}
+.cells i{height:14px;background:var(--sunken);border:1px solid var(--line-strong);transition:background .3s var(--ease),border-color .3s}
+.cells i.on{background:var(--signal);border-color:var(--signal)}
+.cells i.ready{border-color:var(--signal);border-style:dashed}
+.built-line{display:flex;justify-content:space-between;align-items:baseline}
+.built-line .num{font-size:var(--s-xl)}
+.built-line .num small{font-size:var(--s-sm);color:var(--muted)}
+
+.next{border-color:#4a3a26;background:linear-gradient(180deg,#1b1712,var(--panel) 60%)}
+.next h3{margin:0;font:600 26px/1.15 var(--f-label);letter-spacing:.01em;text-wrap:balance}
+.next .sub{color:var(--text-2);font-size:var(--s-sm)}
+.specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-block:1px solid var(--line);padding-block:12px}
+.specs .num{font-size:var(--s-lg)}
+.flows{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:var(--s-sm)}
+.flows ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.flows li{display:flex;justify-content:space-between;gap:8px}
+.flows li .num{color:var(--text-2)}
+.waits{font-size:var(--s-xs);color:var(--muted)}
+.swap{animation:swap .35s var(--ease) both}
+
+.energy .big{font-size:var(--s-xl)}
+.meter{position:relative;height:10px;background:var(--sunken);border:1px solid var(--line-strong)}
+.meter>span{position:absolute;inset:0 auto 0 0;background:var(--steel);transition:width .5s var(--ease)}
+.meter.signal>span{background:var(--signal)}
+.res{display:flex;flex-direction:column;gap:6px;font-size:var(--s-sm)}
+.res-head{display:flex;justify-content:space-between;gap:8px}
+.res-head .num{color:var(--text-2);font-size:var(--s-xs)}
+.free{font-size:var(--s-xs);color:var(--muted)}
+
+/* состояние расчёта: лента-конвейер */
+.belt{height:14px;border:1px solid var(--line-strong);background:repeating-linear-gradient(90deg,#2c3238 0 2px,#0000 2px 22px),var(--sunken);
+  background-size:22px 100%;animation:belt .6s linear infinite}
+.belt-fill{height:100%;background:var(--signal);opacity:.85;transition:width .4s var(--ease)}
+.vlist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:var(--s-sm)}
+.vlist li{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;background:var(--sunken);border:1px solid var(--line)}
+.vlist .st{font:500 var(--s-xs) var(--f-num);color:var(--muted)}
+.vlist .st.done{color:var(--ok)} .vlist .st.run{color:var(--signal)}
+.quip{color:var(--muted);font-size:var(--s-sm);font-style:italic;margin:0}
+
+.empty{min-height:300px;display:grid;place-items:center;text-align:center;border:1px dashed var(--line-strong);border-radius:3px;background:#14171ab3;padding:24px}
+.empty h2{font:600 var(--s-lg) var(--f-label);margin:0 0 8px}
+.empty p{margin:0 auto 16px;color:var(--text-2);max-width:52ch;font-size:var(--s-sm)}
+
+/* разделы */
+.sections{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+details{border-bottom:1px solid var(--line)}
+summary{list-style:none;display:flex;justify-content:space-between;gap:12px;padding:12px 4px;cursor:pointer;font:600 var(--s-sm) var(--f-label);letter-spacing:.04em}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";color:var(--muted);margin-right:8px;transition:transform .2s}
+details[open]>summary::before{transform:rotate(90deg)}
+summary span:first-child{flex:1}
+summary .vs{font-family:var(--f-num)}
+.steps{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:4px}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1.2fr) minmax(0,1fr) 92px;gap:10px;align-items:center;padding:8px 6px;font-size:var(--s-sm)}
+.steps li.current{background:var(--signal-soft);box-shadow:inset 2px 0 var(--signal)}
+.steps .idx{font:500 var(--s-xs) var(--f-num);color:var(--muted)}
+.steps .bld{color:var(--muted)}
+.steps .cnt{text-align:right;font-family:var(--f-num);font-size:var(--s-xs);color:var(--text-2)}
+.steps .cnt.done{color:var(--ok)}
+
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:2px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 12px;font-size:var(--s-sm);border-radius:1px;color:var(--text-2)}
+.seg button[aria-pressed="true"]{background:var(--panel-2);color:var(--text);box-shadow:inset 0 -2px var(--signal)}
+.build-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.zoom{display:flex;align-items:center;gap:8px;font:400 var(--s-xs) var(--f-num);color:var(--muted)}
+.zoom input{accent-color:var(--signal);width:160px}
+.schem{position:relative;height:440px;overflow:auto;border:1px solid var(--line);background:var(--sunken);
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:24px 24px;margin-bottom:14px}
+.schem:fullscreen{height:100%}
+.schem svg{display:block}
+.schem .node{cursor:pointer}
+.schem .node rect.card{fill:var(--panel);stroke:var(--line-strong);stroke-width:1.5}
+.schem .node.built rect.card{fill:#18231d;stroke:var(--ok)}
+.schem .node.ready rect.card{stroke:var(--signal);stroke-dasharray:6 4}
+.schem .node.waiting{opacity:.5}
+.schem .node.next rect.card{stroke:var(--signal);stroke-width:3;stroke-dasharray:none}
+.schem .node.sel rect.card{stroke:var(--text);stroke-width:2}
+.schem .node.flash rect.card{animation:flash .9s var(--ease) 2}
+.schem text{fill:var(--text);font-family:var(--f-body)}
+.schem .t-bld{font:600 15px var(--f-label);letter-spacing:.02em}
+.schem .t-sub{fill:var(--muted);font-size:13px}
+.schem .t-state{font:500 12px var(--f-num);fill:var(--text-2)}
+.schem .t-big{font:500 34px var(--f-num)}
+.schem .glyph{fill:var(--panel-2);stroke:var(--line-strong)}
+.schem .t-glyph{font:600 22px var(--f-label);fill:var(--text-2)}
+.schem .tag rect{fill:var(--signal)}
+.schem .tag text{fill:var(--signal-ink);font:600 12px var(--f-label);letter-spacing:.12em}
+.schem .rate{font:500 12px var(--f-num);paint-order:stroke;stroke:var(--sunken);stroke-width:4px}
+.schem-note{font-size:var(--s-xs);color:var(--muted);margin:-6px 0 14px}
+.link{border:0;background:none;padding:0;color:var(--signal);font-size:var(--s-sm);text-decoration:underline;text-underline-offset:3px}
+@keyframes flash{50%{stroke:var(--text);stroke-width:5}}
+@media(prefers-reduced-motion:reduce){.schem .node.flash rect.card{animation:none;stroke:var(--text);stroke-width:4}}
+footer{color:var(--muted);font-size:var(--s-xs);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-wrap:wrap;gap:6px 16px}
+footer b{font:600 var(--s-xs) var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:var(--text-2)}
+
+@media(max-width:899px){.app{grid-template-columns:1fr}.rail{flex-direction:row;align-items:center;justify-content:space-between;padding:12px 16px;gap:12px}.nav{display:none}}
+@media(max-width:520px){.specs{grid-template-columns:1fr 1fr}.flows{grid-template-columns:1fr}.steps li{grid-template-columns:22px minmax(0,1fr) 70px}.steps .bld{display:none}.gap{grid-template-columns:1fr 1fr 1fr;gap:4px 12px}}
+
+@keyframes rise{from{opacity:.001;transform:translateY(6px)}}
+@keyframes swap{from{opacity:.001;transform:translateX(10px)}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes belt{to{background-position:22px 0}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #f0912f66}100%{box-shadow:0 0 0 10px #f0912f00}}
+.pulse{animation:pulse .6s var(--ease)}
+@media(prefers-reduced-motion:reduce){
+  .panel,.swap{animation:none}
+  .belt{animation:none}
+  .chip.signal::before{animation:none}
+  .pulse{animation:none;outline:2px solid var(--signal)}
+  .cells i,.meter>span,.belt-fill{transition:none}
+}
+</style>
+
+<div class="mock" role="region" aria-label="Переключатель сценариев макета">
+  <div class="mock-inner" id="mock"><span>МАКЕТ · сценарий</span></div>
+</div>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">ПО</div><div><b>Плановый отдел</b><small>расчёт производства</small></div></div>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#">Цели и ограничения</a><a href="#" aria-current="page">Результат</a><a href="#">Рецепты</a><a href="#">Технологии</a><a href="#">Схемы разделителей</a><a href="#">Миры и фабрики</a><a href="#">Профиль</a>
+    </nav>
+  </aside>
+  <main id="main">
+    <div class="toolbar">
+      <h1>Моя первая фабрика<small>Заданный выпуск · 1 продукт · железная руда до 480 шт/мин</small></h1>
+      <div class="actions"><button class="btn" type="button">Поделиться</button><button class="btn primary" id="calc" type="button">Рассчитать<kbd>Ctrl+Enter</kbd></button></div>
+    </div>
+    <div id="view"></div>
+    <footer><b>Плановый отдел</b><span>Неофициальный инструмент сообщества · каталог steam-24656030-v1</span><span>Перевыполнение плана поощряется. Недовыполнение анализируется.</span></footer>
+  </main>
+</div>
+
+<script>
+const fmt = n => n.toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+const STEPS = [
+  { name: 'Железная руда', bld: 'Бур Mk.2', n: 2, clock: 100, mw: 24, inp: [], out: [['Железная руда', 240]], recipe: 'добыча, обычное месторождение' },
+  { name: 'Железный слиток', bld: 'Плавильня', n: 8, clock: 100, mw: 32, inp: [['Железная руда', 240]], out: [['Железный слиток', 240]] },
+  { name: 'Железная пластина', bld: 'Конструктор', n: 5, clock: 90, mw: 18, inp: [['Железный слиток', 135]], out: [['Железная пластина', 90]] },
+  { name: 'Железный стержень', bld: 'Конструктор', n: 7, clock: 100, mw: 28, inp: [['Железный слиток', 105]], out: [['Железный стержень', 105]] },
+  { name: 'Винт', bld: 'Конструктор', n: 5, clock: 90, mw: 18, inp: [['Железный стержень', 45]], out: [['Винт', 180]] },
+  { name: 'Армированная железная пластина', bld: 'Сборщик', n: 3, clock: 100, mw: 45, inp: [['Железная пластина', 90], ['Винт', 180]], out: [['Армированная пластина', 15]] },
+  { name: 'Модульный каркас', bld: 'Сборщик', n: 5, clock: 100, mw: 75, inp: [['Армированная пластина', 15], ['Железный стержень', 60]], out: [['Модульный каркас', 10]] },
+];
+const VARIANTS = [
+  { label: 'Максимальный выпуск', rate: 10, mw: 236, peak: 251, ore: 240, counts: [2, 8, 5, 7, 5, 3, 5] },
+  { label: 'Экономия энергии', rate: 9.2, mw: 204, peak: 214, ore: 221, counts: [2, 7, 4, 6, 4, 3, 5], note: '−8 % выпуска' },
+  { label: 'Проще построить', rate: 10, mw: 241, peak: 256, ore: 240, counts: [2, 7, 4, 6, 4, 3, 4], note: 'частоты до 125 %' },
+];
+// Табло, инструкция и схема считают машины по снимку показанного варианта, как его карточка.
+const cur = () => { const v = VARIANTS[s.sc === 'differ' ? s.variant : 0]; return STEPS.map((x, i) => ({ ...x, n: v.counts[i] })); };
+const total = () => cur().reduce((sum, x) => sum + x.n, 0);
+const clampBuilt = () => { s.built = s.built.map((b, i) => Math.min(b, cur()[i].n)); };
+const SCENARIOS = [
+  ['none', 'Не рассчитано'], ['calc', 'Идёт расчёт'], ['approx', 'План проверен'], ['optimal', 'Оптимум доказан'],
+  ['differ', 'Варианты различаются'], ['stale', 'План изменён'], ['restored', 'После перезагрузки'],
+  ['infeasible', 'Невыполнимо'], ['timeout', 'Время вышло'], ['built', 'Всё построено'],
+];
+const STATUS = {
+  none: ['idle', 'Не рассчитано', 'Результата для этого плана ещё нет.'],
+  calc: ['signal', 'Считаем', 'Решатель подбирает рецепты и частоты. Ввод не блокируется.'],
+  approx: ['steel', 'План проверен', 'Все потоки сходятся, частоты подобраны. Что этот план лучший из возможных, не доказано.'],
+  optimal: ['ok', 'Оптимум доказан', 'Решатель подтвердил: при ваших ограничениях лучше этот план не сделать.'],
+  differ: ['steel', 'План проверен', 'Варианты различаются — выберите, какой показывать.'],
+  stale: ['warn', 'Требуется пересчёт', 'План изменён после расчёта. Числа ниже относятся к прошлой версии.'],
+  restored: ['steel', 'План проверен', 'Результат восстановлен после перезагрузки: план с тех пор не менялся.'],
+  infeasible: ['bad', 'Заказ невыполним', 'Не хватает железной руды: доступно 480 шт/мин, для заказа нужно 600.'],
+  timeout: ['warn', 'Время вышло', 'За 30 с решатель не нашёл допустимый план.'],
+  built: ['steel', 'План проверен', 'Все потоки сходятся, частоты подобраны. Что этот план лучший из возможных, не доказано.'],
+};
+const INIT = [2, 8, 4, 0, 0, 0, 0];
+const GLYPH = { 'Бур Mk.2': 'Б', 'Плавильня': 'П', 'Конструктор': 'К', 'Сборщик': 'С' };
+// мировые координаты узлов схемы: колонки по стадиям цепочки
+const POS = [[0, 130], [280, 130], [560, 40], [560, 230], [840, 270], [1120, 100], [1400, 190]];
+const CARD = { w: 240, h: 78 };
+const EDGES = [[0, 1, 'Железная руда', 240, '#b86a4f'], [1, 2, 'Железный слиток', 135, '#9aa3ab'], [1, 3, 'Железный слиток', 105, '#9aa3ab'],
+  [3, 4, 'Железный стержень', 45, '#6f9fc4'], [3, 6, 'Железный стержень', 60, '#6f9fc4'], [2, 5, 'Железная пластина', 90, '#d6cfbf'],
+  [4, 5, 'Винт', 180, '#c9a86a'], [5, 6, 'Армированная пластина', 15, '#e08b4c']];
+let s = { sc: 'approx', built: [...INIT], variant: 0, k: 0, t0: 0, timer: 0, accepted: 0, view: 'instr', zoom: 0.7, sel: -1, flash: -1 };
+
+const mock = document.getElementById('mock');
+for (const [id, label] of SCENARIOS) {
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.sc = id;
+  b.onclick = () => go(id); mock.appendChild(b);
+}
+document.getElementById('calc').onclick = () => go('calc');
+addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); go('calc'); } });
+
+function go(sc) {
+  clearInterval(s.timer);
+  s.sc = sc; s.variant = 0;
+  if (sc === 'built') s.built = cur().map(x => x.n);
+  else if (s.built.every((b, i) => b === cur()[i].n)) s.built = [...INIT];
+  if (sc === 'calc') { s.k = 0; s.t0 = performance.now(); s.timer = setInterval(tick, 100); }
+  render();
+}
+function tick() {
+  const el = (performance.now() - s.t0) / 1000;
+  const k = Math.min(4, Math.floor(el / 1.1));
+  if (k !== s.k) { s.k = k; if (k === 4) { clearInterval(s.timer); setTimeout(() => go('approx'), 500); } render(); }
+  const t = document.getElementById('elapsed'); if (t) t.textContent = fmt(el) + ' с';
+}
+
+const builtTotal = () => s.built.reduce((a, b) => a + b, 0);
+function nextStep() {
+  for (let i = 0; i < cur().length; i++) {
+    const left = cur()[i].n - s.built[i];
+    if (!left) continue;
+    const prevDone = i === 0 || s.built[i - 1] === cur()[i - 1].n;
+    return { i, ready: prevDone ? left : 0, waiting: prevDone ? '' : cur()[i - 1].name + ' — ещё ' + (cur()[i - 1].n - s.built[i - 1]) + ' маш.' };
+  }
+  return null;
+}
+function markReady() {
+  const n = nextStep(); if (!n || !n.ready) return;
+  s.built[n.i] += n.ready;
+  render(true);
+  const c = document.getElementById('built-count'); if (c) { c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse'); }
+}
+
+function statusLine() {
+  const [tone, title, text] = STATUS[s.sc];
+  const meta = s.sc === 'restored' ? 'Расчёт от 14:32 · сохранён в этом браузере'
+    : s.sc === 'calc' ? '' : s.sc === 'none' ? '' : 'Рассчитано 14:32 · 2,8 с';
+  return `<div class="status"><span class="chip ${tone}">${title}</span><p>${text}</p>${meta ? `<span class="meta">${meta}</span>` : ''}</div>`;
+}
+function cells() {
+  const n = nextStep(); let html = '';
+  cur().forEach((x, i) => { for (let m = 0; m < x.n; m++) {
+    const on = m < s.built[i], ready = !on && n && n.i === i && m < s.built[i] + n.ready;
+    html += `<i class="${on ? 'on' : ready ? 'ready' : ''}"></i>`; } });
+  return `<div class="cells" role="img" aria-label="Построено ${builtTotal()} из ${total()} машин">${html}</div>`;
+}
+function goalPanel(v) {
+  const short = s.sc === 'infeasible';
+  const rate = short ? 8 : v.rate;
+  return `<section class="panel" aria-labelledby="g-h"><div class="panel-head"><span class="label" id="g-h">Цель</span><span class="vs">заказ 10 шт/мин</span></div>
+    <div class="goal-row"><span class="name">Модульный каркас</span><span></span>
+      <span class="big">${fmt(rate)}<small>шт/мин</small></span>
+      <span class="vs">${short ? '<span class="bad">достижимо, −2</span>' : rate < 10 ? '<span class="bad">−' + fmt(10 - rate) + ' к заказу</span>' : '<span class="ok">заказ выполнен</span>'}</span></div>
+    <div class="vs">Избытков нет · отходов нет</div>
+    <div class="built-line"><span class="label">Построено</span><span class="num" id="built-count">${builtTotal()}<small> / ${total()}</small></span></div>
+    ${cells()}</section>`;
+}
+function nextPanel() {
+  const n = nextStep();
+  if (!n) return `<section class="panel next swap"><span class="label">Дальше строим</span><h3>Фабрика собрана</h3>
+    <p class="sub">Все ${total()} машин отмечены. Отдел контроля качества одобряет. Наверное.</p>
+    <div class="flows"><div><span class="label">Выпуск</span><ul><li>Модульный каркас <span class="num">10/мин</span></li></ul></div><div><span class="label">Энергия</span><ul><li>Средняя <span class="num">236 МВт</span></li></ul></div></div></section>`;
+  const x = cur()[n.i];
+  const list = rows => rows.length ? rows.map(([a, r]) => `<li>${a}<span class="num">${fmt(r)}/мин</span></li>`).join('') : '<li>— месторождение</li>';
+  return `<section class="panel next swap" aria-labelledby="n-h"><div class="panel-head"><span class="label" id="n-h">Дальше строим</span><button class="link" type="button" id="to-schem">Показать на схеме</button></div>
+    <h3>${x.name}</h3><span class="sub">${x.bld} · ${x.recipe ?? 'рецепт «' + x.name + '»'} · этап ${n.i + 1} из ${cur().length}</span>
+    <div class="specs"><div><span class="label">Готово к постройке</span><div class="num">${n.ready}<span class="vs"> из ${x.n - s.built[n.i]}</span></div></div>
+      <div><span class="label">Частота</span><div class="num">${x.clock} %</div></div><div><span class="label">Энергия</span><div class="num">${x.mw} МВт</div></div></div>
+    <div class="flows"><div><span class="label">Вход</span><ul>${list(x.inp)}</ul></div><div><span class="label">Выход</span><ul>${list(x.out)}</ul></div></div>
+    ${n.ready ? `<button class="btn primary" id="mark" type="button">Отметить построенными: ${n.ready}</button>` : `<p class="waits">Ждёт поставщиков: ${n.waiting}</p>`}</section>`;
+}
+function sidePanels(v) {
+  const use = s.sc === 'infeasible' ? 480 : v.ore;
+  return `<div class="stack"><section class="panel energy" aria-labelledby="e-h"><div class="panel-head"><span class="label" id="e-h">Энергия</span><span class="vs">добыча + производство</span></div>
+      <div><span class="big">${v.mw}</span><span class="vs"> МВт средняя</span></div><div class="vs">пик ${v.peak} МВт · внешних поставок нет</div></section>
+    <section class="panel" aria-labelledby="r-h"><span class="label" id="r-h">Сырьё</span>
+      <div class="res"><div class="res-head"><span>Железная руда</span><span class="num">${use} / 480 шт/мин</span></div>
+        <div class="meter ${use >= 480 ? 'signal' : ''}"><span style="width:${use / 480 * 100}%"></span></div></div>
+      <div class="free">Остальное сырьё не используется</div></section></div>`;
+}
+function variantsBar() {
+  if (s.sc !== 'differ') return '';
+  const btn = (v, i) => `<button type="button" data-v="${i}" aria-pressed="${s.variant === i}">${v.label}<small>${fmt(v.rate)}/мин · ${v.mw} МВт · ${v.counts.reduce((a, b) => a + b, 0)} маш.${v.note ? ' · ' + v.note : ''}</small></button>`;
+  const changed = s.variant !== s.accepted;
+  return `<div class="variants" role="group" aria-label="Варианты плана">${VARIANTS.map(btn).join('')}
+    <button type="button" class="btn primary" id="accept" ${changed ? '' : 'disabled'}>${changed ? 'Принять вариант' : 'Вариант принят'}</button>
+    <span class="note">Показ варианта не меняет ваш план. В черновик он попадёт только после «Принять вариант».</span></div>`;
+}
+function sections() {
+  const n = nextStep();
+  const steps = cur().map((x, i) => `<li class="${n && n.i === i ? 'current' : ''}"><span class="idx">${i + 1}</span><span>${x.name}</span><span class="bld">${x.bld} ×${x.n}</span>
+    <span class="cnt ${s.built[i] === x.n ? 'done' : ''}">${s.built[i]} из ${x.n}</span></li>`).join('');
+  const row = (t, c) => `<details><summary><span>${t}</span><span class="vs">${c}</span></summary></details>`;
+  const bar = `<div class="build-bar"><div class="seg" role="group" aria-label="Вид строительства">
+      <button type="button" data-view="instr" aria-pressed="${s.view === 'instr'}">Инструкция</button><button type="button" data-view="schem" aria-pressed="${s.view === 'schem'}">Схема</button></div>
+    ${s.view === 'schem' ? `<div class="zoom"><label for="zoom">Масштаб</label><input id="zoom" type="range" min="25" max="150" step="5" value="${Math.round(s.zoom * 100)}"><span id="zoom-v">${Math.round(s.zoom * 100)} %</span>
+      <button class="btn" type="button" id="fit">Уместить</button><button class="btn" type="button" id="full">На весь экран</button></div>` : ''}</div>`;
+  const body = s.view === 'instr' ? `<ol class="steps">${steps}</ol>`
+    : `<div class="schem" id="schem">${schematic()}</div><p class="schem-note" id="schem-note">${s.sel >= 0 ? selNote(s.sel) : 'Узел — здание и рецепт, «×N» — сколько машин. Связи окрашены по предмету и подписаны расходом в минуту. Нажмите узел, чтобы увидеть подробности.'}</p>`;
+  return `<div class="sections"><details open id="build"><summary><span>Построить</span><span class="vs">инструкция · схема</span></summary>${bar}${body}</details>
+    ${row('Источники и загрузка', '1 источник')}${row('Энергетика целиком', 'бюджет, запас сети')}${row('Все варианты', '3')}${row('Ограничения модели', 'что расчёт не учитывает')}</div>`;
+}
+
+function nodeState(i) {
+  const n = nextStep();
+  if (s.built[i] === cur()[i].n) return 'built';
+  if (n && n.i === i) return n.ready ? 'next' : 'waiting';
+  return i === 0 || s.built[i - 1] === cur()[i - 1].n ? 'ready' : 'waiting';
+}
+function selNote(i) {
+  const x = cur()[i];
+  return `<b>${x.bld} ×${x.n}</b> · ${x.name} · частота ${x.clock} % · ${x.mw} МВт · построено ${s.built[i]} из ${x.n}. В приложении здесь открывается боковая панель с составом узла и отметками.`;
+}
+function schematic() {
+  const z = s.zoom, simple = 15 * z < 12, W = 1660, H = 380;
+  const edge = ([a, b, item, rate, color]) => {
+    const [ax, ay] = POS[a], [bx, by] = POS[b];
+    const x1 = ax + CARD.w, y1 = ay + CARD.h / 2, x2 = bx, y2 = by + CARD.h / 2, mx = (x1 + x2) / 2;
+    const label = simple ? '' : `<text class="rate" x="${mx}" y="${(y1 + y2) / 2 - 6}" text-anchor="middle" fill="${color}">${fmt(rate)}/мин</text>`;
+    return `<g><title>${item}: ${fmt(rate)} шт/мин</title><path d="M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${Math.max(2, rate / 40)}" stroke-opacity=".85"/>${label}</g>`;
+  };
+  const node = (x, i) => {
+    const [px, py] = POS[i], st = nodeState(i);
+    const cls = ['node', st, s.sel === i ? 'sel' : '', s.flash === i ? 'flash' : ''].join(' ');
+    const stateText = st === 'built' ? `построено ${x.n}/${x.n}` : st === 'waiting' ? 'ждёт поставщиков' : `построено ${s.built[i]}/${x.n}`;
+    const tag = st === 'next' ? `<g class="tag"><rect x="${px}" y="${py - 22}" width="78" height="20"/><text x="${px + 8}" y="${py - 7}">ДАЛЬШЕ</text></g>` : '';
+    const inner = simple
+      ? `<rect class="glyph" x="${px + 14}" y="${py + 15}" width="48" height="48"/><text class="t-glyph" x="${px + 38}" y="${py + 47}" text-anchor="middle">${GLYPH[x.bld]}</text>
+         <text class="t-big" x="${px + 80}" y="${py + 52}">×${x.n}</text>`
+      : `<text class="t-bld" x="${px + 14}" y="${py + 24}">${x.bld} ×${x.n}</text><text class="t-sub" x="${px + 14}" y="${py + 44}">${x.name}</text>
+         <text class="t-state" x="${px + 14}" y="${py + 64}">${x.clock} % · ${x.mw} МВт · ${stateText}</text>`;
+    return `<g class="${cls}" data-node="${i}" tabindex="0" role="button" aria-label="${x.bld} ×${x.n}, ${x.name}, ${stateText}"><title>${x.bld} ×${x.n} · ${x.name} · ${stateText}</title>
+      ${tag}<rect class="card" x="${px}" y="${py}" width="${CARD.w}" height="${CARD.h}" rx="3"/>${inner}</g>`;
+  };
+  return `<svg width="${(W + 40) * z}" height="${(H + 40) * z}" viewBox="-20 -30 ${W + 40} ${H + 40}" role="group" aria-label="Схема цепочки">${EDGES.map(edge).join('')}${cur().map(node).join('')}</svg>`;
+}
+function showOnSchematic() {
+  const n = nextStep(); s.view = 'schem'; s.sel = n ? n.i : -1; s.flash = s.sel; render(true);
+  const box = document.getElementById('schem'), g = box && box.querySelector(`[data-node="${s.sel}"]`);
+  if (g) { box.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    const r = g.getBoundingClientRect(), b = box.getBoundingClientRect(); box.scrollLeft += r.left - b.left - b.width / 2 + r.width / 2; }
+  setTimeout(() => { s.flash = -1; }, 1900);
+}
+
+function render(keepScroll) {
+  for (const b of mock.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.sc === s.sc));
+  const v = VARIANTS[s.sc === 'differ' ? s.variant : 0];
+  const view = document.getElementById('view');
+  let html = statusLine();
+  if (s.sc === 'none') {
+    html += `<div class="empty"><div><h2>Отдел ждёт задание</h2><p>Задайте выпуск в «Целях и ограничениях» и нажмите «Рассчитать». Отдел пересчитает все потоки разом, включая побочные продукты и циклы.</p>
+      <button class="btn primary" type="button" onclick="go('calc')">Рассчитать<kbd>Ctrl+Enter</kbd></button></div></div>`;
+  } else if (s.sc === 'calc') {
+    const names = ['Максимальный выпуск', 'Экономия энергии', 'Экономия сырья', 'Проще построить'];
+    html += `<section class="panel" aria-live="polite"><div class="panel-head"><span class="label">Расчёт</span><span class="vs" id="elapsed">0 с</span></div>
+      <div class="belt" aria-hidden="true"><div class="belt-fill" style="width:${s.k / 4 * 100}%"></div></div>
+      <div class="vs">Вариант ${Math.min(s.k + 1, 4)} из 4</div>
+      <ul class="vlist">${names.map((nm, i) => `<li>${nm}<span class="st ${i < s.k ? 'done' : i === s.k ? 'run' : ''}">${i < s.k ? 'готов' : i === s.k ? 'считается' : 'в очереди'}</span></li>`).join('')}</ul>
+      <p class="quip">Плановый отдел сверяет потоки. Перерыв на кофе по графику не предусмотрен.</p>
+      <div><button class="btn" type="button" onclick="go('stale')">Отменить расчёт</button></div></section>`;
+  } else if (s.sc === 'timeout') {
+    html += `<div class="banner hazard"><div><h2>Решатель не уложился в 30 с</h2><p>Допустимого плана за это время не найдено. Это не значит, что его нет. Увеличьте время поиска или ослабьте ограничения: чаще всего мешает лимит сырья или запрет рецептов.</p></div>
+      <div class="actions"><button class="btn" type="button">Время поиска: 60 с</button><button class="btn primary" type="button" onclick="go('calc')">Повторить</button></div></div>
+      <div class="empty"><div><h2>Табло пустое</h2><p>Отдел честно признаёт: за отведённое время ответа нет. Прошлый результат не показывается, чтобы не выдавать его за текущий.</p></div></div>`;
+  } else {
+    if (s.sc === 'stale') html += `<div class="banner hazard"><div><h2>План изменён после расчёта</h2><p>Вы поменяли лимит железной руды: 480 → 360 шт/мин. Числа на табло — от прошлой версии.</p></div><button class="btn primary" type="button" onclick="go('calc')">Пересчитать<kbd>Ctrl+Enter</kbd></button></div>`;
+    if (s.sc === 'infeasible') html += `<div class="banner bad"><div><h2>Где добавить снабжение</h2><p>Отдел снабжения разводит руками: руды на весь заказ не хватает. Табло показывает достижимый выпуск.</p></div>
+      <div class="gap"><span class="label">Доступно</span><span class="label">Нужно</span><span class="label">Добавить</span><span class="num">480</span><span class="num">600</span><span class="num bad">+120</span></div>
+      <button class="btn primary" type="button">Добавить источник руды</button></div>`;
+    html += variantsBar();
+    html += `<div class="board ${s.sc === 'stale' ? 'dim' : ''}">${goalPanel(v)}${nextPanel()}${sidePanels(v)}</div>`;
+    html += sections();
+  }
+  const y = scrollY;
+  view.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">${html}</div>`;
+  if (keepScroll) scrollTo(0, y);
+  const m = document.getElementById('mark'); if (m) m.onclick = markReady;
+  for (const b of view.querySelectorAll('[data-v]')) b.onclick = () => { s.variant = +b.dataset.v; clampBuilt(); render(true); };
+  const a = document.getElementById('accept'); if (a) a.onclick = () => { s.accepted = s.variant; render(true); };
+  const ts = document.getElementById('to-schem'); if (ts) ts.onclick = showOnSchematic;
+  for (const b of view.querySelectorAll('[data-view]')) b.onclick = () => { s.view = b.dataset.view; render(true); };
+  const box = document.getElementById('schem');
+  const redraw = () => { const sl = box.scrollLeft, st = box.scrollTop; box.innerHTML = schematic(); box.scrollLeft = sl; box.scrollTop = st; wireNodes(); };
+  const wireNodes = () => { if (!box) return; for (const g of box.querySelectorAll('[data-node]')) {
+    const pick = () => { s.sel = +g.dataset.node; document.getElementById('schem-note').innerHTML = selNote(s.sel); redraw(); };
+    g.onclick = pick; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }; } };
+  wireNodes();
+  const zi = document.getElementById('zoom');
+  if (zi) zi.oninput = () => { s.zoom = zi.value / 100; document.getElementById('zoom-v').textContent = zi.value + ' %'; redraw(); };
+  const fit = document.getElementById('fit');
+  if (fit) fit.onclick = () => { s.zoom = Math.max(.25, Math.min(1.5, (box.clientWidth - 8) / 1700)); zi.value = Math.round(s.zoom * 100); document.getElementById('zoom-v').textContent = zi.value + ' %'; redraw(); };
+  const full = document.getElementById('full');
+  if (full) full.onclick = () => { if (box.requestFullscreen) box.requestFullscreen().catch(() => {}); };
+}
+render();
+</script>

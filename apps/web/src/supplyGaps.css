@@ -1,8 +1,35 @@
-.supply-gaps { margin-block: 1rem; }
-.supply-proposal { border-top: 1px solid var(--border, #56616c); padding-block: .8rem; }
-.supply-branch, .supply-fields, .supply-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; }
-.supply-branch > div { max-width: 100%; }
-.supply-branch strong, .proposed-source { display: inline-flex; align-items: center; gap: .4rem; }
-.proposed-source { border: 1px dashed currentColor; border-radius: .4rem; padding: .6rem; }
-.supply-branch small { display: block; }
-.supply-fields { align-items: end; }
+.supply-gaps {
+  margin-block: 1rem;
+}
+.supply-proposal {
+  border-top: 1px solid var(--border, #56616c);
+  padding-block: 0.8rem;
+}
+.supply-branch,
+.supply-fields,
+.supply-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.supply-branch > div {
+  max-width: 100%;
+}
+.supply-branch strong,
+.proposed-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.proposed-source {
+  border: 1px dashed currentColor;
+  border-radius: 0.4rem;
+  padding: 0.6rem;
+}
+.supply-branch small {
+  display: block;
+}
+.supply-fields {
+  align-items: end;
+}

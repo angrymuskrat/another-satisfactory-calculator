@@ -1,0 +1,704 @@
+/* P1: readable constraints and native, keyboard-accessible expandable sections. */
+.constraint-summary {
+  padding: 16px 18px;
+  margin: -8px 0 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-nav);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+.constraint-summary strong {
+  color: var(--text);
+  font-size: 13px;
+}
+.constraint-summary p {
+  margin: 6px 0 0;
+}
+.target-entry {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.target-row.single-target {
+  grid-template-columns: minmax(0, 1fr) 28px;
+}
+.target-bounds {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+  margin-top: 12px;
+}
+.target-bounds label {
+  min-width: 0;
+}
+.source-card > label {
+  display: block;
+  margin-bottom: 14px;
+}
+.source-preview {
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--text-2);
+  margin: 14px 0 0;
+}
+.source-preview strong {
+  color: #eed0a8;
+}
+.source-fields input,
+.source-fields select {
+  height: 40px;
+}
+.hint {
+  line-height: 1.75;
+}
+.catalog-toolbar {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.catalog-toolbar .search-field {
+  grid-column: 1/-1;
+}
+.catalog-view details > summary {
+  cursor: pointer;
+  padding: 14px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.catalog-view details {
+  margin-bottom: 18px;
+}
+.recipe-grid {
+  margin: 8px 0 20px;
+}
+.recipe-card .secondary-button {
+  white-space: normal;
+  margin-top: 12px;
+  line-height: 1.5;
+  padding: 8px 12px;
+}
+.planner-layout > div,
+.results-column,
+.analysis-panel,
+.construction-panel {
+  min-width: 0;
+}
+.analysis-panel {
+  margin-top: 20px;
+}
+.analysis-panel button {
+  white-space: normal;
+}
+.analysis-panel table,
+.construction-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+table th,
+table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.6;
+}
+table th {
+  color: var(--text-2);
+  font-weight: 600;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.construction-panel details > summary {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 12px 0;
+}
+.construction-panel label {
+  line-height: 1.7;
+}
+.construction-panel input[type="checkbox"] {
+  margin-right: 8px;
+}
+.construction-panel .secondary-button {
+  white-space: normal;
+  line-height: 1.5;
+  padding: 8px 12px;
+}
+.worlds-view {
+  display: grid;
+  gap: var(--space-5);
+}
+.worlds-view form {
+  display: grid;
+  gap: var(--space-4);
+}
+.worlds-view label {
+  display: block;
+  margin: 10px 0;
+  line-height: 1.65;
+}
+.worlds-view details {
+  margin: 15px 0;
+}
+.worlds-view summary {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.worlds-view .inline-check {
+  display: flex;
+}
+.worlds-view .profile-actions {
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.worlds-view {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  align-items: start;
+}
+.worlds-view > section {
+  min-width: 0;
+}
+.worlds-view .toolbar-actions {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 14px 0;
+}
+.worlds-view .secondary-button,
+.worlds-view .primary-button {
+  white-space: normal;
+  padding: 9px 12px;
+  line-height: 1.5;
+}
+.worlds-view fieldset {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 15px;
+  margin: 18px 0;
+}
+.worlds-view legend {
+  color: var(--text-2);
+  padding: 0 6px;
+}
+.worlds-view h3 {
+  overflow-wrap: anywhere;
+}
+.analysis-panel > details > ul {
+  max-height: 380px;
+  overflow: auto;
+  padding: 8px 6px;
+  list-style: none;
+}
+.analysis-panel li {
+  line-height: 1.7;
+  padding: 5px 0;
+}
+.analysis-panel li label {
+  display: flex;
+  align-items: start;
+  gap: var(--space-2);
+}
+.analysis-panel input[type="checkbox"] {
+  margin-top: 3px;
+}
+.analysis-panel > p {
+  color: var(--text-2);
+  font-size: 13px;
+}
+.analysis-panel .panel {
+  margin: 14px 0;
+}
+.analysis-panel summary {
+  cursor: pointer;
+  line-height: 1.7;
+  padding: 10px 0;
+}
+.mode-switch button > span {
+  line-height: 1.6;
+}
+.kpi > span {
+  white-space: normal;
+  line-height: 1.5;
+}
+.building-card small {
+  line-height: 1.7;
+}
+.production-header {
+  grid-template-columns: 1fr 82px 72px;
+}
+.production-step > summary {
+  grid-template-columns: minmax(0, 1fr) 82px 72px;
+}
+.production-step > summary > span:not(:first-child) small {
+  line-height: 1.5;
+}
+.page-footer {
+  line-height: 1.7;
+}
+@media (max-width: 1180px) {
+  .planner-layout {
+    grid-template-columns: 1fr;
+  }
+  .planner-inputs {
+    display: flex;
+    flex-direction: column;
+  }
+  .results-column {
+    margin-top: 18px;
+  }
+  .kpi > strong {
+    font-size: 25px;
+  }
+}
+@media (max-width: 720px) {
+  .sidebar nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .nav-item {
+    flex: 1;
+    min-width: max-content;
+    padding: 12px 8px;
+    gap: var(--space-1);
+  }
+  .nav-item svg {
+    display: none;
+  }
+  .plan-toolbar {
+    flex-wrap: wrap;
+  }
+  .plan-name {
+    flex: 1;
+  }
+  .plan-name input {
+    width: 100%;
+  }
+  .constraint-summary {
+    padding: 14px;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .kpi {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    align-items: center;
+  }
+  .kpi > strong {
+    margin: 0;
+    text-align: right;
+  }
+  .kpi small {
+    margin-top: 3px;
+  }
+  .mode-switch {
+    grid-template-columns: 1fr;
+  }
+  .mode-switch button {
+    padding: 12px;
+  }
+  .target-bounds {
+    gap: var(--space-2);
+  }
+  .catalog-summary {
+    flex-wrap: wrap;
+  }
+  .page-footer {
+    flex-direction: column;
+  }
+  .page-footer details,
+  .page-footer > span {
+    max-width: 100%;
+    text-align: left;
+  }
+  .empty-steps {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .empty-result {
+    padding: 25px 12px;
+  }
+}
+
+/* P2 forms remain usable on narrow screens. */
+.planner-inputs fieldset {
+  min-width: 0;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+}
+.planner-inputs textarea {
+  width: 100%;
+  min-height: 70px;
+  background: var(--bg);
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.planner-inputs details > summary {
+  cursor: pointer;
+  line-height: 1.7;
+  padding: 10px 0;
+}
+.planner-inputs .field-label > select,
+.planner-inputs .field-label > input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .batch-panel .targets-header {
+    display: none;
+  }
+  .batch-panel .target-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 28px !important;
+  }
+  .batch-panel .item-select {
+    grid-column: 1/-1;
+  }
+  .batch-panel .number-field {
+    min-width: 0;
+  }
+  .planner-inputs fieldset {
+    padding: 10px;
+  }
+  .planner-inputs .target-bounds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .batch-result .output-row {
+    flex-wrap: wrap;
+  }
+}
+
+.batch-input-label {
+  display: none;
+}
+@media (max-width: 600px) {
+  .batch-input-label {
+    display: block;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    margin-bottom: 6px;
+  }
+  .batch-panel .target-row > label {
+    min-width: 0;
+  }
+}
+
+.number-control {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+.number-notice {
+  display: block;
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.number-notice:not(:empty) {
+  margin-top: 6px;
+}
+input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-150%);
+  z-index: 110;
+  background: var(--surface-sunken);
+  color: var(--accent);
+  padding: 12px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+.skip-link:focus {
+  transform: none;
+}
+textarea:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  html {
+    scroll-padding-top: 110px;
+  }
+}
+
+.status-badge.approximate {
+  color: #eac37b;
+  background: #40351f;
+}
+
+.recipe-setup > summary {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.recipe-setup > p:first-of-type {
+  margin-top: 16px;
+}
+.recipe-setup fieldset {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin: 16px 0;
+}
+.recipe-setup details {
+  margin: 12px 0;
+  padding: 10px 0 10px 12px;
+  border-left: 2px solid var(--border);
+}
+.recipe-setup summary,
+.recipe-group > summary {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.setup-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  line-height: 1.6;
+  margin: 10px 0;
+}
+.setup-check small {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.setup-actions,
+.setup-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 14px 0;
+}
+.setup-controls > label {
+  flex: 1;
+  min-width: 160px;
+  max-width: 300px;
+}
+.setup-actions button {
+  height: auto;
+  min-height: 39px;
+  white-space: normal;
+  padding-block: 10px;
+}
+.setup-actions [aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.setup-preview {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  overflow-wrap: anywhere;
+}
+.recipe-setup select {
+  height: auto;
+  min-height: 39px;
+  max-width: 100%;
+}
+.results-page {
+  max-width: none;
+}
+
+.planner-settings {
+  width: 100%;
+  min-width: 0;
+}
+.planner-settings > .planner-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-5);
+}
+.planner-order-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--space-5);
+}
+.planner-order-column > .analysis-panel {
+  margin-top: 0;
+}
+.planner-settings .panel {
+  min-width: 0;
+}
+.analysis-panel > summary {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 550;
+}
+.analysis-panel[open] > summary {
+  margin-bottom: 16px;
+}
+.objective-description {
+  grid-column: 1/-1;
+  line-height: 1.7;
+}
+.recipe-preview-frequency {
+  margin: 16px 0 8px;
+  color: var(--muted);
+}
+/* Одна рамка по видимому контуру; размеры полей при фокусе не меняются. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.item-select-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.number-field {
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.number-field input {
+  border-color: transparent;
+  background: transparent;
+}
+.number-field:hover {
+  box-shadow: inset 0 0 0 1px var(--border-hover);
+}
+.number-field:focus-within,
+.search-field:focus-within {
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    0 0 0 1px var(--accent);
+}
+.number-field input:focus-visible,
+.search-field input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.number-field:has(input[aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.number-field:has(input[aria-invalid="true"]):focus-within {
+  box-shadow:
+    inset 0 0 0 1px var(--danger),
+    0 0 0 1px var(--accent);
+}
+.switch input:focus-visible {
+  outline: none;
+}
+.switch input:focus-visible + span {
+  outline-offset: 0;
+}
+.plan-name input:focus {
+  padding: 0;
+}
+[hidden] {
+  display: none !important;
+}
+@media (min-width: 1100px) {
+  .planner-settings > .planner-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .recipe-setup fieldset,
+  .setup-preview {
+    padding: 10px;
+  }
+  .setup-actions {
+    align-items: stretch;
+  }
+  .setup-actions > button {
+    flex: 1 1 160px;
+  }
+  .recipe-setup details {
+    padding-left: 8px;
+  }
+  .recipe-setup select {
+    font-size: var(--text-sm);
+  }
+  .catalog-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .recipe-setup label {
+    overflow-wrap: anywhere;
+  }
+}
+.variant-title {
+  margin: 12px 0 20px;
+}
+.variant-title:focus {
+  outline: none;
+}
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+.variant-card {
+  min-width: 0;
+}
+.variant-card h3 {
+  margin: 16px 0 8px;
+}
+.variant-metrics {
+  margin: 20px 0 0;
+}
+.variant-metrics > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border, #343a40);
+}
+.variant-metrics dt {
+  flex: 1;
+  min-width: 0;
+}
+.variant-metrics dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.variant-metrics small {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  color: var(--text-muted, #a4aab4);
+}
+.variant-settings h2 {
+  margin-top: 0;
+}
+@media (max-width: 850px) {
+  .variant-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.weights-grid .field-label small {
+  display: block;
+  font-weight: 400;
+  color: #8e9ca6;
+  margin-top: 2px;
+}
