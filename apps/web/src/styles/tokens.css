@@ -1,0 +1,61 @@
+:root {
+  font-family:
+    "Golos Text",
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  font-size: 14px;
+  color-scheme: dark;
+  --bg: #111416;
+  --surface: #1a1e21;
+  --surface-raised: #212629;
+  --surface-sunken: #15191c;
+  --surface-nav: #191d20;
+  --border-subtle: #292f33;
+  --border: #303639;
+  --border-strong: #3b444a;
+  --border-hover: #515b61;
+  --text: #e6e8ea;
+  --text-2: #c4ccd2;
+  --text-3: #aebac3;
+  --muted: #939da4;
+  --placeholder: #7d8890;
+  --accent: #f5a14c;
+  --accent-hover: #ffb56a;
+  --accent-soft: #f5a14c14;
+  --accent-line: #f5a14c66;
+  --accent-text: #f2b577;
+  --on-accent: #252421;
+  --green: #91b7a1;
+  --success-bg: #24312b;
+  --success-border: #42504b;
+  --success-text: #b0c5b8;
+  --warning-bg: #312b22;
+  --warning-border: #504331;
+  --warning-text: #c8b495;
+  --danger: #df9b92;
+  --danger-bg: #362423;
+  --danger-border: #60403d;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+}

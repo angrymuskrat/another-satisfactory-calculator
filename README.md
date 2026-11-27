@@ -233,6 +233,17 @@ pnpm test:ui
 Браузерные тесты создают технические аккаунты; проверочную базу можно отделить
 через `DATABASE_PATH` при запуске сервера. Скриншоты и traces лежат в `output/`.
 
+Попиксельная заморозка экранов (`tests/ui/visual-freeze.spec.ts`) проверяет,
+что изменение не меняет отрисовку. Она пропускается, пока не задан
+`VISUAL_FREEZE`. Эталон снимается на исходном коде, затем сравнивается
+с изменённым; снимки лежат в `output/visual-freeze/`. Оба запуска нужно делать
+в одном окружении (тот же браузер и шрифты):
+
+```powershell
+$env:VISUAL_FREEZE='1'; pnpm test:ui visual-freeze --update-snapshots
+$env:VISUAL_FREEZE='1'; pnpm test:ui visual-freeze
+```
+
 Правила разработки: [AGENTS.md](AGENTS.md). Данные игры и сторонний код:
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

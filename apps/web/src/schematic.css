@@ -1,95 +1,668 @@
-.construction-views{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.construction-views button{white-space:normal;min-height:42px;height:auto;padding:10px 13px}
-.panel.schematic-panel{min-width:0;overflow:hidden;padding:22px 0 18px}
-.schematic-heading{display:flex;justify-content:space-between;align-items:start;gap:14px;padding:0 22px}
-.schematic-heading h3{font-size:19px}.schematic-heading .eyebrow{font-size:10px;letter-spacing:1.7px;margin-bottom:9px}
-.schematic-heading p{font-size:12px;color:#b0bbc3;margin:6px 0 12px}
-.schematic-screen{flex-shrink:0;display:flex;gap:7px;align-items:center}
-.schematic-controls{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:0 22px 12px;font-size:11px;color:#adbac3}
-.schematic-zoom{display:flex;align-items:center;gap:7px}.schematic-zoom .secondary-button{min-width:60px;padding:6px 9px}
-.schematic-search{display:flex;align-items:center;gap:7px;flex:1 1 220px;max-width:340px;color:#9facb6}
-.schematic-search input{height:32px;font-size:12px}
-.schematic-search-count{white-space:nowrap;font-variant-numeric:tabular-nums}
-.schematic-help{position:relative;margin-left:auto}
-.schematic-controls .schematic-help>summary{list-style:none;display:grid;place-items:center;width:30px;height:30px;padding:0;border:1px solid #4a5862;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;color:#ced7dd}
-.schematic-help>summary::before{content:none}
-.schematic-help>.hint{position:absolute;right:0;top:38px;z-index:6;width:min(380px,calc(100vw - 32px));padding:12px 14px;background:#1c252c;border:1px solid #51606a;border-radius:8px;box-shadow:0 10px 28px #0008;font-size:12px}
-.schematic-stage{display:grid;grid-template-columns:minmax(0,1fr) 280px;border-block:1px solid #343c43}
-.schematic-frame{position:relative;min-width:0;display:flex;flex-direction:column}
+.construction-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.construction-views button {
+  white-space: normal;
+  min-height: 42px;
+  height: auto;
+  padding: 10px 13px;
+}
+.panel.schematic-panel {
+  min-width: 0;
+  overflow: hidden;
+  padding: 22px 0 18px;
+}
+.schematic-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 14px;
+  padding: 0 22px;
+}
+.schematic-heading h3 {
+  font-size: 19px;
+}
+.schematic-heading .eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.7px;
+  margin-bottom: 9px;
+}
+.schematic-heading p {
+  font-size: 12px;
+  color: #b0bbc3;
+  margin: 6px 0 12px;
+}
+.schematic-screen {
+  flex-shrink: 0;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.schematic-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  padding: 0 22px 12px;
+  font-size: 11px;
+  color: #adbac3;
+}
+.schematic-zoom {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.schematic-zoom .secondary-button {
+  min-width: 60px;
+  padding: 6px 9px;
+}
+.schematic-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1 1 220px;
+  max-width: 340px;
+  color: #9facb6;
+}
+.schematic-search input {
+  height: 32px;
+  font-size: 12px;
+}
+.schematic-search-count {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.schematic-help {
+  position: relative;
+  margin-left: auto;
+}
+.schematic-controls .schematic-help > summary {
+  list-style: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #4a5862;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: #ced7dd;
+}
+.schematic-help > summary::before {
+  content: none;
+}
+.schematic-help > .hint {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  z-index: 6;
+  width: min(380px, calc(100vw - 32px));
+  padding: 12px 14px;
+  background: #1c252c;
+  border: 1px solid #51606a;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px #0008;
+  font-size: 12px;
+}
+.schematic-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  border-block: 1px solid #343c43;
+}
+.schematic-frame {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 /* The sticky plan toolbar and this toolbar stay above the canvas when the page is scrolled to it. */
-.schematic-viewport{position:relative;overflow:auto;height:calc(100dvh - var(--sticky-top,0px) - 140px);min-height:360px;max-width:100%;background-color:#12191e;background-image:radial-gradient(#364049 1px,transparent 1px);background-size:22px 22px;overscroll-behavior:contain;scrollbar-color:#566773 #151c22}
-.schematic-viewport:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
-.schematic-viewport{cursor:grab;user-select:none;overflow-anchor:none}
-.schematic-viewport.is-dragging,.schematic-viewport.is-dragging *{cursor:grabbing!important}
-.schematic-scaled{position:relative;min-width:100%}
-.schematic-canvas{position:absolute;left:0;top:0;transform-origin:top left}
-.schematic-minimap{position:absolute;left:10px;bottom:18px;z-index:4;padding:4px;line-height:0;background:#0d1317d9;border:1px solid #3d4a53;border-radius:6px}
-.schematic-minimap svg{cursor:pointer;touch-action:none}
-.schematic-minimap rect{fill:#5f707b}.schematic-minimap .schematic-minimap-frame{fill:#f5a14c1f;stroke:var(--accent);stroke-width:1.5}
-.schematic-node{position:absolute;z-index:1;background:#1c252c;border:1px solid #51606a;border-top:3px solid #edab64;border-radius:10px;box-shadow:0 7px 18px #0003;overflow:hidden;color:var(--text);transition:opacity .15s}
-.schematic-node.selected{outline:3px solid var(--accent);outline-offset:5px}.schematic-node.muted-node{opacity:.4}
-.schematic-node[data-kind=source]{border-top-color:#a3b7a6}.schematic-node[data-kind=product],.schematic-node[data-kind=export]{border-top-color:#92c8a9}
-.schematic-node.fluid{border-top-color:#71bad7}
-.schematic-node-button{display:block;width:100%;padding:8px 34px 8px 10px;text-align:left;background:#ffffff03}
-.schematic-node-button:focus-visible{outline-offset:-4px}
-.schematic-node-button::after{content:"";position:absolute;inset:0;z-index:2;cursor:pointer}
-.schematic-node:has(.schematic-node-button:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
-.schematic-recipe{display:block;font-size:11px;line-height:16px;color:#bfccd5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.schematic-node-title{display:flex;gap:6px;align-items:center;height:20px;min-width:0}.schematic-node-title svg{flex-shrink:0;color:#e9b477}
-.schematic-node-title strong{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.schematic-node-title b{color:#f7b97a;font-size:14px;white-space:nowrap}
-.schematic-node.close .schematic-node-button{height:38px;padding:4px 34px 0 10px}
-.schematic-settings{display:flex;gap:12px;align-items:center;height:22px;padding:0 10px;border-bottom:1px solid #3b464f;font-size:11px;color:#c5cfd6;white-space:nowrap;overflow:hidden}
-.schematic-settings strong{color:#f3ca9f}
-.schematic-flows{list-style:none;margin:0;padding:0 10px}.schematic-flows li{display:flex;gap:5px;align-items:center;height:18px;font-size:11px;white-space:nowrap;overflow:hidden}
-.schematic-flows li>span:not(.item-icon){min-width:0;overflow:hidden;text-overflow:ellipsis}.schematic-flows strong{font-weight:550;margin-left:auto;padding-left:4px}
-.schematic-flows li.inputs::before{content:"←";color:#9facb6}.schematic-flows li.outputs::before{content:"→";color:#9facb6}
-.schematic-power{color:#c9d5dc}.schematic-power strong{color:#f3c591}
-.schematic-node.junction{border-top-color:#81939f;border-radius:22px;background:#202c35}
-.schematic-edges{position:absolute;inset:0;pointer-events:none;overflow:visible}.schematic-edges path{fill:none;stroke:var(--edge-color,#b0a084);stroke-width:var(--edge-width,2px);vector-effect:non-scaling-stroke}
-.schematic-edges text{font-size:12px;font-weight:550;fill:#e0d3bc;paint-order:stroke;stroke:#12191e;stroke-width:6px;stroke-linejoin:round}
-.schematic-edges .fluid text{fill:#a6d8ec}.schematic-edges .control path{stroke:#9bafbc;stroke-dasharray:5 5}.schematic-edges .back path{stroke-dasharray:8 5}
-.schematic-edges .dim{opacity:.15}
-.schematic-details{height:0;min-height:100%;overflow:auto;margin:0;padding:14px 16px;border-left:1px solid var(--border-strong);font-size:12px}
-.schematic-details>.section-heading{gap:10px;align-items:start}.schematic-details .section-heading h3{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
-.schematic-details .section-heading .text-button{flex-shrink:0;margin:0;padding:4px 0}
-.schematic-details h4{margin:16px 0 10px}.schematic-configurations{display:grid;gap:10px}
-.schematic-configurations>div{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.6;background:#141d23;padding:12px;border:1px solid var(--border-strong);border-radius:7px;overflow-wrap:anywhere}
-.schematic-configurations span{color:#b6c3cd}.schematic-connections{list-style:none;padding:0;margin:0;display:grid;gap:9px}
-.schematic-connections button{width:100%;text-align:left;background:#202b33;border:1px solid #3d4e5a;border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;line-height:1.5;font-size:12px;overflow-wrap:anywhere}
-.schematic-connections button:hover{border-color:var(--accent)}.schematic-connections button strong{font-weight:500;color:#f1c28c}
-.schematic-notes-row{display:flex;flex-wrap:wrap;gap:0 28px;margin:8px 22px 0}
-.schematic-notes{font-size:12px;line-height:1.7}.schematic-notes[open]{flex-basis:100%}.schematic-notes summary{cursor:pointer;color:#c3d1da;padding:8px 0}.schematic-notes p{margin:10px 0}
-.schematic-dialog{width:calc(100vw - 40px);max-width:none;max-height:calc(100dvh - 40px);height:calc(100dvh - 40px);padding:16px 0 10px;margin:auto;background:#192127;color:var(--text);border:1px solid #63737e;border-radius:12px;overflow:auto}
-.schematic-dialog[open]{display:flex;flex-direction:column}.schematic-dialog[open]>*{flex:none}
-.schematic-dialog::backdrop{background:#03080ddd;backdrop-filter:blur(4px)}
-.schematic-dialog>.schematic-stage{flex:1 1 0;min-height:300px;grid-template-rows:minmax(0,1fr)}
-.schematic-dialog .schematic-viewport{flex:1 1 0;height:auto;min-height:0}
-.schematic-move{position:absolute;z-index:3;right:4px;top:4px;display:grid;place-items:center;width:26px;height:26px;border:1px solid #44535c;border-radius:5px;background:#26323a;color:#ced7dd;cursor:grab;touch-action:none}
-.schematic-move:active{cursor:grabbing}
-.schematic-progress{position:relative;z-index:3;height:30px;padding:0 10px;background:#152027;border-top:1px solid #38464f;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;white-space:nowrap}
-.schematic-progress label,.schematic-controls label{display:flex;gap:8px;align-items:center}
-.schematic-progress input,.schematic-controls input[type=checkbox]{width:16px;height:16px;accent-color:#99d9b3}
-.schematic-progress small{color:#a3e4c0}
-.schematic-node.ready{border-right-color:#8ecda9;border-bottom-color:#8ecda9;border-left:3px solid #8ecda9}.schematic-node.built{border-right-color:#6f8f7b;border-bottom-color:#6f8f7b;border-left:3px solid #6f8f7b;background:#1b2a25}
-.schematic-node.built .schematic-progress{color:#c1d8c7}
-.schematic-progress .text-button,.schematic-blockers .text-button,.schematic-ready-list .text-button{font-size:12px;line-height:1.4;text-align:left;white-space:normal}
-.schematic-details .schematic-progress{height:auto;padding:4px 0 8px;background:none;border-top:0;justify-content:flex-start;flex-wrap:wrap;font-size:12px}
-.schematic-count{display:inline-flex;align-items:center;gap:4px}.schematic-count .icon-button{width:28px;height:28px}.schematic-count input[type=number]{width:56px;height:28px;padding:0 6px;text-align:right}
-.schematic-ready-list,.schematic-blockers{display:flex;gap:8px;align-items:start;flex-wrap:wrap}
-.schematic-ready-list{padding:0 22px 12px;font-size:12px}.schematic-blockers h4{width:100%}
-.schematic-details select{max-width:100%;width:100%;margin-bottom:12px}
-.schematic-edges g>path{pointer-events:stroke;cursor:pointer}
-.schematic-edges marker path{fill:#d5e0e5;stroke:none}
-.schematic-edges .picked path{stroke:#f7bd76;stroke-width:4}
-.schematic-summary{font-size:12px;line-height:1.6;color:#c5cfd6;margin:8px 0}
-.schematic-layout-state{margin:0 22px;padding:24px 0}
+.schematic-viewport {
+  position: relative;
+  overflow: auto;
+  height: calc(100dvh - var(--sticky-top, 0px) - 140px);
+  min-height: 360px;
+  max-width: 100%;
+  background-color: #12191e;
+  background-image: radial-gradient(#364049 1px, transparent 1px);
+  background-size: 22px 22px;
+  overscroll-behavior: contain;
+  scrollbar-color: #566773 #151c22;
+}
+.schematic-viewport:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.schematic-viewport {
+  cursor: grab;
+  user-select: none;
+  overflow-anchor: none;
+}
+.schematic-viewport.is-dragging,
+.schematic-viewport.is-dragging * {
+  cursor: grabbing !important;
+}
+.schematic-scaled {
+  position: relative;
+  min-width: 100%;
+}
+.schematic-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: top left;
+}
+.schematic-minimap {
+  position: absolute;
+  left: 10px;
+  bottom: 18px;
+  z-index: 4;
+  padding: 4px;
+  line-height: 0;
+  background: #0d1317d9;
+  border: 1px solid #3d4a53;
+  border-radius: 6px;
+}
+.schematic-minimap svg {
+  cursor: pointer;
+  touch-action: none;
+}
+.schematic-minimap rect {
+  fill: #5f707b;
+}
+.schematic-minimap .schematic-minimap-frame {
+  fill: #f5a14c1f;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.schematic-node {
+  position: absolute;
+  z-index: 1;
+  background: #1c252c;
+  border: 1px solid #51606a;
+  border-top: 3px solid #edab64;
+  border-radius: 10px;
+  box-shadow: 0 7px 18px #0003;
+  overflow: hidden;
+  color: var(--text);
+  transition: opacity 0.15s;
+}
+.schematic-node.selected {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+.schematic-node.muted-node {
+  opacity: 0.4;
+}
+.schematic-node[data-kind="source"] {
+  border-top-color: #a3b7a6;
+}
+.schematic-node[data-kind="product"],
+.schematic-node[data-kind="export"] {
+  border-top-color: #92c8a9;
+}
+.schematic-node.fluid {
+  border-top-color: #71bad7;
+}
+.schematic-node-button {
+  display: block;
+  width: 100%;
+  padding: 8px 34px 8px 10px;
+  text-align: left;
+  background: #ffffff03;
+}
+.schematic-node-button:focus-visible {
+  outline-offset: -4px;
+}
+.schematic-node-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+.schematic-node:has(.schematic-node-button:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.schematic-recipe {
+  display: block;
+  font-size: 11px;
+  line-height: 16px;
+  color: #bfccd5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.schematic-node-title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 20px;
+  min-width: 0;
+}
+.schematic-node-title svg {
+  flex-shrink: 0;
+  color: #e9b477;
+}
+.schematic-node-title strong {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.schematic-node-title b {
+  color: #f7b97a;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.schematic-node.close .schematic-node-button {
+  height: 38px;
+  padding: 4px 34px 0 10px;
+}
+.schematic-settings {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-bottom: 1px solid #3b464f;
+  font-size: 11px;
+  color: #c5cfd6;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.schematic-settings strong {
+  color: #f3ca9f;
+}
+.schematic-flows {
+  list-style: none;
+  margin: 0;
+  padding: 0 10px;
+}
+.schematic-flows li {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  height: 18px;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.schematic-flows li > span:not(.item-icon) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.schematic-flows strong {
+  font-weight: 550;
+  margin-left: auto;
+  padding-left: 4px;
+}
+.schematic-flows li.inputs::before {
+  content: "←";
+  color: #9facb6;
+}
+.schematic-flows li.outputs::before {
+  content: "→";
+  color: #9facb6;
+}
+.schematic-power {
+  color: #c9d5dc;
+}
+.schematic-power strong {
+  color: #f3c591;
+}
+.schematic-node.junction {
+  border-top-color: #81939f;
+  border-radius: 22px;
+  background: #202c35;
+}
+.schematic-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.schematic-edges path {
+  fill: none;
+  stroke: var(--edge-color, #b0a084);
+  stroke-width: var(--edge-width, 2px);
+  vector-effect: non-scaling-stroke;
+}
+.schematic-edges text {
+  font-size: 12px;
+  font-weight: 550;
+  fill: #e0d3bc;
+  paint-order: stroke;
+  stroke: #12191e;
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+.schematic-edges .fluid text {
+  fill: #a6d8ec;
+}
+.schematic-edges .control path {
+  stroke: #9bafbc;
+  stroke-dasharray: 5 5;
+}
+.schematic-edges .back path {
+  stroke-dasharray: 8 5;
+}
+.schematic-edges .dim {
+  opacity: 0.15;
+}
+.schematic-details {
+  height: 0;
+  min-height: 100%;
+  overflow: auto;
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 1px solid var(--border-strong);
+  font-size: 12px;
+}
+.schematic-details > .section-heading {
+  gap: 10px;
+  align-items: start;
+}
+.schematic-details .section-heading h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.schematic-details .section-heading .text-button {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 4px 0;
+}
+.schematic-details h4 {
+  margin: 16px 0 10px;
+}
+.schematic-configurations {
+  display: grid;
+  gap: 10px;
+}
+.schematic-configurations > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  background: #141d23;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  overflow-wrap: anywhere;
+}
+.schematic-configurations span {
+  color: #b6c3cd;
+}
+.schematic-connections {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 9px;
+}
+.schematic-connections button {
+  width: 100%;
+  text-align: left;
+  background: #202b33;
+  border: 1px solid #3d4e5a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  line-height: 1.5;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.schematic-connections button:hover {
+  border-color: var(--accent);
+}
+.schematic-connections button strong {
+  font-weight: 500;
+  color: #f1c28c;
+}
+.schematic-notes-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28px;
+  margin: 8px 22px 0;
+}
+.schematic-notes {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.schematic-notes[open] {
+  flex-basis: 100%;
+}
+.schematic-notes summary {
+  cursor: pointer;
+  color: #c3d1da;
+  padding: 8px 0;
+}
+.schematic-notes p {
+  margin: 10px 0;
+}
+.schematic-dialog {
+  width: calc(100vw - 40px);
+  max-width: none;
+  max-height: calc(100dvh - 40px);
+  height: calc(100dvh - 40px);
+  padding: 16px 0 10px;
+  margin: auto;
+  background: #192127;
+  color: var(--text);
+  border: 1px solid #63737e;
+  border-radius: 12px;
+  overflow: auto;
+}
+.schematic-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.schematic-dialog[open] > * {
+  flex: none;
+}
+.schematic-dialog::backdrop {
+  background: #03080ddd;
+  backdrop-filter: blur(4px);
+}
+.schematic-dialog > .schematic-stage {
+  flex: 1 1 0;
+  min-height: 300px;
+  grid-template-rows: minmax(0, 1fr);
+}
+.schematic-dialog .schematic-viewport {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+}
+.schematic-move {
+  position: absolute;
+  z-index: 3;
+  right: 4px;
+  top: 4px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #44535c;
+  border-radius: 5px;
+  background: #26323a;
+  color: #ced7dd;
+  cursor: grab;
+  touch-action: none;
+}
+.schematic-move:active {
+  cursor: grabbing;
+}
+.schematic-progress {
+  position: relative;
+  z-index: 3;
+  height: 30px;
+  padding: 0 10px;
+  background: #152027;
+  border-top: 1px solid #38464f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.schematic-progress label,
+.schematic-controls label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.schematic-progress input,
+.schematic-controls input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #99d9b3;
+}
+.schematic-progress small {
+  color: #a3e4c0;
+}
+.schematic-node.ready {
+  border-right-color: #8ecda9;
+  border-bottom-color: #8ecda9;
+  border-left: 3px solid #8ecda9;
+}
+.schematic-node.built {
+  border-right-color: #6f8f7b;
+  border-bottom-color: #6f8f7b;
+  border-left: 3px solid #6f8f7b;
+  background: #1b2a25;
+}
+.schematic-node.built .schematic-progress {
+  color: #c1d8c7;
+}
+.schematic-progress .text-button,
+.schematic-blockers .text-button,
+.schematic-ready-list .text-button {
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+}
+.schematic-details .schematic-progress {
+  height: auto;
+  padding: 4px 0 8px;
+  background: none;
+  border-top: 0;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.schematic-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.schematic-count .icon-button {
+  width: 28px;
+  height: 28px;
+}
+.schematic-count input[type="number"] {
+  width: 56px;
+  height: 28px;
+  padding: 0 6px;
+  text-align: right;
+}
+.schematic-ready-list,
+.schematic-blockers {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.schematic-ready-list {
+  padding: 0 22px 12px;
+  font-size: 12px;
+}
+.schematic-blockers h4 {
+  width: 100%;
+}
+.schematic-details select {
+  max-width: 100%;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.schematic-edges g > path {
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.schematic-edges marker path {
+  fill: #d5e0e5;
+  stroke: none;
+}
+.schematic-edges .picked path {
+  stroke: #f7bd76;
+  stroke-width: 4;
+}
+.schematic-summary {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c5cfd6;
+  margin: 8px 0;
+}
+.schematic-layout-state {
+  margin: 0 22px;
+  padding: 24px 0;
+}
 /* Below 720 px the details become a bottom sheet over the canvas. */
-@media(max-width:720px){
-.schematic-heading,.schematic-controls{padding-inline:14px}.schematic-ready-list{padding-inline:14px}.schematic-notes-row{margin-inline:14px}
-.schematic-help{margin-left:0}
-.schematic-stage{grid-template-columns:minmax(0,1fr)}
-.schematic-details{display:none;position:fixed;left:0;right:0;bottom:0;z-index:40;height:auto;min-height:0;max-height:50dvh;border:0;border-top:1px solid #63737e;border-radius:12px 12px 0 0;background:#192127;box-shadow:0 -10px 30px #000a}
-.schematic-details.is-open{display:block}
-.schematic-dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}
-.construction-views button{flex:1 1 140px}
+@media (max-width: 720px) {
+  .schematic-heading,
+  .schematic-controls {
+    padding-inline: 14px;
+  }
+  .schematic-ready-list {
+    padding-inline: 14px;
+  }
+  .schematic-notes-row {
+    margin-inline: 14px;
+  }
+  .schematic-help {
+    margin-left: 0;
+  }
+  .schematic-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .schematic-details {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    height: auto;
+    min-height: 0;
+    max-height: 50dvh;
+    border: 0;
+    border-top: 1px solid #63737e;
+    border-radius: 12px 12px 0 0;
+    background: #192127;
+    box-shadow: 0 -10px 30px #000a;
+  }
+  .schematic-details.is-open {
+    display: block;
+  }
+  .schematic-dialog {
+    width: calc(100vw - 12px);
+    height: calc(100dvh - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+  .construction-views button {
+    flex: 1 1 140px;
+  }
 }
