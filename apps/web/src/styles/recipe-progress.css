@@ -196,12 +196,17 @@
 }
 .mam-node.is-locked:not(.is-checked) {
   border-style: dashed;
+  color: var(--muted);
 }
-.mam-node.is-locked:not(.is-checked) > * {
+.mam-node.is-locked:not(.is-checked) img {
   opacity: 0.6;
 }
-.mam-node.is-locked:not(.is-checked):hover > *,
-.mam-node.is-locked:has(input:focus-visible) > * {
+.mam-node.is-locked:not(.is-checked):hover,
+.mam-node.is-locked:has(input:focus-visible) {
+  color: var(--text);
+}
+.mam-node.is-locked:not(.is-checked):hover img,
+.mam-node.is-locked:has(input:focus-visible) img {
   opacity: 1;
 }
 .mam-node.is-reference {

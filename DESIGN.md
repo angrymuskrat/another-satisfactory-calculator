@@ -94,13 +94,13 @@ typography:
     fontFamily: "JetBrains Mono, ui-monospace, Consolas, monospace"
     fontSize: "25px"
     fontWeight: 500
-    letterSpacing: "0"
+    letterSpacing: "0px"
     fontFeature: "tnum"
   number-inline:
     fontFamily: "JetBrains Mono, ui-monospace, Consolas, monospace"
     fontSize: "17px"
     fontWeight: 400
-    letterSpacing: "0"
+    letterSpacing: "0px"
     fontFeature: "tnum"
   brand:
     fontFamily: "Fira Sans Condensed, Arial Narrow, sans-serif"

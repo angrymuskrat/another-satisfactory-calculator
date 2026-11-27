@@ -23,6 +23,8 @@ h4,
 .nav-item,
 .segmented > button,
 .status-badge,
+th,
+.production-header,
 details.panel > summary {
   font-family: var(--font-label);
 }
@@ -38,9 +40,7 @@ h3 {
 
 .workspace-label,
 .kpi > span,
-.production-header,
-.status-badge,
-th {
+.status-badge {
   font-family: var(--font-label);
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -129,10 +129,11 @@ h2.variant-title {
   border-image: var(--hazard-warning) 2;
 }
 
-select {
+select,
+.source-fields select {
   appearance: none;
   background-image: var(--select-arrow);
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 32px;
+  padding-inline-end: 32px;
 }
