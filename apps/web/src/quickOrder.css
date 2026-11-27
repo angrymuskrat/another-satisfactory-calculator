@@ -11,7 +11,7 @@
   font: inherit;
 }
 .quick-order-toggle svg:first-child {
-  color: var(--accent);
+  color: var(--muted);
 }
 .quick-order-toggle svg:last-child {
   margin-inline-start: auto;

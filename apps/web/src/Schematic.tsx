@@ -188,7 +188,7 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
     <div className="schematic-stage"><div className="schematic-frame"><div className={`schematic-viewport${dragging ? ' is-dragging' : ''}`} ref={viewport} {...bindings} tabIndex={0} role="group" aria-label="Полотно схемы, прокрутка стрелками" aria-description="Перетаскивайте мышью для перемещения. Колесо изменяет масштаб вокруг указателя.">
       <div className="schematic-scaled" style={{ width: layout.width * zoom, height: layout.height * zoom }}>
         <div className="schematic-canvas" data-layout="elk" data-level={level} style={{ transform: `scale(${zoom})`, width: layout.width, height: layout.height }}>
-          <svg className="schematic-edges" width={layout.width} height={layout.height} aria-hidden="true"><defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#aab5bd" /></marker></defs>{graph.edges.map(visibleEdge)}</svg>
+          <svg className="schematic-edges" width={layout.width} height={layout.height} aria-hidden="true"><defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" style={{ fill: 'var(--edge-marker)' }} /></marker></defs>{graph.edges.map(visibleEdge)}</svg>
           {graph.nodes.map(node => {
             const rect = layout.rects[node.id];
             if (!rect) return null;
@@ -251,7 +251,7 @@ export function Schematic({ catalog, model, destinations, mode, scope, built, ma
   const dependencies = tracking.dependencies;
   if (!graph || !dependencies) return <section className="panel" role="alert"><h3>Схема не прошла перепроверку</h3><p>{computed.error || tracking.error}</p><p>Исходная инструкция остаётся доступна.</p></section>;
   const content = (full: boolean) => <>
-    <div className="schematic-heading"><div><span className="eyebrow">ОТ РЕСУРСА ДО ПРОДУКТА</span><h3>Схема строительства</h3><p>Один узел — одинаковые здания с одним рецептом · всего {graph.machineCount} зданий{graph.physicalRouting && ` · ${graph.nodes.filter(node => node.routingDepth !== undefined).length} устройств логистики`}</p></div></div>
+    <div className="schematic-heading"><div><h3>Схема строительства</h3><p>Один узел — одинаковые здания с одним рецептом · всего {graph.machineCount} зданий{graph.physicalRouting && ` · ${graph.nodes.filter(node => node.routingDepth !== undefined).length} устройств логистики`}</p></div></div>
     <SchematicCanvas key={mode} catalog={catalog} graph={graph}
       manual={manual} built={built} mark={mark} dependencies={dependencies} transport={model.transport} residueItemIds={residueItemIds}
       closeForResidue={id => { if (full) { residueTarget.current = id; dialog.current?.close(); } }}

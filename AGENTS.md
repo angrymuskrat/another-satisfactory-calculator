@@ -178,6 +178,7 @@
 | [docs/invariants.md](docs/invariants.md) | Инварианты реализованного поведения по подсистемам |
 | [docs/STATUS.md](docs/STATUS.md) | Текущий прогресс, проверки, ограничения и следующий шаг |
 | [PRODUCT.md](PRODUCT.md) | Продуктовый контекст интерфейса: пользователи, назначение, голос |
+| [DESIGN.md](DESIGN.md) | Визуальная система интерфейса: токены, гарнитуры, правила цвета и компонентов |
 | [docs/construction-schematics.md](docs/construction-schematics.md) | Схемы рассчитанного плана |
 | [docs/power-smoothing.md](docs/power-smoothing.md) | Автоподбор частот для ровной нагрузки |
 | [docs/recipe-progress.md](docs/recipe-progress.md) | Быстрая настройка рецептов по прогрессу |

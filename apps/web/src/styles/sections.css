@@ -44,7 +44,7 @@
   margin: 14px 0 0;
 }
 .source-preview strong {
-  color: #eed0a8;
+  color: var(--text);
 }
 .source-fields input,
 .source-fields select {
@@ -445,14 +445,14 @@ textarea:focus-visible,
 }
 
 .status-badge.approximate {
-  color: #eac37b;
-  background: #40351f;
+  color: var(--steel-text);
+  background: var(--steel-soft);
 }
 
 .recipe-setup > summary {
   font-size: 17px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text);
 }
 .recipe-setup > p:first-of-type {
   margin-top: 16px;
@@ -549,7 +549,7 @@ textarea:focus-visible,
 .analysis-panel > summary {
   cursor: pointer;
   font-size: 15px;
-  font-weight: 550;
+  font-weight: 600;
 }
 .analysis-panel[open] > summary {
   margin-bottom: 16px;
@@ -668,7 +668,7 @@ textarea:focus-visible,
   justify-content: space-between;
   gap: var(--space-4);
   padding: 12px 0;
-  border-bottom: 1px solid var(--border, #343a40);
+  border-bottom: 1px solid var(--border);
 }
 .variant-metrics dt {
   flex: 1;
@@ -686,7 +686,7 @@ textarea:focus-visible,
   display: block;
   margin-top: 4px;
   font-size: var(--text-sm);
-  color: var(--text-muted, #a4aab4);
+  color: var(--muted);
 }
 .variant-settings h2 {
   margin-top: 0;
@@ -699,6 +699,6 @@ textarea:focus-visible,
 .weights-grid .field-label small {
   display: block;
   font-weight: 400;
-  color: #8e9ca6;
+  color: var(--muted);
   margin-top: 2px;
 }
