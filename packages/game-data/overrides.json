@@ -3,6 +3,11 @@
   "gameVersion": "Steam build 24656030",
   "steamBuildId": "24656030",
   "importedAt": "2026-09-06",
+  "manualNames": {
+    "en": {
+      "category": { "Генерация (расчёт)": "Generation (calculation)" }
+    }
+  },
   "itemAliases": {
     "screw": "Desc_IronScrew_C",
     "iodine-infused-filter": "Desc_HazmatFilter_C",

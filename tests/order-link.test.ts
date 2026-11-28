@@ -1,5 +1,6 @@
 import { gzipSync } from 'node:zlib';
 import { afterEach, expect, it, vi } from 'vitest';
+import { ru } from '../apps/web/src/i18n/ru';
 import { createOrderLink, readOrderLink } from '../apps/web/src/orderLink';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import type { Catalog } from '../packages/domain/types';
@@ -15,9 +16,9 @@ afterEach(() => vi.unstubAllGlobals());
 
 it('передаёт прежний план V1 без необязательных полей и убирает параметры и старый фрагмент адреса', async () => {
   const plan = createDefaultPlan(catalog);
-  const link = await createOrderLink(plan, base);
+  const link = await createOrderLink(plan, base, ru);
   expect(link).toMatch(/^https:\/\/example\.test\/planner\/#order=1\.gz\.[A-Za-z0-9_-]+$/);
-  expect(await readOrderLink(new URL(link).hash, catalog)).toStrictEqual(plan);
+  expect(await readOrderLink(new URL(link).hash, catalog, ru)).toStrictEqual(plan);
 });
 
 it('сжимает заказ на 14 продуктов и сохраняет весь снимок, включая мир и физические ограничения', async () => {
@@ -35,44 +36,44 @@ it('сжимает заказ на 14 продуктов и сохраняет �
   plan.lines = [{ id: 'line', name: 'Резерв', recipeId: 'iron-plate', clock: 90, duty: 0.5, count: 1, locked: true, somersloops: 0 }];
   plan.world = snapshotWorld(createWorld(catalog, 'Мир', 'world-1', plan));
   expect(plan.settings.enabledRecipeIds).toHaveLength(141);
-  const hash = new URL(await createOrderLink(plan, base)).hash;
+  const hash = new URL(await createOrderLink(plan, base, ru)).hash;
   expect(hash.length).toBeLessThan(plainHash(plan).length / 2);
-  expect(await readOrderLink(hash, catalog)).toStrictEqual(plan);
+  expect(await readOrderLink(hash, catalog, ru)).toStrictEqual(plan);
 });
 
 it('обрабатывает отсутствие поддержки сжатия у отправителя или получателя', async () => {
   const plan = createDefaultPlan(catalog);
-  const compressed = new URL(await createOrderLink(plan, base)).hash;
+  const compressed = new URL(await createOrderLink(plan, base, ru)).hash;
   vi.stubGlobal('CompressionStream', undefined);
   vi.stubGlobal('DecompressionStream', undefined);
-  const plain = new URL(await createOrderLink(plan, base)).hash;
+  const plain = new URL(await createOrderLink(plan, base, ru)).hash;
   expect(plain).toMatch(/^#order=1\.json\./);
-  expect(await readOrderLink(plain, catalog)).toStrictEqual(plan);
-  await expect(readOrderLink(compressed, catalog)).rejects.toThrow(/браузер не поддерживает сжатые ссылки/i);
+  expect(await readOrderLink(plain, catalog, ru)).toStrictEqual(plan);
+  await expect(readOrderLink(compressed, catalog, ru)).rejects.toThrow(/браузер не поддерживает сжатые ссылки/i);
 });
 
 it('отклоняет повреждённые данные, неизвестную версию и посторонние фрагменты', async () => {
-  const valid = new URL(await createOrderLink(createDefaultPlan(catalog), base)).hash;
-  await expect(readOrderLink(valid.slice(0, -8), catalog)).rejects.toThrow(/повреждена/i);
-  await expect(readOrderLink('#order=1.json.____', catalog)).rejects.toThrow(/повреждена/i);
-  await expect(readOrderLink(valid + '&other=1', catalog)).rejects.toThrow(/повреждена/i);
-  await expect(readOrderLink(valid.replace('#order=1.', '#order=42.'), catalog)).rejects.toThrow(/версия ссылки/i);
-  await expect(readOrderLink('#something-else', catalog)).rejects.toThrow(/отсутствует заказ/i);
+  const valid = new URL(await createOrderLink(createDefaultPlan(catalog), base, ru)).hash;
+  await expect(readOrderLink(valid.slice(0, -8), catalog, ru)).rejects.toThrow(/повреждена/i);
+  await expect(readOrderLink('#order=1.json.____', catalog, ru)).rejects.toThrow(/повреждена/i);
+  await expect(readOrderLink(valid + '&other=1', catalog, ru)).rejects.toThrow(/повреждена/i);
+  await expect(readOrderLink(valid.replace('#order=1.', '#order=42.'), catalog, ru)).rejects.toThrow(/версия ссылки/i);
+  await expect(readOrderLink('#something-else', catalog, ru)).rejects.toThrow(/отсутствует заказ/i);
 });
 
 it('проверяет версию каталога, его идентификаторы и совместимость цели на полученной ссылке', async () => {
   const plan = createDefaultPlan(catalog);
-  const hash = new URL(await createOrderLink(plan, base)).hash;
-  await expect(readOrderLink(hash, { ...catalog, version: 'other-build' })).rejects.toThrow(/версия каталога/i);
+  const hash = new URL(await createOrderLink(plan, base, ru)).hash;
+  await expect(readOrderLink(hash, { ...catalog, version: 'other-build' }, ru)).rejects.toThrow(/версия каталога/i);
   plan.targets[0].itemId = 'unknown-item';
-  await expect(readOrderLink(plainHash(plan), catalog)).rejects.toThrow(/неизвестн/i);
+  await expect(readOrderLink(plainHash(plan), catalog, ru)).rejects.toThrow(/неизвестн/i);
   plan.settings.objective = 'resources';
-  await expect(readOrderLink(plainHash(plan), catalog)).rejects.toThrow(/прежнюю цель/i);
-  await expect(createOrderLink(plan, base)).rejects.toThrow(/прежнюю цель/i);
+  await expect(readOrderLink(plainHash(plan), catalog, ru)).rejects.toThrow(/прежнюю цель/i);
+  await expect(createOrderLink(plan, base, ru)).rejects.toThrow(/прежнюю цель/i);
 });
 
 it('ограничивает размер фрагмента до декодирования и размер распаковываемого снимка', async () => {
-  await expect(readOrderLink('#order=1.json.' + 'A'.repeat(65537), catalog)).rejects.toThrow(/слишком большой/i);
+  await expect(readOrderLink('#order=1.json.' + 'A'.repeat(65537), catalog, ru)).rejects.toThrow(/слишком большой/i);
   const compressed = gzipSync(Buffer.alloc(1024 * 1024 + 1, 32)).toString('base64url');
-  await expect(readOrderLink('#order=1.gz.' + compressed, catalog)).rejects.toThrow(/слишком большой/i);
+  await expect(readOrderLink('#order=1.gz.' + compressed, catalog, ru)).rejects.toThrow(/слишком большой/i);
 });

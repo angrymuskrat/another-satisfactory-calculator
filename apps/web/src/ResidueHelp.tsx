@@ -4,13 +4,17 @@ import { residueCandidates, sinkAvailable, type ResidueContext, type ResidueRout
 import { sourceLabel } from '../../../packages/domain/sourceLabel';
 import { format, NumberField, unit } from './controls';
 import { useAnalysis } from './useAnalysis';
+import { useT } from './i18n';
+import { gameName } from './i18n/gameNames';
 
 type Props = { catalog: Catalog; plan: Plan; result: ResidueContext | null; setPlan: (p: Plan) => void };
 const signed = (n: number) => (n > 1e-6 ? '+' : '') + format(n, 3);
-const statusLabels = { approximate: 'Допустимое приближение', optimal: 'Оптимум модели', infeasible: 'Заказ невыполним', timeout: 'Истекло время', error: 'Ошибка расчёта', unbounded: 'Выпуск не ограничен' };
+const itemName = (catalog: Catalog, id: string) => gameName('item', id, catalog.items.find(i => i.id === id)?.name ?? id);
+const recipeName = (catalog: Catalog, id: string) => gameName('recipe', id, catalog.recipes.find(x => x.id === id)?.name ?? id);
 export const residueHref = (id: string) => '#residue-' + encodeURIComponent(id);
 
 export function ResidueHelp({ catalog, plan, result, setPlan }: Props) {
+  const text = useT().residueHelp;
   const ids = useMemo(() => {
     try { return residueCandidates(catalog, plan, result); }
     catch { return []; } // The calculation already reports an invalid world or plan.
@@ -32,20 +36,21 @@ export function ResidueHelp({ catalog, plan, result, setPlan }: Props) {
   }, [optionsKey]);
   const id = ids.includes(choice) ? choice : ids[0];
   if (!id || !result) return null;
-  return <section className="panel" aria-label="Назначение побочных продуктов">
-    <h3>{result.products?.some(p => p.rate > 0) ? 'Куда направить побочный поток?' : 'Что мешает выпуску?'}</h3>
-    {!result.products?.some(p => p.rate > 0) && <p>Рецепты цепочки могут давать остаток. Проверьте, позволит ли его отвод или переработка выполнить заказ.</p>}
-    <label className="field-label">Побочный продукт<select id={'residue-' + id} ref={selector} value={id} onChange={e => {
+  return <section className="panel" aria-label={text.label}>
+    <h3>{result.products?.some(p => p.rate > 0) ? text.whereToSend : text.whatBlocks}</h3>
+    {!result.products?.some(p => p.rate > 0) && <p>{text.mayLeaveResidue}</p>}
+    <label className="field-label">{text.byproduct}<select id={'residue-' + id} ref={selector} value={id} onChange={e => {
       setChoice(e.target.value);
       if (location.hash.startsWith('#residue-')) history.replaceState(history.state, '', residueHref(e.target.value));
     }}>
-      {ids.map(key => <option key={key} value={key}>{catalog.items.find(i => i.id === key)?.name ?? key}</option>)}
+      {ids.map(key => <option key={key} value={key}>{itemName(catalog, key)}</option>)}
     </select></label>
     <ResidueOptions key={JSON.stringify([id, plan.exports, result.products])} catalog={catalog} plan={plan} itemId={id} result={result} setPlan={setPlan} />
   </section>;
 }
 
 function ResidueOptions({ catalog, plan, itemId, result, setPlan }: Props & { itemId: string }) {
+  const text = useT().residueHelp;
   const item = catalog.items.find(i => i.id === itemId)!;
   const outlet = plan.exports?.find(e => e.itemId === itemId);
   const transport = item.fluid ? catalog.pipes.find(p => p.id === plan.settings.pipeId) : catalog.belts.find(b => b.id === plan.settings.beltId);
@@ -71,41 +76,42 @@ function ResidueOptions({ catalog, plan, itemId, result, setPlan }: Props & { it
   const unlock = catalog.unlocks?.find(u => u.buildingIds.includes('awesome-sink'));
   const sink = catalog.buildings.find(b => b.id === 'awesome-sink');
   return <>
-    <div className="target-bounds"><label className="field-label">Постоянный получатель<input maxLength={120} value={receiver} placeholder="Для условной проверки можно оставить пустым" onChange={e => setReceiver(e.target.value)} /></label>
-      <label className="field-label">Предел отгрузки, {unit(item)}<NumberField label="Предел пробной отгрузки" value={limit} max={1e9} onChange={setLimit} /></label></div>
-    <button className="secondary-button" disabled={analysis.running} onClick={calculate}>Подобрать переработку</button>
-    {!item.fluid && item.sinkable && sinkAvailable(catalog, plan) && <button className="text-button" disabled={analysis.running} onClick={calculate}>Сравнить с утилизатором</button>}
-    {analysis.running && <p role="status">Проверяем назначения на копиях заказа… <button className="text-button" onClick={analysis.cancel}>Отменить проверку</button></p>}
+    <div className="target-bounds"><label className="field-label">{text.receiver}<input maxLength={120} value={receiver} placeholder={text.receiverPlaceholder} onChange={e => setReceiver(e.target.value)} /></label>
+      <label className="field-label">{text.shipmentLimit(unit(item))}<NumberField label={text.trialLimit} value={limit} max={1e9} onChange={setLimit} /></label></div>
+    <button className="secondary-button" disabled={analysis.running} onClick={calculate}>{text.pickProcessing}</button>
+    {!item.fluid && item.sinkable && sinkAvailable(catalog, plan) && <button className="text-button" disabled={analysis.running} onClick={calculate}>{text.compareSink}</button>}
+    {analysis.running && <p role="status">{text.checkingCopies}{' '}<button className="text-button" onClick={analysis.cancel}>{text.cancelCheck}</button></p>}
     {analysis.error && <p role="alert">{analysis.error}</p>}
     {report && <>
-      <p role="status">{report.complete ? 'Сравнение завершено.' : 'Часть вариантов осталась без решения.'} Проверенных вариантов с одинаковым выпуском: {report.routes.length}.</p>
-      {discharge !== undefined && <><p>При отводе {format(discharge, 4)} {unit(item)} ({item.name}) получаем {describeFlows(catalog, report.routes.find(r => r.id === 'export')!.result.products)}.</p>
-        <details><summary>Временное накопление остатка</summary><label className="field-label">Свободная вместимость, {item.fluid ? 'м³' : 'шт.'}<NumberField label="Свободная вместимость для остатка" value={capacity} onChange={setCapacity} /></label>
-          {capacity > 0 && <p>При таком чистом притоке запас заполнится за {format(capacity / discharge, 2)} мин. Затем для этого выпуска потребуется постоянное назначение остатка.</p>}
-          <p>Срок и запас готовой продукции для одного строительства можно задать в режиме «Партия».</p></details></>}
-      {ranked.length > 1 && <><label className="field-label">Что экономить при этом выпуске<select value={criterion} onChange={e => setCriterion(e.target.value)}>
-        <option value="machines">Физические машины</option><option value="energy">Учтённую энергию</option>
-        {[...inputs].map(id => <option key={id} value={id}>{catalog.items.find(i => i.id === id)?.name ?? id}</option>)}</select></label>
-        <p>По выбранному критерию среди проверенных подходит «{ranked[0].label}».</p></>}
-      {base && <><label className="field-label">С чем сравнить затраты<select value={base.id} onChange={e => setReference(e.target.value)}>
+      <p role="status">{text.comparison(report.complete, report.routes.length)}</p>
+      {discharge !== undefined && <><p>{text.discharge(format(discharge, 4), unit(item), gameName('item', item.id, item.name), describeFlows(catalog, report.routes.find(r => r.id === 'export')!.result.products))}</p>
+        <details><summary>{text.temporaryStorage}</summary><label className="field-label">{text.freeCapacity(!!item.fluid)}<NumberField label={text.freeCapacityLabel} value={capacity} onChange={setCapacity} /></label>
+          {capacity > 0 && <p>{text.fillTime(format(capacity / discharge, 2))}</p>}
+          <p>{text.batchHint}</p></details></>}
+      {ranked.length > 1 && <><label className="field-label">{text.whatToSave}<select value={criterion} onChange={e => setCriterion(e.target.value)}>
+        <option value="machines">{text.physicalMachines}</option><option value="energy">{text.countedEnergy}</option>
+        {[...inputs].map(id => <option key={id} value={id}>{itemName(catalog, id)}</option>)}</select></label>
+        <p>{text.bestByCriterion(ranked[0].label)}</p></>}
+      {base && <><label className="field-label">{text.compareCosts}<select value={base.id} onChange={e => setReference(e.target.value)}>
         {report.routes.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}</select></label>
         {report.routes.map(route => <RouteCard key={route.id} catalog={catalog} input={plan} itemId={itemId} route={route} base={base} setPlan={setPlan} />)}</>}
-      {!report.routes.length && <p>Проверенные изменения пока не дали подходящего пути. Проверьте доступность сырья, расходников, технологий и постоянного получателя.</p>}
-      {!!report.attempts.length && <details><summary>Остальные проверки ({report.attempts.length})</summary><ul>{report.attempts.map((a, index) => <li key={index}>{a.label} · {statusLabels[a.status]}. {a.message}</li>)}</ul></details>}
-      {sink && (report.routes.some(r => r.result.sinkPower > 0) || (item.sinkable && !item.fluid && !sinkAvailable(catalog, plan))) && <details><summary>Доступность и строительство ЧУДО-утилизатора</summary>
-        <p>{unlock && `Открытие — ${unlock.kind === 'hub' ? 'HUB ' + unlock.tier + ', ' : ''}${unlock.name}. `}{sink.power} МВт на установку.
-        {plan.world && !plan.world.unlockedBuildingIds.includes(sink.id) && ' Здание ещё закрыто в этом мире.'}
-        {!plan.world && ' Сверьте доступность здания со своим прогрессом в игре.'}</p>
-        <p>{sink.buildCost?.length ? 'На одну установку потребуется ' + sink.buildCost.map(f => `${catalog.items.find(i => i.id === f.itemId)?.name ?? f.itemId} × ${format(f.amount)}`).join(', ') : 'Строительная стоимость неизвестна.'}</p></details>}
+      {!report.routes.length && <p>{text.noRoute}</p>}
+      {!!report.attempts.length && <details><summary>{text.otherChecks(report.attempts.length)}</summary><ul>{report.attempts.map((a, index) => <li key={index}>{text.attempt(a.label, text.statusLabels[a.status], a.message)}</li>)}</ul></details>}
+      {sink && (report.routes.some(r => r.result.sinkPower > 0) || (item.sinkable && !item.fluid && !sinkAvailable(catalog, plan))) && <details><summary>{text.sinkTitle}</summary>
+        <p>{unlock && text.openedBy(unlock.kind === 'hub', unlock.tier, gameName('schematic', unlock.id, unlock.name))}{text.sinkPower(sink.power)}
+        {plan.world && !plan.world.unlockedBuildingIds.includes(sink.id) && text.sinkClosed}
+        {!plan.world && text.sinkCheckProgress}</p>
+        <p>{sink.buildCost?.length ? text.buildCost(sink.buildCost.map(f => text.buildCostItem(itemName(catalog, f.itemId), format(f.amount))).join(', ')) : text.buildCostUnknown}</p></details>}
     </>}
   </>;
 }
 
 function describeFlows(catalog: Catalog, flows: ProductResult[]) {
-  return flows.map(f => { const item = catalog.items.find(i => i.id === f.itemId); return `${item?.name ?? f.itemId} ${format(f.rate, 4)} ${unit(item)}`; }).join(', ');
+  return flows.map(f => { const item = catalog.items.find(i => i.id === f.itemId); return `${itemName(catalog, f.itemId)} ${format(f.rate, 4)} ${unit(item)}`; }).join(', ');
 }
 
 function RouteCard({ catalog, input, route, base, itemId, setPlan }: { catalog: Catalog; input: Plan; route: ResidueRoute; base: ResidueRoute; itemId: string; setPlan: (p: Plan) => void }) {
+  const text = useT().residueHelp;
   const r = route.result;
   const resourceIds = [...new Set([...r.resources, ...base.result.resources].filter(f => f.rate > 0).map(f => f.sourceId))];
   const inputItems = [...new Set([...r.resources, ...base.result.resources].filter(f => f.rate > 0).map(f => f.itemId))];
@@ -113,7 +119,6 @@ function RouteCard({ catalog, input, route, base, itemId, setPlan }: { catalog: 
   const materials = [...new Set([...route.materials.items, ...base.materials.items].map(f => f.itemId))];
   const machines = new Map([...base.equipment, ...route.equipment].map(g => [g.id, g]));
   const changed = JSON.stringify(route.plan) !== JSON.stringify(input);
-  const recipeName = (id: string) => catalog.recipes.find(x => x.id === id)?.name ?? id;
   const enabled = route.plan.settings.enabledRecipeIds.filter(id => !input.settings.enabledRecipeIds.includes(id));
   const disabled = input.settings.enabledRecipeIds.filter(id => !route.plan.settings.enabledRecipeIds.includes(id));
   const unknown = resourceIds.map(id => {
@@ -124,8 +129,9 @@ function RouteCard({ catalog, input, route, base, itemId, setPlan }: { catalog: 
   }).filter(f => (!f.source || (f.source.kind === 'flow' && f.source.importPower == null)) && Math.abs(f.difference) > 1e-6);
   const sameUnknownItem = unknown.length > 0 && unknown.every(f => f.itemId === unknown[0].itemId);
   const unknownRate = sameUnknownItem ? unknown.reduce((sum, f) => sum + f.difference, 0) : 0;
+  const unknownItem = catalog.items.find(i => i.id === unknown[0]?.itemId);
   const unknownLabel = unknown.length === 1 ? sourceLabel(catalog, input, unknown[0].id, unknown[0].itemId)
-    : catalog.items.find(i => i.id === unknown[0]?.itemId)?.name;
+    : unknownItem && gameName('item', unknownItem.id, unknownItem.name);
   const energyDelta = r.power - base.result.power;
   const threshold = Math.abs(unknownRate) > 1e-6 ? -energyDelta * 60 / unknownRate : null;
   const alteredExports = route.plan.exports?.filter(e => {
@@ -133,36 +139,38 @@ function RouteCard({ catalog, input, route, base, itemId, setPlan }: { catalog: 
     return !old || old.limit !== e.limit || old.name !== e.name;
   }) ?? [];
   const receivers = r.steps.filter(s => s.inputs.some(f => f.itemId === itemId && f.rate > 0));
-  return <details className="source-card" open><summary>{route.label} · {statusLabels[r.status]}</summary>
-    <p>Выпуск — {describeFlows(catalog, r.products)}. На площадке {format(route.localPower, 3)} МВт ({signed(route.localPower - base.localPower)} МВт). С известной энергией поставок {format(r.power, 3)} МВт. Физических машин {route.machines} ({signed(route.machines - base.machines)}).</p>
-    {!!receivers.length && <p>Внутреннее потребление — {receivers.map(s => `${recipeName(s.recipeId)}: ${describeFlows(catalog, s.inputs.filter(f => f.itemId === itemId))}`).join(', ')}.</p>}
-    {!!r.exports?.length && <p>Отгрузка — {r.exports.map(f => `${route.plan.exports?.find(e => e.itemId === f.itemId)?.name}: ${describeFlows(catalog, [f])}`).join(', ')}.</p>}
-    {r.surplus.length > 0 && <p>В ЧУДО-утилизатор — {describeFlows(catalog, r.surplus)}. Установок {Math.round(r.sinkPower / catalog.buildings.find(b => b.id === 'awesome-sink')!.power)}, {format(r.sinkPower)} МВт.</p>}
-    <details><summary>Какие машины построить</summary><ul>{[...machines.values()].map(g => {
+  return <details className="source-card" open><summary>{text.routeTitle(route.label, text.statusLabels[r.status])}</summary>
+    <p>{text.routeSummary(describeFlows(catalog, r.products), format(route.localPower, 3), signed(route.localPower - base.localPower), format(r.power, 3), route.machines, signed(route.machines - base.machines))}</p>
+    {!!receivers.length && <p>{text.consumption(receivers.map(s => `${recipeName(catalog, s.recipeId)}: ${describeFlows(catalog, s.inputs.filter(f => f.itemId === itemId))}`).join(', '))}</p>}
+    {!!r.exports?.length && <p>{text.shipment(r.exports.map(f => `${route.plan.exports?.find(e => e.itemId === f.itemId)?.name}: ${describeFlows(catalog, [f])}`).join(', '))}</p>}
+    {r.surplus.length > 0 && <p>{text.toSink(describeFlows(catalog, r.surplus), Math.round(r.sinkPower / catalog.buildings.find(b => b.id === 'awesome-sink')!.power), format(r.sinkPower))}</p>}
+    <details><summary>{text.machinesToBuild}</summary><ul>{[...machines.values()].map(g => {
       const current = route.equipment.find(f => f.id === g.id);
       const difference = (current?.added ?? 0) - (base.equipment.find(f => f.id === g.id)?.added ?? 0);
-      const building = catalog.buildings.find(b => b.id === g.buildingId)?.name ?? catalog.miners.find(b => b.id === g.buildingId)?.name ?? g.name;
-      return <li key={g.id}>{building}{building !== g.name && ` · ${g.name}`} — построить {current?.added ?? 0} ({signed(difference)}), всего {current?.count ?? 0}{current && `, частота ${format(current.clock)}%`}</li>;
+      const catalogBuilding = catalog.buildings.find(b => b.id === g.buildingId), catalogMiner = catalog.miners.find(b => b.id === g.buildingId);
+      const buildingName = catalogBuilding?.name ?? catalogMiner?.name ?? g.name;
+      const building = catalogBuilding ? gameName('building', g.buildingId, catalogBuilding.name) : catalogMiner ? gameName('miner', g.buildingId, catalogMiner.name) : g.name;
+      return <li key={g.id}>{text.machineLine(building, buildingName !== g.name ? g.name : null, current?.added ?? 0, signed(difference), current?.count ?? 0, current ? format(current.clock) : null)}</li>;
     })}</ul></details>
-    <details><summary>Сырьё, расходники и материалы строительства</summary><ul>{inputItems.map(id => {
+    <details><summary>{text.rawAndMaterials}</summary><ul>{inputItems.map(id => {
       const item = catalog.items.find(i => i.id === id);
       const amount = totalInput(route, id);
-      return <li key={id}>{item?.name ?? id} — {format(amount, 4)} {unit(item)} ({signed(amount - totalInput(base, id))})</li>;
-    })}</ul><p>Материалы на новые здания</p><ul>{materials.map(id => {
+      return <li key={id}>{text.inputLine(itemName(catalog, id), format(amount, 4), unit(item), signed(amount - totalInput(base, id)))}</li>;
+    })}</ul><p>{text.newBuildingMaterials}</p><ul>{materials.map(id => {
       const quantity = route.materials.items.find(f => f.itemId === id)?.amount ?? 0;
-      return <li key={id}>{catalog.items.find(i => i.id === id)?.name ?? id} × {format(quantity)} ({signed(quantity - (base.materials.items.find(f => f.itemId === id)?.amount ?? 0))})</li>;
-    })}</ul>{!route.materials.complete && <p>Неизвестна стоимость зданий: {route.materials.unknown.map(b => b.name).join(', ')}.</p>}</details>
-    {!!unknown.length && <p>Энергия части внешних поставок неизвестна. {threshold !== null && threshold > 0 ?
-      `При прочих равных энергозатраты сравняются при ${format(threshold, 2)} МДж на единицу «${unknownLabel}»${unknown.length > 1 ? ' для одинаковой стоимости всех поставок этого предмета' : ''}. Выше этой стоимости выгоднее «${unknownRate > 0 ? base.label : route.label}».`
-      : 'Для сравнения полной энергии задайте стоимость меняющихся входов в настройках источников.'}</p>}
-    {changed && !route.conditionalReceiver && <details><summary>Изменения настроек перед применением</summary>
-      {input.settings.allowSink !== route.plan.settings.allowSink && <p>{route.plan.settings.allowSink ? 'Разрешить ЧУДО-утилизатор.' : 'Выключить утилизацию.'}{route.plan.settings.allowSink && !input.world && ' Применяйте, если здание уже открыто в игре.'}</p>}
-      {!!input.settings.processFluidsOnSite !== !!route.plan.settings.processFluidsOnSite && <p>Переработка жидкостей на месте — {route.plan.settings.processFluidsOnSite ? 'включить' : 'выключить'}.</p>}
-      {alteredExports.map(e => <p key={e.itemId}>Отгрузка «{e.name}» — предел {e.limit} {unit(catalog.items.find(i => i.id === e.itemId))}.</p>)}
-      {enabled.length > 0 && <p>Разрешить рецепты — {enabled.map(recipeName).join(', ')}.</p>}
-      {disabled.length > 0 && <p>Выключить рецепты — {disabled.map(recipeName).join(', ')}.</p>}
-      <button className="secondary-button" onClick={() => setPlan(route.plan)}>Применить настройки варианта</button>
+      return <li key={id}>{text.materialLine(itemName(catalog, id), format(quantity), signed(quantity - (base.materials.items.find(f => f.itemId === id)?.amount ?? 0)))}</li>;
+    })}</ul>{!route.materials.complete && <p>{text.unknownBuildingCost(route.materials.unknown.map(b => b.name).join(', '))}</p>}</details>
+    {!!unknown.length && <p>{text.unknownEnergy}{' '}{threshold !== null && threshold > 0 ?
+      text.breakEven(format(threshold, 2), unknownLabel, unknown.length > 1, unknownRate > 0 ? base.label : route.label)
+      : text.compareFullEnergy}</p>}
+    {changed && !route.conditionalReceiver && <details><summary>{text.settingsChanges}</summary>
+      {input.settings.allowSink !== route.plan.settings.allowSink && <p>{route.plan.settings.allowSink ? text.allowSink : text.disableSink}{route.plan.settings.allowSink && !input.world && text.applyIfOpened}</p>}
+      {!!input.settings.processFluidsOnSite !== !!route.plan.settings.processFluidsOnSite && <p>{text.fluidProcessing(!!route.plan.settings.processFluidsOnSite)}</p>}
+      {alteredExports.map(e => <p key={e.itemId}>{text.exportLimit(e.name ?? '', e.limit, unit(catalog.items.find(i => i.id === e.itemId)))}</p>)}
+      {enabled.length > 0 && <p>{text.allowRecipes(enabled.map(id => recipeName(catalog, id)).join(', '))}</p>}
+      {disabled.length > 0 && <p>{text.disableRecipes(disabled.map(id => recipeName(catalog, id)).join(', '))}</p>}
+      <button className="secondary-button" onClick={() => setPlan(route.plan)}>{text.applySettings}</button>
     </details>}
-    {route.conditionalReceiver && <p>Для применения укажите постоянного получателя и повторите проверку.</p>}
+    {route.conditionalReceiver && <p>{text.needReceiver}</p>}
   </details>;
 }

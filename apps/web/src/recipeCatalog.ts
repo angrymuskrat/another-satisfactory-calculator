@@ -1,33 +1,36 @@
 import { CLOCK_POWER_EXPONENT } from '../../../packages/domain/gameMechanics';
 import type { Catalog, Plan, Recipe } from '../../../packages/domain/types';
 import { recipeResearchReasons } from '../../../packages/domain/research';
+import type { Messages } from './i18n';
+import { gameName, searchNames } from './i18n/gameNames';
+import { normalize } from './controls';
 
 export type SearchScope = 'all' | 'produces' | 'uses';
 export type QuantityMode = 'cycle' | 'minute' | 'unit';
-const normalize = (text: string) => text.toLocaleLowerCase('ru').replaceAll('ё', 'е');
 export function matchesRecipe(catalog: Catalog, recipe: Recipe, query: string, scope: SearchScope): boolean {
   const ingredients = scope === 'produces' ? recipe.outputs : scope === 'uses' ? recipe.inputs : [...recipe.inputs, ...recipe.outputs];
-  const text = [...(scope === 'all' ? [recipe.name, recipe.nameEn] : []), ...ingredients.flatMap(i => {
-    const item = catalog.items.find(item => item.id === i.itemId); return [item?.name ?? '', item?.nameEn ?? ''];
+  const text = [...(scope === 'all' ? [recipe.name, recipe.nameEn, searchNames('recipe', recipe.id, recipe.name)] : []), ...ingredients.flatMap(i => {
+    const item = catalog.items.find(item => item.id === i.itemId); return [item?.name ?? '', item?.nameEn ?? '', searchNames('item', i.itemId, item?.name ?? '')];
   })].join(' ');
   return normalize(text).includes(normalize(query.trim()));
 }
-export function recipeAvailability(catalog: Catalog, plan: Plan, recipe: Recipe) {
+export function recipeAvailability(catalog: Catalog, plan: Plan, recipe: Recipe, t: Messages) {
   const opened = !plan.world || plan.world.unlockedRecipeIds.includes(recipe.id);
   const buildingOpened = !plan.world || plan.world.unlockedBuildingIds.includes(recipe.buildingId);
   const enabled = plan.settings.enabledRecipeIds.includes(recipe.id);
   const buildingEnabled = plan.settings.enabledBuildingIds.includes(recipe.buildingId);
   const building = catalog.buildings.find(b => b.id === recipe.buildingId);
   const unlocks = catalog.unlocks?.filter(u => u.recipeIds.includes(recipe.id) && !plan.world?.unlockedMilestoneIds.includes(u.id)) ?? [];
+  const buildingName = building ? gameName('building', building.id, building.name) : recipe.buildingId;
   const reasons: string[] = [];
-  if (!opened) reasons.push(unlocks.length ? `Открыть в мире: ${unlocks.map(u => u.name).join(' / ')}` : 'Рецепт не открыт в мире. Данные о конкретном исследовании отсутствуют.');
+  if (!opened) reasons.push(unlocks.length ? t.recipeCatalog.openInWorld(unlocks.map(u => gameName('schematic', u.id, u.name))) : t.recipeCatalog.recipeNotOpened);
   if (!opened && catalog.researchTrees?.length) {
     reasons.push(...recipeResearchReasons(catalog, recipe.id, plan.world?.unlockedMilestoneIds ?? []));
-    reasons.push('Это справочная цепочка: завершение исследований, условия показа и внешние события подтверждает пользователь в разделе миров.');
+    reasons.push(t.recipeCatalog.referenceChain);
   }
-  if (!buildingOpened) reasons.push(`Здание не открыто в мире: ${building?.name ?? recipe.buildingId}`);
-  if (!enabled) reasons.push('Рецепт выключен в плане');
-  if (!buildingEnabled) reasons.push(`Здание отключено в плане: ${building?.name ?? recipe.buildingId}`);
+  if (!buildingOpened) reasons.push(t.recipeCatalog.buildingNotOpened(buildingName));
+  if (!enabled) reasons.push(t.recipeCatalog.recipeDisabled);
+  if (!buildingEnabled) reasons.push(t.recipeCatalog.buildingDisabled(buildingName));
   return { opened, buildingOpened, enabled, buildingEnabled, usable: opened && buildingOpened && enabled && buildingEnabled, reasons };
 }
 /** Preserve imported category/product order, then place alternatives next to the base output. */

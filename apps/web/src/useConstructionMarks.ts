@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ConstructionModel } from '../../../packages/domain/construction';
 import type { MachineSpan } from '../../../packages/domain/schematic';
+import { useT } from './i18n';
 import { markBuilt, markFirst, type BuiltRanges } from '../../../packages/domain/constructionProgress';
 
 const storageKey = 'satisfactory:construction:v1';
@@ -32,9 +33,10 @@ function restoredRanges(model: ConstructionModel, scope: string, entries: SavedM
 
 /** Build marks of one configuration. The caller remounts on a new `model.fingerprint` or `scope`. */
 export function useConstructionMarks(model: ConstructionModel, scope = defaultScope) {
+  const t = useT();
   const [saved, setSaved] = useState(() => {
     try { return { ranges: restoredRanges(model, scope, readHistory()), error: '' }; }
-    catch { return { ranges: {} as BuiltRanges, error: 'Не удалось загрузить отметки строительства из этого браузера.' }; }
+    catch { return { ranges: {} as BuiltRanges, error: t.useConstructionMarks.loadFailed }; }
   });
   const update = (change: (ranges: BuiltRanges) => BuiltRanges) => {
     let ranges = change(saved.ranges);
@@ -46,7 +48,7 @@ export function useConstructionMarks(model: ConstructionModel, scope = defaultSc
         { fingerprint: model.fingerprint, scope, ids: [], ranges }].slice(-20);
       localStorage.setItem(storageKey, JSON.stringify({ entries }));
     }
-    catch { error = 'Не удалось сохранить отметки. Они доступны только до закрытия этой инструкции.'; }
+    catch { error = t.useConstructionMarks.saveFailed; }
     setSaved({ ranges, error });
   };
   return {

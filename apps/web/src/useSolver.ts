@@ -1,9 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Catalog, Plan } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
-import type { ProductionVariants, ProductionVariant, VariantsMessage } from '../../../packages/solver/variants';
+import type { ProductionVariants, ProductionVariant } from '../../../packages/solver/variants';
 import { searchDuration } from '../../../packages/domain/searchDuration';
+import type { SolverMessage } from './solver.worker';
+import { useT, type Messages } from './i18n';
+function localize(message: SolverMessage, t: Messages): ProductionVariants {
+  const { labelKeys, resultKeys } = message;
+  if (!labelKeys && !resultKeys) return message.report;
+  return { ...message.report, variants: message.report.variants.map(variant => {
+    const labelKey = labelKeys?.[variant.id], resultKey = resultKeys?.[variant.id];
+    return { ...variant, label: labelKey ? t.solverWorker[labelKey] : variant.label,
+      result: resultKey ? { ...variant.result, message: t.solverWorker[resultKey] } : variant.result };
+  }) };
+}
 export function useSolver(catalog: Catalog, plan: Plan, kind: 'variants' | 'order' = 'variants') {
+  const t = useT();
   const [report, setReport] = useState<ProductionVariants | null>(null);
   const [pending, setPending] = useState<ProductionVariant['id'][]>([]);
   const [selected, setSelected] = useState<ProductionVariant | null>(null);
@@ -29,9 +41,9 @@ export function useSolver(catalog: Catalog, plan: Plan, kind: 'variants' | 'orde
   useEffect(() => () => stop(), [stop]);
   useEffect(() => {
     if (worker.current && !live(fingerprint)) {
-      stop(); setRunning(false); setError('Настройки изменились. Запустите подбор вариантов заново.');
+      stop(); setRunning(false); setError(t.useSolver.settingsChanged);
     }
-  }, [fingerprint, stop]);
+  }, [fingerprint, stop, t]);
   const calculate = useCallback((continueSearch = false) => {
     const previous = continueSearch && fingerprint === solvedInput ? report ?? undefined : undefined;
     if (selected) setBaseline(structuredClone(selected));
@@ -43,24 +55,25 @@ export function useSolver(catalog: Catalog, plan: Plan, kind: 'variants' | 'orde
     try {
       const instance = new Worker(new URL('./solver.worker.ts', import.meta.url), { type: 'module' });
       worker.current = instance;
-      instance.onmessage = (event: MessageEvent<VariantsMessage>) => {
+      instance.onmessage = (event: MessageEvent<SolverMessage>) => {
         if (worker.current !== instance) return;
         if (event.data.requestId !== requestId) return;
-        if (!live(currentInput.current)) { setError('Настройки изменились. Запустите подбор вариантов заново.'); setRunning(false); stop(); return; }
-        setReport(event.data.report); setPending(event.data.pending);
-        if (event.data.error) setError(event.data.error);
+        if (!live(currentInput.current)) { setError(t.useSolver.settingsChanged); setRunning(false); stop(); return; }
+        setReport(localize(event.data, t)); setPending(event.data.pending);
+        const failure = event.data.errorKey ? t.solverWorker[event.data.errorKey] : event.data.error;
+        if (failure) setError(failure);
         if (acceptedInput.current === null) setSolvedInput(fingerprint);
         if (event.data.done) { setRunning(false); stop(); }
       };
       instance.onerror = event => {
         if (worker.current !== instance) return;
-        setError(event.message || 'Не удалось загрузить решатель. Обновите страницу.'); setRunning(false); stop();
+        setError(event.message || t.useSolver.loadFailed); setRunning(false); stop();
       };
-      timer.current = setTimeout(() => { setError('Расчёт остановлен по времени. Проверенные варианты сохранены.'); setRunning(false); stop(); }, searchDuration(plan, previous) + 5000);
+      timer.current = setTimeout(() => { setError(t.useSolver.timedOut); setRunning(false); stop(); }, searchDuration(plan, previous) + 5000);
       instance.postMessage({ kind, catalog, plan, previous, requestId });
-    } catch (error) { setError(error instanceof Error ? error.message : 'Ошибка запуска расчёта.'); setRunning(false); stop(); }
-  }, [catalog, plan, kind, fingerprint, stop, report, selected, solvedInput]);
-  const cancel = useCallback(() => { stop(); setRunning(false); setError('Расчёт отменён.'); }, [stop]);
+    } catch (error) { setError(error instanceof Error ? error.message : t.useSolver.startFailed); setRunning(false); stop(); }
+  }, [catalog, plan, kind, fingerprint, stop, report, selected, solvedInput, t]);
+  const cancel = useCallback(() => { stop(); setRunning(false); setError(t.useSolver.cancelled); }, [stop, t]);
   const stale = report !== null && fingerprint !== solvedInput;
   const choose = (id: ProductionVariant['id']): Plan | null => {
     if (currentInput.current !== solvedInput) return null;

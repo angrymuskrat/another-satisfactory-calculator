@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { groupRecipes, matchesRecipe, recipeMetrics, recipeAvailability } from '../apps/web/src/recipeCatalog';
+import { ru } from '../apps/web/src/i18n/ru';
 import { parseCatalogPlan } from '../apps/web/src/planStorage';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import type { Catalog, Recipe } from '../packages/domain/types';
@@ -43,7 +44,7 @@ describe('каталог рецептов', () => {
   it('разрешённый в плане рецепт остаётся закрытым в мире', () => {
     const plan = createDefaultPlan(catalog);
     Object.assign(plan, { world: { id: 'w', revision: 1, unlockedRecipeIds: [], unlockedBuildingIds: catalog.buildings.map(b => b.id), beltId: plan.settings.beltId, pipeId: plan.settings.pipeId, overclockUnlocked: false, unlockedMilestoneIds: [] } });
-    const availability = recipeAvailability(catalog, plan, screw);
+    const availability = recipeAvailability(catalog, plan, screw, ru);
     expect(availability.enabled).toBe(true); expect(availability.opened).toBe(false); expect(availability.usable).toBe(false);
     expect(availability.reasons.length).toBeGreaterThan(0);
   });

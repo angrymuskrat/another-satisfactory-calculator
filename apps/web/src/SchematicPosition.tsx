@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent } from 'react';
 import { GripVertical } from 'lucide-react';
+import { useT } from './i18n';
 import { SCHEMATIC_TOP, type Point } from './schematicLayout';
 
 type Positions = Record<string, Point>;
@@ -28,11 +29,12 @@ export function writePositions(storage: PositionStorage, key: string, fingerprin
 }
 
 export function useSchematicPositions(scope: string, mode: string, fingerprint: string) {
+  const t = useT();
   const key = schematicPositionsKey(scope, mode);
   const [saved, setSaved] = useState(() => {
     try {
       return { positions: readPositions(localStorage, key).find(entry => entry.fingerprint === fingerprint)?.positions ?? {}, error: '' };
-    } catch { return { positions: {} as Positions, error: 'Не удалось прочитать сохранённые позиции блоков.' }; }
+    } catch { return { positions: {} as Positions, error: t.schematicPosition.readFailed }; }
   });
   const save = (id?: string, point?: Point) => {
     let positions = id && point ? { ...saved.positions, [id]: point } : {};
@@ -43,7 +45,7 @@ export function useSchematicPositions(scope: string, mode: string, fingerprint: 
         if (previous && !saved.error) positions = { ...previous.positions, [id]: point };
       }
       writePositions(localStorage, key, fingerprint, id && point ? positions : null);
-    } catch { error = 'Позиции изменены на схеме. Сохранить их в этом браузере не удалось.'; }
+    } catch { error = t.schematicPosition.saveFailed; }
     setSaved({ positions, error });
   };
   return { ...saved, save };
@@ -52,6 +54,7 @@ export function useSchematicPositions(scope: string, mode: string, fingerprint: 
 export function MoveNode({ name, position, zoom, preview, save }: {
   name: string; position: Point; zoom: number; preview: (p: Point | null) => void; save: (p: Point) => void;
 }) {
+  const t = useT();
   const gesture = useRef<{ pointer: number; start: Point; origin: Point; zoom: number } | null>(null);
   const translate = (origin: Point, dx: number, dy: number) => ({ x: Math.max(0, origin.x + dx), y: Math.max(SCHEMATIC_TOP, origin.y + dy) });
   const pointAt = (e: PointerEvent) => {
@@ -59,7 +62,7 @@ export function MoveNode({ name, position, zoom, preview, save }: {
     if (g?.pointer === e.pointerId) return translate(g.origin, (e.clientX - g.start.x) / g.zoom, (e.clientY - g.start.y) / g.zoom);
   };
   const cancel = () => { if (gesture.current) { gesture.current = null; preview(null); } };
-  return <button type="button" className="schematic-move" aria-label={`Переместить: ${name}`} title="Перетащите ручку или используйте стрелки. Shift увеличивает шаг."
+  return <button type="button" className="schematic-move" aria-label={t.schematicPosition.moveLabel(name)} title={t.schematicPosition.moveHint}
     onKeyDown={e => {
       const delta = ({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] } as Record<string, number[]>)[e.key];
       if (!delta) return;
