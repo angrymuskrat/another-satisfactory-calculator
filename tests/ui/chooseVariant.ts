@@ -9,3 +9,9 @@ export async function chooseMaximum(page: Page) {
   if (await accept.isVisible()) await accept.click();
   else if (await choice.isVisible()) await choice.click({ timeout: 5000 }).catch(async () => { if (await accept.isVisible()) await accept.click(); });
 }
+
+/** Once the search ends the first solved variant is shown by itself; tests of the cards return to them. */
+export async function showVariantCards(page: Page, timeout = 30000) {
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout });
+  await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click({ timeout: 3000 }).catch(() => {});
+}

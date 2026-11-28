@@ -38,12 +38,13 @@ export function ProductionVariants({ catalog, plan, setPlan, solver, constructio
   const focusHeading = () => requestAnimationFrame(() => heading.current?.focus());
   const solvedVariants = variants?.filter(v => hasSolution(v.result)) ?? [];
   const autoShown = useRef<object | null>(null);
-  const single = report && !report.pareto && !running && !stale && !selected && !report.workingPlans?.length && !pending.length
-    && solvedVariants.length === 1 && variants?.length === 1 && !solvedVariants[0].result.searchProgress && solvedVariants[0].result.status !== 'timeout';
+  const finished = report && !report.pareto && !running && !stale && !selected && !report.workingPlans?.length && !pending.length
+    && variants?.every(v => !v.result.searchProgress && v.result.status !== 'timeout');
+  const firstSolved = finished ? solvedVariants[0] : undefined;
   useEffect(() => {
-    if (!single || autoShown.current === report) return;
+    if (!firstSolved || autoShown.current === report) return;
     autoShown.current = report;
-    solver.preview(solvedVariants[0].id);
+    solver.preview(firstSolved.id);
   });
   if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} constructionScope={constructionScope} />;
   const item = (id: string) => catalog.items.find(i => i.id === id);

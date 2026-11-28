@@ -1,4 +1,5 @@
 import { catalog } from './catalog';
+import { showVariantCards } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { largeOrder } from '../largeOrderFixture';
@@ -24,9 +25,9 @@ test('выбор экономичного варианта сохраняет е
   await expect(page.getByRole('heading', { name: 'Варианты производства', exact: true })).toBeVisible();
   const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
   const economy = page.getByRole('article', { name: 'Экономия энергии', exact: true });
-  await expect(maximum).toContainText('8,888', { timeout: 30000 });
-  await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
-  await expect(page.getByRole('heading', { name: 'Построить', exact: true })).toHaveCount(0);
+  await showVariantCards(page);
+  await expect(maximum).toContainText('8,888');
+  await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled();
   const power = await economy.locator('[data-metric="power"]').innerText();
   await page.screenshot({ path: 'output/playwright/production-variants-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -68,6 +69,7 @@ test('малые потоки в разных карточках не округ
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), small);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true })).toContainText(/e-7/, { timeout: 10000 });
 });
 
@@ -93,6 +95,7 @@ test('изменение плана во время расчёта отменя�
 test('изменённые настройки запрещают выбор старого варианта; настройки сравнения сохраняются', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   await expect(page.getByRole('article').first().getByRole('button', { name: 'Использовать вариант' })).toBeEnabled({ timeout: 30000 });
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов', exact: true }).fill('7');
@@ -116,7 +119,7 @@ test('карточка «Проще построить» показывает ч
   await page.keyboard.type('20');
   await page.keyboard.press('Tab');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout: 30000 });
+  await showVariantCards(page);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.variantOptions.simplerExtraPercent)).toBe(20);
   const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
   const merged = page.getByText('«Проще построить» совпадает');
@@ -220,10 +223,29 @@ test('совпавшие варианты → табло видно без кл�
   expect(await draft(page)).toBe(before);
 });
 
+test('два решённых варианта → табло первого открыто без клика, показ и переключение не меняют черновик', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible();
+  const before = await draft(page);
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const shown = page.getByRole('group', { name: 'Показанный вариант', exact: true });
+  await expect(shown.getByRole('button', { name: 'Максимальный выпуск', exact: true })).toHaveAttribute('aria-pressed', 'true', { timeout: 30000 });
+  await expect(page.locator('.result-board')).toBeVisible();
+  expect(await draft(page)).toBe(before);
+  const energy = await page.locator('.board-energy').innerText();
+  await shown.getByRole('button', { name: 'Экономия энергии', exact: true }).click();
+  await expect(page.locator('.board-energy')).not.toHaveText(energy);
+  expect(await draft(page)).toBe(before);
+  await page.getByRole('button', { name: 'Принять вариант', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(10);
+});
+
 test('переключение варианта → числа табло меняются, «Требуется пересчёт» нет; «Принять вариант» записывает снимок', async ({ page }) => {
   await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   const economy = page.getByRole('article', { name: 'Экономия энергии', exact: true });
   await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
   await page.getByRole('article', { name: 'Максимальный выпуск', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true }).click();
@@ -246,6 +268,7 @@ test('показ варианта, затем правка плана → «Тр
   await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
   await page.getByRole('article', { name: 'Максимальный выпуск', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await page.getByRole('group', { name: 'Показанный вариант', exact: true }).getByRole('button', { name: 'Экономия энергии', exact: true }).click();

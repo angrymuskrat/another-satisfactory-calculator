@@ -9,14 +9,15 @@ import { builtCount, type BuiltRanges, type constructionDependencies, type NextB
 import { format, ItemIcon, unit } from './controls';
 import { usedResources } from './resultResources';
 
-export type BuildEntry = { id: string; parts: MachineSpan[]; group?: ConstructionGroup; supply?: SchematicNode };
+export type BuildEntry = { id: string; parts: MachineSpan[]; group?: ConstructionGroup; node?: SchematicNode };
 /** Order of the construction instruction: suppliers first, so readiness can advance from the top.
- * External supplies carry a "ready" mark that machines wait for, so they lead the order without counting as machines. */
+ * External supplies and belt splitters/mergers carry marks that machines wait for, so they are steps without counting as machines. */
 export function buildOrder(model: ConstructionModel, graph: SchematicModel | null): BuildEntry[] {
   const production = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })))
     .flatMap(group => group.recipeIds.map(id => model.production.find(g => g.id === id)!));
-  const supplies = graph?.nodes.filter(n => n.kind === 'source' && n.parts?.length).map(supply => ({ id: supply.parts![0].id, parts: supply.parts!, supply })) ?? [];
-  return [...supplies, ...[...model.extraction, ...production, ...model.sinks].map(group => ({ id: group.id, parts: [{ id: group.id, first: 0, count: group.count }], group }))];
+  const marked = (...kinds: SchematicNode['kind'][]) => graph?.nodes.filter(n => kinds.includes(n.kind) && n.parts?.length).map(node => ({ id: node.parts![0].id, parts: node.parts!, node })) ?? [];
+  const machines = (groups: ConstructionGroup[]) => groups.map(group => ({ id: group.id, parts: [{ id: group.id, first: 0, count: group.count }], group }));
+  return [...marked('source'), ...machines(model.extraction), ...marked('split', 'merge'), ...machines([...production, ...model.sinks])];
 }
 
 /** Above this many machines a cell per machine stops being readable; one segment per group is drawn instead. */
@@ -59,7 +60,7 @@ export function ResultBoard({ catalog, plan, result, model, order, built, progre
   const resources = usedResources(plan, result.resources);
   const settings = plan.settings;
   const entry = step && step.kind !== 'done' ? order.find(e => e.id === step.id) : undefined;
-  const current = entry?.group, supply = entry?.supply;
+  const current = entry?.group, node = entry?.node, supply = node?.kind === 'source';
   const machine = current && (current.kind === 'extraction' ? catalog.miners.find(b => b.id === current.buildingId) : catalog.buildings.find(b => b.id === current.buildingId));
   const flows = (title: string, list: ConstructionGroup['averageInputs']) => <div><h4>{title}</h4>{list.length ? <ul>{list.map(f => <li key={f.itemId}><span><ItemIcon item={item(f.itemId)} size={18} />{name(f.itemId)}</span><span className="board-number">{rate(f.rate)} {unit(item(f.itemId))}</span></li>)}</ul> : <p>нет</p>}</div>;
   return <section className="result-board" aria-label="Табло результата">
@@ -81,10 +82,10 @@ export function ResultBoard({ catalog, plan, result, model, order, built, progre
     </div>
     <div className={'board-panel board-next' + (step?.kind === 'ready' ? ' is-ready' : '')}><h3>Дальше строим</h3>
       {!step ? <p className="board-next-note">Порядок постройки не удалось проверить. Инструкция ниже остаётся доступной.</p>
-        : step.kind === 'done' ? <><p className="board-next-name">Фабрика собрана</p><p className="board-next-note">Все машины отмечены построенными.</p></>
+        : step.kind === 'done' ? <><p className="board-next-name">Фабрика собрана</p><p className="board-next-note">Все шаги постройки отмечены.</p></>
           : !entry ? null : <>
-            <p className="board-next-name">{supply ? supply.label : machine?.name ?? current!.buildingId}{current && step.kind === 'ready' && <span className="board-number"> ×{step.ready}</span>}</p>
-            <p className="board-next-recipe">{supply ? 'Внешняя поставка: подведите её к фабрике' : current!.name}</p>
+            <p className="board-next-name">{node ? node.label : machine?.name ?? current!.buildingId}{current && step.kind === 'ready' && <span className="board-number"> ×{step.ready}</span>}</p>
+            <p className="board-next-recipe">{supply ? 'Внешняя поставка: подведите её к фабрике' : node ? 'Логистика: поставьте на ленту между поставщиком и потребителями' : current!.name}</p>
             {step.kind === 'waiting' ? <><p className="board-next-note">Ждёт поставщиков{step.missing.length ? ':' : '.'}</p>
               {!!step.missing.length && <ul className="board-missing">{step.missing.slice(0, SHOWN_ROWS).map(m => <li key={JSON.stringify([m.id, m.index, m.itemId])}>{m.itemId ? name(m.itemId) : 'Связь скважины'} — {m.label}</li>)}</ul>}</>
               : <>
@@ -94,10 +95,10 @@ export function ResultBoard({ catalog, plan, result, model, order, built, progre
                   <div><dt>МВт, сред.</dt><dd className="board-number">{format(current.averagePower)}</dd></div>
                 </dl>
                 <div className="board-flows">{flows('Вход', current.averageInputs)}{flows('Выход', current.averageOutputs)}</div></>
-                  : <div className="board-flows">{flows('Поставка', supply!.outputs)}</div>}
+                  : <div className="board-flows">{supply ? flows('Поставка', node!.outputs) : flows('Поток', node!.inputs)}</div>}
                 {step.together && <p className="board-next-note">Замкнутый контур: участники строятся и запускаются вместе.</p>}
                 <div className="board-actions">
-                  <button type="button" className="primary-button" onClick={() => onMark(step.readyParts)}><Check size={16} />{supply ? 'Отметить готовой' : 'Отметить построенными'}</button>
+                  <button type="button" className="primary-button" onClick={() => onMark(step.readyParts)}><Check size={16} />{supply ? 'Отметить готовой' : node ? 'Отметить построенным' : 'Отметить построенными'}</button>
                   <button type="button" className="text-button" onClick={() => onShow(step.id)}>Показать на схеме</button>
                 </div>
               </>}

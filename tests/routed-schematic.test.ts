@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import { buildSchematic, filterSchematicFlows } from '../packages/domain/schematic';
-import { constructionDependencies, markBuilt } from '../packages/domain/constructionProgress';
+import { constructionDependencies, markBuilt, nextBuildStep } from '../packages/domain/constructionProgress';
+import { buildOrder } from '../apps/web/src/ResultBoard';
 import { beltEndpointId } from '../packages/domain/beltRoutingResult';
 import type { BeltRoutingResult } from '../packages/domain/beltRoutingResult';
 import type { ConstructionGroup, ConstructionModel } from '../packages/domain/construction';
@@ -45,6 +46,22 @@ it('оба потребителя ждут реальный разделител
   const machines = [{ id: 'iron', first: 0, count: 2 }];
   expect(progress(machines, supplyReady)).toMatchObject({ ready: 0, missing: [{ id: split.id }] });
   expect(progress(machines, markBuilt(supplyReady, split.parts!, true)).ready).toBe(2);
+});
+
+it('порядок постройки проходит через разделитель: поставка, разделитель, плавильни — без ожидания', () => {
+  const { model, destinations } = fixture();
+  const graph = buildSchematic(catalog, model, destinations, 'configurations');
+  const progress = constructionDependencies(graph), order = buildOrder(model, graph);
+  const split = graph.nodes.find(n => n.kind === 'split')!;
+  const steps: string[] = [];
+  let built = {};
+  for (let step = nextBuildStep(order, progress, built); step.kind !== 'done'; step = nextBuildStep(order, progress, built)) {
+    if (step.kind !== 'ready') throw new Error(`шаг ${step.id} ждёт поставщиков`);
+    steps.push(step.id);
+    built = markBuilt(built, step.readyParts, true);
+  }
+  expect(steps).toEqual([graph.nodes.find(n => n.kind === 'source')!.parts![0].id, split.parts![0].id, 'iron']);
+  expect(order.filter(entry => entry.group).map(entry => entry.id)).toEqual(['iron']);
 });
 
 it('сохраняет обязательные малые физические ветви при фильтрации рисунка', () => {
