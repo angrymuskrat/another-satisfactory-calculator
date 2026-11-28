@@ -3,6 +3,7 @@ import catalogJson from '../packages/game-data/catalog.json';
 import type { Catalog } from '../packages/domain/types';
 import { createDefaultPlan } from '../packages/domain/defaults';
 import { applyWorldUpdate, createFactory, createWorld, emptyWorkspace, grantWorldUnlocks, mergeWorkspace, parseWorkspace, previewWorldUpdate } from '../packages/domain/worlds';
+import { ru } from '../apps/web/src/i18n/ru';
 import { parseCatalogPlan, parseCatalogWorkspace, saveGuestWorkspace, WORKSPACE_KEY } from '../apps/web/src/planStorage';
 
 const catalog = catalogJson as Catalog;
@@ -91,11 +92,11 @@ describe('миры и фабрики', () => {
     const values = new Map([['ficsit-plan-v1', JSON.stringify(plan)]]);
     const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } };
     const workspace = fixture();
-    const raw = saveGuestWorkspace(storage, workspace, null);
+    const raw = saveGuestWorkspace(storage, workspace, null, ru);
     expect(parseCatalogWorkspace(JSON.parse(raw), catalog)).toEqual(workspace);
     expect(storage.getItem('ficsit-plan-v1')).toBe(JSON.stringify(plan));
     storage.setItem(WORKSPACE_KEY, '{corrupt but preserved');
-    expect(() => saveGuestWorkspace(storage, workspace, raw)).toThrow('другой вкладке');
+    expect(() => saveGuestWorkspace(storage, workspace, raw, ru)).toThrow('другой вкладке');
     expect(storage.getItem(WORKSPACE_KEY)).toBe('{corrupt but preserved');
   });
 });

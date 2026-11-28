@@ -4047,7 +4047,14 @@
     "menuCategories": "pinned-game-assets-and-ru-localization; partial-order",
     "mineralsOilWater": "game-docs",
     "transport": "game-docs; belt mSpeed/2, pipe mFlowLimit*60",
-    "resourceWellNodes": "unsupported"
+    "resourceWellNodes": "unsupported",
+    "manualNames": [
+      {
+        "kind": "category",
+        "id": "Генерация (расчёт)",
+        "en": "Generation (calculation)"
+      }
+    ]
   },
   "menuEvidence": {
     "source": "source/menu-assets.json",

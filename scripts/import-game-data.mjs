@@ -10,6 +10,7 @@ import { importP1Data } from './import-p1-game-data.mjs';
 import { importMenuAssets } from './import-menu-assets.mjs';
 import { importResearchAssets } from './import-research-assets.mjs';
 import { importGeneration } from './import-generation.mjs';
+import { minerClasses, beltClass, pipeClass } from './game-classes.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const path = p => resolve(root, p);
@@ -115,7 +116,6 @@ for (const u of up.recipes.filter(r => !mappedRecipes.has(r.key_name))) report.u
 // Порядок самих групп и правила при равных приоритетах дамп не подтверждает.
 const recipePriority = recipe => Number(byClass.get(report.recipeClasses[recipe.id]).mManufacturingMenuPriority);
 recipes.sort((a,b) => a.category.localeCompare(b.category, 'ru') || recipePriority(a)-recipePriority(b) || a.name.localeCompare(b.name, 'ru'));
-const minerClasses = {'miner-mk1':'Build_MinerMk1_C','miner-mk2':'Build_MinerMk2_C','miner-mk3':'Build_MinerMk3_C','oil-pump':'Build_OilPump_C','water-extractor':'Build_WaterPump_C'};
 const miners = up.miners.map(u => {
   const className = minerClasses[u.key_name];
   const game = byClass.get(className);
@@ -123,8 +123,8 @@ const miners = up.miners.map(u => {
   const rate = Number(game.mItemsPerCycle) * 60 / Number(game.mExtractCycleTime) / (u.category === 'mineral' ? 1 : 1000);
   return { id: u.key_name, name: localized(game), rate, power: Number(game.mPowerConsumption), resourceIds };
 });
-const belts = up.belts.map((u, i) => { const game = byClass.get(`Build_ConveyorBeltMk${i+1}_C`); return {id:u.key_name, name:localized(game), rate:Number(game.mSpeed)/2}; });
-const pipes = up.pipes.map((u,i) => {const game = byClass.get(i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'); return {id:u.key_name, name:localized(game), rate:Number(game.mFlowLimit)*60}; });
+const belts = up.belts.map((u, i) => { const game = byClass.get(beltClass(i)); return {id:u.key_name, name:localized(game), rate:Number(game.mSpeed)/2}; });
+const pipes = up.pipes.map((u,i) => {const game = byClass.get(pipeClass(i)); return {id:u.key_name, name:localized(game), rate:Number(game.mFlowLimit)*60}; });
 
 const iconTasks = [];
 for (const entry of [...items, ...buildings]) {
@@ -169,7 +169,7 @@ report.menuEvidence = {
 };
 const progression = importP1Data({ en, ru, catalog, report, hashes, pinned, parseIngredients,
   machineClasses: { ...report.buildingClasses, 'awesome-sink': 'Build_ResourceSink_C', ...minerClasses },
-  transportClasses: Object.fromEntries([...belts.map((b, i) => [b.id, `Build_ConveyorBeltMk${i+1}_C`]), ...pipes.map((p, i) => [p.id, i ? 'Build_PipelineMK2_C' : 'Build_Pipeline_C'])]),
+  transportClasses: Object.fromEntries([...belts.map((b, i) => [b.id, beltClass(i)]), ...pipes.map((p, i) => [p.id, pipeClass(i)])]),
 });
 importMenuAssets({ source: json(sourcePath + 'menu-assets.json'), catalog, report, pinned });
 importResearchAssets({ source: json(sourcePath + 'research-assets.json'), catalog, progression, report, en, ru, pinned });
@@ -182,3 +182,4 @@ output('packages/game-data/source/icon-manifest.json', iconTasks);
 console.log(JSON.stringify(report.counts));
 await import('./import-p2-mechanics.mjs');
 await import('./import-power-generators.mjs');
+await import('./import-locales.mjs');

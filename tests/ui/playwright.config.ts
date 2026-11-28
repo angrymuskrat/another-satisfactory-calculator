@@ -6,5 +6,5 @@ export default defineConfig({
   outputDir: '../../output/playwright',
   timeout: 45_000,
   workers: 1,
-  use: { baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173', channel: 'chrome', headless: true, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
+  use: { baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173', channel: 'chrome', headless: true, locale: 'ru-RU', screenshot: 'only-on-failure', trace: 'retain-on-failure' },
 });

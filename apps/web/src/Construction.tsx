@@ -3,6 +3,8 @@ import type { Catalog } from '../../../packages/domain/types';
 import type { ConstructionGroup, ConstructionModel } from '../../../packages/domain/construction';
 import { orderDependencies } from '../../../packages/domain/dependencies';
 import { format, ItemIcon, unit } from './controls';
+import { useT } from './i18n';
+import { gameName } from './i18n/gameNames';
 import mechanics from '../../../packages/game-data/p2-mechanics.json' with { type: 'json' };
 import { Schematic } from './Schematic';
 import type { SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
@@ -12,14 +14,15 @@ import { defaultScope, type ConstructionMarks } from './useConstructionMarks';
 export type ConstructionView = 'instruction' | SchematicMode;
 
 export function CopyNumber({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
+  const t = useT();
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(String(value));
-      setNotice({ text: 'Число скопировано', error: false });
-    } catch { setNotice({ text: 'Не удалось скопировать. Выделите число и скопируйте вручную.', error: true }); }
+      setNotice({ text: t.construction.copied, error: false });
+    } catch { setNotice({ text: t.construction.copyFailed, error: true }); }
   };
-  return <span><button type="button" className="copy-value" title={`Скопировать: ${label}`} aria-label={`Скопировать: ${label}`} onClick={() => void copy()}>{value !== 0 && Math.abs(value) < 1e-6 ? value.toExponential(3) : format(value, 6)}{suffix && ` ${suffix}`}</button>{notice && <small role={notice.error ? 'alert' : 'status'}>{notice.text}{notice.error && <input aria-label={`Число для ручного копирования: ${label}`} readOnly value={String(value)} onFocus={e => e.currentTarget.select()} />}</small>}</span>;
+  return <span><button type="button" className="copy-value" title={t.construction.copyLabel(label)} aria-label={t.construction.copyLabel(label)} onClick={() => void copy()}>{value !== 0 && Math.abs(value) < 1e-6 ? value.toExponential(3) : format(value, 6)}{suffix && ` ${suffix}`}</button>{notice && <small role={notice.error ? 'alert' : 'status'}>{notice.text}{notice.error && <input aria-label={t.construction.manualCopyLabel(label)} readOnly value={String(value)} onFocus={e => e.currentTarget.select()} />}</small>}</span>;
 }
 
 export function Construction({ catalog, model, destinations, scope = defaultScope, residueItemIds, marks, view, onView, nextId, focus, onFocused }: {
@@ -27,61 +30,63 @@ export function Construction({ catalog, model, destinations, scope = defaultScop
   marks: ConstructionMarks; view: ConstructionView; onView: (view: ConstructionView) => void;
   nextId?: string; focus?: string | null; onFocused?: () => void;
 }) {
+  const t = useT();
   const saved = { ranges: marks.built, error: marks.error }, mark = marks.mark;
   const item = (id: string) => catalog.items.find(i => i.id === id);
+  const name = (id: string) => gameName('item', id, item(id)?.name ?? id);
   const groups = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })));
   const renderGroup = (group: ConstructionGroup, index: string) => {
     const parts = [{ id: group.id, first: 0, count: group.count }];
     const done = builtCount(saved.ranges, parts);
     const machine = group.kind === 'extraction' ? catalog.miners.find(b => b.id === group.buildingId) : catalog.buildings.find(b => b.id === group.buildingId);
-    const name = (id: string) => item(id)?.name ?? id;
     return <details className="production-step" key={group.id} open>
-      <summary><span className="step-title"><span className="step-number">{index}</span><ItemIcon item={item(group.averageOutputs[0]?.itemId ?? group.averageInputs[0]?.itemId ?? '')} size={32} /><span><strong>{group.name}</strong><small>{machine?.name}</small></span></span><span>{group.count}</span><span>{format(group.averagePower)}</span></summary>
-      <div className="step-details">{group.generatedPower !== undefined && <p>Выработка группы: {format(group.generatedPower)} МВт · генераторы на 100%, непрерывный расход топлива.</p>}
-        <div className="full-width"><p>Физических машин: <CopyNumber value={group.count} label={`${group.name}: число машин`} /> · Частота каждой: <CopyNumber value={group.clock} label={`${group.name}: частота`} suffix="%" /></p>
-          <p>Уже есть: {group.existing ?? 0} · Добавить: {group.count - (group.existing ?? 0)} · Somersloops на машину: {group.somersloops ?? 0}</p><p>Активная доля времени: <CopyNumber value={group.activeDuty * 100} label={`${group.name}: активная доля времени`} suffix="%" /> — средняя доля работы группы, а не настройка частоты.</p>
-          {group.kind === 'sink' && <p className="hint">Утилизаторы в модели потребляют полную мощность; доля заполнения ленты не уменьшает MW. Поток на один утилизатор — равная доля входа группы при непрерывном питании.</p>}
-          <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked ? group.count : 0)} /> Построено: {group.name} · {done} из {group.count}</label>
+      <summary><span className="step-title"><span className="step-number">{index}</span><ItemIcon item={item(group.averageOutputs[0]?.itemId ?? group.averageInputs[0]?.itemId ?? '')} size={32} /><span><strong>{group.name}</strong><small>{machine ? gameName(group.kind === 'extraction' ? 'miner' : 'building', machine.id, machine.name) : undefined}</small></span></span><span>{group.count}</span><span>{format(group.averagePower)}</span></summary>
+      <div className="step-details">{group.generatedPower !== undefined && <p>{t.construction.generatedPower(format(group.generatedPower))}</p>}
+        <div className="full-width"><p>{t.construction.machinesAndClock(<CopyNumber value={group.count} label={t.construction.machineCountLabel(group.name)} />, <CopyNumber value={group.clock} label={t.construction.clockLabel(group.name)} suffix="%" />)}</p>
+          <p>{t.construction.existingLine(group.existing ?? 0, group.count - (group.existing ?? 0), group.somersloops ?? 0)}</p><p>{t.construction.dutyLine(<CopyNumber value={group.activeDuty * 100} label={t.construction.dutyLabel(group.name)} suffix="%" />)}</p>
+          {group.kind === 'sink' && <p className="hint">{t.construction.sinkHint}</p>}
+          <label><input type="checkbox" aria-label={t.construction.builtLabel(group.name)} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked ? group.count : 0)} /> {t.construction.builtLine(group.name, done, group.count)}</label>
         </div>
-        {([['Вход', group.activeInputs, group.averageInputs], ['Выход', group.activeOutputs, group.averageOutputs]] as const).map(([title, active, average]) => <div key={title}><h4>{title}</h4>{!active.length && <p className="hint">{group.kind === 'sink' && title === 'Выход' ? 'Предметы уничтожаются в AWESOME Sink.' : 'Нет предметных потоков.'}</p>}{active.map((flow, index) => <div key={flow.itemId}><strong>{name(flow.itemId)}</strong><p>Одна активная машина: <CopyNumber value={flow.rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, одна активная машина`} suffix={unit(item(flow.itemId))} /></p><p>Вся группа в среднем: <CopyNumber value={average[index].rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, группа в среднем`} suffix={unit(item(flow.itemId))} /></p></div>)}</div>)}
-        <div className="full-width"><p>Мощность одной активной машины, средняя за рабочий цикл: <CopyNumber value={group.activePower} label={`${group.name}: мощность активной машины`} suffix="МВт" /></p><p>Средняя группы: <CopyNumber value={group.averagePower} label={`${group.name}: средняя мощность`} suffix="МВт" /> · Консервативный пик группы: <CopyNumber value={group.peakPower} label={`${group.name}: пиковая мощность`} suffix="МВт" /></p>{group.powerEstimated && <p className="hint">Мощность помечена в каталоге как оценочная.</p>}</div>
+        {([['inputs', group.activeInputs, group.averageInputs], ['outputs', group.activeOutputs, group.averageOutputs]] as const).map(([direction, active, average]) => { const title = direction === 'inputs' ? t.construction.input : t.construction.output; return <div key={direction}><h4>{title}</h4>{!active.length && <p className="hint">{group.kind === 'sink' && direction === 'outputs' ? t.construction.sinkNoOutputs : t.construction.noFlows}</p>}{active.map((flow, index) => <div key={flow.itemId}><strong>{name(flow.itemId)}</strong><p>{t.construction.oneMachine(<CopyNumber value={flow.rate} label={t.construction.oneMachineLabel(group.name, title, name(flow.itemId))} suffix={unit(item(flow.itemId))} />)}</p><p>{t.construction.groupAverage(<CopyNumber value={average[index].rate} label={t.construction.groupAverageLabel(group.name, title, name(flow.itemId))} suffix={unit(item(flow.itemId))} />)}</p></div>)}</div>; })}
+        <div className="full-width"><p>{t.construction.activePower(<CopyNumber value={group.activePower} label={t.construction.activePowerLabel(group.name)} suffix={t.construction.megawatt} />)}</p><p>{t.construction.averageAndPeak(<CopyNumber value={group.averagePower} label={t.construction.averagePowerLabel(group.name)} suffix={t.construction.megawatt} />, <CopyNumber value={group.peakPower} label={t.construction.peakPowerLabel(group.name)} suffix={t.construction.megawatt} />)}</p>{group.powerEstimated && <p className="hint">{t.construction.powerEstimated}</p>}</div>
       </div>
     </details>;
   };
   return <div className="construction-panel">
-    <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'Схема']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => onView(value)}>{label}</button>)}</div>
+    <div className="construction-views segmented" role="group" aria-label={t.construction.viewLabel}>{([['instruction', t.construction.viewInstruction], ['types', t.construction.viewSchematic]] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => onView(value)}>{label}</button>)}</div>
     {view !== 'instruction' && saved.error && <p role="alert">{saved.error}</p>}
     {view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} scope={scope} built={saved.ranges} mark={mark} residueItemIds={residueItemIds} nextId={nextId} focus={focus} onFocused={onFocused} /> : <>
-    <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>
-    <section className="panel production-panel"><div className="section-heading"><h3>Этапы производства</h3><span className="count-badge">{model.production.length}</span></div>
-      <p className="hint">Поставщики показаны раньше потребителей. Связи определяются общими предметами; конкретное распределение между машинами не рассчитано.</p>
-      <div className="production-table"><div className="production-header"><span>Рецепт / здание</span><span>Машины</span><span>МВт, сред.</span></div>{groups.map((group, index) => <div key={group.recipeIds.join('|')}>
-        {group.cyclic && <div className="alert warning"><div><h4>Цикл {index + 1} · совместный контур</h4><p>Внутри этого блока нет линейного порядка строительства. Перед запуском заполните замкнутый контур, обеспечьте приоритет возвратной жидкости и постоянный отвод побочных продуктов. Не перекрывайте обратный поток свежей подачей. Начальный запас, объём буферов и длительность заполнения здесь не рассчитаны.</p>{group.internalFlows.map(flow => <p key={flow.itemId}>{item(flow.itemId)?.name ?? flow.itemId}: произведено внутри {format(flow.produced, 6)}, потреблено внутри {format(flow.consumed, 6)} {unit(item(flow.itemId))}.</p>)}<p>Это суммарные потоки участников контура, а не распределение по конкретным соединениям.</p></div></div>}
+    <section className="panel"><h3>{t.construction.instructionTitle}</h3><p>{t.construction.instructionIntro}</p><p className="hint">{t.construction.activeRatesHint}</p><p className="hint">{t.construction.marksHint}</p>{saved.error && <p role="alert">{saved.error}</p>}</section>
+    <section className="panel production-panel"><div className="section-heading"><h3>{t.construction.stagesTitle}</h3><span className="count-badge">{model.production.length}</span></div>
+      <p className="hint">{t.construction.suppliersHint}</p>
+      <div className="production-table"><div className="production-header"><span>{t.construction.recipeBuilding}</span><span>{t.construction.machines}</span><span>{t.construction.averageMegawatts}</span></div>{groups.map((group, index) => <div key={group.recipeIds.join('|')}>
+        {group.cyclic && <div className="alert warning"><div><h4>{t.construction.cycleTitle(index + 1)}</h4><p>{t.construction.cycleBody}</p>{group.internalFlows.map(flow => <p key={flow.itemId}>{t.construction.internalFlow(name(flow.itemId), format(flow.produced, 6), format(flow.consumed, 6), unit(item(flow.itemId)))}</p>)}<p>{t.construction.cycleNote}</p></div></div>}
         {group.recipeIds.map((id, member) => renderGroup(model.production.find(g => g.id === id)!, group.cyclic ? `${index + 1}.${member + 1}` : String(index + 1)))}
-      </div>)}</div>{!groups.length && <p className="hint">Производственные здания не используются: проверьте прямые внешние поставки продукта.</p>}
+      </div>)}</div>{!groups.length && <p className="hint">{t.construction.noBuildings}</p>}
     </section>
-    {!!model.extraction.length && <section className="panel production-panel"><h3>Добытчики</h3><div className="production-table"><div className="production-header"><span>Источник / добытчик</span><span>Машины</span><span>МВт, сред.</span></div>{model.extraction.map((g, i) => renderGroup(g, String(i + 1)))}</div></section>}
-    {!!model.sinks.length && <section className="panel production-panel"><h3>Утилизаторы</h3><div className="production-table"><div className="production-header"><span>Поток / здание</span><span>Машины</span><span>МВт, сред.</span></div>{model.sinks.map((g, i) => renderGroup(g, String(i + 1)))}</div><p className="hint">Побочные продукты уничтожаются, бесконечное хранение не предполагается.</p></section>}
-    <section className="panel"><h3>Материалы зданий</h3><p>Новых машин: {model.addedMaterials.totalMachines} из {model.materials.totalMachines}. «Новые» не учитывают существующие производственные линии; «всего» включает все показанные здания, в том числе отмеченные построенными. Известна стоимость {model.materials.knownMachines} из {model.materials.totalMachines} физических машин.</p>
-      <div className="table-scroll"><table><caption className="sr-only">Материалы зданий</caption><thead><tr><th scope="col">Материал</th><th scope="col">Новые</th><th scope="col">Всего</th></tr></thead><tbody>{model.materials.items.map(i => {
-        const name = item(i.itemId)?.name ?? i.itemId, suffix = item(i.itemId)?.fluid ? 'м³' : 'шт';
+    {!!model.extraction.length && <section className="panel production-panel"><h3>{t.construction.extractorsTitle}</h3><div className="production-table"><div className="production-header"><span>{t.construction.extractorHeader}</span><span>{t.construction.machines}</span><span>{t.construction.averageMegawatts}</span></div>{model.extraction.map((g, i) => renderGroup(g, String(i + 1)))}</div></section>}
+    {!!model.sinks.length && <section className="panel production-panel"><h3>{t.construction.sinksTitle}</h3><div className="production-table"><div className="production-header"><span>{t.construction.sinkHeader}</span><span>{t.construction.machines}</span><span>{t.construction.averageMegawatts}</span></div>{model.sinks.map((g, i) => renderGroup(g, String(i + 1)))}</div><p className="hint">{t.construction.sinksHint}</p></section>}
+    <section className="panel"><h3>{t.construction.materialsTitle}</h3><p>{t.construction.materialsSummary(model.addedMaterials.totalMachines, model.materials.totalMachines, model.materials.knownMachines)}</p>
+      <div className="table-scroll"><table><caption className="sr-only">{t.construction.materialsTitle}</caption><thead><tr><th scope="col">{t.construction.colMaterial}</th><th scope="col">{t.construction.colNew}</th><th scope="col">{t.construction.colTotal}</th></tr></thead><tbody>{model.materials.items.map(i => {
+        const itemName = name(i.itemId), suffix = item(i.itemId)?.fluid ? t.construction.fluidUnit : t.construction.solidUnit;
         const added = model.addedMaterials.items.find(a => a.itemId === i.itemId)?.amount ?? 0;
-        return <tr key={i.itemId}><th scope="row">{name}</th><td><CopyNumber value={added} label={`Новые материалы: ${name}`} suffix={suffix} /></td><td><CopyNumber value={i.amount} label={`Материалы: ${name}`} suffix={suffix} /></td></tr>;
+        return <tr key={i.itemId}><th scope="row">{itemName}</th><td><CopyNumber value={added} label={t.construction.newMaterialLabel(itemName)} suffix={suffix} /></td><td><CopyNumber value={i.amount} label={t.construction.materialLabel(itemName)} suffix={suffix} /></td></tr>;
       })}</tbody></table></div>
-      {model.materials.complete ? <p className="hint">Все показанные здания учтены.</p> : <p className="hint">Ведомость неполная: неизвестные стоимости не приняты за ноль.</p>}{model.materials.unknown.map(b => <p key={b.buildingId}>Стоимость неизвестна: {b.name} × {b.count}.</p>)}<p className="hint">Ленты, трубы, фундаменты, энергомодули и геометрия размещения в ведомость не включены.</p></section>
+      {model.materials.complete ? <p className="hint">{t.construction.allCounted}</p> : <p className="hint">{t.construction.incompleteList}</p>}{model.materials.unknown.map(b => <p key={b.buildingId}>{t.construction.unknownCost(b.name, b.count)}</p>)}<p className="hint">{t.construction.notIncluded}</p></section>
     </>}
   </div>;
 }
 
 export function CatalogStatus({ catalog }: { catalog: Catalog }) {
+  const t = useT();
   const sections = [
-    { name: 'Рецепты и количества', pattern: /количеств|длительност|рецепт/i },
-    { name: 'Мощность', pattern: /мощност|средн|крив|энерги/i },
-    { name: 'Локализация', pattern: /названи|локализ|ru\.json|RU\/EN/i },
-    { name: 'Группировка', pattern: /групп|категор|mCategory|MenuPriority/i },
+    { name: t.construction.sectionRecipes, pattern: /количеств|длительност|рецепт/i },
+    { name: t.construction.sectionPower, pattern: /мощност|средн|крив|энерги/i },
+    { name: t.construction.sectionLocalization, pattern: /названи|локализ|ru\.json|RU\/EN/i },
+    { name: t.construction.sectionGrouping, pattern: /групп|категор|mCategory|MenuPriority/i },
   ];
-  return <details className="panel"><summary>Статус данных по разделам</summary><p>Источник: {catalog.provenance.source}</p><p>Каталог: {catalog.version} · Commit: {catalog.provenance.commit} · Импорт: {catalog.provenance.importedAt}</p><p>Общий флаг каталога: {catalog.provenance.verified ? 'проверен' : 'полная сверка не подтверждена'}. Отдельные флаги аттестации разделов не заданы; ниже приведены сведения источника, без расширения их области проверки.</p>{sections.map(section => {
+  return <details className="panel"><summary>{t.construction.statusTitle}</summary><p>{t.construction.statusSource(catalog.provenance.source)}</p><p>{t.construction.statusCatalog(catalog.version, catalog.provenance.commit, catalog.provenance.importedAt)}</p><p>{t.construction.statusFlag(catalog.provenance.verified)}</p>{sections.map(section => {
     const notes = catalog.provenance.notes.filter(note => section.pattern.test(note));
-    return <section key={section.name}><h4>{section.name}</h4>{notes.length ? notes.map(note => <p key={note}>{note}</p>) : <p>Сведения о проверке этого раздела в provenance отсутствуют.</p>}</section>;
-  })}<p>Материалы зданий: стоимость задана у {catalog.buildings.filter(b => 'buildCost' in b && Array.isArray(b.buildCost)).length} из {catalog.buildings.length} типов зданий и у {catalog.miners.filter(b => 'buildCost' in b && Array.isArray(b.buildCost)).length} из {catalog.miners.length} типов добытчиков. Наличие стоимости само по себе не подтверждает её сверку.</p>{catalog.version === mechanics.provenance.catalogVersion && <p>Стоимость компенсатора скважины и каждого спутника импортирована из строительных рецептов закреплённой сборки и включается в ведомость.</p>}</details>;
+    return <section key={section.name}><h4>{section.name}</h4>{notes.length ? notes.map(note => <p key={note}>{note}</p>) : <p>{t.construction.noSectionNotes}</p>}</section>;
+  })}<p>{t.construction.statusCosts(catalog.buildings.filter(b => 'buildCost' in b && Array.isArray(b.buildCost)).length, catalog.buildings.length, catalog.miners.filter(b => 'buildCost' in b && Array.isArray(b.buildCost)).length, catalog.miners.length)}</p>{catalog.version === mechanics.provenance.catalogVersion && <p>{t.construction.statusCompensator}</p>}</details>;
 }
