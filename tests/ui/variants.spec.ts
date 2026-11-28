@@ -1,4 +1,5 @@
 import { catalog } from './catalog';
+import { showVariantCards } from './chooseVariant';
 import { expect, test, type Page } from '@playwright/test';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { largeOrder } from '../largeOrderFixture';
@@ -24,9 +25,9 @@ test('выбор экономичного варианта сохраняет е
   await expect(page.getByRole('heading', { name: 'Варианты производства', exact: true })).toBeVisible();
   const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
   const economy = page.getByRole('article', { name: 'Экономия энергии', exact: true });
-  await expect(maximum).toContainText('8,888', { timeout: 30000 });
-  await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
-  await expect(page.getByRole('button', { name: 'Построить', exact: true })).toHaveCount(0);
+  await showVariantCards(page);
+  await expect(maximum).toContainText('8,888');
+  await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled();
   const power = await economy.locator('[data-metric="power"]').innerText();
   await page.screenshot({ path: 'output/playwright/production-variants-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -37,15 +38,14 @@ test('выбор экономичного варианта сохраняет е
   await page.route(/\/solver\.worker/, route => route.abort());
   await economy.getByRole('button', { name: 'Использовать вариант', exact: true }).focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('.kpi').filter({ hasText: 'Средняя мощность' })).toContainText(power);
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
+  await expect(page.locator('.board-energy')).toContainText(power);
   await expect(page.locator('.construction-panel')).toContainText('сборный каркас');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!));
   expect(saved.settings.outputSlack).toBe(10);
   expect(saved.settings.smoothPowerExtraMachines).toBe(0);
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
-  await expect(page.locator('.kpi').first()).toContainText('8,888');
+  await expect(page.locator('.board-goal')).toContainText('8,888');
   await page.reload();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(0);
 });
@@ -69,6 +69,7 @@ test('малые потоки в разных карточках не округ
   await page.addInitScript(value => localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)), small);
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true })).toContainText(/e-7/, { timeout: 10000 });
 });
 
@@ -87,13 +88,14 @@ test('изменение плана во время расчёта отменя�
     await page.getByRole('button', { name: 'Результаты', exact: true }).click();
     await expect(page.getByText('Настройки изменились. Запустите подбор вариантов заново.', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
-    await expect(page.locator('.kpi')).toHaveCount(0);
+    await expect(page.locator('.result-board')).toHaveCount(0);
   } finally { release(); await page.unroute(workerRoute); }
 });
 
 test('изменённые настройки запрещают выбор старого варианта; настройки сравнения сохраняются', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
   await expect(page.getByRole('article').first().getByRole('button', { name: 'Использовать вариант' })).toBeEnabled({ timeout: 30000 });
   await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
   await page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов', exact: true }).fill('7');
@@ -117,7 +119,7 @@ test('карточка «Проще построить» показывает ч
   await page.keyboard.type('20');
   await page.keyboard.press('Tab');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout: 30000 });
+  await showVariantCards(page);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.variantOptions.simplerExtraPercent)).toBe(20);
   const simple = page.getByRole('article', { name: 'Проще построить', exact: true });
   const merged = page.getByText('«Проще построить» совпадает');
@@ -150,7 +152,7 @@ test('основной вариант выбирается до конца ра�
   await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Максимальный выпуск', exact: true })).toBeVisible();
   await expect(page.locator('.results-column .spinner')).toHaveCount(0);
-  await expect(page.locator('.kpi').first()).toContainText('8,888');
+  await expect(page.locator('.board-goal')).toContainText('8,888');
   await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toHaveCount(0, { timeout: 30000 });
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   await expect(page.getByText('Считается…')).toHaveCount(0);
@@ -169,7 +171,7 @@ test('нерешённые варианты после отмены помече
   await page.getByRole('button', { name: 'Отменить расчёт', exact: true }).click();
   await expect(page.getByText('Не рассчитан', { exact: true }).first()).toBeVisible();
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
-  await expect(page.locator('.kpi').first()).toContainText('8,888');
+  await expect(page.locator('.board-goal')).toContainText('8,888');
   await expect(page.locator('.results-column [role="alert"]')).toHaveCount(0);
 });
 
@@ -193,7 +195,7 @@ test('рабочий план на 14 продуктов открывается 
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const working = page.getByRole('region', { name: 'Рабочие планы', exact: true });
   await working.getByRole('button', { name: 'Открыть рабочий план' }).first().click({ timeout: 20000 });
-  await expect(page.getByRole('button', { name: 'Построить', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Построить', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.enabledRecipeIds.length)).toBe(141);
   await page.getByRole('button', { name: 'Вернуться к вариантам' }).click();
@@ -201,4 +203,80 @@ test('рабочий план на 14 продуктов открывается 
   await page.getByRole('button', { name: 'Продолжить оптимизацию' }).click();
   await expect(working.getByRole('button').first()).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Отменить расчёт' })).toBeVisible();
+});
+
+const single = createDefaultPlan(catalog);
+single.mode = 'target';
+single.targets = [{ itemId: 'iron-ingot', rate: 1, weight: 1, scale: 1 }];
+single.settings.enabledRecipeIds = ['iron-ingot'];
+single.sources = [{ ...plan.sources[0], limit: 120 }];
+const draft = (page: Page) => page.evaluate(() => localStorage.getItem('ficsit-plan-v1'));
+
+test('совпавшие варианты → табло видно без клика, план в черновике не изменился', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, single);
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible();
+  const before = await draft(page);
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await expect(page.locator('.board-energy')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole('button', { name: 'Использовать вариант' })).toHaveCount(0);
+  expect(await draft(page)).toBe(before);
+});
+
+test('два решённых варианта → табло первого открыто без клика, показ и переключение не меняют черновик', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible();
+  const before = await draft(page);
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const shown = page.getByRole('group', { name: 'Показанный вариант', exact: true });
+  await expect(shown.getByRole('button', { name: 'Максимальный выпуск', exact: true })).toHaveAttribute('aria-pressed', 'true', { timeout: 30000 });
+  await expect(page.locator('.result-board')).toBeVisible();
+  expect(await draft(page)).toBe(before);
+  const energy = await page.locator('.board-energy').innerText();
+  await shown.getByRole('button', { name: 'Экономия энергии', exact: true }).click();
+  await expect(page.locator('.board-energy')).not.toHaveText(energy);
+  expect(await draft(page)).toBe(before);
+  await page.getByRole('button', { name: 'Принять вариант', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(10);
+});
+
+test('переключение варианта → числа табло меняются, «Требуется пересчёт» нет; «Принять вариант» записывает снимок', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
+  const economy = page.getByRole('article', { name: 'Экономия энергии', exact: true });
+  await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
+  await page.getByRole('article', { name: 'Максимальный выпуск', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true }).click();
+  const kpi = page.locator('.board-energy');
+  await expect(kpi).toBeVisible();
+  const first = await kpi.innerText();
+  const accepted = await draft(page);
+  await expect(page.getByRole('button', { name: 'Принять вариант', exact: true })).toHaveCount(0);
+  await page.getByRole('group', { name: 'Показанный вариант', exact: true }).getByRole('button', { name: 'Экономия энергии', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Экономия энергии', exact: true })).toBeVisible();
+  await expect(kpi).not.toHaveText(first);
+  await expect(page.getByText('Требуется пересчёт', { exact: true })).toHaveCount(0);
+  expect(await draft(page)).toBe(accepted);
+  await page.getByRole('button', { name: 'Принять вариант', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Принять вариант', exact: true })).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.outputSlack)).toBe(10);
+});
+
+test('показ варианта, затем правка плана → «Требуется пересчёт», «Принять вариант» недоступно', async ({ page }) => {
+  await page.addInitScript(value => { if (!localStorage.getItem('seeded')) { localStorage.setItem('ficsit-plan-v1', JSON.stringify(value)); localStorage.setItem('seeded', '1'); } }, plan);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  await showVariantCards(page);
+  await expect(page.getByRole('article', { name: 'Экономия энергии', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30000 });
+  await page.getByRole('article', { name: 'Максимальный выпуск', exact: true }).getByRole('button', { name: 'Использовать вариант', exact: true }).click();
+  await page.getByRole('group', { name: 'Показанный вариант', exact: true }).getByRole('button', { name: 'Экономия энергии', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Принять вариант', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Цели и ограничения', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Потеря выпуска для экономичных вариантов', exact: true }).fill('7');
+  await page.getByRole('button', { name: 'Результаты', exact: true }).click();
+  await expect(page.getByText('Требуется пересчёт', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Принять вариант', exact: true })).toBeDisabled();
+  await expect(page.getByRole('group', { name: 'Показанный вариант', exact: true }).getByRole('button').first()).toBeDisabled();
 });

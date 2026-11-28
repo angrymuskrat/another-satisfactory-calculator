@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildSchematic, filterSchematicFlows } from '../packages/domain/schematic';
-import { builtCount, constructionDependencies, firstMachines, markBuilt, markFirst } from '../packages/domain/constructionProgress';
+import { builtCount, constructionDependencies, firstMachines, markBuilt, markFirst, nextBuildStep } from '../packages/domain/constructionProgress';
 import type { ConstructionGroup, ConstructionModel } from '../packages/domain/construction';
 import type { Catalog } from '../packages/domain/types';
 
@@ -77,6 +77,90 @@ describe('схема строительства', () => {
       expect(progress(parts, water)).toMatchObject({ together: true, ready: 1, missing: [] });
     }
   });
+  describe('nextBuildStep', () => {
+    const chain = () => {
+      const smelters = group('smelters', 4, 80.4);
+      const plates = { ...group('plates', 4, 80.4), averageInputs: [flow('ingot', 80.4)], averageOutputs: [flow('plate', 80.4)] };
+      const graph = buildSchematic(catalog, model([smelters, plates]), { products: [flow('plate', 80.4)] }, 'configurations');
+      const source = graph.nodes.find(n => n.kind === 'source')!;
+      const order = [source.id, 'smelters', 'plates'].map(id => ({ id, parts: graph.nodes.find(n => n.id === id || n.parts?.some(p => p.id === id))!.parts! }));
+      return { progress: constructionDependencies(graph), order, source };
+    };
+
+    it('ничего не построено: первый узел цепочки, ready — число его машин', () => {
+      const { progress, order, source } = chain();
+      const step = nextBuildStep(order, progress, {});
+      expect(step).toMatchObject({ kind: 'ready', id: source.id, ready: order[0].parts.reduce((s, p) => s + p.count, 0), together: false });
+      expect(step.kind === 'ready' && step.remaining).toBe(step.kind === 'ready' && step.ready);
+    });
+
+    it('добытчик построен: выбирается следующий узел цепочки', () => {
+      const { progress, order } = chain();
+      const built = markBuilt({}, order[0].parts, true);
+      expect(nextBuildStep(order, progress, built)).toMatchObject({ kind: 'ready', id: 'smelters', ready: 4, remaining: 4 });
+    });
+
+    it('частично готовый узел: readyParts только готовые отрезки, remaining — все неотмеченные', () => {
+      const { progress, order } = chain();
+      const built = markBuilt(markBuilt({}, order[0].parts, true), [{ id: 'smelters', first: 0, count: 2 }], true);
+      const partial = markBuilt(built, [{ id: 'smelters', first: 0, count: 1 }], false);
+      const step = nextBuildStep(order, progress, markBuilt(partial, [{ id: 'smelters', first: 3, count: 1 }], true));
+      expect(step).toMatchObject({ kind: 'ready', id: 'smelters', ready: 2, remaining: 2, readyParts: [{ id: 'smelters', first: 0, count: 1 }, { id: 'smelters', first: 2, count: 1 }] });
+      const onlyPlates = markBuilt(markBuilt(markBuilt({}, order[0].parts, true), order[1].parts, true), [{ id: 'smelters', first: 1, count: 1 }], false);
+      expect(nextBuildStep(order, progress, onlyPlates)).toMatchObject({ kind: 'ready', id: 'smelters', ready: 1, remaining: 1 });
+      expect(progress(order[2].parts, onlyPlates).readyParts).toEqual([{ id: 'plates', first: 0, count: 1 }, { id: 'plates', first: 2, count: 2 }]);
+    });
+
+    it('цикл: together, выбирается после готовности внешних зависимостей', () => {
+      const a = { ...group('a', 1, 20), averageInputs: [flow('water', 20.0001)], averageOutputs: [flow('ingot', 20)] };
+      const b = { ...group('b', 1, 20), averageInputs: [flow('ingot', 20)], averageOutputs: [flow('water', 20), flow('plate', 1)] };
+      const m = model([a, b]);
+      m.externalSources = [{ sourceId: 'water', itemId: 'water', name: 'Подпитка водой', rate: .0001, power: null }];
+      const graph = buildSchematic(catalog, m, { products: [flow('plate', 1)] }, 'configurations');
+      const progress = constructionDependencies(graph);
+      const source = graph.nodes.find(n => n.kind === 'source')!;
+      const order = [{ id: 'a', parts: [{ id: 'a', first: 0, count: 1 }] }, { id: source.id, parts: source.parts! }];
+      expect(nextBuildStep(order, progress, {})).toMatchObject({ kind: 'ready', id: source.id, together: false });
+      expect(nextBuildStep(order, progress, markBuilt({}, source.parts!, true))).toMatchObject({ kind: 'ready', id: 'a', ready: 1, together: true });
+    });
+
+    it('есть неотмеченные, но ни одна не готова: waiting с missing первого неотмеченного узла', () => {
+      const { progress, order, source } = chain();
+      const step = nextBuildStep(order.slice(1), progress, {});
+      expect(step).toMatchObject({ kind: 'waiting', id: 'smelters', missing: [{ id: source.id, itemId: 'ore' }] });
+    });
+
+    it('узел вне графа не маскирует настоящее ожидание поставщика', () => {
+      const { progress, order, source } = chain();
+      const ghost = { id: 'ghost', parts: [{ id: 'ghost', first: 0, count: 1 }] };
+      expect(nextBuildStep([ghost, ...order.slice(1)], progress, {})).toMatchObject({ kind: 'waiting', id: 'smelters', missing: [{ id: source.id, itemId: 'ore' }] });
+      expect(nextBuildStep([ghost], progress, {})).toEqual({ kind: 'waiting', id: 'ghost', missing: [] });
+    });
+
+    it('часть машин заблокирована: remaining больше ready', () => {
+      const { progress, order } = chain();
+      const built = markBuilt(markBuilt({}, order[0].parts, true), [{ id: 'smelters', first: 0, count: 2 }], true);
+      const step = nextBuildStep(order.slice(2), progress, built);
+      expect(step).toMatchObject({ kind: 'ready', id: 'plates', ready: 2, remaining: 4, readyParts: [{ id: 'plates', first: 0, count: 2 }] });
+    });
+
+    it('всё отмечено: done; пустой порядок тоже done', () => {
+      const { progress, order } = chain();
+      const built = order.reduce((acc, e) => markBuilt(acc, e.parts, true), {});
+      expect(nextBuildStep(order, progress, built)).toEqual({ kind: 'done' });
+      expect(nextBuildStep([], progress, {})).toEqual({ kind: 'done' });
+    });
+
+    it('после отметки readyParts тот же узел не возвращается, если готовых не осталось', () => {
+      const { progress, order } = chain();
+      const first = nextBuildStep(order, progress, {});
+      if (first.kind !== 'ready') throw new Error('expected ready');
+      const next = nextBuildStep(order, progress, markBuilt({}, first.readyParts, true));
+      expect(next).toMatchObject({ kind: 'ready', id: 'smelters' });
+      expect(next).not.toMatchObject({ id: first.id });
+    });
+  });
+
   it('скрывает связи ниже 0,01% общего потока предмета', () => {
     const m = model([group('large', 1, 99.985), group('boundary', 1, .01), group('tiny', 1, .005)], 100);
     m.transport.belt.rate = 120;

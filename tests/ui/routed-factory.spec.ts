@@ -1,3 +1,5 @@
+import { showVariantCards } from './chooseVariant';
+import { openSection } from './sections';
 import { expect, test } from '@playwright/test';
 
 test('стандартная фабрика с глубиной 4 даёт два варианта и реальные ленты в групповом виде', async ({ page }, testInfo) => {
@@ -12,6 +14,7 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
   const economy = page.getByRole('article', { name: 'Экономия энергии', exact: true });
+  await showVariantCards(page, 35_000);
   await expect(maximum.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 35_000 });
   await expect(economy.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 35_000 });
   await expect(maximum.locator('.variant-metrics > div').first()).toContainText('10 шт/мин');
@@ -19,7 +22,6 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   const calculationMs = Date.now() - started;
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
@@ -36,8 +38,8 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   await expect(graph.locator('.schematic-notes').first()).not.toContainText('других страниц');
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   await economy.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
+  await openSection(page, 'Готовая продукция');
   await expect(page.getByRole('button', { name: 'Скопировать: Выпуск: Усиленная железная пластина', exact: true })).toHaveText('9 шт/мин');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
   await expect(graph).not.toContainText('УСЛОВНЫЙ БЛОК');
@@ -60,14 +62,35 @@ test('выключение учёта на стандартной фабрике
   await expect(depth).toBeDisabled();
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   const maximum = page.getByRole('article', { name: 'Максимальный выпуск', exact: true });
+  await showVariantCards(page);
   await expect(maximum.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30_000 });
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node').first()).toBeVisible();
   expect(await graph.locator('.schematic-node[data-kind="building"]').evaluateAll(nodes => nodes.reduce((sum, n) => sum + Number(n.getAttribute('data-count')), 0))).toBe(15);
   await expect(graph.locator('.schematic-node.junction')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ficsit-plan-v1')!).settings.beltRouting)).toEqual({ enabled: false, maxDepth: 4 });
+});
+
+test('табло проводит через разделители и соединители до «Фабрика собрана» без ожидания поставщиков', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.goto('/');
+  await page.getByRole('checkbox', { name: 'Учитывать схемы разделителей и соединителей', exact: true }).check();
+  await page.getByRole('combobox', { name: 'Максимальная глубина', exact: true }).selectOption('4');
+  await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
+  const next = page.locator('.board-next');
+  await expect(next).toBeVisible({ timeout: 35_000 });
+  const mark = next.getByRole('button', { name: /^Отметить / });
+  const labels = new Set<string>();
+  for (let i = 0; i < 80 && await mark.count(); i++) {
+    await expect(next).not.toContainText('Ждёт поставщиков');
+    labels.add(await mark.innerText());
+    await mark.click();
+  }
+  await expect(next).toContainText('Фабрика собрана');
+  expect([...labels]).toContain('Отметить построенным');
+  const [done, total] = (await page.locator('.board-built-count strong').innerText()).split('/').map(part => Number(part.replace(/\D/g, '')));
+  expect(done).toBe(total);
 });

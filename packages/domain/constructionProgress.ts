@@ -114,6 +114,7 @@ export function constructionDependencies(graph: SchematicModel) {
   const external = components.map((indices, i) => indices.flatMap(index => links[index].filter(l => componentOf.get(l.from) !== i)));
   return (parts: MachineSpan[], built: BuiltRanges) => {
     const missing = new Map<string, MissingSupply>();
+    const readyParts: MachineSpan[] = [];
     let ready = 0, together = false, firstReady: { id: string; index: number } | undefined;
     for (const part of parts) {
       const component = componentOf.get(part.id);
@@ -144,12 +145,31 @@ export function constructionDependencies(graph: SchematicModel) {
       for (const range of pending) {
         const available = subtract(range, waiting);
         ready += size(available);
+        for (const [a, b] of available) readyParts.push({ id: part.id, first: a, count: b - a });
         if (!firstReady && available.length) {
           const index = available[0][0];
           firstReady = { id: part.id, index };
         }
       }
     }
-    return { ready, together, firstReady, missing: [...missing.values()] };
+    return { ready, together, firstReady, readyParts, missing: [...missing.values()] };
   };
+}
+
+export type NextBuildStep =
+  | { kind: 'ready'; id: string; readyParts: MachineSpan[]; ready: number; remaining: number; together: boolean }
+  | { kind: 'waiting'; id: string; missing: MissingSupply[] }
+  | { kind: 'done' };
+
+/** When nothing is ready, `waiting` prefers an entry with named missing supplies; an entry unknown to the graph has none and is only a fallback. */
+export function nextBuildStep(order: { id: string; parts: MachineSpan[] }[], progress: ReturnType<typeof constructionDependencies>, built: BuiltRanges): NextBuildStep {
+  let waiting: Extract<NextBuildStep, { kind: 'waiting' }> | undefined;
+  for (const entry of order) {
+    const remaining = entry.parts.reduce((sum, part) => sum + part.count, 0) - builtCount(built, entry.parts);
+    if (remaining <= 0) continue;
+    const step = progress(entry.parts, built);
+    if (step.ready > 0) return { kind: 'ready', id: entry.id, readyParts: step.readyParts, ready: step.ready, remaining, together: step.together };
+    if (!waiting || (!waiting.missing.length && step.missing.length)) waiting = { kind: 'waiting', id: entry.id, missing: step.missing };
+  }
+  return waiting ?? { kind: 'done' };
 }

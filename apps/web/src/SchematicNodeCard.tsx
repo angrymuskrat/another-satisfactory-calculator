@@ -45,10 +45,10 @@ export function BuildMark({ node, progress, built, mark, items, onGoTo, adjustab
   </div>;
 }
 
-export function SchematicNodeCard({ node, level, rect, items, progress, built, mark, selected, muted, detailId, buttonRef, onSelect, onGoTo, children }: {
+export function SchematicNodeCard({ node, level, rect, items, progress, built, mark, selected, next = false, simple = false, muted, detailId, buttonRef, onSelect, onGoTo, children }: {
   node: SchematicNode; level: 'medium' | 'close'; rect: Rect; items: Map<string, Item>;
   progress?: NodeProgress; built: BuiltRanges; mark: Mark;
-  selected: boolean; muted: boolean; detailId: string; buttonRef: (element: HTMLButtonElement | null) => void;
+  selected: boolean; next?: boolean; simple?: boolean; muted: boolean; detailId: string; buttonRef: (element: HTMLButtonElement | null) => void;
   onSelect: () => void; onGoTo: (destination: Destination) => void; children?: ReactNode;
 }) {
   const item = (id?: string) => id ? items.get(id) : undefined;
@@ -63,9 +63,10 @@ export function SchematicNodeCard({ node, level, rect, items, progress, built, m
   const source = node.kind === 'source';
   return <article data-node-id={node.id} data-kind={node.kind} data-building-id={node.buildingId} data-count={node.count} data-progress={readiness}
     style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
-    className={`schematic-node ${level} ${readiness ?? ''} ${junction ? 'junction' : ''} ${item(node.itemId)?.fluid ? 'fluid' : ''} ${selected ? 'selected' : muted ? 'muted-node' : ''}`}>
-    <button type="button" ref={buttonRef} className="schematic-node-button" aria-pressed={selected} aria-controls={detailId} onClick={onSelect}>
-      <span className="schematic-node-title">{junction ? <GitFork size={16} /> : node.count ? <Factory size={16} /> : <ItemIcon item={item(node.itemId)} size={18} />}
+    className={`schematic-node ${level} ${readiness ?? ''} ${junction ? 'junction' : ''} ${item(node.itemId)?.fluid ? 'fluid' : ''} ${selected ? 'selected' : muted ? 'muted-node' : ''} ${next ? 'next' : ''} ${simple ? 'simple' : ''}`}>
+    {next && <span className="schematic-next-tag">Дальше</span>}
+    <button type="button" ref={buttonRef} className="schematic-node-button" aria-pressed={selected} aria-controls={detailId} onClick={onSelect} title={simple ? `${node.label}${node.count ? ` ×${node.count}` : ''} · ${subtitle}` : undefined}>
+      <span className="schematic-node-title">{junction ? <GitFork size={16} /> : simple && node.count ? <ItemIcon item={item(node.outputs[0]?.itemId ?? node.inputs[0]?.itemId)} size={30} /> : node.count ? <Factory size={16} /> : <ItemIcon item={item(node.itemId)} size={18} />}
         {node.count > 0 && !junction && <b>×{node.count}</b>}<strong>{node.label}</strong></span>
       <span className="schematic-recipe">{subtitle}</span>
     </button>

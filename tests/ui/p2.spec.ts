@@ -37,7 +37,6 @@ test('усилитель, существующая линия, сравнени�
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
   await expect(page.locator('.results-heading').getByText('Оптимум найден', { exact: true })).toBeVisible({ timeout: 30000 });
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.locator('.construction-panel')).toContainText('Старый конструктор');
   await expect(page.locator('.construction-panel')).toContainText('Новых машин: 0');
   await expect(page.locator('.construction-panel')).toContainText('Somersloops на машину: 1');

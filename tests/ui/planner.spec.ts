@@ -1,5 +1,6 @@
 import { catalog } from './catalog';
 import { chooseMaximum } from './chooseVariant';
+import { openSection } from './sections';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { createDefaultPlan } from '../../packages/domain/defaults';
@@ -118,8 +119,8 @@ test('результат показывает KPI простоты и линии
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
-  await expect(page.locator('.kpi').filter({ hasText: 'Разных рецептов' })).toContainText('2');
-  await expect(page.locator('.kpi').filter({ hasText: 'Промежуточных предметов' })).toContainText('1');
+  await expect(page.locator('.result-summary dl > div').filter({ hasText: 'Разных рецептов' })).toContainText('2');
+  await expect(page.locator('.result-summary dl > div').filter({ hasText: 'Промежуточных предметов' })).toContainText('1');
   // 60 руды/мин при ленте Mk1 (60/мин) — ровно одна лента.
   await expect(page.locator('.utilization').filter({ hasText: 'Железная руда' })).toContainText('1 лента');
 });
@@ -139,7 +140,7 @@ test('отгрузка побочного продукта показана па
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
-  const exportsPanel = page.getByRole('region', { name: 'Отгрузки' });
+  const exportsPanel = await openSection(page, 'Отгрузки');
   await expect(exportsPanel).toContainText('1 труба');
   await expect(exportsPanel).toContainText('Соседняя фабрика');
   await expect(page.getByText(/^Отгрузка:/)).toHaveCount(0);

@@ -115,7 +115,6 @@ for (const viewport of viewports) {
       await freeze(page, `results-${viewport.width}`);
       await page.locator('.production-step > summary').first().click();
       await freeze(page, `results-step-${viewport.width}`);
-      await page.getByRole('button', { name: 'Построить', exact: true }).click();
       await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
       await freeze(page, `instruction-${viewport.width}`);
       await page.getByRole('button', { name: 'Схема', exact: true }).click();

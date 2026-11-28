@@ -22,8 +22,11 @@ type CanvasProps = Tracking & {
   catalog: Catalog; graph: SchematicModel; dependencies: ReturnType<typeof constructionDependencies>;
   manual: ReturnType<typeof useSchematicPositions>; transport: ConstructionModel['transport'];
   residueItemIds?: readonly string[]; closeForResidue: (id: string) => void; actions: ReactNode;
+  nextId?: string; focus?: string | null; onFocused?: () => void;
 };
 const levelOf = (zoom: number): Level => zoom > .999 ? 'close' : 'medium';
+// Below this on-screen size the card title is unreadable, so the card keeps only its product and count.
+const NODE_TITLE_PX = 13, READABLE_PX = 9;
 const represents = (n: SchematicNode, target: Destination) => n.parts?.some(p => p.id === target.id && p.first <= target.index && target.index < p.first + p.count);
 type Size = { width: number; height: number };
 const fits = (room: Size, layout: Size) => Math.min(room.width / layout.width, room.height / layout.height);
@@ -37,7 +40,7 @@ function SchematicCanvas(props: CanvasProps) {
   return <SchematicView {...props} layouts={state.layout} />;
 }
 
-function SchematicView({ catalog, graph, built, mark, dependencies, manual, transport, residueItemIds, closeForResidue, actions, layouts }: CanvasProps & {
+function SchematicView({ catalog, graph, built, mark, dependencies, manual, transport, residueItemIds, closeForResidue, actions, layouts, nextId, focus, onFocused }: CanvasProps & {
   layouts: { medium: MediumLayout; close: MediumLayout };
 }) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -82,6 +85,7 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
   const minZoom = Math.max(.1, room ? Math.min(.9, fits(room, placed.medium)) : .1);
   const { zoom, zoomTo, dragging, bindings } = useSchematicNavigation(viewport, rescroll, minZoom);
   const level = levelOf(zoom), layout = placed[level];
+  const simple = level === 'medium' && NODE_TITLE_PX * zoom < READABLE_PX;
   const [query, setQuery] = useState(''), [hit, setHit] = useState(-1);
   const order = useMemo(() => Object.entries(layout.rects).sort(([, a], [, b]) => a.x - b.x || a.y - b.y).map(([id]) => id), [layout]);
   const matches = useMemo(() => findNodes(graph, catalog, query, order), [graph, catalog, query, order]);
@@ -124,11 +128,11 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
     && graph.cycles.some(c => c.internalFlows.some(f => f.itemId === e.itemId) && byId.get(e.to)!.configurations.some(g => c.recipeIds.includes(g.id)));
   const highlight = (e: SchematicEdge) => selectedEdge ? e.id === selectedEdge : !selected || e.from === selected || e.to === selected;
   const labelText = (e: SchematicEdge) => `${number(e.rate)}${e.parallel > 1 ? ` ×${e.parallel}` : ''}`;
-  const labels = useMemo(() => placeFlowLabels(layout, graph.edges.filter(e => e.kind === 'flow' && highlight(e) && lines.has(e.id)).map(e => {
+  const labels = useMemo(() => placeFlowLabels(layout, graph.edges.filter(e => !simple && e.kind === 'flow' && highlight(e) && lines.has(e.id)).map(e => {
     const end = lines.get(e.id)!.at(-1)!, width = (item(e.itemId)?.icon ? 20 : 4) + labelText(e).length * 7 + 4;
     // 40 px in front of the consumer's port; wider labels move left so they stay off the card.
     return { id: e.id, at: { x: end.x - Math.max(40, width / 2 + 4), y: end.y }, width, height: 20 };
-  })), [graph, layout, lines, items, selected, selectedEdge]);
+  })), [graph, layout, lines, items, selected, selectedEdge, simple]);
   const visibleEdge = (edge: SchematicEdge) => {
     const points = lines.get(edge.id);
     if (!points) return null;
@@ -156,6 +160,12 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
     if (element && r) element.scrollTo({ left: (r.x + r.width / 2) * zoom - element.clientWidth / 2, top: (r.y + r.height / 2) * zoom - element.clientHeight / 2 });
   };
   const clearSearch = () => { setQuery(''); setHit(-1); };
+  const holds = (n: SchematicNode, id?: string | null) => !!id && !!n.parts?.some(p => p.id === id);
+  useEffect(() => {
+    const node = graph.nodes.find(n => holds(n, focus));
+    if (!node) return;
+    select(node.id, true); centre(node.id); onFocused?.();
+  }, [focus]);
   const help = <>Тяните фон для перемещения полотна. Колесо меняет масштаб. Карточку можно передвинуть за ручку или стрелками на ручке. Выберите стрелку, чтобы увидеть маршрут и пропускную способность. Мини-карта в левом нижнем углу перемещает полотно щелчком и перетаскиванием; Enter в поиске переходит к следующему совпадению. {graph.physicalRouting ? 'Все физические конвейерные связи показаны, включая малые ветви. Порог малых потоков применяется только к трубам.' : <>Связи меньше {number(SCHEMATIC_MIN_FLOW_SHARE * 100)}% общего потока предмета скрыты.</>} Очерёдность стройки учитывает и малые поставки. Материалы в инвентаре, подключение питания и стартовое заполнение контура проверяет игрок.</>;
   const sink = !!active?.configurations.some(g => g.kind === 'sink');
   const differentClocks = !!active && new Set(active.configurations.map(g => g.clock)).size > 1;
@@ -194,7 +204,7 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
             if (!rect) return null;
             const status = progress.get(node.id);
             return <SchematicNodeCard key={node.id} node={node} level={level} rect={rect} items={items} progress={status} built={built} mark={mark}
-              selected={selected === node.id} muted={!!selected && !neighbors.has(node.id) || readyOnly && !status?.ready} detailId={detailId}
+              selected={selected === node.id} next={holds(node, nextId)} simple={simple} muted={!!selected && !neighbors.has(node.id) || readyOnly && !status?.ready} detailId={detailId}
               buttonRef={el => { if (el) buttons.current.set(node.id, el); else buttons.current.delete(node.id); }}
               onSelect={() => select(node.id)} onGoTo={goTo}>
               <MoveNode name={node.label} position={rect} zoom={zoom}
@@ -230,7 +240,7 @@ function SchematicView({ catalog, graph, built, mark, dependencies, manual, tran
   </>;
 }
 
-export function Schematic({ catalog, model, destinations, mode, scope, built, mark, residueItemIds }: Tracking & { catalog: Catalog; model: ConstructionModel; destinations: SchematicDestinations; mode: SchematicMode; scope: string; residueItemIds?: readonly string[] }) {
+export function Schematic({ catalog, model, destinations, mode, scope, built, mark, residueItemIds, nextId, focus, onFocused }: Tracking & { catalog: Catalog; model: ConstructionModel; destinations: SchematicDestinations; mode: SchematicMode; scope: string; residueItemIds?: readonly string[]; nextId?: string; focus?: string | null; onFocused?: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const manual = useSchematicPositions(scope, mode, model.fingerprint);
   const dialog = useRef<HTMLDialogElement>(null), expandButton = useRef<HTMLButtonElement>(null);
@@ -253,7 +263,7 @@ export function Schematic({ catalog, model, destinations, mode, scope, built, ma
   const content = (full: boolean) => <>
     <div className="schematic-heading"><div><h3>Схема строительства</h3><p>Один узел — одинаковые здания с одним рецептом · всего {graph.machineCount} зданий{graph.physicalRouting && ` · ${graph.nodes.filter(node => node.routingDepth !== undefined).length} устройств логистики`}</p></div></div>
     <SchematicCanvas key={mode} catalog={catalog} graph={graph}
-      manual={manual} built={built} mark={mark} dependencies={dependencies} transport={model.transport} residueItemIds={residueItemIds}
+      manual={manual} built={built} mark={mark} dependencies={dependencies} transport={model.transport} residueItemIds={residueItemIds} nextId={nextId} focus={full ? null : focus} onFocused={onFocused}
       closeForResidue={id => { if (full) { residueTarget.current = id; dialog.current?.close(); } }}
       actions={full ? <button type="button" className="secondary-button schematic-screen" onClick={() => dialog.current?.close()}><X size={17} />Закрыть схему</button>
         : <button type="button" className="secondary-button schematic-screen" ref={expandButton} onClick={() => setExpanded(true)}><Maximize2 size={17} />На весь экран</button>} />

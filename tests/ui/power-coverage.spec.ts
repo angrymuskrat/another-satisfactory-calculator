@@ -1,4 +1,5 @@
 import { catalog } from './catalog';
+import { openSection } from './sections';
 import { expect, test } from '@playwright/test';
 import { createDefaultPlan } from '../../packages/domain/defaults';
 import { chooseMaximum } from './chooseVariant';
@@ -15,6 +16,7 @@ test('справка «Чем покрыть» показывает генера
   await page.goto('/');
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
+  await openSection(page, 'Энергия');
   const block = page.locator('.energy-panel details').filter({ hasText: 'Чем покрыть' });
   await block.locator('summary').click();
   await expect(block.getByRole('columnheader', { name: 'Пик + резерв' })).toBeVisible();

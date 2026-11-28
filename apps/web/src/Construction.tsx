@@ -5,8 +5,11 @@ import { orderDependencies } from '../../../packages/domain/dependencies';
 import { format, ItemIcon, unit } from './controls';
 import mechanics from '../../../packages/game-data/p2-mechanics.json' with { type: 'json' };
 import { Schematic } from './Schematic';
-import type { MachineSpan, SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
-import { builtCount, markBuilt, markFirst, type BuiltRanges } from '../../../packages/domain/constructionProgress';
+import type { SchematicDestinations, SchematicMode } from '../../../packages/domain/schematic';
+import { builtCount } from '../../../packages/domain/constructionProgress';
+import { defaultScope, type ConstructionMarks } from './useConstructionMarks';
+
+export type ConstructionView = 'instruction' | SchematicMode;
 
 export function CopyNumber({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
@@ -19,77 +22,37 @@ export function CopyNumber({ value, label, suffix = '' }: { value: number; label
   return <span><button type="button" className="copy-value" title={`Скопировать: ${label}`} aria-label={`Скопировать: ${label}`} onClick={() => void copy()}>{value !== 0 && Math.abs(value) < 1e-6 ? value.toExponential(3) : format(value, 6)}{suffix && ` ${suffix}`}</button>{notice && <small role={notice.error ? 'alert' : 'status'}>{notice.text}{notice.error && <input aria-label={`Число для ручного копирования: ${label}`} readOnly value={String(value)} onFocus={e => e.currentTarget.select()} />}</small>}</span>;
 }
 
-const storageKey = 'satisfactory:construction:v1';
-const defaultScope = JSON.stringify(['guest', null]);
-type SavedMarks = { fingerprint: string; scope?: string; ids: string[]; ranges?: BuiltRanges };
-function readHistory(): SavedMarks[] {
-  const raw = localStorage.getItem(storageKey);
-  if (!raw) return [];
-  const stored: unknown = JSON.parse(raw);
-  const valid = (entry: unknown): entry is SavedMarks => !!entry && typeof entry === 'object'
-    && 'fingerprint' in entry && typeof entry.fingerprint === 'string'
-    && 'ids' in entry && Array.isArray(entry.ids) && entry.ids.every(id => typeof id === 'string')
-    && (!('ranges' in entry) || !!entry.ranges && typeof entry.ranges === 'object' && !Array.isArray(entry.ranges)
-      && Object.values(entry.ranges).every(ranges => Array.isArray(ranges) && ranges.every((r, i) =>
-        Array.isArray(r) && r.length === 2 && r.every(Number.isSafeInteger) && r[0] >= 0 && r[1] > r[0] && (!i || ranges[i - 1][1] <= r[0]))));
-  // Migrate the initial one-configuration format on the next write.
-  if (valid(stored)) return [stored];
-  if (!stored || typeof stored !== 'object' || !('entries' in stored) || !Array.isArray(stored.entries) || !stored.entries.every(valid)) throw new Error('Invalid marks');
-  return stored.entries.slice(-20);
-}
-function restoredRanges(model: ConstructionModel, scope: string, entries: SavedMarks[]) {
-  const matching = entries.filter(entry => entry.fingerprint === model.fingerprint);
-  // Old entries had no factory identity and applied to this exact configuration.
-  const saved = matching.find(entry => entry.scope === scope) ?? matching.find(entry => entry.scope === undefined);
-  const legacy = new Set(saved?.ids);
-  const groups = [...model.extraction, ...model.production, ...model.sinks].filter(g => legacy.has(g.id));
-  return markBuilt(saved?.ranges ?? {}, groups.map(g => ({ id: g.id, first: 0, count: g.count })), true);
-}
-
-export function Construction({ catalog, model, building, destinations, scope = defaultScope, residueItemIds }: { catalog: Catalog; model: ConstructionModel; building: boolean; destinations: SchematicDestinations; scope?: string; residueItemIds?: readonly string[] }) {
-  const [saved, setSaved] = useState(() => {
-    try { return { ranges: restoredRanges(model, scope, readHistory()), error: '' }; }
-    catch { return { ranges: {} as BuiltRanges, error: 'Не удалось загрузить отметки строительства из этого браузера.' }; }
-  });
-  const [view, setView] = useState<'instruction' | SchematicMode>('instruction');
+export function Construction({ catalog, model, destinations, scope = defaultScope, residueItemIds, marks, view, onView, nextId, focus, onFocused }: {
+  catalog: Catalog; model: ConstructionModel; destinations: SchematicDestinations; scope?: string; residueItemIds?: readonly string[];
+  marks: ConstructionMarks; view: ConstructionView; onView: (view: ConstructionView) => void;
+  nextId?: string; focus?: string | null; onFocused?: () => void;
+}) {
+  const saved = { ranges: marks.built, error: marks.error }, mark = marks.mark;
   const item = (id: string) => catalog.items.find(i => i.id === id);
-  const mark = (parts: MachineSpan[], count: number) => {
-    let ranges = markFirst(saved.ranges, parts, count);
-    let error = '';
-    try {
-      const history = readHistory();
-      if (!saved.error) ranges = markFirst(restoredRanges(model, scope, history), parts, count);
-      const entries = [...history.filter(entry => entry.fingerprint !== model.fingerprint || (entry.scope ?? defaultScope) !== scope),
-        { fingerprint: model.fingerprint, scope, ids: [], ranges }].slice(-20);
-      localStorage.setItem(storageKey, JSON.stringify({ entries }));
-    }
-    catch { error = 'Не удалось сохранить отметки. Они доступны только до закрытия этой инструкции.'; }
-    setSaved({ ranges, error });
-  };
   const groups = orderDependencies(model.production.map(g => ({ recipeId: g.id, inputs: g.averageInputs, outputs: g.averageOutputs })));
   const renderGroup = (group: ConstructionGroup, index: string) => {
     const parts = [{ id: group.id, first: 0, count: group.count }];
     const done = builtCount(saved.ranges, parts);
     const machine = group.kind === 'extraction' ? catalog.miners.find(b => b.id === group.buildingId) : catalog.buildings.find(b => b.id === group.buildingId);
     const name = (id: string) => item(id)?.name ?? id;
-    return <details className="production-step" key={group.id} open={building || undefined}>
+    return <details className="production-step" key={group.id} open>
       <summary><span className="step-title"><span className="step-number">{index}</span><ItemIcon item={item(group.averageOutputs[0]?.itemId ?? group.averageInputs[0]?.itemId ?? '')} size={32} /><span><strong>{group.name}</strong><small>{machine?.name}</small></span></span><span>{group.count}</span><span>{format(group.averagePower)}</span></summary>
       <div className="step-details">{group.generatedPower !== undefined && <p>Выработка группы: {format(group.generatedPower)} МВт · генераторы на 100%, непрерывный расход топлива.</p>}
         <div className="full-width"><p>Физических машин: <CopyNumber value={group.count} label={`${group.name}: число машин`} /> · Частота каждой: <CopyNumber value={group.clock} label={`${group.name}: частота`} suffix="%" /></p>
           <p>Уже есть: {group.existing ?? 0} · Добавить: {group.count - (group.existing ?? 0)} · Somersloops на машину: {group.somersloops ?? 0}</p><p>Активная доля времени: <CopyNumber value={group.activeDuty * 100} label={`${group.name}: активная доля времени`} suffix="%" /> — средняя доля работы группы, а не настройка частоты.</p>
           {group.kind === 'sink' && <p className="hint">Утилизаторы в модели потребляют полную мощность; доля заполнения ленты не уменьшает MW. Поток на один утилизатор — равная доля входа группы при непрерывном питании.</p>}
-          {building && <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked ? group.count : 0)} /> Построено: {group.name} · {done} из {group.count}</label>}
+          <label><input type="checkbox" aria-label={`Построено: ${group.name}`} checked={done === group.count} ref={el => { if (el) el.indeterminate = done > 0 && done < group.count; }} onChange={e => mark(parts, e.target.checked ? group.count : 0)} /> Построено: {group.name} · {done} из {group.count}</label>
         </div>
         {([['Вход', group.activeInputs, group.averageInputs], ['Выход', group.activeOutputs, group.averageOutputs]] as const).map(([title, active, average]) => <div key={title}><h4>{title}</h4>{!active.length && <p className="hint">{group.kind === 'sink' && title === 'Выход' ? 'Предметы уничтожаются в AWESOME Sink.' : 'Нет предметных потоков.'}</p>}{active.map((flow, index) => <div key={flow.itemId}><strong>{name(flow.itemId)}</strong><p>Одна активная машина: <CopyNumber value={flow.rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, одна активная машина`} suffix={unit(item(flow.itemId))} /></p><p>Вся группа в среднем: <CopyNumber value={average[index].rate} label={`${group.name}: ${title}, ${name(flow.itemId)}, группа в среднем`} suffix={unit(item(flow.itemId))} /></p></div>)}</div>)}
         <div className="full-width"><p>Мощность одной активной машины, средняя за рабочий цикл: <CopyNumber value={group.activePower} label={`${group.name}: мощность активной машины`} suffix="МВт" /></p><p>Средняя группы: <CopyNumber value={group.averagePower} label={`${group.name}: средняя мощность`} suffix="МВт" /> · Консервативный пик группы: <CopyNumber value={group.peakPower} label={`${group.name}: пиковая мощность`} suffix="МВт" /></p>{group.powerEstimated && <p className="hint">Мощность помечена в каталоге как оценочная.</p>}</div>
       </div>
     </details>;
   };
-  return <div className={building ? 'construction-panel' : undefined}>
-    {building && <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'Схема']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => setView(value)}>{label}</button>)}</div>}
-    {building && view !== 'instruction' && saved.error && <p role="alert">{saved.error}</p>}
-    {building && view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} scope={scope} built={saved.ranges} mark={mark} residueItemIds={residueItemIds} /> : <>
-    {building && <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>}
+  return <div className="construction-panel">
+    <div className="construction-views segmented" role="group" aria-label="Вид строительства">{([['instruction', 'Инструкция'], ['types', 'Схема']] as const).map(([value, label]) => <button type="button" key={value} aria-pressed={view === value} onClick={() => onView(value)}>{label}</button>)}</div>
+    {view !== 'instruction' && saved.error && <p role="alert">{saved.error}</p>}
+    {view !== 'instruction' ? <Schematic key={view} catalog={catalog} model={model} destinations={destinations} mode={view} scope={scope} built={saved.ranges} mark={mark} residueItemIds={residueItemIds} nextId={nextId} focus={focus} onFocused={onFocused} /> : <>
+    <section className="panel"><h3>Инструкция для строительства</h3><p>Поставьте указанное физическое число машин и задайте каждой показанную частоту. Средний выпуск достигается долей времени работы на этой частоте.</p><p className="hint">Активные скорости рассчитаны для работающей машины до ограничения портов. Ограничение лент/труб может вызывать простои. Модель не гарантирует непрерывный стабильный поток, синхронизацию циклов или запуск без буферов. Потребление в режиме ожидания и пуски не учтены.</p><p className="hint">Отметки хранятся в этом браузере для последних 20 отмеченных конфигураций. При изменении плана отметки не переносятся; при возврате к сохранённой конфигурации восстанавливаются.</p>{saved.error && <p role="alert">{saved.error}</p>}</section>
     <section className="panel production-panel"><div className="section-heading"><h3>Этапы производства</h3><span className="count-badge">{model.production.length}</span></div>
       <p className="hint">Поставщики показаны раньше потребителей. Связи определяются общими предметами; конкретное распределение между машинами не рассчитано.</p>
       <div className="production-table"><div className="production-header"><span>Рецепт / здание</span><span>Машины</span><span>МВт, сред.</span></div>{groups.map((group, index) => <div key={group.recipeIds.join('|')}>
@@ -99,13 +62,13 @@ export function Construction({ catalog, model, building, destinations, scope = d
     </section>
     {!!model.extraction.length && <section className="panel production-panel"><h3>Добытчики</h3><div className="production-table"><div className="production-header"><span>Источник / добытчик</span><span>Машины</span><span>МВт, сред.</span></div>{model.extraction.map((g, i) => renderGroup(g, String(i + 1)))}</div></section>}
     {!!model.sinks.length && <section className="panel production-panel"><h3>Утилизаторы</h3><div className="production-table"><div className="production-header"><span>Поток / здание</span><span>Машины</span><span>МВт, сред.</span></div>{model.sinks.map((g, i) => renderGroup(g, String(i + 1)))}</div><p className="hint">Побочные продукты уничтожаются, бесконечное хранение не предполагается.</p></section>}
-    {building && <section className="panel"><h3>Материалы зданий</h3><p>Новых машин: {model.addedMaterials.totalMachines} из {model.materials.totalMachines}. «Новые» не учитывают существующие производственные линии; «всего» включает все показанные здания, в том числе отмеченные построенными. Известна стоимость {model.materials.knownMachines} из {model.materials.totalMachines} физических машин.</p>
+    <section className="panel"><h3>Материалы зданий</h3><p>Новых машин: {model.addedMaterials.totalMachines} из {model.materials.totalMachines}. «Новые» не учитывают существующие производственные линии; «всего» включает все показанные здания, в том числе отмеченные построенными. Известна стоимость {model.materials.knownMachines} из {model.materials.totalMachines} физических машин.</p>
       <div className="table-scroll"><table><caption className="sr-only">Материалы зданий</caption><thead><tr><th scope="col">Материал</th><th scope="col">Новые</th><th scope="col">Всего</th></tr></thead><tbody>{model.materials.items.map(i => {
         const name = item(i.itemId)?.name ?? i.itemId, suffix = item(i.itemId)?.fluid ? 'м³' : 'шт';
         const added = model.addedMaterials.items.find(a => a.itemId === i.itemId)?.amount ?? 0;
         return <tr key={i.itemId}><th scope="row">{name}</th><td><CopyNumber value={added} label={`Новые материалы: ${name}`} suffix={suffix} /></td><td><CopyNumber value={i.amount} label={`Материалы: ${name}`} suffix={suffix} /></td></tr>;
       })}</tbody></table></div>
-      {model.materials.complete ? <p className="hint">Все показанные здания учтены.</p> : <p className="hint">Ведомость неполная: неизвестные стоимости не приняты за ноль.</p>}{model.materials.unknown.map(b => <p key={b.buildingId}>Стоимость неизвестна: {b.name} × {b.count}.</p>)}<p className="hint">Ленты, трубы, фундаменты, энергомодули и геометрия размещения в ведомость не включены.</p></section>}
+      {model.materials.complete ? <p className="hint">Все показанные здания учтены.</p> : <p className="hint">Ведомость неполная: неизвестные стоимости не приняты за ноль.</p>}{model.materials.unknown.map(b => <p key={b.buildingId}>Стоимость неизвестна: {b.name} × {b.count}.</p>)}<p className="hint">Ленты, трубы, фундаменты, энергомодули и геометрия размещения в ведомость не включены.</p></section>
     </>}
   </div>;
 }
