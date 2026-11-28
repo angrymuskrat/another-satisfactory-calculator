@@ -14,7 +14,6 @@ async function calculate(page: Page, mode: 'target' | 'maximize' = 'target', con
   await chooseMaximum(page);
   const fixed = plan.expansion === 'keep' && plan.lines?.every(line => line.locked);
   await expect(page.locator(fixed ? '.status-badge.optimal' : '.status-badge.approximate').first()).toBeVisible({ timeout: 30000 });
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
 }
 
 const closeView = (graph: Locator) => graph.getByRole('button', { name: 'Масштаб 100 процентов', exact: true }).click();
@@ -181,7 +180,6 @@ test('ручка двигает карточку мышью и клавиату�
   await page.reload();
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await types.click();
   await expect.poll(position).toBeCloseTo(initial + 62);
   await graph.getByRole('button', { name: 'Вернуть автораскладку' }).click();

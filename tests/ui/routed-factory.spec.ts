@@ -1,3 +1,4 @@
+import { openSection } from './sections';
 import { expect, test } from '@playwright/test';
 
 test('стандартная фабрика с глубиной 4 даёт два варианта и реальные ленты в групповом виде', async ({ page }, testInfo) => {
@@ -19,7 +20,6 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   const calculationMs = Date.now() - started;
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
@@ -36,8 +36,8 @@ test('стандартная фабрика с глубиной 4 даёт дв�
   await expect(graph.locator('.schematic-notes').first()).not.toContainText('других страниц');
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   await economy.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
+  await openSection(page, 'Готовая продукция');
   await expect(page.getByRole('button', { name: 'Скопировать: Выпуск: Усиленная железная пластина', exact: true })).toHaveText('9 шт/мин');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   await expect(graph.locator('.schematic-node.junction').first()).toBeVisible();
   await expect(graph).not.toContainText('УСЛОВНЫЙ БЛОК');
@@ -63,7 +63,6 @@ test('выключение учёта на стандартной фабрике
   await expect(maximum.getByRole('button', { name: 'Использовать вариант', exact: true })).toBeEnabled({ timeout: 30_000 });
   await maximum.getByRole('button', { name: 'Использовать вариант', exact: true }).click();
   await expect(page.locator('.results-heading .status-badge')).toHaveText('Допустимое приближение');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await expect(graph.locator('.schematic-node').first()).toBeVisible();

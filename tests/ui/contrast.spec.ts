@@ -85,7 +85,6 @@ test('видимый текст и значения полей на основн
   await chooseMaximum(page);
   await expect(page.getByRole('button', { name: 'Рассчитать', exact: true })).toBeVisible({ timeout: 60000 });
   await check('Результаты');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await check('Инструкция');
   await open(page, 'Рецепты');
   await page.getByText('Быстрая настройка по прогрессу', { exact: true }).click();

@@ -1,15 +1,20 @@
-import { useMemo, useState } from 'react';
-import { ArrowRight, Boxes, Factory, Info, Layers, TriangleAlert, Zap } from 'lucide-react';
-import type { Catalog, Plan, ResourceResult, Result } from '../../../packages/domain/types';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { ArrowRight, Boxes, Factory, Info, Layers, TriangleAlert } from 'lucide-react';
+import type { Catalog, Plan, Result } from '../../../packages/domain/types';
 import { hasSolution } from '../../../packages/domain/types';
 import { residueCandidates } from '../../../packages/solver/residues';
 import { residueHref } from './ResidueHelp';
-import { buildConstruction } from '../../../packages/domain/construction';
+import { buildConstruction, type ConstructionModel } from '../../../packages/domain/construction';
+import { buildSchematic } from '../../../packages/domain/schematic';
+import { constructionDependencies, nextBuildStep } from '../../../packages/domain/constructionProgress';
 import { mapResourceLimits } from '../../../packages/domain/mapResources';
 import { buildComplexity } from '../../../packages/domain/complexity';
 import { parallelLines } from '../../../packages/domain/transport';
 import { sourceLabel } from '../../../packages/domain/sourceLabel';
-import { CatalogStatus, Construction, CopyNumber } from './Construction';
+import { CatalogStatus, Construction, CopyNumber, type ConstructionView } from './Construction';
+import { buildOrder, ResultBoard } from './ResultBoard';
+import { useConstructionMarks } from './useConstructionMarks';
+import { usedResources } from './resultResources';
 import { BatchResult } from './Batch';
 import { AlternatesRanking } from './AlternatesRanking';
 import { PowerCoverage } from './PowerCoverage';
@@ -21,12 +26,45 @@ const resultNotes = [
   'МВт пересчитаны из каталога для показанных физических машин и частот. Средняя мощность учитывает долю времени работы; пик предполагает одновременную работу всех необходимых машин на максимумах рецептов. Простои standby, пуски, накопители и фазовые сдвиги не моделируются.',
   'Неизвестная энергия внешних поставок не включена; заданная стоимость импорта учтена. Запас относится только к учтённой фабрике; резерв не заменяет динамическую симуляцию сети.',
 ];
-export const usedResources = (plan: Plan, resources: ResourceResult[]) => resources.filter(source => source.rate !== 0 || plan.sources.some(s => s.id === source.sourceId));
+export { usedResources };
+function Section({ title, count, className = '', open, children, sectionRef }: { title: string; count?: number; className?: string; open?: boolean; children: ReactNode; sectionRef?: React.Ref<HTMLDetailsElement> }) {
+  return <details className={`result-section ${className}`} open={open} ref={sectionRef}><summary><h3>{title}</h3>{count !== undefined && <span className="count-badge">{count}</span>}</summary><div className="result-section-body">{children}</div></details>;
+}
+function ResultBody({ catalog, plan, result, model, scope, residueItemIds, children }: { catalog: Catalog; plan: Plan; result: Result; model: ConstructionModel; scope?: string; residueItemIds: readonly string[]; children: ReactNode }) {
+  const marks = useConstructionMarks(model, scope);
+  const [view, setView] = useState<ConstructionView>('instruction');
+  const [focus, setFocus] = useState<string | null>(null);
+  const build = useRef<HTMLDetailsElement>(null);
+  // A new object on every render would restart the schematic layout worker.
+  const destinationsKey = JSON.stringify([result.products, result.exports, plan.exports]);
+  const destinations = useMemo(() => ({ products: result.products, exports: result.exports?.map(e => ({ ...e, name: plan.exports?.find(x => x.itemId === e.itemId)?.name })) }), [destinationsKey]);
+  const graph = useMemo(() => {
+    try { return buildSchematic(catalog, model, destinations, 'configurations'); }
+    catch { return null; }
+  }, [catalog, model, destinations]);
+  const order = useMemo(() => buildOrder(model, graph), [model, graph]);
+  const progress = useMemo(() => graph && constructionDependencies(graph), [graph]);
+  const step = progress && nextBuildStep(order, progress, marks.built);
+  const show = (id: string) => {
+    if (build.current) build.current.open = true;
+    setView('types'); setFocus(id);
+    build.current?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
+  return <>
+    <ResultBoard catalog={catalog} plan={plan} result={result} model={model} order={order} built={marks.built} progress={progress} step={step} onMark={marks.markParts} onShow={show} />
+    <div className="result-sections">
+      <Section title="Построить" open sectionRef={build}>
+        <Construction residueItemIds={residueItemIds} scope={scope} catalog={catalog} model={model} destinations={destinations} marks={marks} view={view} onView={setView}
+          nextId={step?.kind === 'ready' ? step.id : undefined} focus={focus} onFocused={() => setFocus(null)} />
+      </Section>
+      {children}
+    </div>
+  </>;
+}
 export function ModelNotes({ notes }: { notes: string[] }) {
   return <details className="panel model-notes"><summary>О модели</summary><ul>{notes.map(note => <li key={note}>{note}</li>)}</ul></details>;
 }
 export function Results({ catalog, plan, result, stale, running, error, onEnableRecipe, constructionScope }: { constructionScope?: string; catalog: Catalog; plan: Plan; result: Result | null; stale: boolean; running: boolean; error: string | null; onEnableRecipe?: (recipeId: string) => void }) {
-  const [building, setBuilding] = useState(false);
   const item = (id: string) => catalog.items.find(i => i.id === id);
   const calculated = useMemo(() => {
     if (!hasSolution(result) || stale) return { model: null, error: '' };
@@ -60,20 +98,20 @@ export function Results({ catalog, plan, result, stale, running, error, onEnable
     {running && <div className="alert"><span className="spinner" />Подбираем рецепты и балансируем потоки…</div>}
     {!result ? <div className="empty-result"><div className="factory-illustration"><span className="orbit one" /><span className="orbit two" /><Factory size={72} strokeWidth={1.2} /><span className="factory-dot" /></div><h3>У каждого ресурса есть потенциал</h3><p>Задайте выпуск и доступное сырьё.<br />Мы подберём рецепты, рассчитаем машины<br />и проверим материальный баланс.</p><div className="empty-steps"><span><Boxes size={16} />Ресурсы</span><ArrowRight size={14} /><span><Factory size={16} />Производство</span><ArrowRight size={14} /><span><Layers size={16} />Продукты</span></div></div>
       : <div className={stale ? 'result-content stale-content' : 'result-content'}>
+        {!stale && !!result.warnings.length && <div className="alert warning"><Info size={18} /><div>{result.warnings.map(w => <p key={w}>{w}</p>)}</div></div>}
         {stale ? <section className="panel"><h3>Настройки изменились</h3><p>Пересчитайте план, чтобы получить потоки, мощность и инструкцию строительства для текущей конфигурации.</p></section>
           : !hasSolution(result) ? <div className="panel result-problem"><TriangleAlert size={32} /><h3>{statusLabels[result.status]}</h3><p>{result.message}</p>{result.status === 'infeasible' && <p className="hint">Проверьте лимиты сырья и мощности, доступность зданий и рецептов, а также назначение побочных продуктов. Заказ не был автоматически уменьшен.</p>}{result.status === 'unbounded' && <p className="hint">Укажите конечные лимиты источников или мощности.</p>}</div>
             : empty ? <section className="panel result-problem"><Factory size={32} /><h3>{result.status === 'approximate' ? 'В этом плане выпуск нулевой' : 'Нет производственного пути с положительным выпуском'}</h3><p>{result.status === 'approximate' ? 'В приближённой модели положительный выпуск не найден. Это не доказывает невыполнимость точной модели.' : 'Решатель подтвердил математический оптимум с нулевым выпуском. Строить производственную линию по этому результату не требуется.'}</p><p>Проверьте доступное сырьё, рецепты и здания, лимиты средней и пиковой мощности, ограничения числа машин и возможность утилизации побочных продуктов.</p></section>
               : calculated.error ? <section className="panel" role="alert"><h3>Инструкция не прошла перепроверку</h3><p>{calculated.error}</p></section>
-                : model && <>
-                  <div className="kpi-grid"><div className="kpi"><span><Layers size={16} />{result.products.length === 1 ? item(result.products[0].itemId)?.name ?? result.products[0].itemId : 'Продукты'}</span><strong>{result.products.length === 1 ? format(result.products[0].rate, 6) : result.products.filter(p => p.rate > 0).length}<small>{result.products.length === 1 ? unit(item(result.products[0].itemId)) : 'позиций с выпуском'}</small></strong></div><div className="kpi"><span><Zap size={16} />Средняя мощность</span><strong>{format(model.averagePower)}<small>МВт</small></strong></div><div className="kpi"><span><Factory size={16} />Машины производства</span><strong>{model.production.reduce((sum, group) => sum + group.count, 0)}<small>зданий</small></strong></div><div className="kpi"><span><Boxes size={16} />Разных рецептов</span><strong>{complexity?.distinctRecipes ?? 0}<small>рецептов</small></strong></div><div className="kpi"><span><Layers size={16} />Промежуточных предметов</span><strong>{complexity?.intermediateItems ?? 0}<small>внутри фабрики</small></strong></div></div>
-                  <div className="segmented" role="group" aria-label="Представление результата"><button type="button" aria-pressed={!building} onClick={() => setBuilding(false)}>Обзор</button><button type="button" aria-pressed={building} onClick={() => setBuilding(true)}>Построить</button></div>
-                  <section className="panel output-panel"><div className="section-heading"><h3>Готовая продукция</h3></div>{result.products.map(product => <div className="output-row" key={product.itemId}><ItemIcon item={item(product.itemId)} size={42} /><div><strong>{item(product.itemId)?.name ?? product.itemId}</strong><small>{lines(product.itemId, product.rate) && lines(product.itemId, product.rate) + ' параллельно · '}средний поток</small></div><CopyNumber value={product.rate} label={'Выпуск: ' + (item(product.itemId)?.name ?? product.itemId)} suffix={unit(item(product.itemId))} /></div>)}</section>
-                  {!!result.exports?.length && <section className="panel output-panel" aria-labelledby="exports-title"><div className="section-heading"><h3 id="exports-title">Отгрузки</h3></div>{result.exports.map(e => <div className="output-row" key={e.itemId}><ItemIcon item={item(e.itemId)} size={42} /><div><strong>{item(e.itemId)?.name ?? e.itemId}</strong><small>{[lines(e.itemId, e.rate) && lines(e.itemId, e.rate) + ' параллельно', exportName(e.itemId)].filter(Boolean).join(' · ')}</small>{residueLink(e.itemId)}</div><CopyNumber value={e.rate} label={'Отгрузка: ' + (item(e.itemId)?.name ?? e.itemId)} suffix={unit(item(e.itemId))} /></div>)}</section>}
-                  <section className="panel"><div className="section-heading"><h3>Загрузка источников</h3><span className="count-badge">{shownResources.length}</span></div>{shownResources.map(source => {
+: model && <ResultBody key={JSON.stringify([constructionScope, model.fingerprint])} catalog={catalog} plan={plan} result={result} model={model} scope={constructionScope} residueItemIds={residueItemIds}>
+                  <Section title="Сводка фабрики" className="result-summary"><dl><div><dt>Машины производства</dt><dd>{model.production.reduce((sum, group) => sum + group.count, 0)}<small>зданий</small></dd></div><div><dt>Разных рецептов</dt><dd>{complexity?.distinctRecipes ?? 0}</dd></div><div><dt>Промежуточных предметов</dt><dd>{complexity?.intermediateItems ?? 0}<small>внутри фабрики</small></dd></div></dl></Section>
+                  <Section title="Готовая продукция" className="output-panel">{result.products.map(product => <div className="output-row" key={product.itemId}><ItemIcon item={item(product.itemId)} size={42} /><div><strong>{item(product.itemId)?.name ?? product.itemId}</strong><small>{lines(product.itemId, product.rate) && lines(product.itemId, product.rate) + ' параллельно · '}средний поток</small></div><CopyNumber value={product.rate} label={'Выпуск: ' + (item(product.itemId)?.name ?? product.itemId)} suffix={unit(item(product.itemId))} /></div>)}</Section>
+                  {!!result.exports?.length && <Section title="Отгрузки" className="output-panel">{result.exports.map(e => <div className="output-row" key={e.itemId}><ItemIcon item={item(e.itemId)} size={42} /><div><strong>{item(e.itemId)?.name ?? e.itemId}</strong><small>{[lines(e.itemId, e.rate) && lines(e.itemId, e.rate) + ' параллельно', exportName(e.itemId)].filter(Boolean).join(' · ')}</small>{residueLink(e.itemId)}</div><CopyNumber value={e.rate} label={'Отгрузка: ' + (item(e.itemId)?.name ?? e.itemId)} suffix={unit(item(e.itemId))} /></div>)}</Section>}
+                  <Section title="Загрузка источников" count={shownResources.length}>{shownResources.map(source => {
                     const configured = plan.sources.find(s => s.id === source.sourceId);
                     return <div className="utilization" key={source.sourceId}><div><span><ItemIcon item={item(source.itemId)} size={24} />{sourceLabel(catalog, plan, source.sourceId, source.itemId)}</span><strong>{format(source.rate, 6)} <small>/ {source.limit === null ? '∞' : format(source.limit)} {unit(item(source.itemId))}</small></strong></div><small>{configured?.kind === 'node' ? 'Месторождение · ' + (catalog.miners.find(m => m.id === configured.minerId)?.name ?? configured.minerId) + ' · ' + format(configured.clock) + '% · доступно узлов: ' + configured.count : configured?.kind === 'well' ? `Скважина · один компенсатор · ${format(configured.clock)}% · ${format(source.power)} МВт` : configured?.importPower != null ? `Внешняя поставка · энергия учтена: ${format(source.power)} МВт` : 'Внешняя поставка · энергия получения неизвестна'}{mapLimits[source.itemId] != null && source.rate > 0 && ` · ${format(source.rate / mapLimits[source.itemId]! * 100, 3)}% запаса карты`}{source.rate > 0 && lines(source.itemId, source.rate) && ` · ${lines(source.itemId, source.rate)} через границу`}</small><div className="progress-track"><span className={source.limit !== null && source.limit > 0 && source.rate / source.limit > .98 ? 'full' : ''} style={{ width: source.limit === null ? '20%' : Math.min(100, source.limit > 0 ? source.rate / source.limit * 100 : 0) + '%' }} /></div></div>;
-                  })}{!shownResources.length && <p className="hint">Внешние источники не используются.</p>}{!!shownResources.length && <p className="hint">Число линий — для суммарного потока через границу фабрики; предел выхода каждого добытчика модель проверяет отдельно.</p>}{shownResources.length < result.resources.length && <p className="hint">Неиспользуемые природные ресурсы без заданного источника скрыты.</p>}</section>
-                  <section className="panel energy-panel"><div className="section-heading"><h3><Zap size={17} /> Энергия</h3></div><dl>
+                  })}{!shownResources.length && <p className="hint">Внешние источники не используются.</p>}{!!shownResources.length && <p className="hint">Число линий — для суммарного потока через границу фабрики; предел выхода каждого добытчика модель проверяет отдельно.</p>}{shownResources.length < result.resources.length && <p className="hint">Неиспользуемые природные ресурсы без заданного источника скрыты.</p>}</Section>
+                  <Section title="Энергия" className="energy-panel"><dl>
                     {result.generation && <><div><dt>Генерация</dt><dd>{format(result.generation.power)} МВт</dd></div><div><dt>Локальная средняя / пик</dt><dd>{format(result.generation.localPower)} / {format(result.generation.localPeak)} МВт</dd></div><div><dt>Резерв генерации</dt><dd>{format(result.generation.reserve)} МВт</dd></div><div><dt>Известная энергия импорта</dt><dd>{format(result.generation.importPower)} МВт</dd></div></>}<div><dt>Производство · средняя</dt><dd>{format(model.productionPower)} МВт</dd></div><div><dt>Добыча · средняя</dt><dd>{format(model.extractionPower)} МВт</dd></div>{model.sinkPower > 0 && <div><dt>Утилизация · средняя</dt><dd>{format(model.sinkPower)} МВт</dd></div>}
                     <div><dt>Незагруженная мощность производств</dt><dd>{format(model.productionIdlePower)} МВт</dd></div>
                     {plan.settings.powerLimit !== null && <><div><dt>Бюджет средней мощности</dt><dd>{format(plan.settings.powerLimit)} МВт</dd></div><div><dt>Остаток среднего бюджета</dt><dd>{format(plan.settings.powerLimit - model.averagePower)} МВт</dd></div></>}
@@ -83,12 +121,10 @@ export function Results({ catalog, plan, result, stale, running, error, onEnable
                   </dl>{margin !== null && <p className={margin < -1e-6 ? 'alert error' : 'hint'} role={margin < -1e-6 ? 'alert' : undefined}>{format(peakLimit!)} − {format(reserve)} − {format(model.peakPower)} = {format(margin)} МВт.{margin < -1e-6 ? ' Пиковая нагрузка с резервом превышает лимит.' : ' По оценке модели лимит соблюдён.'}</p>}
                     {model.externalSources.map(source => <p key={source.sourceId}>{source.power === null ? 'Вне энергетической границы' : 'Учтённый импорт'}: {source.name} — {format(source.rate, 6)} {unit(item(source.itemId))}{source.power !== null && ` · ${format(source.power)} МВт`}.</p>)}
                     <PowerCoverage catalog={catalog} average={model.averagePower} peak={model.peakPower} reserve={reserve} />
-                  </section>
+                  </Section>
                   <AlternatesRanking catalog={catalog} plan={plan} result={result} onEnable={onEnableRecipe} />
-                  <Construction residueItemIds={residueItemIds} scope={constructionScope} key={JSON.stringify([constructionScope, model.fingerprint])} catalog={catalog} model={model} building={building} destinations={{ products: result.products, exports: result.exports?.map(e => ({ ...e, name: plan.exports?.find(x => x.itemId === e.itemId)?.name })) }} />
-                </>}
+                </ResultBody>}
         {!stale && result.status === 'infeasible' && result.feasibleAlternative && <section className="panel feasible-alternative" aria-labelledby="alternative-title"><div className="section-heading"><div><h3 id="alternative-title">Достижимый выпуск</h3></div><span className="status-badge stale">{format(result.feasibleAlternative.fraction * 100, 8)}% заказа</span></div><p className="hint">Выполнимая доля исходного заказа при тех же ограничениях. Пропорции продуктов сохранены. Исходный заказ остаётся невыполнимым, его количества в плане не изменены.</p>{result.feasibleAlternative.products.map(product => <div className="output-row" key={product.itemId}><ItemIcon item={item(product.itemId)} size={36} /><div><strong>{item(product.itemId)?.name ?? product.itemId}</strong></div><strong className="output-rate">{format(product.rate, 6)}<small>{unit(item(product.itemId))}</small></strong></div>)}<div className="simple-row"><span>Средняя мощность альтернативы</span><strong>{format(result.feasibleAlternative.power)} МВт</strong></div>{!!result.feasibleAlternative.bottlenecks.length && <div className="alternative-bottlenecks"><h4>Ограничивающие факторы</h4><ul>{result.feasibleAlternative.bottlenecks.map((bottleneck, index) => <li key={index}>{bottleneck}</li>)}</ul></div>}</section>}
-        {!stale && !!result.warnings.length && <div className="alert warning"><Info size={18} /><div>{result.warnings.map(w => <p key={w}>{w}</p>)}</div></div>}
         {!stale && hasSolution(result) && <ModelNotes notes={[...resultNotes, ...result.modelNotes ?? []]} />}
         <details className="diagnostics"><summary>Диагностика {stale ? 'предыдущего ' : ''}расчёта</summary><p>Статус решателя: {statusLabels[result.status]}</p><p>{result.message}</p><p>Максимальная ошибка баланса: {result.maxBalanceError.toExponential(3)}</p>{result.diagnostics.map((d, i) => <p key={i}>{d}</p>)}</details>
       </div>}

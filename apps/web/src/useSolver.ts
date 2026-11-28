@@ -72,7 +72,14 @@ export function useSolver(catalog: Catalog, plan: Plan, kind: 'variants' | 'orde
     setSelected(next); setChoosing(false); setSolvedInput(input);
     return next.plan;
   };
+  const preview = (id: ProductionVariant['id']) => {
+    if (currentInput.current !== solvedInput) return;
+    const variant = report?.variants.find(v => v.id === id) ?? report?.workingPlans?.find(v => v.id === id);
+    if (!variant || !hasSolution(variant.result)) return;
+    setSelected(structuredClone(variant)); setChoosing(false);
+  };
+  const accepted = selected !== null && fingerprint === JSON.stringify(selected.plan);
   const failure = !running && !report?.workingPlans?.length && report?.variants.every(v => !hasSolution(v.result)) ? report.variants[0] : null;
   return { report, pending, selected, baseline, choosing, result: selected?.result ?? failure?.result ?? null,
-    running, error, stale, calculate, cancel, choose, showChoices: () => setChoosing(true) };
+    running, error, stale, accepted, calculate, cancel, choose, preview, showChoices: () => setChoosing(true) };
 }

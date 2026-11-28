@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { buildComplexity } from '../../../packages/domain/complexity';
 import type { Catalog, Plan, ProductionVariant, Result } from '../../../packages/domain/types';
@@ -36,6 +36,15 @@ export function ProductionVariants({ catalog, plan, setPlan, solver, constructio
   const variants = report?.variants.filter(v => !v.sameAs);
   const merged = report?.variants.filter(v => v.sameAs).map(v => `«${v.label}» совпадает с «${report.variants.find(o => o.id === v.sameAs)?.label}».`) ?? [];
   const focusHeading = () => requestAnimationFrame(() => heading.current?.focus());
+  const solvedVariants = variants?.filter(v => hasSolution(v.result)) ?? [];
+  const autoShown = useRef<object | null>(null);
+  const single = report && !report.pareto && !running && !stale && !selected && !report.workingPlans?.length && !pending.length
+    && solvedVariants.length === 1 && variants?.length === 1 && !solvedVariants[0].result.searchProgress && solvedVariants[0].result.status !== 'timeout';
+  useEffect(() => {
+    if (!single || autoShown.current === report) return;
+    autoShown.current = report;
+    solver.preview(solvedVariants[0].id);
+  });
   if ((plan.settings.pareto && (plan.mode === 'target' || plan.batch)) || report?.pareto) return <ParetoResults catalog={catalog} plan={plan} setPlan={setPlan} solver={solver} constructionScope={constructionScope} />;
   const item = (id: string) => catalog.items.find(i => i.id === id);
   // Общий набор строк: одинаковые метрики стоят на одной высоте во всех вариантах.
@@ -96,6 +105,12 @@ export function ProductionVariants({ catalog, plan, setPlan, solver, constructio
       {hasVariants && <ModelNotes notes={['Частоты подобраны для непрерывной работы, где это возможно. Энергия добычи и утилизации учитывается; неизвестная энергия внешних поставок исключена. Фактические колебания сети не моделируются.', 'Природные ресурсы без заданного источника и без расхода не показаны.']} />}
       {!hasVariants && !running && <Results constructionScope={constructionScope} catalog={catalog} plan={report!.variants[0]?.plan ?? plan} result={solver.result} stale={stale} running={running} error={null} />}
     </section> : <>
+      {selected && <div className="variant-bar">
+        {solvedVariants.length > 1 && <div className="segmented variant-switch" role="group" aria-label="Показанный вариант">
+          {solvedVariants.map(v => <button key={v.id} type="button" aria-pressed={v.id === selected.id} disabled={stale} onClick={() => solver.preview(v.id)}>{v.label}</button>)}
+        </div>}
+        {!solver.accepted && <button className="secondary-button" disabled={stale} onClick={() => { const next = solver.choose(selected.id); if (next) setPlan(next); }}>Принять вариант</button>}
+      </div>}
       {selected?.result.searchProgress && <p role="status">{selected.result.message}</p>}
       <Results constructionScope={constructionScope} key={selected?.id ?? 'pending'} catalog={catalog} plan={selected?.plan ?? plan} result={solver.result} stale={stale} running={running && !selected} error={selected ? null : error} onEnableRecipe={id => setPlan({ ...plan, settings: { ...plan.settings, enabledRecipeIds: [...plan.settings.enabledRecipeIds, id] } })} />
     </>}

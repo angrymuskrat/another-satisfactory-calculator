@@ -21,7 +21,7 @@ test('обзор, выбор клавиатурой, лимиты, пересч�
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'output/playwright/pareto-mobile.png', fullPage: true });
   await choose.focus(); await page.keyboard.press('Enter');
-  await expect(page.getByRole('button', { name: 'Построить', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Построить', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Вернуться к вариантам', exact: true }).click();
   const results = page.locator('.results-page');
   await results.getByRole('checkbox', { name: 'Без суммарного лимита: Железная руда', exact: true }).uncheck();
@@ -40,7 +40,6 @@ test('самообеспечение входит в результат и ст�
   await expect(choose).toBeEnabled({ timeout: 65000 }); await choose.click();
   await expect(page.locator('.energy-panel')).toContainText('Генерация');
   await expect(page.locator('.energy-panel')).toContainText('75');
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.locator('.construction-panel')).toContainText('Уголь');
   await page.getByRole('button', { name: 'Рецепты', exact: true }).click();
   await expect(page.locator('body')).not.toBeEmpty();

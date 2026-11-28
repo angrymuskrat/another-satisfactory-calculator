@@ -17,7 +17,6 @@ test('отдельные экраны сохраняют результат и �
   await expect(nav.getByRole('button', { name: 'Результаты', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('textbox', { name: 'Количество продукта 1', exact: true })).not.toBeVisible();
   await expect(page.locator('.results-heading')).toContainText('Допустимое приближение', { timeout: 30000 });
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await page.getByRole('button', { name: 'Схема', exact: true }).click();
   const graph = page.getByRole('region', { name: 'Схема строительства', exact: true });
   await graph.locator('.schematic-node-button').first().click();
@@ -98,7 +97,7 @@ test('расчёт можно отменить после смены экран�
     await page.getByRole('button', { name: 'Результаты', exact: true }).click();
     await expect(page.getByText('Расчёт отменён.', { exact: true })).toBeVisible();
     release();
-    await expect(page.locator('.results-column .kpi')).toHaveCount(0);
+    await expect(page.locator('.result-board')).toHaveCount(0);
     await page.unroute(/\/solver\.worker.*\.js/);
     await page.clock.install();
     const timed = new Promise<void>(resolve => { release = resolve; });
@@ -107,7 +106,7 @@ test('расчёт можно отменить после смены экран�
     await expect(page.getByRole('button', { name: 'Отменить расчёт', exact: true })).toBeVisible();
     await page.clock.fastForward(30_001);
     await expect(page.getByText(/Расчёт остановлен по времени/)).toBeVisible();
-    await expect(page.locator('.results-column .kpi')).toHaveCount(0);
+    await expect(page.locator('.result-board')).toHaveCount(0);
   } finally { release(); await page.unroute(/\/solver\.worker.*\.js/); }
 });
 

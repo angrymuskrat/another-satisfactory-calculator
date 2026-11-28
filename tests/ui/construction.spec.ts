@@ -17,7 +17,6 @@ async function build(page: Page) {
   await page.getByRole('button', { name: 'Рассчитать', exact: true }).click();
   await chooseMaximum(page);
   await expect(page.locator('.status-badge.approximate').first()).toHaveText('Допустимое приближение', { timeout: 30000 });
-  await page.getByRole('button', { name: 'Построить', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Инструкция для строительства', exact: true })).toBeVisible();
 }
 
@@ -34,7 +33,7 @@ test('7,5 пластин: две машины на 75%, работа 100%, не�
   const product = catalog.items.find(i => i.id === 'reinforced-iron-plate')!.name;
   await expect(copy(page, `Выход, ${product}, одна активная машина`)).toHaveText('3,75 шт/мин');
   await expect(copy(page, `Выход, ${product}, группа в среднем`)).toHaveText('7,5 шт/мин');
-  await expect(page.locator('.kpi').filter({ hasText: 'Средняя мощность' })).toContainText('65,64');
+  await expect(page.locator('.board-energy')).toContainText('65,64');
   await expect(page.locator('.energy-panel')).toContainText('100 − 5 − 69,39 = 25,61 МВт');
   const bill = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Материалы зданий', exact: true }) });
   await expect(bill).toContainText('Известна стоимость 14 из 14 физических машин');

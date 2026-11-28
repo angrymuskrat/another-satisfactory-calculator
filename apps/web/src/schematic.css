@@ -656,3 +656,42 @@
     flex: 1 1 140px;
   }
 }
+.schematic-node.next {
+  border: 2px solid var(--accent);
+}
+.schematic-next-tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 1px 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 10px / 14px var(--font-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.schematic-node.simple .schematic-node-button {
+  height: 100%;
+  padding: 0 34px 0 10px;
+}
+.schematic-node.simple .schematic-node-title {
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+}
+.schematic-node.simple .schematic-node-title svg {
+  width: 28px;
+  height: 28px;
+}
+.schematic-node.simple .schematic-node-title b {
+  font: 500 30px / 1 var(--font-number);
+}
+.schematic-node.simple .schematic-node-title strong,
+.schematic-node.simple .schematic-recipe {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
